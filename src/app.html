@@ -6,6 +6,33 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script nonce="%sveltekit.nonce%">
       try {
+        const allowTrustedTypesHTML = (targetWindow) => {
+          if (!targetWindow.trustedTypes || targetWindow.trustedTypes.defaultPolicy) return;
+
+          targetWindow.trustedTypes.createPolicy('default', {
+            createHTML: (value) => value,
+            createScript: (value) => value,
+            createScriptURL: (value) => value
+          });
+        };
+
+        allowTrustedTypesHTML(window);
+
+        const appendChild = Node.prototype.appendChild;
+        Node.prototype.appendChild = function (node) {
+          const result = appendChild.call(this, node);
+
+          if (node instanceof HTMLIFrameElement) {
+            try {
+              if (node.contentWindow) allowTrustedTypesHTML(node.contentWindow);
+            } catch {
+              // Cross-origin frames cannot be initialized from the parent document.
+            }
+          }
+
+          return result;
+        };
+
         const theme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.documentElement.dataset.theme = theme || (prefersDark ? 'dark' : 'light');
