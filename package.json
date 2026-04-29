@@ -1,0 +1,36 @@
+{
+  "name": "agenticai-net-au",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:visual": "node scripts/visual-check.mjs",
+    "deploy": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name agenticai-net-au",
+    "deploy:preview": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name agenticai-net-au --branch preview"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@sveltejs/adapter-auto": "^6.1.0",
+    "@sveltejs/adapter-cloudflare": "^7.2.8",
+    "@sveltejs/kit": "^2.20.0",
+    "@sveltejs/vite-plugin-svelte": "^5.1.0",
+    "@types/d3-geo": "^3.1.0",
+    "@types/three": "^0.184.0",
+    "@types/topojson-client": "^3.1.5",
+    "svelte": "^5.28.0",
+    "svelte-check": "^4.1.6",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.4",
+    "wrangler": "^4.86.0"
+  },
+  "dependencies": {
+    "d3-geo": "^3.1.1",
+    "three": "^0.176.0",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  }
+}
