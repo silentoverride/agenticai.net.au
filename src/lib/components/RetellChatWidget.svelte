@@ -22,16 +22,10 @@
       return;
     }
 
-    let timeoutId: number | undefined;
     let cancelled = false;
 
     const scheduleLoad = () => {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(loadWidget, { timeout: 4500 });
-        return;
-      }
-
-      timeoutId = globalThis.setTimeout(loadWidget, 3200);
+      window.setTimeout(loadWidget, 0);
     };
 
     const startAfterPageLoad = () => {
@@ -100,9 +94,6 @@
       cancelled = true;
       window.removeEventListener('load', scheduleLoad);
 
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
-      }
     };
   });
 </script>

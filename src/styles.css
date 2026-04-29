@@ -850,6 +850,14 @@ textarea:focus {
   line-height: 1.45;
 }
 
+.recaptcha-disclosure {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  margin: 0.45rem 0 0;
+  max-width: 38rem;
+}
+
 .footer a {
   color: #6ee7d8;
   font-weight: 900;
@@ -859,6 +867,10 @@ textarea:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+.grecaptcha-badge {
+  visibility: hidden;
 }
 
 .chatbot {
