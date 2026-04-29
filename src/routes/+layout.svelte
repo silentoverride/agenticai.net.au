@@ -12,7 +12,7 @@
   <title>Agentic AI</title>
   <meta
     name="description"
-    content="Agentic AI builds practical AI agents, automation, integrations, and managed mobile proxy infrastructure."
+    content="Agentic AI helps small businesses find where AI tools, automation, and agents can save time first through a practical AI Business Assessment."
   />
 </svelte:head>
 

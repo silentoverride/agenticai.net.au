@@ -24,7 +24,13 @@
 
     if (document.getElementById('retell-widget')) return;
 
-    if (recaptchaKey && !document.querySelector('script[src^="https://www.google.com/recaptcha/api.js"]')) {
+    const canUseRecaptcha =
+      recaptchaKey && !['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+    if (
+      canUseRecaptcha &&
+      !document.querySelector('script[src^="https://www.google.com/recaptcha/api.js"]')
+    ) {
       const recaptcha = document.createElement('script');
       recaptcha.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaKey)}`;
       recaptcha.async = true;
@@ -40,7 +46,7 @@
     script.dataset.title = 'Chat with Annie';
     script.dataset.logoUrl = '/logo.svg';
     script.dataset.botName = 'Annie';
-    script.dataset.color = '#087f8c';
+    script.dataset.color = '#0e9f8f';
     script.dataset.popupMessage = 'Ask Annie about the AI Business Assessment';
     script.dataset.showAiPopup = 'true';
     script.dataset.showAiPopupTime = '5';
@@ -56,7 +62,7 @@
       script.dataset.agentVersion = agentVersion;
     }
 
-    if (recaptchaKey) {
+    if (canUseRecaptcha) {
       script.dataset.recaptchaKey = recaptchaKey;
     }
 

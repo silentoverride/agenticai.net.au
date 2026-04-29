@@ -26,37 +26,73 @@
       </div>
     </div>
     <div class="hero-visual">
-      <div class="audit-board" aria-label="AI assessment report preview">
-        <div class="audit-header">
-          <span>Assessment report</span>
-          <strong>48-hour roadmap</strong>
+      <div class="opportunity-map" aria-label="AI opportunity map preview">
+        <div class="map-header">
+          <div>
+            <span>Assessment output</span>
+            <strong>Workflow diagnosis and first-move roadmap</strong>
+          </div>
+          <div class="map-status">Ready in 48 hours</div>
         </div>
-        <div class="score-card">
-          <span>Estimated time reclaimed</span>
-          <strong>8.5 hrs / week</strong>
-          <small>Based on repeated admin, reporting, and lead response delays.</small>
+
+        <div class="map-grid">
+          <div class="signal-card">
+            <span>Likely time reclaimed</span>
+            <strong>8.5 hrs / week</strong>
+            <small>Estimated from repeated reporting, enquiry follow-up, and document admin.</small>
+          </div>
+
+          <div class="workflow-lanes">
+            <h3>Opportunity signals</h3>
+            <div class="lane">
+              <div class="lane-label">
+                <strong>Manual reporting</strong>
+                <span>High drag</span>
+              </div>
+              <div class="lane-track"><i style="width: 86%"></i></div>
+            </div>
+            <div class="lane">
+              <div class="lane-label">
+                <strong>Lead response</strong>
+                <span>Revenue risk</span>
+              </div>
+              <div class="lane-track"><i style="width: 74%"></i></div>
+            </div>
+            <div class="lane">
+              <div class="lane-label">
+                <strong>Customer questions</strong>
+                <span>Repeating</span>
+              </div>
+              <div class="lane-track"><i style="width: 66%"></i></div>
+            </div>
+          </div>
         </div>
-        <div class="matrix">
-          <div class="matrix-label top">High impact</div>
-          <div class="matrix-cell muted">Later</div>
-          <div class="matrix-cell hot">Quick win</div>
-          <div class="matrix-cell">Monitor</div>
-          <div class="matrix-cell warm">Automate</div>
-          <div class="matrix-label bottom">Low effort</div>
-        </div>
-        <div class="recommendation-list">
+
+        <div class="roadmap-preview">
+          <h3>Ranked quick wins</h3>
           <article>
-            <span>01</span>
-            <p>Replace manual reporting pack with an automated dashboard.</p>
+            <b>01</b>
+            <p>Automate the weekly performance pack from live sales and operations data.</p>
+            <em>2.5 hrs saved</em>
           </article>
           <article>
-            <span>02</span>
-            <p>Use a trained assistant for repeated buyer and customer questions.</p>
+            <b>02</b>
+            <p>Trigger fast follow-up when web enquiries and quote requests arrive.</p>
+            <em>Higher response rate</em>
           </article>
           <article>
-            <span>03</span>
-            <p>Trigger speed-to-lead follow-up when enquiry forms arrive.</p>
+            <b>03</b>
+            <p>Create a trained assistant for repeated product, service, and onboarding questions.</p>
+            <em>Less interruption</em>
           </article>
+        </div>
+
+        <div class="assessment-note">
+          <div class="note-mark">AI</div>
+          <div>
+            <span>Assessment lens</span>
+            <h3>Inspect the work first, then choose the simplest useful AI system.</h3>
+          </div>
         </div>
       </div>
     </div>
