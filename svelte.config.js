@@ -14,7 +14,9 @@ const config = {
         'frame-ancestors': ['self'],
         'script-src': [
           'self',
+          'unsafe-inline',
           'unsafe-eval',
+          'strict-dynamic',
           'https://dashboard.retellai.com',
           'https://www.google.com',
           'https://www.recaptcha.net',
@@ -22,12 +24,16 @@ const config = {
         ],
         'script-src-elem': [
           'self',
+          'unsafe-inline',
+          'strict-dynamic',
           'https://dashboard.retellai.com',
           'https://www.google.com',
           'https://www.recaptcha.net',
           'https://www.gstatic.com'
         ],
         'style-src': ['self', 'unsafe-inline'],
+        'trusted-types': ['default', 'svelte-trusted-html'],
+        'require-trusted-types-for': ['script'],
         'img-src': ['self', 'data:', 'https:'],
         'font-src': ['self', 'data:'],
         'media-src': ['self', 'blob:', 'data:', 'https://api.retellai.com', 'https://*.retellai.com'],

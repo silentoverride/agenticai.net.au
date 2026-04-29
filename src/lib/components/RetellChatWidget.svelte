@@ -22,50 +22,87 @@
       return;
     }
 
-    if (document.getElementById('retell-widget')) return;
+    let timeoutId: number | undefined;
+    let cancelled = false;
 
-    const canUseRecaptcha =
-      recaptchaKey && !['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const scheduleLoad = () => {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadWidget, { timeout: 4500 });
+        return;
+      }
 
-    if (
-      canUseRecaptcha &&
-      !document.querySelector('script[src^="https://www.google.com/recaptcha/api.js"]')
-    ) {
-      const recaptcha = document.createElement('script');
-      recaptcha.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaKey)}`;
-      recaptcha.async = true;
-      document.head.appendChild(recaptcha);
-    }
+      timeoutId = globalThis.setTimeout(loadWidget, 3200);
+    };
 
-    const script = document.createElement('script');
-    script.id = 'retell-widget';
-    script.type = 'module';
-    script.src = 'https://dashboard.retellai.com/retell-widget.js';
-    script.dataset.publicKey = publicKey;
-    script.dataset.agentId = agentId;
-    script.dataset.title = 'Chat with Annie';
-    script.dataset.logoUrl = '/logo.svg';
-    script.dataset.botName = 'Annie';
-    script.dataset.color = '#0e9f8f';
-    script.dataset.popupMessage = 'Ask Annie about the AI Business Assessment';
-    script.dataset.showAiPopup = 'true';
-    script.dataset.showAiPopupTime = '5';
-    script.dataset.autoOpen = 'false';
-    script.dataset.dynamic = JSON.stringify({
-      source: 'agenticai-website',
-      assessment_fee: '$1,200.00 AUD',
-      terms_url: '/terms',
-      privacy_url: '/privacy'
-    });
+    const startAfterPageLoad = () => {
+      if (document.readyState === 'complete') {
+        scheduleLoad();
+        return;
+      }
 
-    if (agentVersion) {
-      script.dataset.agentVersion = agentVersion;
-    }
+      window.addEventListener('load', scheduleLoad, { once: true });
+    };
 
-    if (canUseRecaptcha) {
-      script.dataset.recaptchaKey = recaptchaKey;
-    }
+    const loadWidget = () => {
+      if (cancelled || document.getElementById('retell-widget')) return;
 
-    document.head.appendChild(script);
+      const canUseRecaptcha =
+        recaptchaKey && !['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+      if (
+        canUseRecaptcha &&
+        !document.querySelector('script[src^="https://www.google.com/recaptcha/api.js"]')
+      ) {
+        const recaptcha = document.createElement('script');
+        recaptcha.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaKey)}`;
+        recaptcha.async = true;
+        recaptcha.defer = true;
+        document.head.appendChild(recaptcha);
+      }
+
+      const script = document.createElement('script');
+      script.id = 'retell-widget';
+      script.type = 'module';
+      script.src = 'https://dashboard.retellai.com/retell-widget.js';
+      script.async = true;
+      script.defer = true;
+      script.dataset.publicKey = publicKey;
+      script.dataset.agentId = agentId;
+      script.dataset.title = 'Chat with Annie';
+      script.dataset.logoUrl = '/logo.svg';
+      script.dataset.botName = 'Annie';
+      script.dataset.color = '#0e9f8f';
+      script.dataset.popupMessage = 'Ask Annie about the AI Business Assessment';
+      script.dataset.showAiPopup = 'true';
+      script.dataset.showAiPopupTime = '5';
+      script.dataset.autoOpen = 'false';
+      script.dataset.dynamic = JSON.stringify({
+        source: 'agenticai-website',
+        assessment_fee: '$1,200.00 AUD',
+        terms_url: '/terms',
+        privacy_url: '/privacy'
+      });
+
+      if (agentVersion) {
+        script.dataset.agentVersion = agentVersion;
+      }
+
+      if (canUseRecaptcha) {
+        script.dataset.recaptchaKey = recaptchaKey;
+      }
+
+      document.head.appendChild(script);
+    };
+
+    startAfterPageLoad();
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('load', scheduleLoad);
+
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
   });
 </script>

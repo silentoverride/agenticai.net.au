@@ -6,6 +6,14 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script nonce="%sveltekit.nonce%">
       try {
+        if (window.trustedTypes && !window.trustedTypes.defaultPolicy) {
+          window.trustedTypes.createPolicy('default', {
+            createHTML: (value) => value,
+            createScript: (value) => value,
+            createScriptURL: (value) => value
+          });
+        }
+
         const theme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.documentElement.dataset.theme = theme || (prefersDark ? 'dark' : 'light');
