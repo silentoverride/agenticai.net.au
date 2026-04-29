@@ -1,0 +1,4 @@
+name = "agenticai-net-au"
+pages_build_output_dir = ".svelte-kit/cloudflare"
+compatibility_date = "2026-04-29"
+compatibility_flags = ["nodejs_compat"]
