@@ -24,8 +24,10 @@ const config = {
         'font-src': ['self', 'data:'],
         'connect-src': [
           'self',
+          'https://api.retellai.com',
           'https://dashboard.retellai.com',
           'https://*.retellai.com',
+          'wss://*.retellai.com',
           'https://www.google.com',
           'https://www.gstatic.com'
         ],
