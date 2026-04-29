@@ -17,21 +17,33 @@ const config = {
           'unsafe-eval',
           'https://dashboard.retellai.com',
           'https://www.google.com',
+          'https://www.recaptcha.net',
+          'https://www.gstatic.com'
+        ],
+        'script-src-elem': [
+          'self',
+          'https://dashboard.retellai.com',
+          'https://www.google.com',
+          'https://www.recaptcha.net',
           'https://www.gstatic.com'
         ],
         'style-src': ['self', 'unsafe-inline'],
         'img-src': ['self', 'data:', 'https:'],
         'font-src': ['self', 'data:'],
+        'media-src': ['self', 'blob:', 'data:', 'https://api.retellai.com', 'https://*.retellai.com'],
         'connect-src': [
           'self',
           'https://api.retellai.com',
           'https://dashboard.retellai.com',
           'https://*.retellai.com',
+          'wss://api.retellai.com',
           'wss://*.retellai.com',
           'https://www.google.com',
+          'https://www.recaptcha.net',
           'https://www.gstatic.com'
         ],
-        'frame-src': ['https://www.google.com', 'https://www.gstatic.com'],
+        'worker-src': ['self', 'blob:'],
+        'frame-src': ['https://www.google.com', 'https://www.recaptcha.net', 'https://www.gstatic.com'],
         'form-action': ['self', 'https://checkout.stripe.com'],
         'upgrade-insecure-requests': true
       }
