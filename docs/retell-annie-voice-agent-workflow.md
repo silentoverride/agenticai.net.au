@@ -322,15 +322,20 @@ POST /api/create-assessment-checkout
 
 ```json
 {
-  "url": "https://checkout.stripe.com/..."
+  "url": "https://checkout.stripe.com/...",
+  "sms": {
+    "sent": true,
+    "sid": "SMxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "status": "queued"
+  }
 }
 ```
 
 **Agent behaviour:**
 
 - Tell the caller payment is required before transcript processing.
-- Offer to send the Stripe link by SMS if SMS is enabled.
-- If SMS is not enabled, read a short next-step message and confirm the link will be sent by the configured channel.
+- Tell the caller the Stripe link will be sent by SMS if Twilio is enabled on the website.
+- If Twilio SMS is not enabled or fails, use the configured Retell fallback channel.
 
 **Suggested spoken line:**
 
@@ -338,7 +343,7 @@ POST /api/create-assessment-checkout
 The assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the report will be prepared.
 ```
 
-**Transition:** Payment sent -> close call. Payment function failed -> fallback support node.
+**Transition:** Payment link created and SMS sent or fallback channel available -> close call. Payment function failed -> fallback support node.
 
 ### Node 12: No Approval or Not Ready
 
@@ -387,6 +392,8 @@ Creates the Stripe Checkout session.
 
 **Backend endpoint:** `/api/create-assessment-checkout`
 
+If the request `source` is `retell-voice-agent`, `customerPhone` is present, and Twilio is configured, the website backend sends the Stripe Checkout URL by SMS automatically.
+
 **Required arguments:**
 
 - `source`
@@ -399,6 +406,31 @@ Creates the Stripe Checkout session.
 **Returns:**
 
 - `url`
+- `sms.sent`
+- `sms.sid`
+- `sms.status`
+
+### `send_assessment_sms`
+
+Sends a custom SMS through Twilio when Annie needs a separate SMS outside the payment-link function.
+
+**Retell node:** Function node or Subagent node with tool calling.
+
+**Backend endpoint:** `/api/send-assessment-sms`
+
+**Security header:** `x-agenticai-webhook-secret`
+
+**Required arguments:**
+
+- `customerPhone`
+- `checkoutUrl` or `message`
+
+**Returns:**
+
+- `sent`
+- `sid`
+- `status`
+- `to`
 
 ### `queue_assessment_transcript`
 
@@ -456,25 +488,36 @@ Register a Retell webhook for the Annie agent.
 
 Recommended events:
 
-- `call_started`
-- `call_ended`
 - `call_analyzed`
-- `transcript_updated` if real-time transcript sync is needed
+
+Optional events:
+
+- `call_started` for monitoring.
+- `call_ended` only if you need a transcript-only fallback.
+- `transcript_updated` if real-time transcript sync is needed.
+
+Website webhook endpoint:
+
+```text
+POST https://agenticai.net.au/api/retell-webhook
+```
 
 Recommended backend handling:
 
 1. Receive Retell webhook.
 2. Verify `x-retell-signature`.
-3. Store the event and call ID.
+3. Ignore non-reporting events unless needed for monitoring.
 4. On `call_analyzed`, read transcript and post-call analysis.
 5. Check:
    - `verbal_approval_given` is true.
    - payment has been completed or payment link was sent.
    - `assessment_ready` is true.
-6. Queue transcript for assessment report processing.
+6. Pipe the transcript and analysis to the report-building AI agent.
 7. Notify internal team if analysis is incomplete, payment failed, or caller did not approve.
 
 Retell webhooks should respond with a 2xx status quickly. If processing is slow, acknowledge the webhook first and process asynchronously.
+
+See `docs/retell-report-agent-handoff.md` for the report-agent payload and environment variables.
 
 ## Testing Plan
 

@@ -119,6 +119,12 @@ h3 {
   display: inline-flex;
 }
 
+.nav-cta,
+.button,
+.theme-toggle {
+  font: inherit;
+}
+
 .brand {
   font-weight: 850;
 }
@@ -274,6 +280,33 @@ textarea:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
+}
+
+.retell-call-control {
+  align-items: flex-start;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.retell-call-control .button,
+.retell-call-control .nav-cta {
+  cursor: pointer;
+}
+
+.retell-call-control .button:disabled,
+.retell-call-control .nav-cta:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+
+.retell-call-error {
+  color: #b42318;
+  font-size: 0.78rem;
+  font-weight: 750;
+  line-height: 1.35;
+  max-width: 16rem;
 }
 
 .button {

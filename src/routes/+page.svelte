@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import ServiceGrid from '$lib/components/ServiceGrid.svelte';
   import { metrics, reportSections, useCases, upsells } from '$lib/content';
 </script>
@@ -13,7 +14,7 @@
         showing which AI tools, automations, and agents are worth implementing first.
       </p>
       <div class="actions">
-        <a class="button primary" href="/contact">Book an Assessment</a>
+        <CallAssessmentButton />
         <a class="button secondary" href="/services">See What You Get</a>
       </div>
       <div class="metric-strip" aria-label="Assessment highlights">
@@ -178,6 +179,6 @@
       Start with a focused assessment. You will leave with a practical plan for the workflows, tools,
       and quick wins most likely to create measurable leverage.
     </p>
-    <a class="button primary" href="/contact">Book an Assessment</a>
+    <CallAssessmentButton />
   </section>
 </main>

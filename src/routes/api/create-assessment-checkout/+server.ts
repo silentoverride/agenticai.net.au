@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
+import { isTwilioConfigured, sendTwilioSms } from '$lib/server/twilio';
 import type { RequestHandler } from './$types';
 
 const amountAudCents = 120000;
@@ -82,5 +83,36 @@ export const POST: RequestHandler = async ({ request, url }) => {
     );
   }
 
-  return json({ url: stripeBody.url });
+  const responseBody: {
+    url: string;
+    sms?: {
+      sent: boolean;
+      sid?: string;
+      status?: string;
+      message?: string;
+    };
+  } = { url: stripeBody.url };
+
+  if (body.source === 'retell-voice-agent' && body.customerPhone && isTwilioConfigured()) {
+    try {
+      const sms = await sendTwilioSms(
+        body.customerPhone,
+        `Hi${body.customerName ? ` ${body.customerName}` : ''}, your secure Agentic AI Business Assessment payment link is ${stripeBody.url}. Once payment is complete, your transcript will be queued for analysis.`
+      );
+
+      responseBody.sms = {
+        sent: true,
+        sid: sms.sid,
+        status: sms.status
+      };
+    } catch (error) {
+      console.error('Unable to send assessment payment link SMS:', error);
+      responseBody.sms = {
+        sent: false,
+        message: error instanceof Error ? error.message : 'Unable to send SMS.'
+      };
+    }
+  }
+
+  return json(responseBody);
 };

@@ -4,18 +4,27 @@
 
   type Props = {
     publicKey: string;
-    agentId: string;
+    voiceAgentId: string;
+    phoneNumber: string;
     agentVersion?: string;
+    countries?: string;
     recaptchaKey?: string;
   };
 
-  let { publicKey, agentId, agentVersion = '', recaptchaKey = '' }: Props = $props();
+  let {
+    publicKey,
+    voiceAgentId,
+    phoneNumber,
+    agentVersion = '',
+    countries = 'AU',
+    recaptchaKey = ''
+  }: Props = $props();
 
   onMount(() => {
-    if (!publicKey || !agentId) {
+    if (!publicKey || !voiceAgentId || !phoneNumber) {
       if (dev) {
         console.warn(
-          'Retell chat widget is disabled. Set PUBLIC_RETELL_PUBLIC_KEY and PUBLIC_RETELL_CHAT_AGENT_ID.'
+          'Retell callback widget is disabled. Set PUBLIC_RETELL_PUBLIC_KEY, PUBLIC_RETELL_VOICE_AGENT_ID, and PUBLIC_RETELL_CALLBACK_PHONE_NUMBER.'
         );
       }
 
@@ -61,21 +70,14 @@
       script.async = true;
       script.defer = true;
       script.dataset.publicKey = publicKey;
-      script.dataset.agentId = agentId;
-      script.dataset.title = 'Chat with Annie';
+      script.dataset.agentId = voiceAgentId;
+      script.dataset.widget = 'callback';
+      script.dataset.phoneNumber = phoneNumber;
+      script.dataset.title = 'Request an assessment call';
       script.dataset.logoUrl = '/logo.svg';
-      script.dataset.botName = 'Annie';
       script.dataset.color = '#0e9f8f';
-      script.dataset.popupMessage = 'Ask Annie about the AI Business Assessment';
-      script.dataset.showAiPopup = 'true';
-      script.dataset.showAiPopupTime = '5';
-      script.dataset.autoOpen = 'false';
-      script.dataset.dynamic = JSON.stringify({
-        source: 'agenticai-website',
-        assessment_fee: '$1,200.00 AUD',
-        terms_url: '/terms',
-        privacy_url: '/privacy'
-      });
+      script.dataset.countries = countries;
+      script.dataset.tc = `${window.location.origin}/terms`;
 
       if (agentVersion) {
         script.dataset.agentVersion = agentVersion;
@@ -93,7 +95,6 @@
     return () => {
       cancelled = true;
       window.removeEventListener('load', scheduleLoad);
-
     };
   });
 </script>

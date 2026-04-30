@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import { onMount } from 'svelte';
 
   const links = [
@@ -58,6 +59,6 @@
         </svg>
       {/if}
     </button>
-    <a class="nav-cta" href="/contact">Book Assessment</a>
+    <CallAssessmentButton label="Call Annie" className="nav-cta" showError={false} />
   </div>
 </header>
