@@ -1,0 +1,146 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap');
+  * { box-sizing: border-box; }
+  .mock { background:#fff; border:1.5px solid #e2e8f0; border-radius:10px; overflow:hidden; margin-bottom:0.5rem; font-family:'Inter',sans-serif; }
+  .mock-nav { background:#fff; border-bottom:1px solid #e8edf4; padding:0.55rem 1.2rem; display:flex; align-items:center; justify-content:space-between; }
+  .mock-logo { font-weight:900; font-size:9px; color:#0f172a; letter-spacing:-0.01em; }
+  .mock-links { display:flex; gap:0.7rem; }
+  .mock-link { font-size:7.5px; color:#64748b; font-weight:600; }
+  .mock-cta-nav { background:#2563eb; color:#fff; border-radius:999px; padding:3px 10px; font-size:7.5px; font-weight:800; }
+  .eyebrow { font-size:7.5px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:#2563eb; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.3rem; }
+  .eyebrow::before { content:''; display:block; width:6px; height:6px; background:#2563eb; border-radius:50%; }
+  .h1 { font-size:22px; font-weight:900; color:#0f172a; line-height:1.05; letter-spacing:-0.025em; margin-bottom:0.55rem; }
+  .subtext { font-size:8.5px; color:#64748b; line-height:1.6; margin-bottom:0.8rem; max-width:34ch; }
+  .btn-row { display:flex; gap:0.4rem; align-items:center; }
+  .btn-primary { background:#2563eb; color:#fff; border-radius:999px; padding:6px 14px; font-size:8px; font-weight:800; }
+  .btn-secondary { border:1.5px solid #e2e8f0; color:#0f172a; border-radius:999px; padding:6px 14px; font-size:8px; font-weight:800; }
+  .metric-row { display:flex; gap:0.4rem; margin-top:0.8rem; padding-top:0.8rem; border-top:1px solid #f1f5f9; }
+  .metric { flex:1; }
+  .metric-val { font-size:10px; font-weight:900; color:#0f172a; }
+  .metric-lbl { font-size:7px; color:#94a3b8; margin-top:1px; }
+</style>
+
+<h2>Which hero layout feels right?</h2>
+<p class="subtitle">All three use white, Inter, and electric blue. The difference is structure — how the page opens.</p>
+
+<div class="cards">
+
+  <!-- A: Centered hero -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="mock">
+        <div class="mock-nav">
+          <div class="mock-logo">Agentic AI</div>
+          <div class="mock-links">
+            <span class="mock-link">Home</span><span class="mock-link">Services</span><span class="mock-link">About</span>
+          </div>
+          <div class="mock-cta-nav">📞 Call Annie</div>
+        </div>
+        <div style="padding:2rem 1.5rem 1.5rem;text-align:center;background:linear-gradient(180deg,#f8faff 0%,#fff 100%)">
+          <div class="eyebrow" style="justify-content:center">AI Business Assessment</div>
+          <div class="h1" style="font-size:28px;max-width:14ch;margin:0 auto 0.55rem">Find where AI saves your business time.</div>
+          <div class="subtext" style="margin:0 auto 0.85rem;max-width:38ch;text-align:center">Agentic AI reviews your workflows and delivers a practical report showing which AI tools are worth implementing first.</div>
+          <div class="btn-row" style="justify-content:center;margin-bottom:1.2rem">
+            <div class="btn-primary">📞 Call for Assessment</div>
+            <div class="btn-secondary">See What You Get</div>
+          </div>
+          <div style="display:flex;justify-content:center;gap:1.5rem;padding-top:0.8rem;border-top:1px solid #f1f5f9">
+            <div class="metric" style="text-align:center"><div class="metric-val">$1,200</div><div class="metric-lbl">assessment fee</div></div>
+            <div class="metric" style="text-align:center"><div class="metric-val">48 hrs</div><div class="metric-lbl">report turnaround</div></div>
+            <div class="metric" style="text-align:center"><div class="metric-val">20-30 min</div><div class="metric-lbl">intake call</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Centered</h3>
+      <p>Large centred headline, no right panel. Clean, confident, bold. Makes the headline do the work. Simpler to build and maintain.</p>
+    </div>
+  </div>
+
+  <!-- B: Split — text left, clean card right -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="mock">
+        <div class="mock-nav">
+          <div class="mock-logo">Agentic AI</div>
+          <div class="mock-links">
+            <span class="mock-link">Home</span><span class="mock-link">Services</span><span class="mock-link">About</span>
+          </div>
+          <div class="mock-cta-nav">📞 Call Annie</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.5rem;align-items:center;background:#fff">
+          <div>
+            <div class="eyebrow">AI Business Assessment</div>
+            <div class="h1" style="font-size:20px">Find where AI saves your business time.</div>
+            <div class="subtext">Agentic AI reviews your workflows and delivers a practical report showing which AI tools are worth implementing first.</div>
+            <div class="btn-row" style="margin-bottom:0.75rem">
+              <div class="btn-primary">📞 Call for Assessment</div>
+              <div class="btn-secondary">See What You Get</div>
+            </div>
+            <div class="metric-row">
+              <div class="metric"><div class="metric-val">$1,200</div><div class="metric-lbl">fee</div></div>
+              <div class="metric"><div class="metric-val">48 hrs</div><div class="metric-lbl">turnaround</div></div>
+              <div class="metric"><div class="metric-val">20-30 min</div><div class="metric-lbl">intake</div></div>
+            </div>
+          </div>
+          <div style="background:#f8faff;border:1.5px solid #e0e7ff;border-radius:10px;padding:1rem">
+            <div style="font-size:7.5px;font-weight:800;color:#2563eb;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.5rem">Assessment output</div>
+            <div style="font-size:9px;font-weight:800;color:#0f172a;margin-bottom:0.6rem">Workflow diagnosis · 48 hr report</div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:0.5rem;margin-bottom:0.4rem">
+              <div style="font-size:7px;color:#64748b">Likely time reclaimed</div>
+              <div style="font-size:12px;font-weight:900;color:#0f172a">8.5 hrs / week</div>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:0.5rem">
+              <div style="font-size:7px;color:#64748b;margin-bottom:0.3rem;font-weight:700">Ranked quick wins</div>
+              <div style="display:flex;justify-content:space-between;font-size:7px;color:#0f172a;margin-bottom:0.2rem"><span>01 Automate weekly reporting</span><span style="color:#2563eb;font-weight:700">2.5 hrs</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:7px;color:#0f172a;margin-bottom:0.2rem"><span>02 Speed-to-lead follow-up</span><span style="color:#2563eb;font-weight:700">↑ conv.</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:7px;color:#0f172a"><span>03 FAQ knowledge assistant</span><span style="color:#2563eb;font-weight:700">less Q&A</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Split with report preview</h3>
+      <p>Text left, clean report-preview card right. Similar to current but lighter — white card instead of the complex opportunity map. Shows what the client gets.</p>
+    </div>
+  </div>
+
+  <!-- C: Left-aligned, large — no right panel, background accent -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="mock">
+        <div class="mock-nav">
+          <div class="mock-logo">Agentic AI</div>
+          <div class="mock-links">
+            <span class="mock-link">Home</span><span class="mock-link">Services</span><span class="mock-link">About</span>
+          </div>
+          <div class="mock-cta-nav">📞 Call Annie</div>
+        </div>
+        <div style="padding:1.8rem 1.5rem 1.4rem;background:#fff;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-30px;right:-40px;width:180px;height:180px;background:#2563eb;opacity:0.04;border-radius:50%"></div>
+          <div style="position:absolute;top:20px;right:-20px;width:120px;height:120px;background:#2563eb;opacity:0.05;border-radius:50%"></div>
+          <div class="eyebrow" style="margin-bottom:0.6rem">AI Business Assessment</div>
+          <div class="h1" style="font-size:26px;max-width:12ch">Find where AI saves your business time.</div>
+          <div style="width:40px;height:3px;background:#2563eb;border-radius:2px;margin:0.7rem 0"></div>
+          <div class="subtext" style="max-width:40ch">Agentic AI reviews your workflows and delivers a practical report showing which AI tools are worth implementing first.</div>
+          <div class="btn-row" style="margin-bottom:1rem">
+            <div class="btn-primary">📞 Call for Assessment</div>
+            <div class="btn-secondary">See What You Get</div>
+          </div>
+          <div style="display:flex;gap:1.5rem;padding-top:0.8rem;border-top:1px solid #f1f5f9">
+            <div class="metric"><div class="metric-val">$1,200</div><div class="metric-lbl">assessment fee</div></div>
+            <div class="metric"><div class="metric-val">48 hrs</div><div class="metric-lbl">turnaround</div></div>
+            <div class="metric"><div class="metric-val">20-30 min</div><div class="metric-lbl">intake call</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Left-aligned, bold</h3>
+      <p>Left-aligned, single column, large headline with a blue accent rule. Subtle background circles for depth. No right panel — lets the headline breathe.</p>
+    </div>
+  </div>
+
+</div>

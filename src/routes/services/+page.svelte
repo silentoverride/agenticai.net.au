@@ -37,6 +37,104 @@
     {/each}
   </section>
 
+  <section class="section">
+    <div class="section-heading">
+      <p class="eyebrow">How the report is built</p>
+      <h2>Claude processes. Gamma formats.</h2>
+      <p>
+        When Annie's call ends, the transcript is automatically handed off to a report-building pipeline.
+        No manual formatting. No waiting for a consultant to write it up. The report is ready in 48 hours.
+      </p>
+    </div>
+
+    <div class="report-build-grid">
+      <article class="report-build-step">
+        <div class="report-build-header">
+          <span class="step-tag">Step 01</span>
+          <h3>Claude processes the transcript</h3>
+          <p>
+            A series of specialised AI agents — each with one job — works through the raw transcript in sequence,
+            extracting pain points, researching tools, and producing a structured assessment document.
+          </p>
+        </div>
+        <div class="skills-pipeline">
+          <div class="skill-item">
+            <b>01</b>
+            <div>
+              <strong>Clean and structure</strong>
+              <p>The raw transcript is formatted into a consistent, readable document for downstream agents.</p>
+            </div>
+          </div>
+          <div class="skill-item">
+            <b>02</b>
+            <div>
+              <strong>Identify pain points</strong>
+              <p>Key workflow problems, repeated tasks, and friction points are extracted and categorised from the conversation.</p>
+            </div>
+          </div>
+          <div class="skill-item">
+            <b>03</b>
+            <div>
+              <strong>Research AI tools</strong>
+              <p>Each pain point is matched to specific off-the-shelf tools from AI directories — with cost and setup context.</p>
+            </div>
+          </div>
+          <div class="skill-item">
+            <b>04</b>
+            <div>
+              <strong>Effort vs impact matrix</strong>
+              <p>Every recommendation is mapped on a 2×2 grid so quick wins — low effort, high impact — are obvious.</p>
+            </div>
+          </div>
+          <div class="skill-item">
+            <b>05</b>
+            <div>
+              <strong>Financial impact estimate</strong>
+              <p>Hours saved per week, assumed hourly rate, tool costs, and annual net value are calculated for each recommendation.</p>
+            </div>
+          </div>
+        </div>
+        <div class="pipeline-output">
+          <span>Output</span>
+          <p>A structured document containing all assessment content — ready to be formatted into the final report.</p>
+        </div>
+      </article>
+
+      <article class="report-build-step gamma-step">
+        <div class="report-build-header">
+          <span class="step-tag">Step 02</span>
+          <h3>Gamma formats the report</h3>
+          <p>
+            The structured document is uploaded to Gamma — an AI-powered presentation and document platform —
+            which auto-generates a professionally designed visual report from a template.
+          </p>
+        </div>
+        <ul class="gamma-features">
+          <li>
+            <strong>Professional design</strong>
+            <span>The assessment output becomes a polished, client-ready report without manual formatting work.</span>
+          </li>
+          <li>
+            <strong>Template consistency</strong>
+            <span>Every client receives the same professional structure, section order, and visual treatment.</span>
+          </li>
+          <li>
+            <strong>Shareable link</strong>
+            <span>The report is delivered as a Gamma link — accessible on any device before the follow-up call.</span>
+          </li>
+          <li>
+            <strong>Screen-share ready</strong>
+            <span>The follow-up call walks through the report slide by slide, making recommendations easy to discuss.</span>
+          </li>
+        </ul>
+        <div class="gamma-note">
+          <div class="note-mark" aria-hidden="true">AI</div>
+          <p>Corey Ganim's free Gamma template is available at <strong>audittemplate.ai</strong> — the same format used for every assessment.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
   <section class="report-section feature">
     <div class="report-copy">
       <p class="eyebrow">Report contents</p>

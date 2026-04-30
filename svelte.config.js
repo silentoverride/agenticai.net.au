@@ -40,8 +40,10 @@ const config = {
           'https://api.retellai.com',
           'https://dashboard.retellai.com',
           'https://*.retellai.com',
+          'https://*.livekit.cloud',
           'wss://api.retellai.com',
           'wss://*.retellai.com',
+          'wss://*.livekit.cloud',
           'https://www.google.com',
           'https://www.recaptcha.net',
           'https://www.gstatic.com'

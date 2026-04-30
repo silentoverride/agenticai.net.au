@@ -1,0 +1,61 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=DM+Sans:wght@400;700;800&family=Playfair+Display:wght@700;800&family=Syne:wght@700;800;900&display=swap');
+</style>
+
+<h2>Which typography direction feels right?</h2>
+<p class="subtitle">Same blue direction — different heading personality. Body text stays clean and readable in all three.</p>
+
+<div class="cards">
+
+  <!-- A: All Inter, heavy weight -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fff;padding:1.75rem;border-radius:8px 8px 0 0;border-bottom:1px solid #e5e7eb;min-height:200px;">
+      <div style="color:#2563eb;font-family:'Inter',sans-serif;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem">AI Business Assessment</div>
+      <div style="color:#0f172a;font-family:'Inter',sans-serif;font-size:26px;font-weight:900;line-height:1.05;margin-bottom:0.75rem;letter-spacing:-0.02em">Find where AI<br>saves your<br>business time.</div>
+      <div style="color:#64748b;font-family:'Inter',sans-serif;font-size:10px;line-height:1.6;margin-bottom:1rem">Agentic AI reviews your workflows and delivers a practical report showing which tools are worth implementing first.</div>
+      <div style="display:flex;gap:0.5rem;align-items:center">
+        <div style="background:#2563eb;border-radius:999px;padding:7px 16px;font-size:9px;font-weight:800;color:#fff;font-family:'Inter',sans-serif">📞 Call for Assessment</div>
+        <div style="border:1.5px solid #e2e8f0;border-radius:999px;padding:7px 16px;font-size:9px;font-weight:800;color:#0f172a;font-family:'Inter',sans-serif">See What You Get</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Geometric Sans</h3>
+      <p>Inter throughout, heavy weight, tight letter-spacing. Clean, modern, techy. Currently what you have — but on white with better contrast and hierarchy.</p>
+    </div>
+  </div>
+
+  <!-- B: Playfair Display headings + Inter body -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fff;padding:1.75rem;border-radius:8px 8px 0 0;border-bottom:1px solid #e5e7eb;min-height:200px;">
+      <div style="color:#2563eb;font-family:'Inter',sans-serif;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem">AI Business Assessment</div>
+      <div style="color:#0f172a;font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:800;line-height:1.1;margin-bottom:0.75rem;font-style:italic">Find where AI<br>saves your<br>business time.</div>
+      <div style="color:#64748b;font-family:'Inter',sans-serif;font-size:10px;line-height:1.6;margin-bottom:1rem">Agentic AI reviews your workflows and delivers a practical report showing which tools are worth implementing first.</div>
+      <div style="display:flex;gap:0.5rem;align-items:center">
+        <div style="background:#2563eb;border-radius:999px;padding:7px 16px;font-size:9px;font-weight:800;color:#fff;font-family:'Inter',sans-serif">📞 Call for Assessment</div>
+        <div style="border:1.5px solid #e2e8f0;border-radius:999px;padding:7px 16px;font-size:9px;font-weight:800;color:#0f172a;font-family:'Inter',sans-serif">See What You Get</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Editorial Serif</h3>
+      <p>Playfair Display (italic) for headings, Inter for body. Feels like a premium consultancy or financial services brand. Warm authority, distinctive.</p>
+    </div>
+  </div>
+
+  <!-- C: Syne for headings, Inter body -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fff;padding:1.75rem;border-radius:8px 8px 0 0;border-bottom:1px solid #e5e7eb;min-height:200px;">
+      <div style="color:#2563eb;font-family:'Inter',sans-serif;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem">AI Business Assessment</div>
+      <div style="color:#0f172a;font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1.0;margin-bottom:0.75rem;letter-spacing:-0.03em">Find where AI<br>saves your<br>business time.</div>
+      <div style="color:#64748b;font-family:'Inter',sans-serif;font-size:10px;line-height:1.6;margin-bottom:1rem">Agentic AI reviews your workflows and delivers a practical report showing which tools are worth implementing first.</div>
+      <div style="display:flex;gap:0.5rem;align-items:center">
+        <div style="background:#2563eb;border-radius:999px;padding:7px 16px;font-size:9px;font-weight:800;color:#fff;font-family:'Inter',sans-serif">📞 Call for Assessment</div>
+        <div style="border:1.5px solid #e2e8f0;border-radius:999px;padding:7px 16px;font-size:9px;font-weight:800;color:#0f172a;font-family:'Inter',sans-serif">See What You Get</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Wide Display Sans</h3>
+      <p>Syne for headings — wide, geometric, bold. Inter for body. Contemporary and confident. Feels like a design-forward tech brand. Eye-catching without being flashy.</p>
+    </div>
+  </div>
+
+</div>

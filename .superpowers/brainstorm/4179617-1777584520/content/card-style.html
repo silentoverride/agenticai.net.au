@@ -1,0 +1,173 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  * { box-sizing:border-box; }
+  body, .card-body, h3, p { font-family:'Inter',sans-serif; }
+  .preview-wrap { background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; padding:1.25rem; margin-bottom:0.5rem; }
+  .section-label { font-size:7.5px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:#2563eb; margin-bottom:0.8rem; }
+  .card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; }
+  .process-row { display:grid; grid-template-columns:repeat(4,1fr); gap:0.5rem; margin-top:0.5rem; }
+  .tag-row { display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.5rem; }
+</style>
+
+<h2>How should cards and sections look?</h2>
+<p class="subtitle">These show service cards, process steps, and tag elements — the main repeating components across every page.</p>
+
+<div class="cards">
+
+  <!-- A: Border cards, clean minimal -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="preview-wrap">
+        <div class="section-label">Service cards</div>
+        <div class="card-grid">
+          <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.75rem">
+            <div style="font-size:8.5px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">AI Assessment</div>
+            <div style="font-size:7px;color:#64748b;line-height:1.5">A structured review of workflows and bottlenecks delivered as an AI opportunity report.</div>
+          </div>
+          <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.75rem">
+            <div style="font-size:8.5px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">48-Hour Report</div>
+            <div style="font-size:7px;color:#64748b;line-height:1.5">Clear recommendations, quick wins, effort vs impact, tool options and estimated return.</div>
+          </div>
+          <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.75rem">
+            <div style="font-size:8.5px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">Automation Builds</div>
+            <div style="font-size:7px;color:#64748b;line-height:1.5">Zapier, Make, CRM, and document automations that remove repeated steps.</div>
+          </div>
+        </div>
+        <div class="section-label" style="margin-top:0.85rem">Process steps</div>
+        <div class="process-row">
+          <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">01</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Interview</div>
+          </div>
+          <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">02</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Analyse</div>
+          </div>
+          <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">03</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Prioritise</div>
+          </div>
+          <div style="background:#fff;border:1.5px solid #2563eb;border-radius:8px;padding:0.6rem">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">04</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Report</div>
+          </div>
+        </div>
+        <div class="section-label" style="margin-top:0.85rem">Use-case tags</div>
+        <div class="tag-row">
+          <span style="background:#fff;border:1.5px solid #e2e8f0;border-left:3px solid #2563eb;border-radius:6px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#0f172a">Manual reporting</span>
+          <span style="background:#fff;border:1.5px solid #e2e8f0;border-left:3px solid #2563eb;border-radius:6px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#0f172a">Slow enquiry response</span>
+          <span style="background:#fff;border:1.5px solid #e2e8f0;border-left:3px solid #2563eb;border-radius:6px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#0f172a">Repeated questions</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Border + accent rule</h3>
+      <p>Clean 1.5px borders, no shadow. Active/highlighted cards get a blue border. Tags use a left blue rule. Very flat, light, editorial feel.</p>
+    </div>
+  </div>
+
+  <!-- B: Shadow cards, elevated -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="preview-wrap">
+        <div class="section-label">Service cards</div>
+        <div class="card-grid">
+          <div style="background:#fff;border-radius:10px;padding:0.75rem;box-shadow:0 2px 8px rgba(15,23,42,0.08),0 0 0 1px rgba(15,23,42,0.04)">
+            <div style="font-size:8.5px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">AI Assessment</div>
+            <div style="font-size:7px;color:#64748b;line-height:1.5">A structured review of workflows and bottlenecks delivered as an AI opportunity report.</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:0.75rem;box-shadow:0 2px 8px rgba(15,23,42,0.08),0 0 0 1px rgba(15,23,42,0.04)">
+            <div style="font-size:8.5px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">48-Hour Report</div>
+            <div style="font-size:7px;color:#64748b;line-height:1.5">Clear recommendations, quick wins, effort vs impact, tool options and estimated return.</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:0.75rem;box-shadow:0 4px 16px rgba(37,99,235,0.15),0 0 0 1.5px #2563eb">
+            <div style="font-size:8.5px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">Automation Builds</div>
+            <div style="font-size:7px;color:#64748b;line-height:1.5">Zapier, Make, CRM, and document automations that remove repeated steps.</div>
+          </div>
+        </div>
+        <div class="section-label" style="margin-top:0.85rem">Process steps</div>
+        <div class="process-row">
+          <div style="background:#fff;border-radius:10px;padding:0.6rem;box-shadow:0 2px 8px rgba(15,23,42,0.08),0 0 0 1px rgba(15,23,42,0.04)">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">01</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Interview</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:0.6rem;box-shadow:0 2px 8px rgba(15,23,42,0.08),0 0 0 1px rgba(15,23,42,0.04)">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">02</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Analyse</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:0.6rem;box-shadow:0 2px 8px rgba(15,23,42,0.08),0 0 0 1px rgba(15,23,42,0.04)">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">03</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Prioritise</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:0.6rem;box-shadow:0 4px 16px rgba(37,99,235,0.15),0 0 0 1.5px #2563eb">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">04</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Report</div>
+          </div>
+        </div>
+        <div class="section-label" style="margin-top:0.85rem">Use-case tags</div>
+        <div class="tag-row">
+          <span style="background:#fff;border-radius:6px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#0f172a;box-shadow:0 1px 4px rgba(15,23,42,0.1),0 0 0 1px rgba(15,23,42,0.06)">Manual reporting</span>
+          <span style="background:#fff;border-radius:6px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#0f172a;box-shadow:0 1px 4px rgba(15,23,42,0.1),0 0 0 1px rgba(15,23,42,0.06)">Slow enquiry response</span>
+          <span style="background:#fff;border-radius:6px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#0f172a;box-shadow:0 1px 4px rgba(15,23,42,0.1),0 0 0 1px rgba(15,23,42,0.06)">Repeated questions</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Elevated shadow</h3>
+      <p>White cards with drop shadows, no visible borders. Active items get a blue shadow glow. Feels like Stripe, Intercom — polished and professional.</p>
+    </div>
+  </div>
+
+  <!-- C: Tinted sections -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="preview-wrap">
+        <div class="section-label">Service cards</div>
+        <div class="card-grid">
+          <div style="background:#eff6ff;border-radius:8px;padding:0.75rem">
+            <div style="font-size:8.5px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">AI Assessment</div>
+            <div style="font-size:7px;color:#475569;line-height:1.5">A structured review of workflows and bottlenecks delivered as an AI opportunity report.</div>
+          </div>
+          <div style="background:#eff6ff;border-radius:8px;padding:0.75rem">
+            <div style="font-size:8.5px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">48-Hour Report</div>
+            <div style="font-size:7px;color:#475569;line-height:1.5">Clear recommendations, quick wins, effort vs impact, tool options and estimated return.</div>
+          </div>
+          <div style="background:#2563eb;border-radius:8px;padding:0.75rem">
+            <div style="font-size:8.5px;font-weight:800;color:#fff;margin-bottom:0.3rem">Automation Builds</div>
+            <div style="font-size:7px;color:#bfdbfe;line-height:1.5">Zapier, Make, CRM, and document automations that remove repeated steps.</div>
+          </div>
+        </div>
+        <div class="section-label" style="margin-top:0.85rem">Process steps</div>
+        <div class="process-row">
+          <div style="background:#f1f5f9;border-radius:8px;padding:0.6rem">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">01</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Interview</div>
+          </div>
+          <div style="background:#f1f5f9;border-radius:8px;padding:0.6rem">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">02</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Analyse</div>
+          </div>
+          <div style="background:#f1f5f9;border-radius:8px;padding:0.6rem">
+            <div style="font-size:8px;font-weight:900;color:#2563eb;margin-bottom:0.2rem">03</div>
+            <div style="font-size:8px;font-weight:800;color:#0f172a">Prioritise</div>
+          </div>
+          <div style="background:#2563eb;border-radius:8px;padding:0.6rem">
+            <div style="font-size:8px;font-weight:900;color:#bfdbfe;margin-bottom:0.2rem">04</div>
+            <div style="font-size:8px;font-weight:800;color:#fff">Report</div>
+          </div>
+        </div>
+        <div class="section-label" style="margin-top:0.85rem">Use-case tags</div>
+        <div class="tag-row">
+          <span style="background:#eff6ff;border-radius:6px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#2563eb">Manual reporting</span>
+          <span style="background:#eff6ff;border-radius:6px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#2563eb">Slow enquiry response</span>
+          <span style="background:#eff6ff;border-radius:6px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#2563eb">Repeated questions</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Tinted fills</h3>
+      <p>Light blue tint (#eff6ff) for cards, full blue for featured/active items. No shadows or borders — colour does the grouping work. Energetic, contemporary.</p>
+    </div>
+  </div>
+
+</div>

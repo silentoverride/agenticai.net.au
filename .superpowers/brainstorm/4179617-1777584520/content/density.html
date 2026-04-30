@@ -1,0 +1,136 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  * { box-sizing:border-box; font-family:'Inter',sans-serif; }
+  .mock { background:#fff; border:1.5px solid #e2e8f0; border-radius:10px; overflow:hidden; margin-bottom:0.5rem; }
+  .mock-nav { background:#fff; border-bottom:1px solid #e8edf4; display:flex; align-items:center; justify-content:space-between; }
+  .mock-logo { font-weight:900; color:#0f172a; }
+  .mock-cta { background:#2563eb; color:#fff; border-radius:999px; font-weight:800; }
+  .eyebrow { font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:#2563eb; display:flex; align-items:center; gap:0.3rem; }
+  .eyebrow::before { content:''; display:block; background:#2563eb; border-radius:50%; flex-shrink:0; }
+  .card-border { background:#fff; border:1.5px solid #e2e8f0; border-radius:8px; }
+  .tag { background:#fff; border:1.5px solid #e2e8f0; border-left:3px solid #2563eb; border-radius:6px; font-weight:700; color:#0f172a; }
+</style>
+
+<h2>How much breathing room?</h2>
+<p class="subtitle">Same components — different spacing and type scale. This sets the rhythm for every page.</p>
+
+<div class="cards">
+
+  <!-- A: Airy / editorial -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="mock">
+        <div class="mock-nav" style="padding:0.7rem 1.2rem">
+          <div class="mock-logo" style="font-size:9px">Agentic AI</div>
+          <div class="mock-cta" style="padding:4px 12px;font-size:8px">📞 Call Annie</div>
+        </div>
+        <div style="padding:3rem 1.5rem 2.5rem">
+          <div class="eyebrow" style="font-size:8px;margin-bottom:1rem"><span style="display:block;width:7px;height:7px;background:#2563eb;border-radius:50%"></span>AI Business Assessment</div>
+          <div style="font-size:28px;font-weight:900;color:#0f172a;line-height:1.0;letter-spacing:-0.03em;margin-bottom:1.2rem;max-width:11ch">Find where AI saves your business.</div>
+          <div style="font-size:9.5px;color:#64748b;line-height:1.8;margin-bottom:1.6rem;max-width:36ch">Agentic AI reviews your workflows and delivers a practical report showing which tools are worth implementing first.</div>
+          <div style="display:flex;gap:0.6rem;align-items:center;margin-bottom:2rem">
+            <div style="background:#2563eb;color:#fff;border-radius:999px;padding:8px 18px;font-size:9px;font-weight:800">📞 Call for Assessment</div>
+            <div style="border:1.5px solid #e2e8f0;border-radius:999px;padding:8px 18px;font-size:9px;font-weight:800;color:#0f172a">See What You Get</div>
+          </div>
+          <div style="display:flex;gap:2.5rem;padding-top:1.4rem;border-top:1px solid #f1f5f9">
+            <div><div style="font-size:13px;font-weight:900;color:#0f172a">$1,200</div><div style="font-size:7.5px;color:#94a3b8;margin-top:3px">assessment fee</div></div>
+            <div><div style="font-size:13px;font-weight:900;color:#0f172a">48 hrs</div><div style="font-size:7.5px;color:#94a3b8;margin-top:3px">turnaround</div></div>
+            <div><div style="font-size:13px;font-weight:900;color:#0f172a">20-30 min</div><div style="font-size:7.5px;color:#94a3b8;margin-top:3px">intake call</div></div>
+          </div>
+        </div>
+        <div style="padding:1.5rem;background:#f8fafc;border-top:1px solid #e2e8f4">
+          <div class="eyebrow" style="font-size:7.5px;margin-bottom:1rem"><span style="display:block;width:6px;height:6px;background:#2563eb;border-radius:50%"></span>The offer</div>
+          <div style="font-size:14px;font-weight:900;color:#0f172a;letter-spacing:-0.02em;margin-bottom:0.4rem">A clear AI roadmap for your actual business</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.6rem;margin-top:0.9rem">
+            <div class="card-border" style="padding:0.7rem"><div style="font-size:8px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">AI Assessment</div><div style="font-size:7px;color:#64748b;line-height:1.5">Structured workflow review.</div></div>
+            <div class="card-border" style="padding:0.7rem"><div style="font-size:8px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">48-hr Report</div><div style="font-size:7px;color:#64748b;line-height:1.5">Clear ranked recommendations.</div></div>
+            <div class="card-border" style="padding:0.7rem"><div style="font-size:8px;font-weight:800;color:#0f172a;margin-bottom:0.3rem">Quick Wins</div><div style="font-size:7px;color:#64748b;line-height:1.5">Implementation plan included.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Airy</h3>
+      <p>Generous padding, large line-height, big type, lots of whitespace between sections. Feels premium and editorial — content gets room to land.</p>
+    </div>
+  </div>
+
+  <!-- B: Balanced -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="mock">
+        <div class="mock-nav" style="padding:0.55rem 1rem">
+          <div class="mock-logo" style="font-size:8.5px">Agentic AI</div>
+          <div class="mock-cta" style="padding:3px 10px;font-size:7.5px">📞 Call Annie</div>
+        </div>
+        <div style="padding:2rem 1.25rem 1.75rem">
+          <div class="eyebrow" style="font-size:7.5px;margin-bottom:0.6rem"><span style="display:block;width:6px;height:6px;background:#2563eb;border-radius:50%"></span>AI Business Assessment</div>
+          <div style="font-size:22px;font-weight:900;color:#0f172a;line-height:1.05;letter-spacing:-0.025em;margin-bottom:0.7rem;max-width:12ch">Find where AI saves your business.</div>
+          <div style="font-size:8.5px;color:#64748b;line-height:1.65;margin-bottom:1rem;max-width:38ch">Agentic AI reviews your workflows and delivers a practical report showing which tools are worth implementing first.</div>
+          <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1.2rem">
+            <div style="background:#2563eb;color:#fff;border-radius:999px;padding:6px 14px;font-size:8.5px;font-weight:800">📞 Call for Assessment</div>
+            <div style="border:1.5px solid #e2e8f0;border-radius:999px;padding:6px 14px;font-size:8.5px;font-weight:800;color:#0f172a">See What You Get</div>
+          </div>
+          <div style="display:flex;gap:1.5rem;padding-top:1rem;border-top:1px solid #f1f5f9">
+            <div><div style="font-size:11px;font-weight:900;color:#0f172a">$1,200</div><div style="font-size:7px;color:#94a3b8;margin-top:2px">assessment fee</div></div>
+            <div><div style="font-size:11px;font-weight:900;color:#0f172a">48 hrs</div><div style="font-size:7px;color:#94a3b8;margin-top:2px">turnaround</div></div>
+            <div><div style="font-size:11px;font-weight:900;color:#0f172a">20-30 min</div><div style="font-size:7px;color:#94a3b8;margin-top:2px">intake call</div></div>
+          </div>
+        </div>
+        <div style="padding:1.2rem;background:#f8fafc;border-top:1px solid #e2e8f4">
+          <div class="eyebrow" style="font-size:7px;margin-bottom:0.7rem"><span style="display:block;width:5px;height:5px;background:#2563eb;border-radius:50%"></span>The offer</div>
+          <div style="font-size:12px;font-weight:900;color:#0f172a;letter-spacing:-0.02em;margin-bottom:0.3rem">A clear AI roadmap for your actual business</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-top:0.75rem">
+            <div class="card-border" style="padding:0.6rem"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.25rem">AI Assessment</div><div style="font-size:6.5px;color:#64748b;line-height:1.5">Structured workflow review.</div></div>
+            <div class="card-border" style="padding:0.6rem"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.25rem">48-hr Report</div><div style="font-size:6.5px;color:#64748b;line-height:1.5">Clear ranked recommendations.</div></div>
+            <div class="card-border" style="padding:0.6rem"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.25rem">Quick Wins</div><div style="font-size:6.5px;color:#64748b;line-height:1.5">Implementation plan included.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Balanced</h3>
+      <p>Standard comfortable spacing — not cramped, not extravagant. More content visible at once. The professional default for SaaS and consulting sites.</p>
+    </div>
+  </div>
+
+  <!-- C: Compact / dense -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="mock">
+        <div class="mock-nav" style="padding:0.4rem 0.9rem">
+          <div class="mock-logo" style="font-size:8px">Agentic AI</div>
+          <div class="mock-cta" style="padding:3px 9px;font-size:7px">📞 Call Annie</div>
+        </div>
+        <div style="padding:1.4rem 1.1rem 1.2rem">
+          <div class="eyebrow" style="font-size:7px;margin-bottom:0.45rem"><span style="display:block;width:5px;height:5px;background:#2563eb;border-radius:50%"></span>AI Business Assessment</div>
+          <div style="font-size:18px;font-weight:900;color:#0f172a;line-height:1.05;letter-spacing:-0.02em;margin-bottom:0.5rem;max-width:13ch">Find where AI saves your business.</div>
+          <div style="font-size:8px;color:#64748b;line-height:1.55;margin-bottom:0.75rem;max-width:40ch">Agentic AI reviews your workflows and delivers a practical report showing which tools are worth implementing first.</div>
+          <div style="display:flex;gap:0.4rem;align-items:center;margin-bottom:0.9rem">
+            <div style="background:#2563eb;color:#fff;border-radius:999px;padding:5px 12px;font-size:7.5px;font-weight:800">📞 Call for Assessment</div>
+            <div style="border:1.5px solid #e2e8f0;border-radius:999px;padding:5px 12px;font-size:7.5px;font-weight:800;color:#0f172a">See What You Get</div>
+          </div>
+          <div style="display:flex;gap:1.2rem;padding-top:0.75rem;border-top:1px solid #f1f5f9">
+            <div><div style="font-size:10px;font-weight:900;color:#0f172a">$1,200</div><div style="font-size:6.5px;color:#94a3b8;margin-top:1px">fee</div></div>
+            <div><div style="font-size:10px;font-weight:900;color:#0f172a">48 hrs</div><div style="font-size:6.5px;color:#94a3b8;margin-top:1px">turnaround</div></div>
+            <div><div style="font-size:10px;font-weight:900;color:#0f172a">20-30 min</div><div style="font-size:6.5px;color:#94a3b8;margin-top:1px">intake</div></div>
+          </div>
+        </div>
+        <div style="padding:0.9rem;background:#f8fafc;border-top:1px solid #e2e8f4">
+          <div class="eyebrow" style="font-size:6.5px;margin-bottom:0.5rem"><span style="display:block;width:5px;height:5px;background:#2563eb;border-radius:50%"></span>The offer</div>
+          <div style="font-size:10px;font-weight:900;color:#0f172a;letter-spacing:-0.015em;margin-bottom:0.25rem">A clear AI roadmap for your actual business</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;margin-top:0.6rem">
+            <div class="card-border" style="padding:0.5rem"><div style="font-size:7px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">AI Assessment</div><div style="font-size:6px;color:#64748b;line-height:1.45">Structured workflow review.</div></div>
+            <div class="card-border" style="padding:0.5rem"><div style="font-size:7px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">48-hr Report</div><div style="font-size:6px;color:#64748b;line-height:1.45">Clear ranked recommendations.</div></div>
+            <div class="card-border" style="padding:0.5rem"><div style="font-size:7px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">Quick Wins</div><div style="font-size:6px;color:#64748b;line-height:1.45">Implementation plan included.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Compact</h3>
+      <p>Tighter padding, smaller type scale, more information density. Good for users who scan fast and want to see more at a glance. Efficient and direct.</p>
+    </div>
+  </div>
+
+</div>

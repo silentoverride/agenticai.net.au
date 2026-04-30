@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { env as publicEnv } from '$env/dynamic/public';
   import Navigation from '$lib/components/Navigation.svelte';
   import Footer from '$lib/components/Footer.svelte';
   import RetellChatWidget from '$lib/components/RetellChatWidget.svelte';
@@ -18,12 +17,5 @@
 
 <Navigation />
 {@render children()}
-<RetellChatWidget
-  publicKey={publicEnv.PUBLIC_RETELL_PUBLIC_KEY || ''}
-  voiceAgentId={publicEnv.PUBLIC_RETELL_VOICE_AGENT_ID || ''}
-  phoneNumber={publicEnv.PUBLIC_RETELL_CALLBACK_PHONE_NUMBER || ''}
-  agentVersion={publicEnv.PUBLIC_RETELL_VOICE_AGENT_VERSION || ''}
-  countries={publicEnv.PUBLIC_RETELL_CALLBACK_COUNTRIES || 'AU'}
-  recaptchaKey={publicEnv.PUBLIC_RETELL_RECAPTCHA_KEY || ''}
-/>
+<RetellChatWidget />
 <Footer />

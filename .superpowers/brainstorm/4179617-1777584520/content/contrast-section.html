@@ -1,0 +1,152 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+  * { box-sizing:border-box; font-family:'Inter',sans-serif; }
+  .mock { border:1.5px solid #e2e8f0; border-radius:10px; overflow:hidden; margin-bottom:0.5rem; }
+  .mock-white { background:#fff; padding:1.2rem 1.4rem; }
+  .eyebrow { font-size:7px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:#2563eb; display:flex; align-items:center; gap:0.35rem; margin-bottom:0.5rem; }
+  .eyebrow::before { content:''; display:block; width:5px; height:5px; background:#2563eb; border-radius:50%; }
+  .eyebrow-inv { color:#93c5fd; }
+  .eyebrow-inv::before { background:#93c5fd; }
+  .eyebrow-mid { color:#2563eb; }
+  .eyebrow-mid::before { background:#2563eb; }
+  .h2 { font-size:16px; font-weight:900; line-height:1.05; letter-spacing:-0.02em; margin-bottom:0.4rem; }
+  .subp { font-size:7.5px; line-height:1.65; color:#64748b; margin-bottom:0.8rem; max-width:36ch; }
+  .card-b { background:#fff; border:1.5px solid #e2e8f0; border-radius:8px; padding:0.6rem; }
+  .stack-item { display:flex; align-items:start; gap:0.5rem; padding:0.5rem 0; border-top:1px solid rgba(255,255,255,0.1); }
+  .stack-item:first-child { border-top:none; padding-top:0; }
+  .stack-item-light { border-top:1px solid #f1f5f9; }
+  .stack-item-light:first-child { border-top:none; }
+  .num { font-size:8px; font-weight:900; width:18px; flex-shrink:0; }
+  .fi { font-size:7.5px; font-weight:800; margin-bottom:2px; }
+  .fp { font-size:6.5px; line-height:1.5; }
+</style>
+
+<h2>What breaks up the page?</h2>
+<p class="subtitle">The current dark gradient report section creates visual contrast. What replaces it in the new system?</p>
+
+<div class="cards">
+
+  <!-- A: Bold blue section -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="mock">
+        <div class="mock-white">
+          <div class="eyebrow">The offer</div>
+          <div class="h2" style="color:#0f172a">A clear AI roadmap for your actual business</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:0.75rem">
+            <div class="card-b"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">AI Assessment</div><div style="font-size:6.5px;color:#64748b">Structured review</div></div>
+            <div class="card-b"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">48-hr Report</div><div style="font-size:6.5px;color:#64748b">Ranked recommendations</div></div>
+            <div class="card-b"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">Quick Wins</div><div style="font-size:6.5px;color:#64748b">Implementation plan</div></div>
+          </div>
+        </div>
+        <!-- Blue contrast section -->
+        <div style="background:#2563eb;padding:1.2rem 1.4rem">
+          <div class="eyebrow eyebrow-inv">The report</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;align-items:start">
+            <div>
+              <div class="h2" style="color:#fff;margin-bottom:0.4rem">Specific recommendations, ranked by return</div>
+              <div style="font-size:7.5px;color:#bfdbfe;line-height:1.6;margin-bottom:0.7rem">The assessment turns an intake conversation into a decision-ready report — pain points, quick wins, tools, effort vs impact, and ROI estimates.</div>
+              <div style="background:rgba(255,255,255,0.15);border-radius:999px;padding:5px 12px;display:inline-flex;font-size:7.5px;font-weight:800;color:#fff">Review the Assessment →</div>
+            </div>
+            <div>
+              <div class="stack-item"><span class="num" style="color:#93c5fd">01</span><div><div class="fi" style="color:#fff">Pain points</div><div class="fp" style="color:#bfdbfe">Repeated work and slow handoffs found during intake.</div></div></div>
+              <div class="stack-item"><span class="num" style="color:#93c5fd">02</span><div><div class="fi" style="color:#fff">Quick wins</div><div class="fp" style="color:#bfdbfe">Low-effort fixes with specific tools and setup steps.</div></div></div>
+              <div class="stack-item"><span class="num" style="color:#93c5fd">03</span><div><div class="fi" style="color:#fff">ROI estimate</div><div class="fp" style="color:#bfdbfe">Hours saved, tool cost, and annual value.</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="mock-white">
+          <div class="eyebrow">Implementation</div>
+          <div class="h2" style="color:#0f172a;font-size:13px">Turn the report into working systems</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Bold blue section</h3>
+      <p>Full-width solid blue panel. Stays on-brand, punchy, high-contrast. The blue accent becomes the hero moment of the page.</p>
+    </div>
+  </div>
+
+  <!-- B: Dark navy section -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="mock">
+        <div class="mock-white">
+          <div class="eyebrow">The offer</div>
+          <div class="h2" style="color:#0f172a">A clear AI roadmap for your actual business</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:0.75rem">
+            <div class="card-b"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">AI Assessment</div><div style="font-size:6.5px;color:#64748b">Structured review</div></div>
+            <div class="card-b"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">48-hr Report</div><div style="font-size:6.5px;color:#64748b">Ranked recommendations</div></div>
+            <div class="card-b"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">Quick Wins</div><div style="font-size:6.5px;color:#64748b">Implementation plan</div></div>
+          </div>
+        </div>
+        <!-- Dark navy section -->
+        <div style="background:#0f172a;padding:1.2rem 1.4rem">
+          <div class="eyebrow" style="color:#60a5fa;margin-bottom:0.5rem"><span style="display:block;width:5px;height:5px;background:#60a5fa;border-radius:50%"></span>The report</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;align-items:start">
+            <div>
+              <div class="h2" style="color:#f8fafc;margin-bottom:0.4rem">Specific recommendations, ranked by return</div>
+              <div style="font-size:7.5px;color:#94a3b8;line-height:1.6;margin-bottom:0.7rem">The assessment turns an intake conversation into a decision-ready report — pain points, quick wins, tools, effort vs impact, and ROI estimates.</div>
+              <div style="background:#2563eb;border-radius:999px;padding:5px 12px;display:inline-flex;font-size:7.5px;font-weight:800;color:#fff">Review the Assessment →</div>
+            </div>
+            <div>
+              <div class="stack-item"><span class="num" style="color:#60a5fa">01</span><div><div class="fi" style="color:#f1f5f9">Pain points</div><div class="fp" style="color:#94a3b8">Repeated work and slow handoffs found during intake.</div></div></div>
+              <div class="stack-item"><span class="num" style="color:#60a5fa">02</span><div><div class="fi" style="color:#f1f5f9">Quick wins</div><div class="fp" style="color:#94a3b8">Low-effort fixes with specific tools and setup steps.</div></div></div>
+              <div class="stack-item"><span class="num" style="color:#60a5fa">03</span><div><div class="fi" style="color:#f1f5f9">ROI estimate</div><div class="fp" style="color:#94a3b8">Hours saved, tool cost, and annual value.</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="mock-white">
+          <div class="eyebrow">Implementation</div>
+          <div class="h2" style="color:#0f172a;font-size:13px">Turn the report into working systems</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Dark navy section</h3>
+      <p>Deep navy (#0f172a) with blue accents. Maximum contrast, premium feel. The current site's dark section — just cleaner and on the new system.</p>
+    </div>
+  </div>
+
+  <!-- C: All light, subtle grey -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0.75rem">
+      <div class="mock">
+        <div class="mock-white">
+          <div class="eyebrow">The offer</div>
+          <div class="h2" style="color:#0f172a">A clear AI roadmap for your actual business</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:0.75rem">
+            <div class="card-b"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">AI Assessment</div><div style="font-size:6.5px;color:#64748b">Structured review</div></div>
+            <div class="card-b"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">48-hr Report</div><div style="font-size:6.5px;color:#64748b">Ranked recommendations</div></div>
+            <div class="card-b"><div style="font-size:7.5px;font-weight:800;color:#0f172a;margin-bottom:0.2rem">Quick Wins</div><div style="font-size:6.5px;color:#64748b">Implementation plan</div></div>
+          </div>
+        </div>
+        <!-- Light grey section -->
+        <div style="background:#f1f5f9;padding:1.2rem 1.4rem;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0">
+          <div class="eyebrow eyebrow-mid">The report</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;align-items:start">
+            <div>
+              <div class="h2" style="color:#0f172a;margin-bottom:0.4rem">Specific recommendations, ranked by return</div>
+              <div style="font-size:7.5px;color:#64748b;line-height:1.6;margin-bottom:0.7rem">The assessment turns an intake conversation into a decision-ready report — pain points, quick wins, tools, effort vs impact, and ROI estimates.</div>
+              <div style="background:#2563eb;border-radius:999px;padding:5px 12px;display:inline-flex;font-size:7.5px;font-weight:800;color:#fff">Review the Assessment →</div>
+            </div>
+            <div>
+              <div class="stack-item stack-item-light"><span class="num" style="color:#2563eb">01</span><div><div class="fi" style="color:#0f172a">Pain points</div><div class="fp" style="color:#64748b">Repeated work and slow handoffs found during intake.</div></div></div>
+              <div class="stack-item stack-item-light"><span class="num" style="color:#2563eb">02</span><div><div class="fi" style="color:#0f172a">Quick wins</div><div class="fp" style="color:#64748b">Low-effort fixes with specific tools and setup steps.</div></div></div>
+              <div class="stack-item stack-item-light"><span class="num" style="color:#2563eb">03</span><div><div class="fi" style="color:#0f172a">ROI estimate</div><div class="fp" style="color:#64748b">Hours saved, tool cost, and annual value.</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="mock-white">
+          <div class="eyebrow">Implementation</div>
+          <div class="h2" style="color:#0f172a;font-size:13px">Turn the report into working systems</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — All light</h3>
+      <p>No dark sections at all. Alternating white and light grey (#f1f5f9) creates rhythm without drama. Clean, consistent, very contemporary.</p>
+    </div>
+  </div>
+
+</div>

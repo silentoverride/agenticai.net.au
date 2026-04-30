@@ -33,7 +33,7 @@
 
 <header class="site-header">
   <a class="brand" href="/" aria-label="Agentic AI home">
-    <img src="/logo.svg" alt="Agentic AI" />
+    <img src="/logo.svg" alt="Agentic AI" loading="eager" decoding="sync" fetchpriority="high" />
   </a>
   <nav aria-label="Main navigation">
     {#each links as link}

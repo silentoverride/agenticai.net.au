@@ -1,0 +1,137 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap');
+  .swatch-row { display:flex; gap:0.5rem; margin-bottom:0.75rem; }
+  .swatch { width:28px; height:28px; border-radius:6px; flex-shrink:0; }
+  .mini-hero { padding:1.4rem 1.6rem; border-radius:8px 8px 0 0; border-bottom:1px solid #e5e7eb; min-height:190px; background:#fff; }
+  .mini-eyebrow { font-family:'Inter',sans-serif; font-size:8px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.5rem; }
+  .mini-h1 { font-family:'Inter',sans-serif; font-size:22px; font-weight:900; line-height:1.05; letter-spacing:-0.02em; color:#0f172a; margin-bottom:0.6rem; }
+  .mini-p { font-family:'Inter',sans-serif; font-size:9px; line-height:1.6; color:#64748b; margin-bottom:0.9rem; }
+  .mini-btn-row { display:flex; gap:0.45rem; align-items:center; }
+  .mini-btn { border-radius:999px; padding:6px 14px; font-size:9px; font-weight:800; font-family:'Inter',sans-serif; }
+  .mini-stat { border-radius:8px; padding:0.5rem 0.7rem; flex:1; font-family:'Inter',sans-serif; }
+  .mini-stat-val { font-size:11px; font-weight:900; }
+  .mini-stat-lbl { font-size:7.5px; color:#94a3b8; margin-top:1px; }
+  .mini-tag { display:inline-flex; align-items:center; gap:0.3rem; padding:3px 8px; border-radius:999px; font-family:'Inter',sans-serif; font-size:8px; font-weight:800; margin-bottom:0.6rem; }
+  .mini-nav { height:4px; width:40px; border-radius:2px; margin-bottom:0.5rem; }
+</style>
+
+<h2>Which accent colour feels right?</h2>
+<p class="subtitle">White background and Inter type confirmed. These show how the primary action colour changes the whole personality.</p>
+
+<div class="cards">
+
+  <!-- A: Electric Blue -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="mini-hero">
+      <div class="mini-tag" style="background:#eff6ff;color:#2563eb;">● AI Business Assessment</div>
+      <div class="mini-h1">Find where AI<br>saves your<br>business time.</div>
+      <div class="mini-p">Agentic AI reviews your workflows and delivers a practical report showing which AI tools are worth implementing first.</div>
+      <div class="mini-btn-row" style="margin-bottom:0.9rem">
+        <div class="mini-btn" style="background:#2563eb;color:#fff;">📞 Call for Assessment</div>
+        <div class="mini-btn" style="border:1.5px solid #e2e8f0;color:#0f172a;">See What You Get</div>
+      </div>
+      <div style="display:flex;gap:0.4rem">
+        <div class="mini-stat" style="background:#eff6ff;border:1px solid #bfdbfe">
+          <div class="mini-stat-val" style="color:#2563eb">$1,200</div>
+          <div class="mini-stat-lbl">assessment fee</div>
+        </div>
+        <div class="mini-stat" style="background:#eff6ff;border:1px solid #bfdbfe">
+          <div class="mini-stat-val" style="color:#2563eb">48 hrs</div>
+          <div class="mini-stat-lbl">turnaround</div>
+        </div>
+        <div class="mini-stat" style="background:#eff6ff;border:1px solid #bfdbfe">
+          <div class="mini-stat-val" style="color:#2563eb">20-30 min</div>
+          <div class="mini-stat-lbl">intake call</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="swatch-row">
+        <div class="swatch" style="background:#2563eb"></div>
+        <div class="swatch" style="background:#1d4ed8"></div>
+        <div class="swatch" style="background:#eff6ff;border:1px solid #bfdbfe"></div>
+        <div class="swatch" style="background:#0f172a"></div>
+        <div class="swatch" style="background:#f8fafc;border:1px solid #e2e8f0"></div>
+      </div>
+      <h3>A — Electric Blue</h3>
+      <p>Classic SaaS blue. Familiar, trustworthy, high-contrast. Works well across all contexts — buttons, links, highlights.</p>
+    </div>
+  </div>
+
+  <!-- B: Indigo -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="mini-hero">
+      <div class="mini-tag" style="background:#eef2ff;color:#4f46e5;">● AI Business Assessment</div>
+      <div class="mini-h1">Find where AI<br>saves your<br>business time.</div>
+      <div class="mini-p">Agentic AI reviews your workflows and delivers a practical report showing which AI tools are worth implementing first.</div>
+      <div class="mini-btn-row" style="margin-bottom:0.9rem">
+        <div class="mini-btn" style="background:#4f46e5;color:#fff;">📞 Call for Assessment</div>
+        <div class="mini-btn" style="border:1.5px solid #e2e8f0;color:#0f172a;">See What You Get</div>
+      </div>
+      <div style="display:flex;gap:0.4rem">
+        <div class="mini-stat" style="background:#eef2ff;border:1px solid #c7d2fe">
+          <div class="mini-stat-val" style="color:#4f46e5">$1,200</div>
+          <div class="mini-stat-lbl">assessment fee</div>
+        </div>
+        <div class="mini-stat" style="background:#eef2ff;border:1px solid #c7d2fe">
+          <div class="mini-stat-val" style="color:#4f46e5">48 hrs</div>
+          <div class="mini-stat-lbl">turnaround</div>
+        </div>
+        <div class="mini-stat" style="background:#eef2ff;border:1px solid #c7d2fe">
+          <div class="mini-stat-val" style="color:#4f46e5">20-30 min</div>
+          <div class="mini-stat-lbl">intake call</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="swatch-row">
+        <div class="swatch" style="background:#4f46e5"></div>
+        <div class="swatch" style="background:#3730a3"></div>
+        <div class="swatch" style="background:#eef2ff;border:1px solid #c7d2fe"></div>
+        <div class="swatch" style="background:#0f172a"></div>
+        <div class="swatch" style="background:#f8fafc;border:1px solid #e2e8f0"></div>
+      </div>
+      <h3>B — Indigo</h3>
+      <p>Deeper, richer blue-purple. More distinctive than plain blue — feels premium and intelligent without being stuffy. Think Notion, Linear.</p>
+    </div>
+  </div>
+
+  <!-- C: Clean Teal (evolved) -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="mini-hero">
+      <div class="mini-tag" style="background:#f0fdf9;color:#0d9488;">● AI Business Assessment</div>
+      <div class="mini-h1">Find where AI<br>saves your<br>business time.</div>
+      <div class="mini-p">Agentic AI reviews your workflows and delivers a practical report showing which AI tools are worth implementing first.</div>
+      <div class="mini-btn-row" style="margin-bottom:0.9rem">
+        <div class="mini-btn" style="background:#0d9488;color:#fff;">📞 Call for Assessment</div>
+        <div class="mini-btn" style="border:1.5px solid #e2e8f0;color:#0f172a;">See What You Get</div>
+      </div>
+      <div style="display:flex;gap:0.4rem">
+        <div class="mini-stat" style="background:#f0fdf9;border:1px solid #99f6e4">
+          <div class="mini-stat-val" style="color:#0d9488">$1,200</div>
+          <div class="mini-stat-lbl">assessment fee</div>
+        </div>
+        <div class="mini-stat" style="background:#f0fdf9;border:1px solid #99f6e4">
+          <div class="mini-stat-val" style="color:#0d9488">48 hrs</div>
+          <div class="mini-stat-lbl">turnaround</div>
+        </div>
+        <div class="mini-stat" style="background:#f0fdf9;border:1px solid #99f6e4">
+          <div class="mini-stat-val" style="color:#0d9488">20-30 min</div>
+          <div class="mini-stat-lbl">intake call</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="swatch-row">
+        <div class="swatch" style="background:#0d9488"></div>
+        <div class="swatch" style="background:#0f766e"></div>
+        <div class="swatch" style="background:#f0fdf9;border:1px solid #99f6e4"></div>
+        <div class="swatch" style="background:#0f172a"></div>
+        <div class="swatch" style="background:#f8fafc;border:1px solid #e2e8f0"></div>
+      </div>
+      <h3>C — Evolved Teal</h3>
+      <p>Keeps brand continuity with your current teal — but cleaned up on white instead of warm paper. Fresh and distinctive in the AI/tech space.</p>
+    </div>
+  </div>
+
+</div>

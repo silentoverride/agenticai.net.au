@@ -1,100 +1,24 @@
 <script lang="ts">
-  import { dev } from '$app/environment';
-  import { onMount } from 'svelte';
-
-  type Props = {
-    publicKey: string;
-    voiceAgentId: string;
-    phoneNumber: string;
-    agentVersion?: string;
-    countries?: string;
-    recaptchaKey?: string;
-  };
-
-  let {
-    publicKey,
-    voiceAgentId,
-    phoneNumber,
-    agentVersion = '',
-    countries = 'AU',
-    recaptchaKey = ''
-  }: Props = $props();
-
-  onMount(() => {
-    if (!publicKey || !voiceAgentId || !phoneNumber) {
-      if (dev) {
-        console.warn(
-          'Retell callback widget is disabled. Set PUBLIC_RETELL_PUBLIC_KEY, PUBLIC_RETELL_VOICE_AGENT_ID, and PUBLIC_RETELL_CALLBACK_PHONE_NUMBER.'
-        );
-      }
-
-      return;
-    }
-
-    let cancelled = false;
-
-    const scheduleLoad = () => {
-      window.setTimeout(loadWidget, 0);
-    };
-
-    const startAfterPageLoad = () => {
-      if (document.readyState === 'complete') {
-        scheduleLoad();
-        return;
-      }
-
-      window.addEventListener('load', scheduleLoad, { once: true });
-    };
-
-    const loadWidget = () => {
-      if (cancelled || document.getElementById('retell-widget')) return;
-
-      const canUseRecaptcha =
-        recaptchaKey && !['localhost', '127.0.0.1'].includes(window.location.hostname);
-
-      if (
-        canUseRecaptcha &&
-        !document.querySelector('script[src^="https://www.google.com/recaptcha/api.js"]')
-      ) {
-        const recaptcha = document.createElement('script');
-        recaptcha.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(recaptchaKey)}`;
-        recaptcha.async = true;
-        recaptcha.defer = true;
-        document.head.appendChild(recaptcha);
-      }
-
-      const script = document.createElement('script');
-      script.id = 'retell-widget';
-      script.type = 'module';
-      script.src = 'https://dashboard.retellai.com/retell-widget.js';
-      script.async = true;
-      script.defer = true;
-      script.dataset.publicKey = publicKey;
-      script.dataset.agentId = voiceAgentId;
-      script.dataset.widget = 'callback';
-      script.dataset.phoneNumber = phoneNumber;
-      script.dataset.title = 'Request an assessment call';
-      script.dataset.logoUrl = '/logo.svg';
-      script.dataset.color = '#0e9f8f';
-      script.dataset.countries = countries;
-      script.dataset.tc = `${window.location.origin}/terms`;
-
-      if (agentVersion) {
-        script.dataset.agentVersion = agentVersion;
-      }
-
-      if (canUseRecaptcha) {
-        script.dataset.recaptchaKey = recaptchaKey;
-      }
-
-      document.head.appendChild(script);
-    };
-
-    startAfterPageLoad();
-
-    return () => {
-      cancelled = true;
-      window.removeEventListener('load', scheduleLoad);
-    };
-  });
+  import { callStatus, toggleCall } from '$lib/stores/call';
 </script>
+
+<div class="chatbot">
+  <button
+    class="chat-launcher{$callStatus === 'active' ? ' call-active' : ''}"
+    type="button"
+    disabled={$callStatus === 'connecting'}
+    aria-label={$callStatus === 'active' ? 'End call with Annie' : 'Call Annie'}
+    onclick={() => toggleCall('website-float-widget')}
+  >
+    {#if $callStatus === 'active'}
+      <svg class="call-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.42 19.42 0 0 1 4.13 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 2.24h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.01 9.96a16 16 0 0 0 3.67 3.35" />
+        <line x1="23" y1="1" x2="1" y2="23" />
+      </svg>
+    {:else}
+      <svg class="call-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 2.24h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.01 9.96a16 16 0 0 0 6.03 6.03l1.82-1.25a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+      </svg>
+    {/if}
+  </button>
+</div>
