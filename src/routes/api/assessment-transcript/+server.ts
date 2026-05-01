@@ -12,6 +12,10 @@ export const POST: RequestHandler = async ({ request }) => {
     receivedAt: new Date().toISOString(),
     sessionId: payload.sessionId,
     source: payload.source || 'website-chatbot',
+    customerName: payload.customerName || null,
+    customerEmail: payload.customerEmail || null,
+    customerPhone: payload.customerPhone || null,
+    company: payload.company || null,
     transcript: payload.transcript
   };
 

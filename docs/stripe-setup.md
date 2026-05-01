@@ -172,10 +172,10 @@ Recommended event:
 checkout.session.completed
 ```
 
-Suggested endpoint:
+Endpoint:
 
 ```text
-POST /api/stripe/webhook
+POST https://agenticai.net.au/api/stripe/webhook
 ```
 
 Required env var:
@@ -183,6 +183,27 @@ Required env var:
 ```sh
 STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxx
 ```
+
+### Stripe Dashboard Setup
+
+1. Go to **Stripe Dashboard** -> **Developers** -> **Webhooks**.
+2. Click **Add an endpoint**.
+3. Endpoint URL: `https://agenticai.net.au/api/stripe/webhook`
+4. Select event: `checkout.session.completed`
+5. Create the endpoint.
+6. Reveal the **Signing secret** (starts with `whsec_`).
+7. Set it as `STRIPE_WEBHOOK_SECRET` in the environment.
+8. Upload to Cloudflare: `echo "whsec_..." | wrangler pages secret put STRIPE_WEBHOOK_SECRET`
+
+### Webhook Behaviour
+
+The handler:
+1. Verifies the Stripe signature using HMAC-SHA256.
+2. On `checkout.session.completed`, extracts metadata and payment details.
+3. Logs a structured record with session ID, payment status, customer info, and transcript preview.
+4. If `ASSESSMENT_REPORT_AGENT_WEBHOOK_URL` is configured, forwards the payment confirmation to the report agent.
+
+Correlation: metadata includes `retell_call_id` (passed from Retell during checkout creation), so the report agent can match payment to transcript.
 
 Webhook handling should:
 

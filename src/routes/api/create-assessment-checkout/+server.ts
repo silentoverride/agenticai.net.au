@@ -24,6 +24,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
       customerName?: string;
       customerPhone?: string;
       company?: string;
+      retellCallId?: string;
     };
     source?: string;
     transcriptPreview?: string;
@@ -31,6 +32,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
     customerName?: string;
     customerPhone?: string;
     company?: string;
+    retellCallId?: string;
   };
   const body = requestBody.args || requestBody;
 
@@ -55,6 +57,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
   params.set('metadata[customer_name]', (body.customerName || '').slice(0, 120));
   params.set('metadata[customer_phone]', (body.customerPhone || '').slice(0, 60));
   params.set('metadata[company]', (body.company || '').slice(0, 140));
+  params.set('metadata[retell_call_id]', (body.retellCallId || '').slice(0, 64));
   params.set('allow_promotion_codes', 'false');
   params.set('billing_address_collection', 'auto');
   params.set('phone_number_collection[enabled]', 'true');
