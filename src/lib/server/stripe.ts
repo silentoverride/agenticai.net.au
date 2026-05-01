@@ -1,5 +1,38 @@
 import { env } from '$env/dynamic/private';
 
+function bytesToHex(bytes: ArrayBuffer) {
+  return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export async function verifyStripeSignature(payload: string, signature: string, secret: string): Promise<boolean> {
+  const parts = signature.split(',').reduce(
+    (acc, part) => {
+      const [key, val] = part.split('=');
+      acc[key.trim()] = val;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
+  const timestamp = parts.t || '';
+  const v1 = parts.v1 || '';
+
+  if (!timestamp || !v1) return false;
+
+  const signedPayload = `${timestamp}.${payload}`;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(signedPayload));
+  const expected = bytesToHex(sig);
+  return expected === v1;
+}
+
 interface StripeCheckoutSession {
   id: string;
   status: string;

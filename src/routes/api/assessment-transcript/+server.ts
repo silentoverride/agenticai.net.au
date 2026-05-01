@@ -1,9 +1,9 @@
 import { json } from '@sveltejs/kit';
 import { getCheckoutSession } from '$lib/server/stripe';
-import { getTranscript, deleteTranscript, runReportPipeline } from '$lib/server/assessment-report';
+import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
+import { getPipelineStatus, setPipelineStatus } from '$lib/server/assessment/pipeline-store';
+import { runReportPipeline } from '$lib/server/assessment/pipeline';
 import type { RequestHandler } from './$types';
-
-const pipelineStore = new Map<string, { status: string; deckUrl?: string; reportId?: string; error?: string }>();
 
 export const POST: RequestHandler = async ({ request }) => {
   const payload = await request.json().catch(() => null);
@@ -47,6 +47,7 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 
   if (!transcript) {
+    setPipelineStatus(payload.sessionId, { status: 'pending_transcript' });
     return json({
       message: 'Payment verified, but transcript not available yet. It will be processed when the interview completes.',
       status: 'pending_transcript',
@@ -63,6 +64,7 @@ export const POST: RequestHandler = async ({ request }) => {
   }));
 
   // Step 3: Run the report pipeline (async — don't block client)
+  setPipelineStatus(payload.sessionId, { status: 'queued' });
   runReportPipeline({
     receivedAt: new Date().toISOString(),
     source,
@@ -73,14 +75,14 @@ export const POST: RequestHandler = async ({ request }) => {
     company,
     transcript
   }).then((result) => {
-    pipelineStore.set(payload.sessionId, {
+    setPipelineStatus(payload.sessionId, {
       status: 'completed',
       deckUrl: result.deckUrl || undefined,
       reportId: result.savedReport?.id
     });
     console.info('Pipeline completed for', payload.sessionId, result.savedReport?.id || 'no report');
   }).catch((error) => {
-    pipelineStore.set(payload.sessionId, { status: 'error', error: String(error) });
+    setPipelineStatus(payload.sessionId, { status: 'error', error: String(error) });
     console.error('Pipeline failed for', payload.sessionId, error);
   });
 
@@ -97,7 +99,7 @@ export const GET: RequestHandler = async ({ url }) => {
   const sessionId = url.searchParams.get('sessionId');
   if (!sessionId) return json({ message: 'Missing sessionId' }, { status: 400 });
 
-  const result = pipelineStore.get(sessionId);
+  const result = getPipelineStatus(sessionId);
   if (!result) return json({ status: 'unknown' });
 
   return json({

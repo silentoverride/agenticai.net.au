@@ -1,0 +1,14 @@
+{
+  "id": "1777637074192-cs_test_a1HbThyWlDmoL3iukbHjrcTADBZ1vuJtSwyOKejS6VGAH5MNTLs7qHtPDO",
+  "job": {
+    "sessionId": "cs_test_a1HbThyWlDmoL3iukbHjrcTADBZ1vuJtSwyOKejS6VGAH5MNTLs7qHtPDO",
+    "source": "retell-voice-agent",
+    "customerName": "Sarah Ng",
+    "customerEmail": "",
+    "customerPhone": "",
+    "company": "Harbour Tours Sydney",
+    "receivedAt": "2026-05-01T12:04:34.166Z"
+  },
+  "deckUrl": "https://presenton.test/download/agentic-ai-assessment.pptx",
+  "createdAt": "2026-05-01T12:04:34.193Z"
+}

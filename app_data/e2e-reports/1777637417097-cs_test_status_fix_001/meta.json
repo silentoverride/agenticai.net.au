@@ -1,0 +1,14 @@
+{
+  "id": "1777637417097-cs_test_status_fix_001",
+  "job": {
+    "sessionId": "cs_test_status_fix_001",
+    "source": "retell-voice-agent",
+    "customerName": "Sarah Ng",
+    "customerEmail": "",
+    "customerPhone": "",
+    "company": "Harbour Tours Sydney",
+    "receivedAt": "2026-05-01T12:10:17.061Z"
+  },
+  "deckUrl": "https://presenton.test/status-fixed.pptx",
+  "createdAt": "2026-05-01T12:10:17.097Z"
+}

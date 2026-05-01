@@ -1,40 +1,11 @@
 import { env } from '$env/dynamic/private';
-import { json, text } from '@sveltejs/kit';
-import { getTranscript, deleteTranscript, runReportPipeline } from '$lib/server/assessment-report';
+import { text } from '@sveltejs/kit';
+import { verifyStripeSignature } from '$lib/server/stripe';
+import { sendReceiptEmail } from '$lib/server/assessment/emails';
+import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
+import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
+import { runReportPipeline } from '$lib/server/assessment/pipeline';
 import type { RequestHandler } from './$types';
-
-function bytesToHex(bytes: ArrayBuffer) {
-  return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function verifyStripeSignature(payload: string, signature: string, secret: string) {
-  const parts = signature.split(',').reduce(
-    (acc, part) => {
-      const [key, val] = part.split('=');
-      acc[key.trim()] = val;
-      return acc;
-    },
-    {} as Record<string, string>
-  );
-
-  const timestamp = parts.t || '';
-  const v1 = parts.v1 || '';
-
-  if (!timestamp || !v1) return false;
-
-  const signedPayload = `${timestamp}.${payload}`;
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(signedPayload));
-  const expected = bytesToHex(sig);
-  return expected === v1;
-}
 
 export const POST: RequestHandler = async ({ request }) => {
   if (!env.STRIPE_WEBHOOK_SECRET) {
@@ -80,6 +51,27 @@ export const POST: RequestHandler = async ({ request }) => {
 
     console.info('Stripe payment confirmed', JSON.stringify(record));
 
+    // Send receipt email (non-blocking)
+    if (record.customerEmail) {
+      try {
+        const amountFormatted = record.amountTotal
+          ? `$${(record.amountTotal / 100).toFixed(2)} ${(record.currency || 'aud').toUpperCase()}`
+          : 'N/A';
+        const receipt = await sendReceiptEmail({
+          to: record.customerEmail,
+          customerName: record.customerName || undefined,
+          company: record.company || undefined,
+          amount: amountFormatted,
+          reference: session.id
+        });
+        if (receipt.sent) {
+          console.info('Receipt email sent', { to: record.customerEmail, id: receipt.id });
+        }
+      } catch (err) {
+        console.error('Receipt email failed:', err);
+      }
+    }
+
     // For voice-agent flow: if retell_call_id is in metadata, run report pipeline directly
     const retellCallId = metadata.retell_call_id;
     if (retellCallId) {
@@ -92,6 +84,7 @@ export const POST: RequestHandler = async ({ request }) => {
         const company = metadata.company || '';
 
         // Fire-and-forget local pipeline
+        setPipelineStatus(session.id, { status: 'queued' });
         runReportPipeline({
           receivedAt: record.receivedAt,
           source: 'retell-voice-agent',
@@ -102,13 +95,20 @@ export const POST: RequestHandler = async ({ request }) => {
           company,
           transcript
         }).then((result) => {
+          setPipelineStatus(session.id, {
+            status: 'completed',
+            deckUrl: result.deckUrl || undefined,
+            reportId: result.savedReport?.id
+          });
           console.info('Pipeline completed for retell call', { callId: retellCallId, reportId: result.savedReport?.id });
         }).catch((error) => {
+          setPipelineStatus(session.id, { status: 'error', error: String(error) });
           console.error('Pipeline failed for retell call', { callId: retellCallId, error: String(error) });
         });
 
         deleteTranscript(retellCallId);
       } else {
+        setPipelineStatus(session.id, { status: 'pending_transcript' });
         console.info('Payment confirmed for retell call, but transcript not yet available', { callId: retellCallId });
       }
     }

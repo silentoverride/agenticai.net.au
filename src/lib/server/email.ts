@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+export { reportReadyTemplate, welcomeTemplate, receiptTemplate, genericTemplate } from './email-templates';
 
 export interface EmailPayload {
   to: string;
