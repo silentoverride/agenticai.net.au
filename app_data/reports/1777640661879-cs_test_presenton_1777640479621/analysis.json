@@ -1,0 +1,156 @@
+{
+  "executive_summary": "Deck Verification Services currently relies on manual processes for enquiry handling, quote tracking in spreadsheets, and reminder follow-ups, creating significant administrative overhead. Implementing a CRM with automated workflows and AI-driven intake will streamline operations and reduce manual data entry.",
+  "pain_points": [
+    {
+      "title": "Manual Enquiry Processing",
+      "description": "All incoming enquiries are processed by hand with no automated routing or capture system.",
+      "severity": "high",
+      "frequency": "daily"
+    },
+    {
+      "title": "Spreadsheet-Based Quote Tracking",
+      "description": "Quote requests are manually copied into spreadsheets, increasing risk of errors and consuming admin time.",
+      "severity": "high",
+      "frequency": "daily"
+    },
+    {
+      "title": "Manual Reminder & Follow-Up",
+      "description": "Reminders and follow-ups are sent manually, leading to inconsistent client communication and potential missed opportunities.",
+      "severity": "medium",
+      "frequency": "daily"
+    },
+    {
+      "title": "No Centralised CRM Workflow",
+      "description": "Absence of a CRM means no structured pipeline or automated workflow for managing leads from intake to quote.",
+      "severity": "high",
+      "frequency": "daily"
+    }
+  ],
+  "quick_wins": [
+    {
+      "title": "Deploy CRM with Automated Follow-Up",
+      "description": "Implement an off-the-shelf CRM to capture enquiries and trigger automated email follow-up sequences.",
+      "effort": "low",
+      "impact": "high",
+      "estimated_hours_saved_per_week": 4,
+      "recommended_tools": [
+        "HubSpot CRM (CRM)",
+        "Zapier (Automation)"
+      ]
+    },
+    {
+      "title": "Replace Manual Data Entry with Web Forms",
+      "description": "Use online forms that feed enquiry data directly into the CRM or a structured spreadsheet, eliminating manual copying.",
+      "effort": "low",
+      "impact": "medium",
+      "estimated_hours_saved_per_week": 3,
+      "recommended_tools": [
+        "Typeform (Forms)",
+        "HubSpot Forms (Forms)"
+      ]
+    },
+    {
+      "title": "Automated Reminder Sequences",
+      "description": "Configure email templates and automated reminder workflows within the CRM to replace hand-sent reminders.",
+      "effort": "low",
+      "impact": "medium",
+      "estimated_hours_saved_per_week": 2,
+      "recommended_tools": [
+        "HubSpot CRM (CRM)"
+      ]
+    }
+  ],
+  "deeper_opportunities": [
+    {
+      "title": "AI-Powered Intake Agent",
+      "description": "Deploy an AI chatbot or voice agent to qualify initial enquiries, collect verification details, and book appointments before human review.",
+      "category": "ai_agent",
+      "estimated_setup_cost_aud": 3000,
+      "estimated_monthly_value_aud": 2000
+    },
+    {
+      "title": "End-to-End Quote Workflow Automation",
+      "description": "Connect enquiry sources, CRM, and proposal tools to auto-generate quote requests and update pipeline stages without manual intervention.",
+      "category": "automation",
+      "estimated_setup_cost_aud": 2500,
+      "estimated_monthly_value_aud": 1500
+    },
+    {
+      "title": "Centralised Knowledge System",
+      "description": "Build a searchable knowledge base for verification standards, pricing guidelines, and onboarding materials to reduce repetitive internal queries.",
+      "category": "knowledge_system",
+      "estimated_setup_cost_aud": 1500,
+      "estimated_monthly_value_aud": 800
+    }
+  ],
+  "tool_recommendations": [
+    {
+      "name": "HubSpot CRM",
+      "category": "CRM",
+      "purpose": "Centralise contacts, manage enquiry pipeline, and automate follow-up emails",
+      "estimated_monthly_cost_aud": 70,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Zapier",
+      "category": "Automation",
+      "purpose": "Integrate enquiry forms, spreadsheets, and CRM to remove manual data copying",
+      "estimated_monthly_cost_aud": 35,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Typeform",
+      "category": "Forms",
+      "purpose": "Capture structured enquiry and quote request details from the website or email links",
+      "estimated_monthly_cost_aud": 45,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Tidio",
+      "category": "AI Chatbot",
+      "purpose": "Provide initial AI-driven enquiry intake and qualification on the website",
+      "estimated_monthly_cost_aud": 70,
+      "setup_complexity": "medium"
+    }
+  ],
+  "implementation_roadmap": [
+    {
+      "phase": "Foundation & Capture",
+      "week": "1-2",
+      "actions": [
+        "Audit current enquiry sources and spreadsheet structure",
+        "Configure HubSpot CRM with custom pipeline stages for verification services",
+        "Deploy web forms for quote requests and link to CRM",
+        "Import existing spreadsheet data into CRM"
+      ]
+    },
+    {
+      "phase": "Automation & Follow-Up",
+      "week": "3-4",
+      "actions": [
+        "Build automated follow-up email sequences for new enquiries",
+        "Set up reminder workflows for open quotes and pending responses",
+        "Connect forms to CRM via Zapier to eliminate manual copying",
+        "Train team on new CRM workflow and contact management"
+      ]
+    },
+    {
+      "phase": "AI Intake & Optimisation",
+      "week": "5-8",
+      "actions": [
+        "Deploy AI chatbot for initial intake and qualification",
+        "Create knowledge base with verification guidelines and pricing",
+        "Review automation performance and refine messaging",
+        "Document standard operating procedures for the new workflow"
+      ]
+    }
+  ],
+  "financial_impact": {
+    "hours_saved_per_week": 8,
+    "hourly_rate_assumed_aud": 80,
+    "weekly_value_aud": 640,
+    "annual_value_aud": 30720,
+    "estimated_tool_costs_monthly_aud": 120,
+    "net_annual_value_aud": 29280
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "executive_summary": "Harbour Workflow Co is losing around six hours a week to repetitive manual admin, including copying email enquiries into a spreadsheet and sending follow-ups by hand, which has also led to poor proposal visibility. The owner is ready for a phased approach, beginning with a simple CRM and automated reminders before exploring more advanced AI agents.",
+  "pain_points": [
+    {
+      "title": "Manual email-to-spreadsheet data entry",
+      "description": "New enquiries are manually copied from email into a spreadsheet every morning, creating a repetitive, error-prone start to the day.",
+      "severity": "high",
+      "frequency": "daily"
+    },
+    {
+      "title": "Hand-sent follow-up reminders",
+      "description": "Follow-up reminders are sent manually, increasing the risk of missed touchpoints and consuming valuable consulting time.",
+      "severity": "medium",
+      "frequency": "daily"
+    },
+    {
+      "title": "Lost proposal status visibility",
+      "description": "Without a centralised pipeline, the team loses track of where each proposal stands, making forecasting and prioritisation difficult.",
+      "severity": "high",
+      "frequency": "weekly"
+    },
+    {
+      "title": "High weekly admin overhead",
+      "description": "The combination of copying data, manual reminders, and spreadsheet management consumes approximately six hours per week.",
+      "severity": "medium",
+      "frequency": "weekly"
+    }
+  ],
+  "quick_wins": [
+    {
+      "title": "Deploy a simple CRM with email capture",
+      "description": "Connect the enquiry inbox to a lightweight CRM to auto-create contact and deal records, eliminating the morning spreadsheet routine.",
+      "effort": "low",
+      "impact": "high",
+      "estimated_hours_saved_per_week": 3,
+      "recommended_tools": [
+        "HubSpot CRM (CRM)"
+      ]
+    },
+    {
+      "title": "Automate follow-up reminder workflows",
+      "description": "Use the CRM's built-in automation to trigger reminder emails or tasks based on deal stage or last-contact date, removing manual follow-up work.",
+      "effort": "low",
+      "impact": "medium",
+      "estimated_hours_saved_per_week": 2,
+      "recommended_tools": [
+        "HubSpot CRM (CRM)"
+      ]
+    }
+  ],
+  "deeper_opportunities": [
+    {
+      "title": "AI email parsing agent",
+      "description": "Automatically extract key enquiry details from incoming emails and populate CRM fields before human review, further reducing manual data entry.",
+      "category": "ai_agent",
+      "estimated_setup_cost_aud": 2500,
+      "estimated_monthly_value_aud": 1000
+    },
+    {
+      "title": "AI proposal drafting assistant",
+      "description": "Generate first-draft proposals using CRM deal data and historical templates to accelerate turnaround times and improve win rates.",
+      "category": "ai_agent",
+      "estimated_setup_cost_aud": 3500,
+      "estimated_monthly_value_aud": 1500
+    },
+    {
+      "title": "Advanced pipeline analytics and reporting",
+      "description": "Implement automated dashboards to track proposal win rates, cycle times, and follow-up effectiveness for continuous process optimisation.",
+      "category": "process_optimisation",
+      "estimated_setup_cost_aud": 1500,
+      "estimated_monthly_value_aud": 800
+    }
+  ],
+  "tool_recommendations": [
+    {
+      "name": "HubSpot CRM",
+      "category": "CRM",
+      "purpose": "Centralise enquiries, replace the spreadsheet, track proposal status, and automate follow-up reminders.",
+      "estimated_monthly_cost_aud": 45,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Zapier",
+      "category": "Automation",
+      "purpose": "Parse and route enquiry emails into the CRM if native inbox integration requires additional logic or formatting.",
+      "estimated_monthly_cost_aud": 30,
+      "setup_complexity": "low"
+    }
+  ],
+  "implementation_roadmap": [
+    {
+      "phase": "Foundation",
+      "week": "1-2",
+      "actions": [
+        "Select and configure a lightweight CRM (e.g., HubSpot)",
+        "Connect the enquiry email inbox to auto-create records",
+        "Import existing spreadsheet data and map fields",
+        "Define proposal pipeline stages for clear status tracking"
+      ]
+    },
+    {
+      "phase": "Automation",
+      "week": "3-4",
+      "actions": [
+        "Build automated follow-up reminder workflows by deal stage",
+        "Set up deal ownership and task notifications",
+        "Train the team on the new pipeline process",
+        "Retire the manual spreadsheet and hand-sent reminders"
+      ]
+    },
+    {
+      "phase": "AI Exploration",
+      "week": "5-8",
+      "actions": [
+        "Evaluate email parsing and AI drafting tools",
+        "Pilot one AI agent (e.g., proposal assistant or email parser)",
+        "Measure time savings and pipeline visibility improvements",
+        "Plan broader rollout based on pilot results"
+      ]
+    }
+  ],
+  "financial_impact": {
+    "hours_saved_per_week": 5,
+    "hourly_rate_assumed_aud": 100,
+    "weekly_value_aud": 500,
+    "annual_value_aud": 24000,
+    "estimated_tool_costs_monthly_aud": 75,
+    "net_annual_value_aud": 23100
+  }
+}

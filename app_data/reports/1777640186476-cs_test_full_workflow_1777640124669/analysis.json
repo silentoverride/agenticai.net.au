@@ -1,0 +1,115 @@
+{
+  "executive_summary": "Lorie's local service business relies entirely on manual processes, with enquiries tracked in spreadsheets and follow-ups handled by hand, leading to lost leads and poor visibility. She wants to establish a simple CRM workflow and automated follow-up before exploring more advanced solutions like AI phone agents. The immediate priority is replacing spreadsheet tracking with a centralized system that captures both phone and email enquiries.",
+  "pain_points": [
+    {
+      "title": "Manual spreadsheet data entry",
+      "description": "All customer enquiry details are entered by hand into spreadsheets, creating delays and risk of human error.",
+      "severity": "high",
+      "frequency": "daily"
+    },
+    {
+      "title": "Manual follow-up execution",
+      "description": "Follow-up messages for quotes and reminders are sent manually, consuming significant time and leading to inconsistent communication.",
+      "severity": "medium",
+      "frequency": "daily"
+    },
+    {
+      "title": "Lost customer tracking and missed quotes",
+      "description": "Without a unified workflow, the team frequently loses track of which customers require quotes or reminders, resulting in missed revenue opportunities.",
+      "severity": "high",
+      "frequency": "daily"
+    }
+  ],
+  "quick_wins": [
+    {
+      "title": "Deploy a simple CRM with intake forms",
+      "description": "Replace spreadsheets with a free CRM that captures email enquiries automatically via forms and provides a central dashboard for quote and reminder tracking.",
+      "effort": "low",
+      "impact": "high",
+      "estimated_hours_saved_per_week": 3,
+      "recommended_tools": [
+        "HubSpot CRM (CRM)"
+      ]
+    },
+    {
+      "title": "Automate email follow-up sequences",
+      "description": "Set up automated email workflows within the CRM to send quote follow-ups and reminders based on deal stage or last contact date.",
+      "effort": "low",
+      "impact": "high",
+      "estimated_hours_saved_per_week": 2,
+      "recommended_tools": [
+        "HubSpot CRM (CRM)",
+        "Zapier (Automation)"
+      ]
+    }
+  ],
+  "deeper_opportunities": [
+    {
+      "title": "AI phone agent for enquiry intake",
+      "description": "Once the CRM workflow is mature, implement an AI phone agent to handle initial enquiries, qualify leads, and log details directly into the CRM.",
+      "category": "ai_agent",
+      "estimated_setup_cost_aud": 5000,
+      "estimated_monthly_value_aud": 2000
+    },
+    {
+      "title": "End-to-end intake automation",
+      "description": "Integrate phone, email, and web forms into a fully automated pipeline that routes enquiries, schedules reminders, and updates deal stages without manual input.",
+      "category": "automation",
+      "estimated_setup_cost_aud": 3000,
+      "estimated_monthly_value_aud": 1500
+    }
+  ],
+  "tool_recommendations": [
+    {
+      "name": "HubSpot CRM",
+      "category": "CRM",
+      "purpose": "Centralize customer data, track quotes, and automate follow-up emails and reminders",
+      "estimated_monthly_cost_aud": 0,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Zapier",
+      "category": "Automation",
+      "purpose": "Connect email inbox and web forms to the CRM to trigger automated workflows and reduce manual data entry",
+      "estimated_monthly_cost_aud": 40,
+      "setup_complexity": "low"
+    }
+  ],
+  "implementation_roadmap": [
+    {
+      "phase": "Foundation",
+      "week": "1-2",
+      "actions": [
+        "Sign up for HubSpot CRM and import existing spreadsheet data",
+        "Create intake forms for web and email enquiries",
+        "Set up basic deal stages for quotes and reminders"
+      ]
+    },
+    {
+      "phase": "Automation",
+      "week": "3-4",
+      "actions": [
+        "Configure automated email follow-up sequences for quote reminders",
+        "Connect email inbox via Zapier to log enquiries automatically",
+        "Train team on new CRM workflow and dashboard"
+      ]
+    },
+    {
+      "phase": "Optimisation",
+      "week": "5-8",
+      "actions": [
+        "Review follow-up performance and adjust messaging",
+        "Identify remaining manual phone intake gaps",
+        "Document requirements and budget for future AI phone agent"
+      ]
+    }
+  ],
+  "financial_impact": {
+    "hours_saved_per_week": 5,
+    "hourly_rate_assumed_aud": 50,
+    "weekly_value_aud": 250,
+    "annual_value_aud": 13000,
+    "estimated_tool_costs_monthly_aud": 40,
+    "net_annual_value_aud": 12520
+  }
+}

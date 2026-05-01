@@ -1,0 +1,14 @@
+{
+  "id": "1777640186476-cs_test_full_workflow_1777640124669",
+  "job": {
+    "sessionId": "cs_test_full_workflow_1777640124669",
+    "source": "retell-voice-agent",
+    "customerName": "Lorie",
+    "customerEmail": "loriezn@gmail.com",
+    "customerPhone": "0468312233",
+    "company": "Lorie Test Business",
+    "receivedAt": "2026-05-01T12:55:27.873Z"
+  },
+  "deckUrl": null,
+  "createdAt": "2026-05-01T12:56:26.477Z"
+}

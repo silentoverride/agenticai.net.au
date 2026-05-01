@@ -1,0 +1,1 @@
+Agent: Welcome to the AI Business Assessment. User: I run Deck Verification Services. We manually process enquiries, copy quote requests into spreadsheets, send reminders by hand, and need a CRM workflow with automated follow-up and a simple roadmap for AI intake.

@@ -1,0 +1,1 @@
+Agent: Welcome to the AI Business Assessment. User: I run Harbour Workflow Co, a consulting studio. We manually copy new enquiries from email into a spreadsheet every morning, then send follow up reminders by hand. We lose track of proposal status, spend about six hours a week on admin, and want a simple CRM plus automated reminders before adding more advanced AI agents.

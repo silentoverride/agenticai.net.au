@@ -1,0 +1,14 @@
+{
+  "id": "1777640661879-cs_test_presenton_1777640479621",
+  "job": {
+    "sessionId": "cs_test_presenton_1777640479621",
+    "source": "retell-voice-agent",
+    "customerName": "Deck Test",
+    "customerEmail": "",
+    "customerPhone": "0468312233",
+    "company": "Deck Verification Services",
+    "receivedAt": "2026-05-01T13:01:21.043Z"
+  },
+  "deckUrl": "https://presenton-public-eu.s3.eu-central-1.amazonaws.com/exports/pptx/Deck-Verification-Services-AI-Business-Assessment_aa3a9a2d-e8b1-4a13-9cd8-eca3021bfad8.pptx",
+  "createdAt": "2026-05-01T13:04:21.881Z"
+}
