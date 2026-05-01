@@ -100,7 +100,8 @@
     mediaStreamDestination = audioContext.createMediaStreamDestination();
     analyser = audioContext.createAnalyser();
     analyser.fftSize = 256;
-    mediaStreamDestination.connect(analyser);
+    // MediaStreamAudioDestinationNode has no outputs — analyser goes before it
+    analyser.connect(mediaStreamDestination);
 
     log('Audio injection ready. Route system audio output to mic input via virtual audio cable.');
     log('Platform: macOS (BlackHole), Windows (VB-Cable), Linux (alsa-loopback).');
