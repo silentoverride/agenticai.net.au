@@ -79,14 +79,14 @@ Several forces have aligned in 2026 to create an ideal moment for AI assessment 
 - AI tools have proliferated to the point where there are thousands of off-the-shelf solutions for every business problem — but business owners cannot evaluate them   
 - Companies expect to double AI spending in 2026 (BCG AI Radar 2026) — budgets exist; willingness to spend exists   
 - Worker access to AI rose $50\%$ in 2025 (Deloitte) — business owners are hearing about AI constantly and want help applying it   
-- The tools that make delivering this service possible — Claude, voice AI platforms, Gamma for report design — are now accessible to non-technical operators   
+- The tools that make delivering this service possible — Claude, voice AI platforms, Presenton for report design — are now accessible to non-technical operators   
 - Competition in the small business segment is minimal; most AI consultants are chasing enterprise clients
 
 # PART 02
 
 # How the AI Assessment Works: The Full Process End to End
 
-From $0 to$ 200 to $500 to $1,000. Voice agent → transcript → Claude → Gamma report → follow-up call → upsell.
+From $0 to$ 200 to $500 to $1,000. Voice agent → transcript → Claude → Presenton report → follow-up call → upsell.
 
 Opportunity: One assessment = $1,000. 48-hour turnaround. Near 100% profit margin on the assessment itself.
 
@@ -110,7 +110,7 @@ The current version of the assessment is fully automated at the data-gathering s
 
 On Camera Demo: Kerner called Annie live during the interview. She greeted him, asked what he does (e-commerce on Amazon), how long he had been doing it (9 years), whether he ran it solo or had a team (2 warehouse employees, 4 VAs), what tools he used (Google Workspace, Smart Scout), and what his biggest bottleneck was (finding new suppliers). The interaction was smooth, natural, and indistinguishable from a human interviewer. Corey's assessment: 'I feel like I'm talking to a human.' She would have continued for another 10-15 minutes identifying more pain points.
 
-# Building the Report: Claude + Gamma
+# Building the Report: Claude + Presenton
 
 After the transcript is generated, the report-building process is automated in two steps:
 
@@ -127,11 +127,10 @@ A series of Al agent 'skills' (Corey's term for specialized sub-agents, each wit
 
 For someone starting out: you do not need this multi-agent architecture. You can take the voice call transcript, paste it into Claude, and say: 'I attached the transcript of a conversation with a local business owner. Your job is to find AI tools or software tools they can implement that are off-the-shelf and can fix the pain points you identified from the transcript.' Claude will do this reliably. Then ask it to explain how to implement each tool.
 
-# Step 2: Report Formatting in Gamma
+# Step 2: Report Formatting in Presenton
 
-Once the .docx output is ready, it is uploaded to Gamma (gamma.app) — an AI-powered slide and document creation platform. Gamma uses the uploaded content to auto-generate a
-
-professionally designed visual report based on a template. Corey's free template is available at audititemplate.ai.
+Once the .docx output is ready, it is uploaded to Presenton (presenton.ai) — an open-source AI presentation generator. Presenton uses the uploaded content to auto-generate a
+professionally designed visual report based on a template. The report can be exported as PPTX or PDF. Corey's free template is available at audittemplate.ai.
 
 # What the Report Looks Like: Section by Section
 
@@ -341,9 +340,9 @@ This plan is designed for someone who is starting today with no AI consulting ex
 
 8. Day 1-2: Learn the essential tools. Spend 4-6 hours with Claude. Learn to prompt it effectively. Practice: paste a fake business description and ask it to identify AI opportunities and recommend specific tools. Get comfortable with the output.   
 9. Day 3: Study the AI tool landscape. Spend 2 hours on Futurepedia.io and Theresanaiforthat.com. Identify 20-30 tools across categories: meeting notetakers (Fathom, Fireflies), analytics (DashThis), CRM (GoHighLevel), automation (Zapier, Make.com), knowledge systems (custom GPTs), voice agents (Retell.ai).   
-10. Day 4: Watch Corey's Build with AI podcast on YouTube. Study his assessment process and upsell examples. Download the free template at audititemplate.ai and understand how the Gamma report works.   
+10. Day 4: Watch Corey's Build with AI podcast on YouTube. Study his assessment process and upsell examples. Download the free template at audititemplate.ai and understand how the Presenton report works.   
 11. Day 5: Build your first practice assessment. Choose a fictional business (or a real one you know). Write out 10 questions you would ask. Paste them into Claude along with hypothetical answers. Ask Claude to generate an assessment report. Review and refine.   
-12. Day 6-7: Set up your tools. Create accounts on Gamma (gamma.app), Zapier (free tier), and optionally Retell.ai for a voice agent. Set up a simple booking link (Calendly) for assessment discovery calls.
+12. Day 6-7: Set up your tools. Create accounts on Presenton (presenton.ai), Zapier (free tier), and optionally Retell.ai for a voice agent. Set up a simple booking link (Calendly) for assessment discovery calls.
 
 # Week 2: First Outreach and Free Assessments (Days 8-14)
 

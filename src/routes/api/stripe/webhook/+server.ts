@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json, text } from '@sveltejs/kit';
+import { getTranscript, deleteTranscript, runReportPipeline } from '$lib/server/assessment-report';
 import type { RequestHandler } from './$types';
 
 function bytesToHex(bytes: ArrayBuffer) {
@@ -79,23 +80,36 @@ export const POST: RequestHandler = async ({ request }) => {
 
     console.info('Stripe payment confirmed', JSON.stringify(record));
 
-    if (env.ASSESSMENT_REPORT_AGENT_WEBHOOK_URL) {
-      try {
-        await fetch(env.ASSESSMENT_REPORT_AGENT_WEBHOOK_URL, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            ...(env.ASSESSMENT_REPORT_AGENT_WEBHOOK_SECRET
-              ? { authorization: `Bearer ${env.ASSESSMENT_REPORT_AGENT_WEBHOOK_SECRET}` }
-              : {})
-          },
-          body: JSON.stringify({
-            type: 'stripe.payment.confirmed',
-            ...record
-          })
+    // For voice-agent flow: if retell_call_id is in metadata, run report pipeline directly
+    const retellCallId = metadata.retell_call_id;
+    if (retellCallId) {
+      const stored = getTranscript(retellCallId);
+      if (stored?.transcript) {
+        const transcript = stored.transcript;
+        const customerName = metadata.customer_name || session.customer_details?.name || '';
+        const customerEmail = metadata.customer_email || session.customer_details?.email || '';
+        const customerPhone = metadata.customer_phone || session.customer_details?.phone || '';
+        const company = metadata.company || '';
+
+        // Fire-and-forget local pipeline
+        runReportPipeline({
+          receivedAt: record.receivedAt,
+          source: 'retell-voice-agent',
+          sessionId: session.id,
+          customerName,
+          customerEmail,
+          customerPhone,
+          company,
+          transcript
+        }).then((result) => {
+          console.info('Pipeline completed for retell call', { callId: retellCallId, reportId: result.savedReport?.id });
+        }).catch((error) => {
+          console.error('Pipeline failed for retell call', { callId: retellCallId, error: String(error) });
         });
-      } catch (err) {
-        console.error('Report agent notification failed for payment', err);
+
+        deleteTranscript(retellCallId);
+      } else {
+        console.info('Payment confirmed for retell call, but transcript not yet available', { callId: retellCallId });
       }
     }
   }

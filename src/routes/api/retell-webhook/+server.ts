@@ -1,9 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json, text } from '@sveltejs/kit';
-import {
-  createAssessmentReportJob,
-  pipeAssessmentReportJob
-} from '$lib/server/assessment-report';
+import { createAssessmentReportJob, storeTranscript, runReportPipeline } from '$lib/server/assessment-report';
 import { verifyRetellSignature } from '$lib/server/retell';
 import type { RequestHandler } from './$types';
 
@@ -49,12 +46,27 @@ export const POST: RequestHandler = async ({ request }) => {
     return new Response(null, { status: 204 });
   }
 
-  try {
-    const result = await pipeAssessmentReportJob(job);
-    console.info('Assessment report job handled', JSON.stringify({ callId: job.callId, ...result }));
-  } catch (error) {
-    console.error('Assessment report agent handoff failed:', error);
-    return json({ message: 'Report agent handoff failed.' }, { status: 502 });
+  // Always store transcript for pickup by assessment-transcript endpoint
+  storeTranscript(job.callId!, job.transcript, {
+    customer_name: job.customerName,
+    customer_email: job.customerEmail,
+    customer_phone: job.customerPhone,
+    company: job.company,
+    source: job.source
+  });
+
+  // Run the pipeline if payment already marked complete
+  // Otherwise transcript stays stored until payment triggers analysis
+  if (job.paymentStatus === 'paid' || job.paymentStatus === 'complete') {
+    try {
+      const result = await runReportPipeline(job);
+      console.info('Assessment report job handled', JSON.stringify({ callId: job.callId, ...result }));
+    } catch (error) {
+      console.error('Assessment report agent handoff failed:', error);
+      return json({ message: 'Report agent handoff failed.' }, { status: 502 });
+    }
+  } else {
+    console.info('Transcript stored for later processing upon payment', { callId: job.callId });
   }
 
   return new Response(null, { status: 204 });

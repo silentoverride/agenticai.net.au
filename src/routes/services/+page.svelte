@@ -40,7 +40,7 @@
   <section class="section">
     <div class="section-heading">
       <p class="eyebrow">How the report is built</p>
-      <h2>Claude processes. Gamma formats.</h2>
+      <h2>Claude processes. Presenton formats.</h2>
       <p>
         When Annie's call ends, the transcript is automatically handed off to a report-building pipeline.
         No manual formatting. No waiting for a consultant to write it up. The report is ready in 48 hours.
@@ -100,16 +100,16 @@
         </div>
       </article>
 
-      <article class="report-build-step gamma-step">
+      <article class="report-build-step presenton-step">
         <div class="report-build-header">
           <span class="step-tag">Step 02</span>
-          <h3>Gamma formats the report</h3>
+          <h3>Presenton formats the report</h3>
           <p>
-            The structured document is uploaded to Gamma — an AI-powered presentation and document platform —
-            which auto-generates a professionally designed visual report from a template.
+            The structured document is uploaded to Presenton — an open-source AI presentation generator —
+            which auto-generates a professionally designed visual report from a template and exports PPTX or PDF.
           </p>
         </div>
-        <ul class="gamma-features">
+        <ul class="presenton-features">
           <li>
             <strong>Professional design</strong>
             <span>The assessment output becomes a polished, client-ready report without manual formatting work.</span>
@@ -120,16 +120,16 @@
           </li>
           <li>
             <strong>Shareable link</strong>
-            <span>The report is delivered as a Gamma link — accessible on any device before the follow-up call.</span>
+            <span>The report is delivered as a PPTX or PDF link — accessible on any device before the follow-up call.</span>
           </li>
           <li>
             <strong>Screen-share ready</strong>
             <span>The follow-up call walks through the report slide by slide, making recommendations easy to discuss.</span>
           </li>
         </ul>
-        <div class="gamma-note">
+        <div class="presenton-note">
           <div class="note-mark" aria-hidden="true">AI</div>
-          <p>Corey Ganim's free Gamma template is available at <strong>audittemplate.ai</strong> — the same format used for every assessment.</p>
+          <p>Corey Ganim's free template is available at <strong>audittemplate.ai</strong> — adapted for Presenton and used for every assessment.</p>
         </div>
       </article>
     </div>
