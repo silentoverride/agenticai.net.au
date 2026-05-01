@@ -76,7 +76,9 @@ export async function sendTwilioSms(to: string, body: string): Promise<TwilioMes
       method: 'POST',
       headers: {
         authorization: `Basic ${btoa(`${username}:${password}`)}`,
-        'content-type': 'application/x-www-form-urlencoded'
+        'content-type': 'application/x-www-form-urlencoded',
+        'user-agent': 'agenticai.net.au/1.0 (SvelteKit; Cloudflare Pages)',
+        accept: 'application/json'
       },
       body: params
     }

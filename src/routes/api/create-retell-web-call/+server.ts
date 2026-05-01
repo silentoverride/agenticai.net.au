@@ -46,7 +46,9 @@ export const POST: RequestHandler = async ({ request }) => {
     method: 'POST',
     headers: {
       authorization: `Bearer ${env.RETELL_API_KEY}`,
-      'content-type': 'application/json'
+      'content-type': 'application/json',
+      'user-agent': 'agenticai.net.au/1.0 (SvelteKit; Cloudflare Pages)',
+      accept: 'application/json'
     },
     body: JSON.stringify(payload)
   });

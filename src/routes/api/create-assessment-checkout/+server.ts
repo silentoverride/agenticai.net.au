@@ -67,7 +67,9 @@ export const POST: RequestHandler = async ({ request, url }) => {
     method: 'POST',
     headers: {
       authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
-      'content-type': 'application/x-www-form-urlencoded'
+      'content-type': 'application/x-www-form-urlencoded',
+      'user-agent': 'agenticai.net.au/1.0 (SvelteKit; Cloudflare Pages)',
+      accept: 'application/json'
     },
     body: params
   });
