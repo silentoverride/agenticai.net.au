@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { llmChat } from './llm';
+import { sendEmail } from './email';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -434,6 +435,8 @@ export interface PipelineResult {
   savedReport?: SavedReport;
   deckUrl?: string;
   destination: string;
+  emailSent?: boolean;
+  emailId?: string;
 }
 
 export async function runReportPipeline(job: AssessmentReportJob): Promise<PipelineResult> {
@@ -472,11 +475,38 @@ export async function runReportPipeline(job: AssessmentReportJob): Promise<Pipel
     throw new Error('Report save failed: ' + (error instanceof Error ? error.message : String(error)));
   }
 
+  // Step 4: Email delivery to customer
+  let emailResult: { sent: boolean; id?: string; message?: string } = { sent: false };
+  if (job.customerEmail) {
+    try {
+      const { sendEmail } = await import('./email');
+      emailResult = await sendEmail({
+        to: job.customerEmail,
+        subject: `AI Business Assessment Report — ${job.company || 'Your Business'}`,
+        html: `<p>Hi ${job.customerName || 'there'},</p>
+<p>Your AI Business Assessment report is ready. Here is a summary:</p>
+${deckUrl ? `<p><strong>Download your presentation:</strong> <a href="${deckUrl}">${deckUrl}</a></p>` : ''}
+<p>If you have questions or want to book a follow-up call, reply to this email or contact us at <a href="mailto:hello@agenticai.net.au">hello@agenticai.net.au</a>.</p>
+<p>— Agentic AI</p>`,
+        text: `Hi ${job.customerName || 'there'},\n\nYour AI Business Assessment report is ready.${deckUrl ? `\n\nDownload your presentation: ${deckUrl}` : ''}\n\nIf you have questions, reply to this email or contact hello@agenticai.net.au.\n\n— Agentic AI`
+      });
+      if (emailResult.sent) {
+        console.info('Report delivered by email', { to: job.customerEmail, id: emailResult.id });
+      } else {
+        console.warn('Email delivery skipped or failed', emailResult.message);
+      }
+    } catch (err) {
+      console.error('Email delivery failed:', err);
+    }
+  }
+
   return {
     queued: true,
     savedReport: saved,
     deckUrl,
-    destination: 'local-pipeline'
+    destination: 'local-pipeline',
+    emailSent: emailResult.sent,
+    emailId: emailResult.id
   };
 }
 
