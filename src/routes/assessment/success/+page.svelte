@@ -5,6 +5,8 @@
   let deckUrl = '';
   let pollInterval: ReturnType<typeof setInterval>;
   let sessionId = '';
+  const processingStatus =
+    'Payment received. Your transcript is being processed and report will be ready within 48 hours.\n\nOnce you receive your report, you’ll have the opportunity to book a complimentary 30-minute consultation with one of our consultants. During this session, they will walk you through the report and discuss how we can support you in implementing the proposed solutions.';
 
   onMount(async () => {
     const params = new URLSearchParams(window.location.search);
@@ -43,7 +45,7 @@
 
       // If queued (202), start polling for status
       if (data.status === 'queued' || response.status === 202) {
-        status = 'Payment received. Your report is being generated — this usually takes 2-3 minutes.';
+        status = processingStatus;
         startPolling(sessionId);
       } else if (data.status === 'pending_transcript') {
         status = 'Payment received. Waiting for the voice interview to finish — your report will be generated automatically.';
@@ -95,7 +97,7 @@
   <section class="page-hero">
     <p class="eyebrow">Assessment payment</p>
     <h1>Thank you</h1>
-    <p>{status}</p>
+    <p class="status-message">{status}</p>
     {#if deckUrl}
       <p class="deck-link">
         <a href={deckUrl} target="_blank" rel="noopener noreferrer">
@@ -122,6 +124,10 @@
 </main>
 
 <style>
+  .status-message {
+    white-space: pre-line;
+  }
+
   .deck-link {
     margin-top: 1.5rem;
   }
