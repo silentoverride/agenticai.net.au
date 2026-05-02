@@ -3,19 +3,6 @@ import { json } from '@sveltejs/kit';
 import { isTwilioConfigured, sendTwilioSms } from '$lib/server/twilio';
 import type { RequestHandler } from './$types';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
-};
-
-export const OPTIONS: RequestHandler = async () => {
-  return new Response(null, {
-    status: 204,
-    headers: corsHeaders
-  });
-};
-
 const amountAudCents = 120000;
 
 type CheckoutRequestBody = {
@@ -44,7 +31,6 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function sanitizeVoiceEmail(raw: string): string | null {
   let cleaned = raw.trim().toLowerCase();
-  // Common voice transcription patterns
   cleaned = cleaned.replace(/\s+at\s+/g, '@');
   cleaned = cleaned.replace(/\s+dot\s+/g, '.');
   cleaned = cleaned.replace(/\bat\s+/g, '@');
@@ -66,7 +52,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
         message:
           'Stripe checkout is not configured. Set STRIPE_SECRET_KEY in the server environment.'
       },
-      { status: 501, headers: corsHeaders }
+      { status: 501 }
     );
   }
 
@@ -120,15 +106,11 @@ export const POST: RequestHandler = async ({ request, url }) => {
   const stripeBody = await stripeResponse.json();
 
   if (!stripeResponse.ok) {
-    console.error('Stripe checkout creation failed', {
-      status: stripeResponse.status,
-      error: stripeBody.error
-    });
     return json(
       {
         message: stripeBody.error?.message || 'Unable to create Stripe Checkout session.'
       },
-      { status: stripeResponse.status, headers: corsHeaders }
+      { status: stripeResponse.status }
     );
   }
 
@@ -144,21 +126,20 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
   if (body.source === 'retell-voice-agent' && customerPhone && isTwilioConfigured()) {
     const message = `Hi${body.customerName ? ` ${body.customerName}` : ''}, your secure Agentic AI Business Assessment payment link is ${stripeBody.url}. Once payment is complete, your transcript will be queued for analysis.`;
+    responseBody.sms = { sent: false, status: 'queued' };
 
-    try {
-      const sms = await sendTwilioSms(customerPhone, message);
-      console.info('Assessment payment link SMS sent', {
-        to: sms.to,
-        sid: sms.sid,
-        status: sms.status
+    sendTwilioSms(customerPhone, message)
+      .then((sms) => {
+        console.info('Assessment payment link SMS sent', {
+          to: sms.to,
+          sid: sms.sid,
+          status: sms.status
+        });
+      })
+      .catch((error) => {
+        console.error('Unable to send assessment payment link SMS:', error);
       });
-      responseBody.sms = { sent: true, sid: sms.sid, status: sms.status };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error('Unable to send assessment payment link SMS:', error);
-      responseBody.sms = { sent: false, status: 'failed', message };
-    }
   }
 
-  return json(responseBody, { headers: corsHeaders });
+  return json(responseBody);
 };
