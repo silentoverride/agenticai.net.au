@@ -17,11 +17,16 @@
 
 import { json, error } from '@sveltejs/kit';
 import { getUserReport, upsertUser, scanAndLinkReportsByEmail } from '$lib/server/portal';
+import { isDatabaseAvailable } from '$lib/server/db';
 import { getReport } from '$lib/server/assessment/report-store';
 import * as fs from 'node:fs';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
+  if (!isDatabaseAvailable()) {
+    throw error(503, 'Portal database not available in this environment');
+  }
+
   const auth = locals.auth();
   if (!auth.userId) {
     throw error(401, 'Not authenticated');

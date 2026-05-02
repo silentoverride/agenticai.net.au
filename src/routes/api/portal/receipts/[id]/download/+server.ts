@@ -16,10 +16,15 @@
 
 import { json, error } from '@sveltejs/kit';
 import { getUserReceipt, upsertUser } from '$lib/server/portal';
+import { isDatabaseAvailable } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
+  if (!isDatabaseAvailable()) {
+    throw error(503, 'Portal database not available in this environment');
+  }
+
   const auth = locals.auth();
   if (!auth.userId) {
     throw error(401, 'Not authenticated');

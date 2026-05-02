@@ -5,12 +5,16 @@
  * report ownership, and Stripe receipts. Designed for local development with a
  * schema that is forward-compatible with Cloudflare D1 migration.
  *
- * The database is created lazily on first `getDb()` call and uses WAL mode
- * for better concurrent read performance.
+ * In Cloudflare Workers (production), better-sqlite3 is unavailable because it
+ * requires native C++ bindings. The module detects this and marks the database
+ * as unavailable — callers should check {@link isDatabaseAvailable} before use.
  *
  * @module db
  * @example
- * import { getDb, type DbUser } from '$lib/server/db';
+ * import { getDb, isDatabaseAvailable, type DbUser } from '$lib/server/db';
+ * if (!isDatabaseAvailable()) {
+ *   // return 503 or skip DB operation
+ * }
  * const db = getDb();
  * const user = db.prepare('SELECT * FROM users WHERE clerk_id = ?').get(id) as DbUser;
  */
@@ -29,6 +33,36 @@ const DB_PATH = path.resolve(DB_DIR, 'portal.db');
 /** Singleton database instance. Created once and reused for the process lifetime. */
 let dbInstance: Database.Database | null = null;
 
+/** Set to `true` if the native SQLite driver failed to load (e.g. Cloudflare Workers). */
+let dbUnavailable = false;
+
+/** The original error that caused database initialization to fail. */
+let dbError: Error | null = null;
+
+/**
+ * Check whether the local SQLite database is functional.
+ *
+ * @returns `true` if `getDb()` will return a working connection, `false` if
+ * the runtime does not support native SQLite (e.g. Cloudflare Workers).
+ * @example
+ * if (!isDatabaseAvailable()) {
+ *   return json({ error: 'Portal database not available in this environment' }, { status: 503 });
+ * }
+ */
+export function isDatabaseAvailable(): boolean {
+  return !dbUnavailable;
+}
+
+/**
+ * Get the error that caused the database to become unavailable.
+ * Useful for logging diagnostics in production.
+ *
+ * @returns The initialization error, or `null` if the DB is healthy.
+ */
+export function getDatabaseError(): Error | null {
+  return dbError;
+}
+
 /**
  * Ensure a directory exists on disk, creating it recursively if needed.
  * @param dir - Absolute or relative directory path.
@@ -46,19 +80,38 @@ function ensureDir(dir: string) {
  * enables WAL journal mode, and runs the schema initialiser.
  * Subsequent calls return the cached instance.
  *
+ * If the runtime does not support native SQLite (e.g. Cloudflare Workers),
+ * this throws a descriptive error on first call and marks the database as
+ * permanently unavailable for the process lifetime.
+ *
  * @returns A better-sqlite3 Database instance ready for queries.
+ * @throws Error if the database cannot be initialised.
  * @example
+ * if (!isDatabaseAvailable()) {
+ *   throw error(503, 'Portal temporarily unavailable');
+ * }
  * const db = getDb();
- * const row = db.prepare('SELECT * FROM users WHERE clerk_id = ?').get('user_123');
  */
 export function getDb(): Database.Database {
+  if (dbUnavailable) {
+    throw new Error(
+      `Database unavailable: ${dbError?.message || 'Native SQLite not supported in this environment'}`
+    );
+  }
   if (dbInstance) return dbInstance;
 
-  ensureDir(DB_DIR);
-  dbInstance = new Database(DB_PATH);
-  dbInstance.pragma('journal_mode = WAL');
-  initSchema(dbInstance);
-  return dbInstance;
+  try {
+    ensureDir(DB_DIR);
+    dbInstance = new Database(DB_PATH);
+    dbInstance.pragma('journal_mode = WAL');
+    initSchema(dbInstance);
+    return dbInstance;
+  } catch (err) {
+    dbUnavailable = true;
+    dbError = err instanceof Error ? err : new Error(String(err));
+    console.error('Database initialization failed:', dbError);
+    throw new Error(`Database unavailable: ${dbError.message}`);
+  }
 }
 
 /**
@@ -66,7 +119,7 @@ export function getDb(): Database.Database {
  *
  * Schema overview:
  * - `users` — portal users synced from Clerk (clerk_id is the primary key).
- * - `user_reports` — links between users and generated assessment reports.
+ * - `user_reports` — links between users and assessment reports.
  * - `receipts` — Stripe payment records. `user_id` is nullable so receipts
  *   can be stored before the customer has signed up for the portal.
  *

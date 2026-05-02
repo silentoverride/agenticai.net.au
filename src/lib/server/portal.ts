@@ -8,16 +8,24 @@
  * Errors bubble up to the API route handlers where they are logged and
  * returned as appropriate HTTP responses.
  *
+ * **Cloudflare Workers note:** `better-sqlite3` requires native C++ bindings
+ * and does not run in Cloudflare Workers. When the database is unavailable,
+ * all functions in this module return empty arrays / `null` so that the core
+ * site (homepage, Stripe webhooks, report pipeline) continues to work.
+ * The portal routes themselves will return `503` when the DB is down.
+ *
  * @module portal
  * @example
  * import { upsertUser, linkReportToUser, getUserReports } from '$lib/server/portal';
  *
  * const user = upsertUser('user_123', 'alice@example.com', 'Alice');
- * const report = linkReportToUser(user.clerk_id, 'report-456', deckUrl);
- * const allReports = getUserReports(user.clerk_id);
+ * if (user) {
+ *   const report = linkReportToUser(user.clerk_id, 'report-456', deckUrl);
+ *   const allReports = getUserReports(user.clerk_id);
+ * }
  */
 
-import { getDb, type DbReport, type DbReceipt, type DbUser } from './db';
+import { getDb, isDatabaseAvailable, type DbReport, type DbReceipt, type DbUser } from './db';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { env } from '$env/dynamic/private';
@@ -40,11 +48,15 @@ const REPORTS_DIR = env.REPORTS_DIR || './app_data/reports';
  * @param email - Email address from the Clerk session.
  * @param name - Optional display name.
  * @param phone - Optional phone number.
- * @returns The upserted {@link DbUser} row.
+ * @returns The upserted {@link DbUser} row, or `null` if the database is unavailable.
  * @example
- * const user = upsertUser(auth.userId, 'alice@example.com', 'Alice Smith');
+ * const user = upsertUser('user_123', 'alice@example.com', 'Alice Smith');
  */
-export function upsertUser(clerkId: string, email: string, name?: string, phone?: string): DbUser {
+export function upsertUser(clerkId: string, email: string, name?: string, phone?: string): DbUser | null {
+  if (!isDatabaseAvailable()) {
+    console.warn('upsertUser skipped: database unavailable');
+    return null;
+  }
   const db = getDb();
   const stmt = db.prepare(`
     INSERT INTO users (clerk_id, email, name, phone)
@@ -62,12 +74,13 @@ export function upsertUser(clerkId: string, email: string, name?: string, phone?
  * Fetch a user by their Clerk ID.
  *
  * @param clerkId - The Clerk user ID.
- * @returns The {@link DbUser} record, or `null` if not found.
+ * @returns The {@link DbUser} record, or `null` if not found or DB unavailable.
  * @example
  * const user = getUser('user_abc123');
  * if (!user) throw error(404, 'User not found');
  */
 export function getUser(clerkId: string): DbUser | null {
+  if (!isDatabaseAvailable()) return null;
   const db = getDb();
   const stmt = db.prepare('SELECT * FROM users WHERE clerk_id = ?');
   return (stmt.get(clerkId) as DbUser | undefined) || null;
@@ -84,7 +97,7 @@ export function getUser(clerkId: string): DbUser | null {
  * @param email - Customer email from the Stripe session.
  * @param name - Optional customer name.
  * @param phone - Optional phone number.
- * @returns The matching {@link DbUser}, or `null` if the user hasn't signed up.
+ * @returns The matching {@link DbUser}, or `null` if the user hasn't signed up or DB is unavailable.
  * @example
  * const user = findOrCreateUserFromStripe('bob@example.com', 'Bob');
  * if (user) {
@@ -92,7 +105,7 @@ export function getUser(clerkId: string): DbUser | null {
  * }
  */
 export function findOrCreateUserFromStripe(email: string, name?: string, phone?: string): DbUser | null {
-  if (!email) return null;
+  if (!email || !isDatabaseAvailable()) return null;
   const db = getDb();
   const existing = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as DbUser | undefined;
   if (existing) return existing;
@@ -117,7 +130,7 @@ export function findOrCreateUserFromStripe(email: string, name?: string, phone?:
  * @param deckUrl - Optional URL to the generated Presenton PPTX deck.
  * @param title - Optional human-readable title for the report list.
  * @param company - Optional company name from the assessment job.
- * @returns The inserted {@link DbReport} row.
+ * @returns The inserted {@link DbReport} row, or `null` if DB is unavailable.
  * @example
  * const report = linkReportToUser(
  *   'user_abc123',
@@ -135,7 +148,11 @@ export function linkReportToUser(
   deckUrl?: string,
   title?: string,
   company?: string
-): DbReport {
+): DbReport | null {
+  if (!isDatabaseAvailable()) {
+    console.warn('linkReportToUser skipped: database unavailable');
+    return null;
+  }
   const db = getDb();
   const id = `${Date.now()}-${reportId.slice(0, 8)}`;
   const stmt = db.prepare(`
@@ -150,12 +167,13 @@ export function linkReportToUser(
  * Fetch all reports belonging to a user, ordered newest first.
  *
  * @param userId - The Clerk user ID.
- * @returns An array of {@link DbReport} rows. Empty array if none.
+ * @returns An array of {@link DbReport} rows. Empty array if none or DB unavailable.
  * @example
  * const reports = getUserReports('user_abc123');
  * return json(reports);
  */
 export function getUserReports(userId: string): DbReport[] {
+  if (!isDatabaseAvailable()) return [];
   const db = getDb();
   const stmt = db.prepare('SELECT * FROM user_reports WHERE user_id = ? ORDER BY created_at DESC');
   return stmt.all(userId) as DbReport[];
@@ -166,12 +184,13 @@ export function getUserReports(userId: string): DbReport[] {
  *
  * @param userId - The Clerk user ID.
  * @param reportId - The report ID.
- * @returns The {@link DbReport} record, or `null` if not found / not owned.
+ * @returns The {@link DbReport} record, or `null` if not found / not owned / DB unavailable.
  * @example
  * const report = getUserReport('user_abc123', 'report-456');
  * if (!report) throw error(404, 'Report not found');
  */
 export function getUserReport(userId: string, reportId: string): DbReport | null {
+  if (!isDatabaseAvailable()) return null;
   const db = getDb();
   const stmt = db.prepare('SELECT * FROM user_reports WHERE user_id = ? AND report_id = ?');
   return (stmt.get(userId, reportId) as DbReport | undefined) || null;
@@ -196,7 +215,7 @@ export function getUserReport(userId: string, reportId: string): DbReport | null
  * @param customerName - Customer name for display.
  * @param company - Company name from the assessment job.
  * @param receiptUrl - URL to the Stripe-hosted receipt page.
- * @returns The inserted or updated {@link DbReceipt} row.
+ * @returns The inserted or updated {@link DbReceipt} row, or `null` if DB is unavailable.
  * @example
  * const receipt = saveReceipt(
  *   'user_abc123',
@@ -217,7 +236,11 @@ export function saveReceipt(
   customerName?: string,
   company?: string,
   receiptUrl?: string
-): DbReceipt {
+): DbReceipt | null {
+  if (!isDatabaseAvailable()) {
+    console.warn('saveReceipt skipped: database unavailable');
+    return null;
+  }
   const db = getDb();
   const id = `receipt-${Date.now()}`;
   const stmt = db.prepare(`
@@ -247,7 +270,7 @@ export function saveReceipt(
  * @param customerName - Customer name for display.
  * @param company - Company name from the assessment job.
  * @param receiptUrl - URL to the Stripe-hosted receipt page.
- * @returns The inserted or updated {@link DbReceipt} row (with `user_id: null`).
+ * @returns The inserted or updated {@link DbReceipt} row (with `user_id: null`), or `null` if DB unavailable.
  * @example
  * const pending = savePendingReceipt(
  *   'cs_test_xxx',
@@ -266,7 +289,11 @@ export function savePendingReceipt(
   customerName?: string,
   company?: string,
   receiptUrl?: string
-): DbReceipt {
+): DbReceipt | null {
+  if (!isDatabaseAvailable()) {
+    console.warn('savePendingReceipt skipped: database unavailable');
+    return null;
+  }
   const db = getDb();
   const id = `receipt-${Date.now()}`;
   const stmt = db.prepare(`
@@ -288,12 +315,13 @@ export function savePendingReceipt(
  * Fetch all receipts belonging to a user, ordered newest first.
  *
  * @param userId - The Clerk user ID.
- * @returns An array of {@link DbReceipt} rows. Empty array if none.
+ * @returns An array of {@link DbReceipt} rows. Empty array if none or DB unavailable.
  * @example
  * const receipts = getUserReceipts('user_abc123');
  * return json(receipts);
  */
 export function getUserReceipts(userId: string): DbReceipt[] {
+  if (!isDatabaseAvailable()) return [];
   const db = getDb();
   const stmt = db.prepare('SELECT * FROM receipts WHERE user_id = ? ORDER BY created_at DESC');
   return stmt.all(userId) as DbReceipt[];
@@ -304,12 +332,13 @@ export function getUserReceipts(userId: string): DbReceipt[] {
  *
  * @param userId - The Clerk user ID.
  * @param receiptId - The receipt ID (local primary key).
- * @returns The {@link DbReceipt} record, or `null` if not found / not owned.
+ * @returns The {@link DbReceipt} record, or `null` if not found / not owned / DB unavailable.
  * @example
  * const receipt = getUserReceipt('user_abc123', 'receipt-1715600000000');
  * if (!receipt) throw error(404, 'Receipt not found');
  */
 export function getUserReceipt(userId: string, receiptId: string): DbReceipt | null {
+  if (!isDatabaseAvailable()) return null;
   const db = getDb();
   const stmt = db.prepare('SELECT * FROM receipts WHERE user_id = ? AND id = ?');
   return (stmt.get(userId, receiptId) as DbReceipt | undefined) || null;
@@ -327,50 +356,61 @@ export function getUserReceipt(userId: string, receiptId: string): DbReceipt | n
  * allowing them to see reports that were generated before they created
  * their account.
  *
+ * **Cloudflare Workers note:** `fs.readdirSync` may not be available or
+ * the `REPORTS_DIR` may not exist in the Worker environment. Errors are
+ * caught and logged, returning `0`.
+ *
  * @param userId - The Clerk user ID.
  * @param email - The email address to match (case-insensitive).
- * @returns The number of reports newly linked.
+ * @returns The number of reports newly linked. `0` if DB unavailable or scan fails.
  * @example
- * const linked = scanAndLinkReportsByEmail('user_abc123', 'alice@example.com');
+ * const linked = scanAndLinkReportsByEmail('user_123', 'alice@example.com');
  * console.log(`Linked ${linked} historical reports`);
  */
 export function scanAndLinkReportsByEmail(userId: string, email: string): number {
-  const dir = path.resolve(REPORTS_DIR);
-  if (!fs.existsSync(dir)) return 0;
+  if (!isDatabaseAvailable()) return 0;
 
-  let linked = 0;
-  const db = getDb();
+  try {
+    const dir = path.resolve(REPORTS_DIR);
+    if (!fs.existsSync(dir)) return 0;
 
-  for (const name of fs.readdirSync(dir)) {
-    const subDir = path.join(dir, name);
-    if (!fs.statSync(subDir).isDirectory()) continue;
-    const metaPath = path.join(subDir, 'meta.json');
-    if (!fs.existsSync(metaPath)) continue;
+    let linked = 0;
+    const db = getDb();
 
-    try {
-      const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
-      const reportEmail = meta.job?.customerEmail;
-      if (!reportEmail || reportEmail.toLowerCase() !== email.toLowerCase()) continue;
+    for (const name of fs.readdirSync(dir)) {
+      const subDir = path.join(dir, name);
+      if (!fs.statSync(subDir).isDirectory()) continue;
+      const metaPath = path.join(subDir, 'meta.json');
+      if (!fs.existsSync(metaPath)) continue;
 
-      const reportId = meta.id || name;
-      const existing = db.prepare('SELECT 1 FROM user_reports WHERE report_id = ? AND user_id = ?').get(reportId, userId);
-      if (existing) continue;
+      try {
+        const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+        const reportEmail = meta.job?.customerEmail;
+        if (!reportEmail || reportEmail.toLowerCase() !== email.toLowerCase()) continue;
 
-      linkReportToUser(
-        userId,
-        reportId,
-        meta.job?.sessionId,
-        meta.deckUrl,
-        `${meta.job?.company || meta.job?.customerName || 'Business'} — AI Assessment`,
-        meta.job?.company
-      );
-      linked++;
-    } catch {
-      // Skip invalid meta files silently — don't break the scan.
+        const reportId = meta.id || name;
+        const existing = db.prepare('SELECT 1 FROM user_reports WHERE report_id = ? AND user_id = ?').get(reportId, userId);
+        if (existing) continue;
+
+        linkReportToUser(
+          userId,
+          reportId,
+          meta.job?.sessionId,
+          meta.deckUrl,
+          `${meta.job?.company || meta.job?.customerName || 'Business'} — AI Assessment`,
+          meta.job?.company
+        );
+        linked++;
+      } catch {
+        // Skip invalid meta files silently — don't break the scan.
+      }
     }
-  }
 
-  return linked;
+    return linked;
+  } catch (err) {
+    console.warn('scanAndLinkReportsByEmail failed:', err);
+    return 0;
+  }
 }
 
 /**
@@ -380,12 +420,13 @@ export function scanAndLinkReportsByEmail(userId: string, email: string): number
  *
  * @param userId - The Clerk user ID.
  * @param email - The email address to match (case-insensitive).
- * @returns The number of receipts newly linked.
+ * @returns The number of receipts newly linked. `0` if DB unavailable.
  * @example
  * const linked = linkPendingReceiptsByEmail('user_abc123', 'alice@example.com');
  * console.log(`Linked ${linked} pending receipts`);
  */
 export function linkPendingReceiptsByEmail(userId: string, email: string): number {
+  if (!isDatabaseAvailable()) return 0;
   const db = getDb();
   const result = db.prepare(`
     UPDATE receipts

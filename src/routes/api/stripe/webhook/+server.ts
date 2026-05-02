@@ -67,7 +67,11 @@ export const POST: RequestHandler = async ({ request }) => {
             record.customerName,
             record.company
           );
-          console.info('Receipt saved to portal', { receiptId: receipt.id, userId: user.clerk_id });
+          if (receipt) {
+            console.info('Receipt saved to portal', { receiptId: receipt.id, userId: user.clerk_id });
+          } else {
+            console.warn('Receipt save returned null — database may be unavailable');
+          }
         } else {
           // Save as pending receipt — will link when user signs up
           const pending = savePendingReceipt(
@@ -78,7 +82,11 @@ export const POST: RequestHandler = async ({ request }) => {
             record.customerName,
             record.company
           );
-          console.info('Pending receipt saved', { receiptId: pending.id, email: record.customerEmail });
+          if (pending) {
+            console.info('Pending receipt saved', { receiptId: pending.id, email: record.customerEmail });
+          } else {
+            console.warn('Pending receipt save returned null — database may be unavailable');
+          }
         }
       } catch (err) {
         console.error('Failed to save receipt to portal:', err);
