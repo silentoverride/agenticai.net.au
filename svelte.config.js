@@ -14,7 +14,6 @@ const config = {
         'frame-ancestors': ['self'],
         'script-src': [
           'self',
-          'unsafe-inline',
           'unsafe-eval',
           'strict-dynamic',
           'https://dashboard.retellai.com',
@@ -27,12 +26,14 @@ const config = {
         ],
         'script-src-elem': [
           'self',
-          'unsafe-inline',
           'strict-dynamic',
           'https://dashboard.retellai.com',
           'https://www.google.com',
           'https://www.recaptcha.net',
-          'https://www.gstatic.com'
+          'https://www.gstatic.com',
+          'https://*.clerk.accounts.dev',
+          'https://*.clerk.com',
+          'https://assets.calendly.com'
         ],
         'style-src': ['self', 'unsafe-inline'],
         'img-src': ['self', 'data:', 'https:', 'https://img.clerk.com'],
