@@ -1,8 +1,9 @@
 <script lang="ts">
   import Navigation from '$lib/components/Navigation.svelte';
   import Footer from '$lib/components/Footer.svelte';
-  import RetellChatWidget from '$lib/components/RetellChatWidget.svelte';
   import '../styles.css';
+  import { ClerkProvider } from 'svelte-clerk';
+  import { PUBLIC_CLERK_PUBLISHABLE_KEY } from '$env/static/public';
 
   let { children } = $props();
 </script>
@@ -15,7 +16,8 @@
   />
 </svelte:head>
 
-<Navigation />
-{@render children()}
-<RetellChatWidget />
-<Footer />
+<ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
+  <Navigation />
+  {@render children()}
+  <Footer />
+</ClerkProvider>

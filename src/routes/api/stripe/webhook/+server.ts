@@ -5,6 +5,7 @@ import { sendReceiptEmail } from '$lib/server/assessment/emails';
 import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
 import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { runReportPipeline } from '$lib/server/assessment/pipeline';
+import { saveReceipt, savePendingReceipt, findOrCreateUserFromStripe, upsertUser } from '$lib/server/portal';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -51,6 +52,39 @@ export const POST: RequestHandler = async ({ request }) => {
 
     console.info('Stripe payment confirmed', JSON.stringify(record));
 
+    // Save receipt to client portal
+    if (record.customerEmail && record.amountTotal) {
+      try {
+        // Try to link to an existing user by email
+        const user = findOrCreateUserFromStripe(record.customerEmail, record.customerName);
+        if (user) {
+          const receipt = saveReceipt(
+            user.clerk_id,
+            session.id,
+            record.amountTotal,
+            record.currency || 'aud',
+            record.customerEmail,
+            record.customerName,
+            record.company
+          );
+          console.info('Receipt saved to portal', { receiptId: receipt.id, userId: user.clerk_id });
+        } else {
+          // Save as pending receipt — will link when user signs up
+          const pending = savePendingReceipt(
+            session.id,
+            record.amountTotal,
+            record.currency || 'aud',
+            record.customerEmail,
+            record.customerName,
+            record.company
+          );
+          console.info('Pending receipt saved', { receiptId: pending.id, email: record.customerEmail });
+        }
+      } catch (err) {
+        console.error('Failed to save receipt to portal:', err);
+      }
+    }
+
     // Send receipt email (non-blocking)
     if (record.customerEmail) {
       try {
@@ -62,7 +96,11 @@ export const POST: RequestHandler = async ({ request }) => {
           customerName: record.customerName || undefined,
           company: record.company || undefined,
           amount: amountFormatted,
-          reference: session.id
+          amountCents: record.amountTotal || undefined,
+          currency: record.currency || 'aud',
+          reference: session.id,
+          customerEmail: record.customerEmail,
+          issuedAt: record.receivedAt
         });
         if (receipt.sent) {
           console.info('Receipt email sent', { to: record.customerEmail, id: receipt.id });

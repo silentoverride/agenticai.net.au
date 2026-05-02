@@ -25,17 +25,25 @@ export async function sendReceiptEmail(opts: {
   customerName?: string;
   company?: string;
   amount: string;
+  amountCents?: number;
+  currency?: string;
   reference?: string;
+  customerEmail?: string;
+  issuedAt?: string;
 }): Promise<EmailResult> {
   const { html, text } = receiptTemplate({
     customerName: opts.customerName,
     amount: opts.amount,
+    amountCents: opts.amountCents,
+    currency: opts.currency,
     reference: opts.reference,
-    company: opts.company
+    company: opts.company,
+    customerEmail: opts.customerEmail,
+    issuedAt: opts.issuedAt
   });
   return sendEmail({
     to: opts.to,
-    subject: 'Payment Receipt — AI Business Assessment',
+    subject: 'Tax Invoice / Receipt — AI Business Assessment',
     html,
     text
   });

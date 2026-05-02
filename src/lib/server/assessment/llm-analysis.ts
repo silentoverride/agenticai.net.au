@@ -1,7 +1,11 @@
 import { llmChat } from '../llm';
 import type { AssessmentReportJob } from './types';
+import type { AITool } from './tool-lookup';
+import { formatToolsForPrompt } from './tool-lookup';
 
-function buildAnalysisMessages(transcript: string, job: AssessmentReportJob) {
+function buildAnalysisMessages(transcript: string, job: AssessmentReportJob, tools?: AITool[]) {
+  const toolsSection = tools?.length ? formatToolsForPrompt(tools) : '';
+
   return [
     {
       role: 'system' as const,
@@ -38,7 +42,9 @@ Output must be a valid JSON object with these exact keys:
 Rules:
 - Only recommend real, off-the-shelf tools.
 - Base ALL findings on the transcript. Do not hallucinate.
-- Be conservative with estimates when the transcript is sparse.`,
+- Be conservative with estimates when the transcript is sparse.
+- When tool URLs are provided in the RESEARCHED AI TOOLS section, reference those exact tools and URLs in your recommendations.
+${toolsSection}`,
     },
     {
       role: 'user' as const,
@@ -54,9 +60,9 @@ TRANSCRIPT END`,
   ];
 }
 
-export async function analyzeTranscript(job: AssessmentReportJob): Promise<string> {
-  const messages = buildAnalysisMessages(job.transcript, job);
-  const response = await llmChat(messages, { temperature: 0.5, maxTokens: 8192, format: 'json' });
+export async function analyzeTranscript(job: AssessmentReportJob, tools?: AITool[]): Promise<string> {
+  const messages = buildAnalysisMessages(job.transcript, job, tools);
+  const response = await llmChat(messages, { temperature: 0.5, maxTokens: 8192 });
 
   try {
     JSON.parse(response.content);

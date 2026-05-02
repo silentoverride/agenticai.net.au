@@ -1,0 +1,412 @@
+/**
+ * Client Portal Business Logic
+ *
+ * Provides data-access functions for the client portal: user management,
+ * report ownership, receipt storage, and filesystem scanning for auto-linking.
+ *
+ * All functions are synchronous because better-sqlite3 runs in the same thread.
+ * Errors bubble up to the API route handlers where they are logged and
+ * returned as appropriate HTTP responses.
+ *
+ * @module portal
+ * @example
+ * import { upsertUser, linkReportToUser, getUserReports } from '$lib/server/portal';
+ *
+ * const user = upsertUser('user_123', 'alice@example.com', 'Alice');
+ * const report = linkReportToUser(user.clerk_id, 'report-456', deckUrl);
+ * const allReports = getUserReports(user.clerk_id);
+ */
+
+import { getDb, type DbReport, type DbReceipt, type DbUser } from './db';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { env } from '$env/dynamic/private';
+
+/** Directory where assessment reports are stored on the filesystem. */
+const REPORTS_DIR = env.REPORTS_DIR || './app_data/reports';
+
+// ---------------------------------------------------------------------------
+// User operations
+// ---------------------------------------------------------------------------
+
+/**
+ * Upsert a user from Clerk authentication data.
+ *
+ * Inserts a new row if the `clerk_id` does not exist, otherwise updates
+ * `email`, `name`, and `phone` (non-destructive — existing values are kept
+ * if the new ones are empty).
+ *
+ * @param clerkId - The Clerk user ID (e.g. `user_abc123`).
+ * @param email - Email address from the Clerk session.
+ * @param name - Optional display name.
+ * @param phone - Optional phone number.
+ * @returns The upserted {@link DbUser} row.
+ * @example
+ * const user = upsertUser(auth.userId, 'alice@example.com', 'Alice Smith');
+ */
+export function upsertUser(clerkId: string, email: string, name?: string, phone?: string): DbUser {
+  const db = getDb();
+  const stmt = db.prepare(`
+    INSERT INTO users (clerk_id, email, name, phone)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(clerk_id) DO UPDATE SET
+      email = excluded.email,
+      name = COALESCE(excluded.name, users.name),
+      phone = COALESCE(excluded.phone, users.phone)
+    RETURNING *
+  `);
+  return stmt.get(clerkId, email, name || null, phone || null) as DbUser;
+}
+
+/**
+ * Fetch a user by their Clerk ID.
+ *
+ * @param clerkId - The Clerk user ID.
+ * @returns The {@link DbUser} record, or `null` if not found.
+ * @example
+ * const user = getUser('user_abc123');
+ * if (!user) throw error(404, 'User not found');
+ */
+export function getUser(clerkId: string): DbUser | null {
+  const db = getDb();
+  const stmt = db.prepare('SELECT * FROM users WHERE clerk_id = ?');
+  return (stmt.get(clerkId) as DbUser | undefined) || null;
+}
+
+/**
+ * Find an existing user by email, or return `null` if no Clerk sign-up has
+ * happened yet. This is used during Stripe webhook processing to link receipts
+ * to users who paid before creating a portal account.
+ *
+ * **Note:** This function *cannot* create a new user — a `clerk_id` is
+ * required, and Stripe sessions do not provide one.
+ *
+ * @param email - Customer email from the Stripe session.
+ * @param name - Optional customer name.
+ * @param phone - Optional phone number.
+ * @returns The matching {@link DbUser}, or `null` if the user hasn't signed up.
+ * @example
+ * const user = findOrCreateUserFromStripe('bob@example.com', 'Bob');
+ * if (user) {
+ *   saveReceipt(user.clerk_id, session.id, 120000, 'aud');
+ * }
+ */
+export function findOrCreateUserFromStripe(email: string, name?: string, phone?: string): DbUser | null {
+  if (!email) return null;
+  const db = getDb();
+  const existing = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as DbUser | undefined;
+  if (existing) return existing;
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Report linking
+// ---------------------------------------------------------------------------
+
+/**
+ * Link a generated assessment report to a portal user.
+ *
+ * Creates a new `user_reports` row. Safe to call multiple times for the same
+ * report — the unique constraint is on the local `id`, not `report_id`, so
+ * duplicates are prevented at the application layer by checking
+ * `getUserReport()` first.
+ *
+ * @param userId - The Clerk user ID.
+ * @param reportId - The report ID (matches the filesystem directory name).
+ * @param stripeSessionId - Optional Stripe Checkout session that paid for this report.
+ * @param deckUrl - Optional URL to the generated Presenton PPTX deck.
+ * @param title - Optional human-readable title for the report list.
+ * @param company - Optional company name from the assessment job.
+ * @returns The inserted {@link DbReport} row.
+ * @example
+ * const report = linkReportToUser(
+ *   'user_abc123',
+ *   'report-456',
+ *   'cs_test_xxx',
+ *   'https://presenton.ai/exports/...',
+ *   'Acme — AI Assessment',
+ *   'Acme Inc'
+ * );
+ */
+export function linkReportToUser(
+  userId: string,
+  reportId: string,
+  stripeSessionId?: string,
+  deckUrl?: string,
+  title?: string,
+  company?: string
+): DbReport {
+  const db = getDb();
+  const id = `${Date.now()}-${reportId.slice(0, 8)}`;
+  const stmt = db.prepare(`
+    INSERT INTO user_reports (id, user_id, report_id, stripe_session_id, deck_url, title, company)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    RETURNING *
+  `);
+  return stmt.get(id, userId, reportId, stripeSessionId || null, deckUrl || null, title || null, company || null) as DbReport;
+}
+
+/**
+ * Fetch all reports belonging to a user, ordered newest first.
+ *
+ * @param userId - The Clerk user ID.
+ * @returns An array of {@link DbReport} rows. Empty array if none.
+ * @example
+ * const reports = getUserReports('user_abc123');
+ * return json(reports);
+ */
+export function getUserReports(userId: string): DbReport[] {
+  const db = getDb();
+  const stmt = db.prepare('SELECT * FROM user_reports WHERE user_id = ? ORDER BY created_at DESC');
+  return stmt.all(userId) as DbReport[];
+}
+
+/**
+ * Fetch a single report for a specific user.
+ *
+ * @param userId - The Clerk user ID.
+ * @param reportId - The report ID.
+ * @returns The {@link DbReport} record, or `null` if not found / not owned.
+ * @example
+ * const report = getUserReport('user_abc123', 'report-456');
+ * if (!report) throw error(404, 'Report not found');
+ */
+export function getUserReport(userId: string, reportId: string): DbReport | null {
+  const db = getDb();
+  const stmt = db.prepare('SELECT * FROM user_reports WHERE user_id = ? AND report_id = ?');
+  return (stmt.get(userId, reportId) as DbReport | undefined) || null;
+}
+
+// ---------------------------------------------------------------------------
+// Receipt operations
+// ---------------------------------------------------------------------------
+
+/**
+ * Save a Stripe payment receipt linked to an existing user.
+ *
+ * Uses `ON CONFLICT(stripe_session_id)` so duplicate webhook deliveries
+ * are idempotent — only `amount_cents`, `currency`, and `receipt_url`
+ * are updated, and only if the new values are non-null.
+ *
+ * @param userId - The Clerk user ID.
+ * @param stripeSessionId - The Stripe Checkout session ID.
+ * @param amountCents - Payment amount in the smallest currency unit.
+ * @param currency - Three-letter ISO currency code, e.g. `aud`.
+ * @param customerEmail - Customer email for display.
+ * @param customerName - Customer name for display.
+ * @param company - Company name from the assessment job.
+ * @param receiptUrl - URL to the Stripe-hosted receipt page.
+ * @returns The inserted or updated {@link DbReceipt} row.
+ * @example
+ * const receipt = saveReceipt(
+ *   'user_abc123',
+ *   'cs_test_xxx',
+ *   120000,
+ *   'aud',
+ *   'alice@example.com',
+ *   'Alice Smith',
+ *   'Acme Inc'
+ * );
+ */
+export function saveReceipt(
+  userId: string,
+  stripeSessionId: string,
+  amountCents: number,
+  currency: string,
+  customerEmail?: string,
+  customerName?: string,
+  company?: string,
+  receiptUrl?: string
+): DbReceipt {
+  const db = getDb();
+  const id = `receipt-${Date.now()}`;
+  const stmt = db.prepare(`
+    INSERT INTO receipts (id, user_id, stripe_session_id, amount_cents, currency, customer_email, customer_name, company, receipt_url)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(stripe_session_id) DO UPDATE SET
+      amount_cents = excluded.amount_cents,
+      currency = excluded.currency,
+      receipt_url = COALESCE(excluded.receipt_url, receipts.receipt_url)
+    RETURNING *
+  `);
+  return stmt.get(
+    id, userId, stripeSessionId, amountCents, currency,
+    customerEmail || null, customerName || null, company || null, receiptUrl || null
+  ) as DbReceipt;
+}
+
+/**
+ * Save a receipt **without** a user ID. Used when a customer pays via Stripe
+ * but has not yet signed up for the portal. The receipt is linked later via
+ * {@link linkPendingReceiptsByEmail} when the user first signs in.
+ *
+ * @param stripeSessionId - The Stripe Checkout session ID.
+ * @param amountCents - Payment amount in the smallest currency unit.
+ * @param currency - Three-letter ISO currency code.
+ * @param customerEmail - Customer email (used for later linkage).
+ * @param customerName - Customer name for display.
+ * @param company - Company name from the assessment job.
+ * @param receiptUrl - URL to the Stripe-hosted receipt page.
+ * @returns The inserted or updated {@link DbReceipt} row (with `user_id: null`).
+ * @example
+ * const pending = savePendingReceipt(
+ *   'cs_test_xxx',
+ *   120000,
+ *   'aud',
+ *   'bob@example.com',
+ *   'Bob',
+ *   'Acme Inc'
+ * );
+ */
+export function savePendingReceipt(
+  stripeSessionId: string,
+  amountCents: number,
+  currency: string,
+  customerEmail?: string,
+  customerName?: string,
+  company?: string,
+  receiptUrl?: string
+): DbReceipt {
+  const db = getDb();
+  const id = `receipt-${Date.now()}`;
+  const stmt = db.prepare(`
+    INSERT INTO receipts (id, user_id, stripe_session_id, amount_cents, currency, customer_email, customer_name, company, receipt_url)
+    VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(stripe_session_id) DO UPDATE SET
+      amount_cents = excluded.amount_cents,
+      currency = excluded.currency,
+      receipt_url = COALESCE(excluded.receipt_url, receipts.receipt_url)
+    RETURNING *
+  `);
+  return stmt.get(
+    id, stripeSessionId, amountCents, currency,
+    customerEmail || null, customerName || null, company || null, receiptUrl || null
+  ) as DbReceipt;
+}
+
+/**
+ * Fetch all receipts belonging to a user, ordered newest first.
+ *
+ * @param userId - The Clerk user ID.
+ * @returns An array of {@link DbReceipt} rows. Empty array if none.
+ * @example
+ * const receipts = getUserReceipts('user_abc123');
+ * return json(receipts);
+ */
+export function getUserReceipts(userId: string): DbReceipt[] {
+  const db = getDb();
+  const stmt = db.prepare('SELECT * FROM receipts WHERE user_id = ? ORDER BY created_at DESC');
+  return stmt.all(userId) as DbReceipt[];
+}
+
+/**
+ * Fetch a single receipt for a specific user.
+ *
+ * @param userId - The Clerk user ID.
+ * @param receiptId - The receipt ID (local primary key).
+ * @returns The {@link DbReceipt} record, or `null` if not found / not owned.
+ * @example
+ * const receipt = getUserReceipt('user_abc123', 'receipt-1715600000000');
+ * if (!receipt) throw error(404, 'Receipt not found');
+ */
+export function getUserReceipt(userId: string, receiptId: string): DbReceipt | null {
+  const db = getDb();
+  const stmt = db.prepare('SELECT * FROM receipts WHERE user_id = ? AND id = ?');
+  return (stmt.get(userId, receiptId) as DbReceipt | undefined) || null;
+}
+
+// ---------------------------------------------------------------------------
+// Auto-linking (orphan record resolution)
+// ---------------------------------------------------------------------------
+
+/**
+ * Scan the filesystem report directories and link any reports whose
+ * `customerEmail` matches the given email to the specified user.
+ *
+ * This is called automatically when a user first signs into the portal,
+ * allowing them to see reports that were generated before they created
+ * their account.
+ *
+ * @param userId - The Clerk user ID.
+ * @param email - The email address to match (case-insensitive).
+ * @returns The number of reports newly linked.
+ * @example
+ * const linked = scanAndLinkReportsByEmail('user_abc123', 'alice@example.com');
+ * console.log(`Linked ${linked} historical reports`);
+ */
+export function scanAndLinkReportsByEmail(userId: string, email: string): number {
+  const dir = path.resolve(REPORTS_DIR);
+  if (!fs.existsSync(dir)) return 0;
+
+  let linked = 0;
+  const db = getDb();
+
+  for (const name of fs.readdirSync(dir)) {
+    const subDir = path.join(dir, name);
+    if (!fs.statSync(subDir).isDirectory()) continue;
+    const metaPath = path.join(subDir, 'meta.json');
+    if (!fs.existsSync(metaPath)) continue;
+
+    try {
+      const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+      const reportEmail = meta.job?.customerEmail;
+      if (!reportEmail || reportEmail.toLowerCase() !== email.toLowerCase()) continue;
+
+      const reportId = meta.id || name;
+      const existing = db.prepare('SELECT 1 FROM user_reports WHERE report_id = ? AND user_id = ?').get(reportId, userId);
+      if (existing) continue;
+
+      linkReportToUser(
+        userId,
+        reportId,
+        meta.job?.sessionId,
+        meta.deckUrl,
+        `${meta.job?.company || meta.job?.customerName || 'Business'} — AI Assessment`,
+        meta.job?.company
+      );
+      linked++;
+    } catch {
+      // Skip invalid meta files silently — don't break the scan.
+    }
+  }
+
+  return linked;
+}
+
+/**
+ * Link pending receipts (`user_id IS NULL`) to a user by matching
+ * `customer_email`. Called automatically on portal login so customers
+ * see receipts for payments they made before signing up.
+ *
+ * @param userId - The Clerk user ID.
+ * @param email - The email address to match (case-insensitive).
+ * @returns The number of receipts newly linked.
+ * @example
+ * const linked = linkPendingReceiptsByEmail('user_abc123', 'alice@example.com');
+ * console.log(`Linked ${linked} pending receipts`);
+ */
+export function linkPendingReceiptsByEmail(userId: string, email: string): number {
+  const db = getDb();
+  const result = db.prepare(`
+    UPDATE receipts
+    SET user_id = ?
+    WHERE user_id IS NULL
+      AND customer_email IS NOT NULL
+      AND LOWER(customer_email) = LOWER(?)
+  `).run(userId, email);
+  return result.changes || 0;
+}
+
+/**
+ * Legacy helper that returns zero counts. Reports and receipts are now
+ * auto-linked individually via {@link scanAndLinkReportsByEmail} and
+ * {@link linkPendingReceiptsByEmail}.
+ *
+ * @deprecated Use the individual link functions above.
+ */
+export function linkOrphanedRecordsByEmail(userId: string, email: string): { reports: number; receipts: number } {
+  return {
+    reports: scanAndLinkReportsByEmail(userId, email),
+    receipts: linkPendingReceiptsByEmail(userId, email)
+  };
+}

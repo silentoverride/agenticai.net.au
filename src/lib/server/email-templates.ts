@@ -7,6 +7,11 @@ const BRAND_MUTED = '#6c757d';
 const BRAND_BG = '#f8f9fa';
 const SITE_URL = env.PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://agenticai.net.au';
 const LOGO_URL = `${SITE_URL}/logo.png`;
+const BUSINESS_NAME = 'Agentic AI Pty Ltd';
+const BUSINESS_ABN = '23 697 415 151';
+const BUSINESS_ACN = '697 415 151';
+const BUSINESS_EMAIL = 'hello@agenticai.net.au';
+const GST_RATE = 0.1;
 
 function baseHtml({ title, preheader, body }: { title: string; preheader: string; body: string }): string {
   return `<!DOCTYPE html>
@@ -77,6 +82,27 @@ function baseHtml({ title, preheader, body }: { title: string; preheader: string
   </table>
 </body>
 </html>`;
+}
+
+function money(cents: number, currency = 'AUD') {
+  return new Intl.NumberFormat('en-AU', {
+    style: 'currency',
+    currency: currency.toUpperCase()
+  }).format(cents / 100);
+}
+
+function parseAmountCents(amount: string) {
+  const value = Number(amount.replace(/[^\d.]/g, ''));
+  return Number.isFinite(value) ? Math.round(value * 100) : 0;
+}
+
+function formatDate(value?: string) {
+  const date = value ? new Date(value) : new Date();
+  return new Intl.DateTimeFormat('en-AU', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
 }
 
 // ---------------------------------------------------------------------------
@@ -237,56 +263,130 @@ agenticai.net.au · hello@agenticai.net.au
 export function receiptTemplate(opts: {
   customerName?: string;
   amount: string;
+  amountCents?: number;
+  currency?: string;
   reference?: string;
   company?: string;
+  customerEmail?: string;
+  issuedAt?: string;
 }): { html: string; text: string } {
   const name = opts.customerName || 'there';
+  const currency = opts.currency || 'AUD';
+  const totalCents = opts.amountCents ?? parseAmountCents(opts.amount);
+  const gstCents = Math.round(totalCents / (1 + GST_RATE) * GST_RATE);
+  const subtotalCents = totalCents - gstCents;
+  const issuedDate = formatDate(opts.issuedAt);
+  const invoiceNumber = opts.reference || `AA-${Date.now()}`;
+  const buyerName = opts.company || opts.customerName || 'Customer';
 
   const body = `
-<h1 style="margin:0 0 16px 0; font-size:26px; font-weight:700; color:${BRAND_PRIMARY};">Payment received</h1>
+<h1 style="margin:0 0 16px 0; font-size:26px; font-weight:700; color:${BRAND_PRIMARY};">Tax invoice / receipt</h1>
 
 <p style="margin:0 0 20px 0; font-size:16px; color:${BRAND_TEXT};">Hi ${name},</p>
 
 <p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
-  We have received your payment for the AI Business Assessment. Here are the details:
+  We have received your payment for the AI Business Assessment. Please keep this tax invoice/receipt for your records.
 </p>
+
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:16px 0 20px 0;">
+  <tr>
+    <td class="stack" width="50%" style="vertical-align:top; padding:0 12px 12px 0;">
+      <p style="margin:0 0 6px 0; font-size:13px; color:${BRAND_MUTED}; text-transform:uppercase; letter-spacing:.04em;">Supplier</p>
+      <p style="margin:0; font-size:14px; color:${BRAND_TEXT};">
+        <strong>${BUSINESS_NAME}</strong><br>
+        ABN ${BUSINESS_ABN}<br>
+        ACN ${BUSINESS_ACN}<br>
+        Sydney, Australia<br>
+        <a href="mailto:${BUSINESS_EMAIL}" style="color:${BRAND_ACCENT};">${BUSINESS_EMAIL}</a>
+      </p>
+    </td>
+    <td class="stack" width="50%" style="vertical-align:top; padding:0 0 12px 12px;">
+      <p style="margin:0 0 6px 0; font-size:13px; color:${BRAND_MUTED}; text-transform:uppercase; letter-spacing:.04em;">Bill to</p>
+      <p style="margin:0; font-size:14px; color:${BRAND_TEXT};">
+        <strong>${buyerName}</strong><br>
+        ${opts.customerName && opts.company ? `${opts.customerName}<br>` : ''}
+        ${opts.customerEmail ? `<a href="mailto:${opts.customerEmail}" style="color:${BRAND_ACCENT};">${opts.customerEmail}</a>` : ''}
+      </p>
+    </td>
+  </tr>
+</table>
 
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:16px 0; background:${BRAND_BG}; border-radius:8px; border:1px solid #e9ecef;">
   <tr>
     <td style="padding:20px 24px;">
       <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
         <tr>
-          <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:4px;" width="140">Amount</td>
-          <td style="font-size:16px; font-weight:700; color:${BRAND_PRIMARY}; padding-bottom:4px;">${opts.amount}</td>
+          <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:6px;" width="170">Invoice number</td>
+          <td style="font-size:14px; color:${BRAND_TEXT}; padding-bottom:6px;">${invoiceNumber}</td>
         </tr>
-        ${opts.reference ? `<tr><td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:4px;">Reference</td><td style="font-size:14px; color:${BRAND_TEXT};">${opts.reference}</td></tr>` : ''}
-        ${opts.company ? `<tr><td style="font-size:14px; color:${BRAND_MUTED};">Company</td><td style="font-size:14px; color:${BRAND_TEXT};">${opts.company}</td></tr>` : ''}
+        <tr>
+          <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:6px;">Issue date</td>
+          <td style="font-size:14px; color:${BRAND_TEXT}; padding-bottom:6px;">${issuedDate}</td>
+        </tr>
+        <tr>
+          <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:6px;">Payment status</td>
+          <td style="font-size:14px; color:${BRAND_TEXT}; padding-bottom:6px;">Paid via Stripe</td>
+        </tr>
+        <tr>
+          <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:6px;">Description</td>
+          <td style="font-size:14px; color:${BRAND_TEXT}; padding-bottom:6px;">AI Business Assessment — workflow intake, analysis, opportunity report, quick wins, and implementation roadmap</td>
+        </tr>
+        <tr>
+          <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:6px;">Quantity</td>
+          <td style="font-size:14px; color:${BRAND_TEXT}; padding-bottom:6px;">1</td>
+        </tr>
+        <tr>
+          <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:6px;">Subtotal excluding GST</td>
+          <td style="font-size:14px; color:${BRAND_TEXT}; padding-bottom:6px;">${money(subtotalCents, currency)}</td>
+        </tr>
+        <tr>
+          <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:6px;">GST 10%</td>
+          <td style="font-size:14px; color:${BRAND_TEXT}; padding-bottom:6px;">${money(gstCents, currency)}</td>
+        </tr>
+        <tr>
+          <td style="font-size:14px; color:${BRAND_MUTED}; padding-top:8px; border-top:1px solid #dde2e6;">Total paid including GST</td>
+          <td style="font-size:18px; font-weight:700; color:${BRAND_PRIMARY}; padding-top:8px; border-top:1px solid #dde2e6;">${money(totalCents, currency)}</td>
+        </tr>
       </table>
     </td>
   </tr>
 </table>
 
 <p style="margin:16px 0 0 0; font-size:15px; color:${BRAND_TEXT};">
-  You will receive a calendar invite for the intake call. If you prefer a different time, reply to this email.
+  Your transcript will be processed and your report will be ready within 48 hours. Once you receive your report, you will have the opportunity to book a complimentary 30-minute consultation with one of our consultants.
 </p>
 
 <p style="margin:24px 0 0 0; font-size:15px; color:${BRAND_TEXT};">— The Agentic AI team</p>
 `;
 
   const html = baseHtml({
-    title: `Payment Receipt — AI Business Assessment`,
-    preheader: `We received your payment of ${opts.amount} for the AI Business Assessment.`,
+    title: `Tax Invoice / Receipt — AI Business Assessment`,
+    preheader: `We received your payment of ${money(totalCents, currency)} for the AI Business Assessment.`,
     body
   });
 
   const text = `Hi ${name},
 
-Payment received for the AI Business Assessment.
+Tax invoice / receipt
 
-Amount: ${opts.amount}
-${opts.reference ? `Reference: ${opts.reference}\n` : ''}${opts.company ? `Company: ${opts.company}\n` : ''}
+Supplier: ${BUSINESS_NAME}
+ABN: ${BUSINESS_ABN}
+ACN: ${BUSINESS_ACN}
+Email: ${BUSINESS_EMAIL}
 
-You will receive a calendar invite for the intake call. Reply to reschedule if needed.
+Bill to: ${buyerName}
+${opts.customerName && opts.company ? `Contact: ${opts.customerName}\n` : ''}${opts.customerEmail ? `Customer email: ${opts.customerEmail}\n` : ''}
+Invoice number: ${invoiceNumber}
+Issue date: ${issuedDate}
+Payment status: Paid via Stripe
+
+Description: AI Business Assessment — workflow intake, analysis, opportunity report, quick wins, and implementation roadmap
+Quantity: 1
+Subtotal excluding GST: ${money(subtotalCents, currency)}
+GST 10%: ${money(gstCents, currency)}
+Total paid including GST: ${money(totalCents, currency)}
+
+Your transcript will be processed and your report will be ready within 48 hours. Once you receive your report, you will have the opportunity to book a complimentary 30-minute consultation.
 
 — The Agentic AI team
 agenticai.net.au · hello@agenticai.net.au

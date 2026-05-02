@@ -1,6 +1,9 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import { onMount } from 'svelte';
+  import { useClerkContext } from 'svelte-clerk';
+
+  const clerk = useClerkContext();
 
   const links = [
     { href: '/', label: 'Home' },
@@ -60,5 +63,11 @@
       {/if}
     </button>
     <CallAssessmentButton label="Call Annie" className="nav-cta" showError={false} />
+    {#if clerk.auth.userId != null}
+      <a href="/portal" class="portal-link">Portal</a>
+      <button class="nav-signout" onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })}>Sign Out</button>
+    {:else}
+      <button class="nav-signin" onclick={() => clerk.clerk?.openSignIn()}>Sign In</button>
+    {/if}
   </div>
 </header>

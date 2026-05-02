@@ -1,0 +1,238 @@
+{
+  "executive_summary": "The owner of this 8-person digital marketing agency is trapped doing $25/hour manual work, losing 10+ hours weekly to client reporting, email triage, and follow-up chasing. Implementing off-the-shelf automation for reporting, email, and meeting notes can immediately reclaim strategic time, while deeper investments in a client portal and brand knowledge system will unlock senior designer capacity and improve client experience.",
+  "pain_points": [
+    {
+      "title": "Manual Client Reporting",
+      "description": "Every Monday the owner spends 3-4 hours soul-crushingly pulling data from Google Analytics, Meta Ads, and the scheduling tool into spreadsheets for clients, causing them to always be behind.",
+      "severity": "high",
+      "frequency": "weekly"
+    },
+    {
+      "title": "Lost Meeting Action Items",
+      "description": "Daily standups and client check-ins lack proper notes, so action items get lost, staff forget commitments, and the owner ends up chasing people on Slack.",
+      "severity": "medium",
+      "frequency": "daily"
+    },
+    {
+      "title": "Email Overload",
+      "description": "The owner is CC'd on everything and receives roughly 200 emails a day, most of which are noise or sales outreach, requiring about 2 hours daily just to sort.",
+      "severity": "high",
+      "frequency": "daily"
+    },
+    {
+      "title": "Senior Designer Bottleneck",
+      "description": "The senior designer loses 6 hours a week creating social media graphics and presentation decks that junior staff should handle, but juniors lack templates or brand guidelines so everything routes back to her.",
+      "severity": "medium",
+      "frequency": "weekly"
+    }
+  ],
+  "quick_wins": [
+    {
+      "title": "Auto-Pull Reporting Dashboards",
+      "description": "Connect Google Analytics, Meta Ads, and the scheduling tool via Zapier, Make, or n8n to automatically populate a live dashboard or spreadsheet, eliminating the Monday manual compilation ritual.",
+      "effort": "low",
+      "impact": "high",
+      "estimated_hours_saved_per_week": 3.5,
+      "recommended_tools": [
+        "Zapier (Manual Reporting) → https://www.futurepedia.io/tool/zapier",
+        "Make (Manual Reporting) → https://www.futurepedia.io/tool/make",
+        "n8n (Manual Reporting) → https://www.futurepedia.io/tool/n8n"
+      ]
+    },
+    {
+      "title": "AI Email Triage",
+      "description": "Deploy SaneBox or Superhuman to automatically filter sales outreach and noise, surfacing only important client and team emails so the owner stops spending 2 hours a day sorting.",
+      "effort": "low",
+      "impact": "high",
+      "estimated_hours_saved_per_week": 4,
+      "recommended_tools": [
+        "SaneBox (Email Overload) → https://www.futurepedia.io/tool/sanebox",
+        "Superhuman (Email Overload) → https://www.futurepedia.io/tool/superhuman"
+      ]
+    },
+    {
+      "title": "Automated Meeting Notes & Action Items",
+      "description": "Implement Fireflies.ai or ClickUp AI to transcribe standups and client check-ins, auto-extract action items, and end the manual follow-up chasing on Slack.",
+      "effort": "low",
+      "impact": "medium",
+      "estimated_hours_saved_per_week": 2.5,
+      "recommended_tools": [
+        "Fireflies.ai (Poor Meeting Notes) → https://www.futurepedia.io/tool/fireflies-ai",
+        "ClickUp AI (Poor Meeting Notes) → https://www.futurepedia.io/tool/clickup"
+      ]
+    },
+    {
+      "title": "Self-Service Design Templates",
+      "description": "Create Canva brand kits, social media templates, and deck frameworks so junior staff can produce client-ready assets without routing everything through the senior designer.",
+      "effort": "low",
+      "impact": "medium",
+      "estimated_hours_saved_per_week": 6,
+      "recommended_tools": [
+        "Canva Magic Studio (Inefficient Design Workflow) → https://www.futurepedia.io/tool/canva"
+      ]
+    }
+  ],
+  "deeper_opportunities": [
+    {
+      "title": "Client Portal Development",
+      "description": "Build a self-service client portal for dashboards, reports, and project updates. The owner has wanted this for two years but never had time to execute because of manual reporting work.",
+      "category": "knowledge_system",
+      "estimated_setup_cost_aud": 8000,
+      "estimated_monthly_value_aud": 2000
+    },
+    {
+      "title": "AI Narrative Reporting Agent",
+      "description": "Layer AI on top of automated dashboards to generate written insights, trends, and client recommendations, moving the agency from raw data delivery to strategic advisory.",
+      "category": "ai_agent",
+      "estimated_setup_cost_aud": 5000,
+      "estimated_monthly_value_aud": 1500
+    },
+    {
+      "title": "Brand Operations Playbook",
+      "description": "Formalize brand guidelines, design decision trees, and asset libraries into a central knowledge system to fully eliminate the senior designer bottleneck and onboard juniors faster.",
+      "category": "knowledge_system",
+      "estimated_setup_cost_aud": 3000,
+      "estimated_monthly_value_aud": 1000
+    }
+  ],
+  "tool_recommendations": [
+    {
+      "name": "Zapier",
+      "category": "Manual Reporting",
+      "purpose": "Automate the weekly client reporting workflow by connecting Google Analytics, Meta Ads, and the scheduling tool to eliminate manual spreadsheet compilation.",
+      "estimated_monthly_cost_aud": 30,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "SaneBox",
+      "category": "Email Overload",
+      "purpose": "Filter noise and sales outreach from the owner's 200+ daily emails, prioritizing important client and team messages.",
+      "estimated_monthly_cost_aud": 7,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Fireflies.ai",
+      "category": "Poor Meeting Notes",
+      "purpose": "Auto-transcribe daily standups and client check-ins and extract action items to prevent lost follow-ups and Slack chasing.",
+      "estimated_monthly_cost_aud": 15,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Canva Magic Studio",
+      "category": "Inefficient Design Workflow",
+      "purpose": "Empower junior staff to create social graphics and presentation decks via AI templates and brand kits, reducing senior designer bottleneck.",
+      "estimated_monthly_cost_aud": 20,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Make",
+      "category": "Manual Reporting",
+      "purpose": "Visual automation alternative to pull and process data from multiple marketing sources into unified client reports.",
+      "estimated_monthly_cost_aud": 20,
+      "setup_complexity": "medium"
+    }
+  ],
+  "implementation_roadmap": [
+    {
+      "phase": "Foundation",
+      "week": "1-2",
+      "actions": [
+        "Connect Google Analytics, Meta Ads, and scheduling tool to Zapier/Make/n8n to auto-populate reporting dashboard or spreadsheet",
+        "Install SaneBox on owner inbox and configure folders to filter sales outreach and low-priority noise",
+        "Deploy Fireflies.ai or ClickUp AI for all standups and client check-ins to capture action items automatically"
+      ]
+    },
+    {
+      "phase": "Workflow Unlock",
+      "week": "3-4",
+      "actions": [
+        "Build Canva brand kit, social templates, and deck frameworks for junior staff self-service",
+        "Train team on new design workflow and document brand guidelines",
+        "Review automated report outputs and refine data mappings based on client feedback"
+      ]
+    },
+    {
+      "phase": "Scale & Strategic Build",
+      "week": "5-8",
+      "actions": [
+        "Scope requirements and begin build of the client portal the owner has wanted for two years",
+        "Evaluate AI narrative layer on top of reporting dashboards for strategic client insights",
+        "Optimize email rules and meeting note integrations based on team usage data"
+      ]
+    }
+  ],
+  "financial_impact": {
+    "hours_saved_per_week": 10,
+    "hourly_rate_assumed_aud": 25,
+    "weekly_value_aud": 250,
+    "annual_value_aud": 13000,
+    "estimated_tool_costs_monthly_aud": 75,
+    "net_annual_value_aud": 12100
+  },
+  "researched_tools": [
+    {
+      "name": "Zapier",
+      "url": "https://www.futurepedia.io/tool/zapier",
+      "description": "Automate tasks by connecting 7,000+ apps including Google Analytics, Meta Ads, and scheduling tools to eliminate manual reporting.",
+      "pricing": "free tier",
+      "category": "Manual Reporting",
+      "source": "futurepedia"
+    },
+    {
+      "name": "Make",
+      "url": "https://www.futurepedia.io/tool/make",
+      "description": "Streamline workflows with intuitive visual automation across numerous apps to pull and process data from multiple sources automatically.",
+      "pricing": "free tier",
+      "category": "Manual Reporting",
+      "source": "futurepedia"
+    },
+    {
+      "name": "n8n",
+      "url": "https://www.futurepedia.io/tool/n8n",
+      "description": "Streamlines operations with no-code apps and hyperautomation for integrating analytics, ads, and scheduling tools into automated reports.",
+      "pricing": "free tier",
+      "category": "Manual Reporting",
+      "source": "futurepedia"
+    },
+    {
+      "name": "ClickUp AI",
+      "url": "https://www.futurepedia.io/tool/clickup",
+      "description": "Unify team productivity with AI-driven task management and collaboration, including automatic meeting note capture and action item tracking.",
+      "pricing": "free tier",
+      "category": "Poor Meeting Notes",
+      "source": "futurepedia"
+    },
+    {
+      "name": "Fireflies.ai",
+      "url": "https://www.futurepedia.io/tool/fireflies-ai",
+      "description": "AI platform that automatically transcribes meetings, generates notes, and extracts action items to prevent lost follow-ups.",
+      "pricing": "free tier",
+      "category": "Poor Meeting Notes",
+      "source": "futurepedia"
+    },
+    {
+      "name": "SaneBox",
+      "url": "https://www.futurepedia.io/tool/sanebox",
+      "description": "AI-powered email sorter that filters noise, sales outreach, and prioritizes important messages to cut through 200+ daily emails.",
+      "pricing": "starting at $7/month",
+      "category": "Email Overload",
+      "source": "futurepedia"
+    },
+    {
+      "name": "Superhuman",
+      "url": "https://www.futurepedia.io/tool/superhuman",
+      "description": "Ultra-fast AI email client that triages, summarizes, and blocks distractions to handle high-volume inboxes efficiently.",
+      "pricing": "starting at $30/month",
+      "category": "Email Overload",
+      "source": "futurepedia"
+    },
+    {
+      "name": "Canva Magic Studio",
+      "url": "https://www.futurepedia.io/tool/canva",
+      "description": "AI design platform with templates, brand kits, and auto-generation for social graphics and decks, empowering junior staff.",
+      "pricing": "free tier",
+      "category": "Inefficient Design Workflow",
+      "source": "futurepedia"
+    }
+  ]
+}

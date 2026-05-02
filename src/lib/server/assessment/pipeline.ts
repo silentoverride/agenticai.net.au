@@ -1,8 +1,10 @@
 import type { AssessmentReportJob, PipelineResult, SavedReport } from './types';
 import { analyzeTranscript } from './llm-analysis';
+import { lookupToolsForTranscript, enrichAnalysisWithTools } from './tool-lookup';
 import { generatePresentonDeck } from './presenton';
 import { saveReport } from './report-store';
 import { sendReportReadyEmail } from './emails';
+import { findOrCreateUserFromStripe, linkReportToUser } from '../portal';
 
 export async function runReportPipeline(job: AssessmentReportJob): Promise<PipelineResult> {
   console.info('Starting report pipeline for', job.callId || job.sessionId, JSON.stringify({
@@ -11,14 +13,33 @@ export async function runReportPipeline(job: AssessmentReportJob): Promise<Pipel
     transcriptLength: job.transcript.length
   }));
 
-  // Step 1: LLM Analysis
+  // Step 0: Look up real AI tools from Futurepedia / TAAFT via Perplexity
+  let tools: import('./tool-lookup').AITool[] = [];
+  try {
+    tools = await lookupToolsForTranscript(job.transcript);
+    console.info('Tool lookup complete', { callId: job.callId, toolsFound: tools.length });
+  } catch (error) {
+    console.error('Tool lookup failed (continuing without tools):', error);
+  }
+
+  // Step 1: LLM Analysis (with tool data if available)
   let analysis: string;
   try {
-    analysis = await analyzeTranscript(job);
+    analysis = await analyzeTranscript(job, tools);
     console.info('LLM analysis complete', { callId: job.callId, length: analysis.length });
   } catch (error) {
     console.error('LLM analysis failed:', error);
     throw new Error('LLM analysis failed: ' + (error instanceof Error ? error.message : String(error)));
+  }
+
+  // Step 1b: Enrich analysis JSON with researched tool URLs and metadata
+  if (tools.length > 0) {
+    try {
+      analysis = enrichAnalysisWithTools(analysis, tools);
+      console.info('Analysis enriched with tool data', { callId: job.callId });
+    } catch (error) {
+      console.error('Tool enrichment failed (analysis kept as-is):', error);
+    }
   }
 
   // Step 2: Presenton Deck (best effort — analysis is still useful without it)
@@ -37,6 +58,26 @@ export async function runReportPipeline(job: AssessmentReportJob): Promise<Pipel
   } catch (error) {
     console.error('Report save failed:', error);
     throw new Error('Report save failed: ' + (error instanceof Error ? error.message : String(error)));
+  }
+
+  // Step 3b: Link report to user in portal if email matches an existing user
+  if (job.customerEmail) {
+    try {
+      const user = findOrCreateUserFromStripe(job.customerEmail, job.customerName);
+      if (user) {
+        linkReportToUser(
+          user.clerk_id,
+          saved.id,
+          job.sessionId,
+          deckUrl,
+          `${job.company || job.customerName || 'Business'} — AI Assessment`,
+          job.company
+        );
+        console.info('Report linked to portal user', { reportId: saved.id, userId: user.clerk_id });
+      }
+    } catch (error) {
+      console.error('Failed to link report to portal user:', error);
+    }
   }
 
   // Step 4: Email delivery to customer

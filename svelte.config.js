@@ -20,7 +20,10 @@ const config = {
           'https://dashboard.retellai.com',
           'https://www.google.com',
           'https://www.recaptcha.net',
-          'https://www.gstatic.com'
+          'https://www.gstatic.com',
+          'https://*.clerk.accounts.dev',
+          'https://*.clerk.com',
+          'https://assets.calendly.com'
         ],
         'script-src-elem': [
           'self',
@@ -32,7 +35,7 @@ const config = {
           'https://www.gstatic.com'
         ],
         'style-src': ['self', 'unsafe-inline'],
-        'img-src': ['self', 'data:', 'https:'],
+        'img-src': ['self', 'data:', 'https:', 'https://img.clerk.com'],
         'font-src': ['self', 'data:'],
         'media-src': ['self', 'blob:', 'data:', 'https://api.retellai.com', 'https://*.retellai.com'],
         'connect-src': [
@@ -46,10 +49,18 @@ const config = {
           'wss://*.livekit.cloud',
           'https://www.google.com',
           'https://www.recaptcha.net',
-          'https://www.gstatic.com'
+          'https://www.gstatic.com',
+          'https://*.clerk.accounts.dev',
+          'https://*.clerk.com',
+          'https://api.clerk.com',
+          'https://api.presenton.ai',
+          'https://*.presenton.ai',
+          'https://api.perplexity.ai',
+          'https://calendly.com',
+          'https://*.calendly.com'
         ],
         'worker-src': ['self', 'blob:'],
-        'frame-src': ['https://www.google.com', 'https://www.recaptcha.net', 'https://www.gstatic.com'],
+        'frame-src': ['https://www.google.com', 'https://www.recaptcha.net', 'https://www.gstatic.com', 'https://calendly.com', 'https://*.calendly.com'],
         'form-action': ['self', 'https://checkout.stripe.com'],
         'upgrade-insecure-requests': true
       }

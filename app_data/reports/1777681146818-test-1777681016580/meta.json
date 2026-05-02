@@ -1,0 +1,14 @@
+{
+  "id": "1777681146818-test-1777681016580",
+  "job": {
+    "sessionId": "test-1777681016580",
+    "source": "test-pipeline",
+    "customerName": "Test Customer",
+    "customerEmail": "test@example.com",
+    "customerPhone": "",
+    "company": "Test Marketing Agency",
+    "receivedAt": "2026-05-02T00:16:56.580Z"
+  },
+  "deckUrl": "https://presenton-public-eu.s3.eu-central-1.amazonaws.com/exports/pptx/AI-Business-Assessment-for-Test-Marketing-Agency_6c329cb1-48aa-43a5-b012-7a633b8be8cc.pptx",
+  "createdAt": "2026-05-02T00:19:06.818Z"
+}

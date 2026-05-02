@@ -1,0 +1,14 @@
+{
+  "id": "1777681614223-test-1777681470638",
+  "job": {
+    "sessionId": "test-1777681470638",
+    "source": "test-pipeline",
+    "customerName": "Test Customer",
+    "customerEmail": "test@example.com",
+    "customerPhone": "",
+    "company": "Test Marketing Agency",
+    "receivedAt": "2026-05-02T00:24:30.638Z"
+  },
+  "deckUrl": "https://presenton-public-eu.s3.eu-central-1.amazonaws.com/exports/pptx/AI-Tools-Assessment_0804867b-b204-471f-8941-61d8659150e4.pptx",
+  "createdAt": "2026-05-02T00:26:54.224Z"
+}

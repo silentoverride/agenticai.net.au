@@ -49,10 +49,14 @@ export const POST: RequestHandler = async ({ request }) => {
     const { html, text } = receiptTemplate({
       customerName: 'Lorin',
       amount: '$1,200.00 AUD',
-      reference: 'pi_test_12345',
-      company: 'Acme Pty Ltd'
+      amountCents: 120000,
+      currency: 'aud',
+      reference: 'cs_test_12345',
+      company: 'Acme Pty Ltd',
+      customerEmail: to,
+      issuedAt: new Date().toISOString()
     });
-    const r = await sendEmail({ to, subject: 'Payment Receipt — AI Business Assessment', html, text });
+    const r = await sendEmail({ to, subject: 'Tax Invoice / Receipt — AI Business Assessment', html, text });
     results.push({ template: 'receipt', sent: r.sent, id: r.id, error: r.message });
   } catch (e) {
     results.push({ template: 'receipt', sent: false, error: String(e) });
