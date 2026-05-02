@@ -3,6 +3,19 @@ import { json } from '@sveltejs/kit';
 import { isTwilioConfigured, sendTwilioSms } from '$lib/server/twilio';
 import type { RequestHandler } from './$types';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
+};
+
+export const OPTIONS: RequestHandler = async () => {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders
+  });
+};
+
 const amountAudCents = 120000;
 
 type CheckoutRequestBody = {
@@ -27,6 +40,25 @@ function firstString(...values: unknown[]) {
   return values.find((value): value is string => typeof value === 'string' && value.trim().length > 0)?.trim() || '';
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function sanitizeVoiceEmail(raw: string): string | null {
+  let cleaned = raw.trim().toLowerCase();
+  // Common voice transcription patterns
+  cleaned = cleaned.replace(/\s+at\s+/g, '@');
+  cleaned = cleaned.replace(/\s+dot\s+/g, '.');
+  cleaned = cleaned.replace(/\bat\s+/g, '@');
+  cleaned = cleaned.replace(/\bdot\s+/g, '.');
+  cleaned = cleaned.replace(/\s+@\s+/g, '@');
+  cleaned = cleaned.replace(/\s+\.\s+/g, '.');
+  cleaned = cleaned.replace(/\s+/g, '');
+  cleaned = cleaned.replace(/\.{2,}/g, '.');
+  if (EMAIL_REGEX.test(cleaned)) {
+    return cleaned;
+  }
+  return null;
+}
+
 export const POST: RequestHandler = async ({ request, url }) => {
   if (!env.STRIPE_SECRET_KEY) {
     return json(
@@ -34,7 +66,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
         message:
           'Stripe checkout is not configured. Set STRIPE_SECRET_KEY in the server environment.'
       },
-      { status: 501 }
+      { status: 501, headers: corsHeaders }
     );
   }
 
@@ -69,8 +101,9 @@ export const POST: RequestHandler = async ({ request, url }) => {
   params.set('billing_address_collection', 'auto');
   params.set('phone_number_collection[enabled]', 'true');
 
-  if (body.customerEmail) {
-    params.set('customer_email', body.customerEmail);
+  const sanitizedEmail = body.customerEmail ? sanitizeVoiceEmail(body.customerEmail) : null;
+  if (sanitizedEmail) {
+    params.set('customer_email', sanitizedEmail);
   }
 
   const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -87,11 +120,15 @@ export const POST: RequestHandler = async ({ request, url }) => {
   const stripeBody = await stripeResponse.json();
 
   if (!stripeResponse.ok) {
+    console.error('Stripe checkout creation failed', {
+      status: stripeResponse.status,
+      error: stripeBody.error
+    });
     return json(
       {
         message: stripeBody.error?.message || 'Unable to create Stripe Checkout session.'
       },
-      { status: stripeResponse.status }
+      { status: stripeResponse.status, headers: corsHeaders }
     );
   }
 
@@ -107,20 +144,21 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
   if (body.source === 'retell-voice-agent' && customerPhone && isTwilioConfigured()) {
     const message = `Hi${body.customerName ? ` ${body.customerName}` : ''}, your secure Agentic AI Business Assessment payment link is ${stripeBody.url}. Once payment is complete, your transcript will be queued for analysis.`;
-    responseBody.sms = { sent: false, status: 'queued' };
 
-    sendTwilioSms(customerPhone, message)
-      .then((sms) => {
-        console.info('Assessment payment link SMS sent', {
-          to: sms.to,
-          sid: sms.sid,
-          status: sms.status
-        });
-      })
-      .catch((error) => {
-        console.error('Unable to send assessment payment link SMS:', error);
+    try {
+      const sms = await sendTwilioSms(customerPhone, message);
+      console.info('Assessment payment link SMS sent', {
+        to: sms.to,
+        sid: sms.sid,
+        status: sms.status
       });
+      responseBody.sms = { sent: true, sid: sms.sid, status: sms.status };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Unable to send assessment payment link SMS:', error);
+      responseBody.sms = { sent: false, status: 'failed', message };
+    }
   }
 
-  return json(responseBody);
+  return json(responseBody, { headers: corsHeaders });
 };
