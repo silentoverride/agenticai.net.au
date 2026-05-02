@@ -1,6 +1,5 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
-  import CalendlyButton from '$lib/components/CalendlyButton.svelte';
   import ServiceGrid from '$lib/components/ServiceGrid.svelte';
   import { metrics, reportSections, useCases, upsells } from '$lib/content';
 </script>
@@ -16,7 +15,6 @@
       </p>
       <div class="actions">
         <CallAssessmentButton label="Start AI Business Assessment" source="hero-start-assessment" />
-        <CalendlyButton />
         <a class="button secondary" href="/services">See What You Get</a>
       </div>
       <div class="metric-strip" aria-label="Assessment highlights">

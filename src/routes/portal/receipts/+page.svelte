@@ -33,32 +33,30 @@
       <p class="hint">Receipts appear here after you complete an AI Business Assessment payment.</p>
     </div>
   {:else}
-    <div class="receipts-table-wrapper">
-      <table class="receipts-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Amount</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each receipts as receipt}
-            <tr>
-              <td>{new Date(receipt.created_at).toLocaleDateString('en-AU')}</td>
-              <td>AI Business Assessment — {receipt.company || 'General'}</td>
-              <td>
-                ${(receipt.amount_cents / 100).toFixed(2)}
-                {receipt.currency?.toUpperCase()}
-              </td>
-              <td>
-                <a href="/api/portal/receipts/{receipt.id}/download" class="btn-download">Download</a>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+    <div class="receipts-grid">
+      {#each receipts as receipt}
+        <a
+          class="receipt-card"
+          href="/api/portal/receipts/{receipt.id}/download"
+          download
+        >
+          <div class="receipt-header">
+            <span class="receipt-date">{new Date(receipt.created_at).toLocaleDateString('en-AU', {
+              weekday: 'short',
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            })}</span>
+            <span class="receipt-amount">
+              ${(receipt.amount_cents / 100).toFixed(2)}
+              <span class="receipt-currency">{receipt.currency?.toUpperCase()}</span>
+            </span>
+          </div>
+          <h3>AI Business Assessment</h3>
+          <p class="receipt-company">{receipt.company || 'General'}</p>
+          <span class="receipt-action">Download Receipt →</span>
+        </a>
+      {/each}
     </div>
   {/if}
 </div>
@@ -82,39 +80,73 @@
     font-size: 0.875rem;
     margin-top: 0.5rem;
   }
-  .receipts-table-wrapper {
+  .receipts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .receipt-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     background: white;
     border-radius: 12px;
-    overflow: hidden;
+    padding: 1.5rem;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  .receipts-table {
-    width: 100%;
-    border-collapse: collapse;
+  .receipt-card:hover,
+  .receipt-card:focus {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    outline: 3px solid #0066ff;
+    outline-offset: 0;
   }
-  .receipts-table th,
-  .receipts-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #f0f0f0;
+  .receipt-card:active {
+    transform: translateY(-2px);
   }
-  .receipts-table th {
-    font-weight: 600;
+  .receipt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+  }
+  .receipt-date {
     font-size: 0.8125rem;
     color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
-  .btn-download {
-    background: #f0f0f0;
+  .receipt-amount {
+    font-size: 1.25rem;
+    font-weight: 600;
     color: #1a1a2e;
-    padding: 0.4rem 0.75rem;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.8125rem;
-    font-weight: 500;
   }
-  .btn-download:hover {
-    background: #e0e0e0;
+  .receipt-currency {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #888;
+    margin-left: 0.25rem;
+  }
+  .receipt-card h3 {
+    font-size: 1rem;
+    color: #1a1a2e;
+    margin: 0;
+  }
+  .receipt-company {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+  }
+  .receipt-action {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #0066ff;
+  }
+  .receipt-card:hover .receipt-action {
+    text-decoration: underline;
   }
 </style>

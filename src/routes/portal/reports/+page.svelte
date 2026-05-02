@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { useClerkContext } from 'svelte-clerk';
+	import { useClerkContext } from 'svelte-clerk';
+	import CalendlyButton from '$lib/components/CalendlyButton.svelte';
+	import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
 
-  const clerk = useClerkContext();
+	const clerk = useClerkContext();
 
   let reports = $state<any[]>([]);
   let loading = $state(true);
@@ -27,30 +29,49 @@
 
   {#if loading}
     <p>Loading reports...</p>
-  {:else if reports.length === 0}
-    <div class="empty-state">
-      <p>No reports yet.</p>
-      <a href="/assessment" class="cta-button">Start AI Business Assessment</a>
-    </div>
-  {:else}
-    <div class="reports-grid">
-      {#each reports as report}
-        <div class="report-card">
-          <h3>{report.company || 'Business Assessment'}</h3>
-          <p class="report-date">{new Date(report.created_at).toLocaleDateString('en-AU', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}</p>
-          <div class="report-actions">
-            <a href="/portal/reports/{report.report_id}" class="btn-primary">View Presentation</a>
-            {#if report.deck_url}
-              <a href={report.deck_url} target="_blank" rel="noopener" class="btn-secondary">Download PPTX</a>
-            {/if}
-          </div>
-        </div>
-      {/each}
+  	{:else if reports.length === 0}
+		<div class="empty-state">
+			<p>No reports yet.</p>
+			<CallAssessmentButton label="Start AI Business Assessment" source="portal-empty-state" />
+		</div>
+	{:else}
+  		<div class="reports-grid">
+			{#each reports as report}
+				<div
+					class="report-card"
+					role="link"
+					tabindex="0"
+					onclick={() => window.location.href = `/portal/reports/${report.report_id}`}
+					onkeydown={(e) => { if (e.key === 'Enter') window.location.href = `/portal/reports/${report.report_id}`; }}
+				>
+					<h3>{report.company || 'Business Assessment'}</h3>
+					<p class="report-date">{new Date(report.created_at).toLocaleDateString('en-AU', {
+						weekday: 'long',
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric'
+					})}</p>
+					<div class="report-actions">
+						<span class="btn-primary">View Presentation →</span>
+						{#if report.deck_url}
+							<a
+								href={report.deck_url}
+								target="_blank"
+								rel="noopener"
+								class="btn-secondary"
+								onclick={(e) => e.stopPropagation()}
+							>Download PPTX</a>
+						{/if}
+					</div>
+				</div>
+			{/each}
+		</div>
+
+    <div class="portal-cta">
+      <div class="calendly-wrap" style="margin-top:2rem">
+        <p class="or-text">Want to chat through your results?</p>
+        <CalendlyButton />
+      </div>
     </div>
   {/if}
 </div>
@@ -71,14 +92,21 @@
     color: #666;
     margin-bottom: 1rem;
   }
-  .cta-button {
-    display: inline-block;
-    background: #0066ff;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
+  .calendly-wrap {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .or-text {
+    color: #888;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+  .portal-cta {
+    text-align: center;
+    margin-top: 2rem;
   }
   .reports-grid {
     display: grid;
@@ -90,6 +118,18 @@
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .report-card:hover,
+  .report-card:focus {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    outline: 3px solid #0066ff;
+    outline-offset: 0;
+  }
+  .report-card:active {
+    transform: translateY(-2px);
   }
   .report-card h3 {
     font-size: 1.125rem;
@@ -112,6 +152,8 @@
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 500;
+    display: inline-block;
+    cursor: pointer;
   }
   .btn-primary {
     background: #0066ff;
