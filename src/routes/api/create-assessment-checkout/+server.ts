@@ -126,19 +126,13 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
   if (body.source === 'retell-voice-agent' && customerPhone && isTwilioConfigured()) {
     const message = `Hi${body.customerName ? ` ${body.customerName}` : ''}, your secure Agentic AI Business Assessment payment link is ${stripeBody.url}. Once payment is complete, your transcript will be queued for analysis.`;
-    responseBody.sms = { sent: false, status: 'queued' };
 
-    sendTwilioSms(customerPhone, message)
-      .then((sms) => {
-        console.info('Assessment payment link SMS sent', {
-          to: sms.to,
-          sid: sms.sid,
-          status: sms.status
-        });
-      })
-      .catch((error) => {
-        console.error('Unable to send assessment payment link SMS:', error);
-      });
+    try {
+      const sms = await sendTwilioSms(customerPhone, message);
+      responseBody.sms = { sent: true, sid: sms.sid, status: sms.status };
+    } catch (error: any) {
+      responseBody.sms = { sent: false, status: 'failed', message: error.message };
+    }
   }
 
   return json(responseBody);
