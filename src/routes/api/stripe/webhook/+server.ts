@@ -5,7 +5,8 @@ import { sendReceiptEmail } from '$lib/server/assessment/emails';
 import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
 import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { runReportPipeline } from '$lib/server/assessment/pipeline';
-import { saveReceipt, savePendingReceipt, findOrCreateUserFromStripe, upsertUser } from '$lib/server/portal';
+import { saveReceipt, savePendingReceipt, findOrCreateUserFromStripe } from '$lib/server/portal';
+import { saveTranscriptToDisk } from '$lib/server/assessment/transcript-file-store';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -116,6 +117,14 @@ export const POST: RequestHandler = async ({ request }) => {
       } catch (err) {
         console.error('Receipt email failed:', err);
       }
+    } else {
+      console.warn('Receipt email NOT sent — no customerEmail in Stripe session', {
+        stripeSessionId: session.id,
+        customerDetailsEmail: session.customer_details?.email,
+        metadataCustomerEmail: metadata.customer_email,
+        metadataCustomerName: metadata.customer_name,
+        metadataCompany: metadata.company
+      });
     }
 
     // For voice-agent flow: if retell_call_id is in metadata, run report pipeline directly
@@ -128,6 +137,21 @@ export const POST: RequestHandler = async ({ request }) => {
         const customerEmail = metadata.customer_email || session.customer_details?.email || '';
         const customerPhone = metadata.customer_phone || session.customer_details?.phone || '';
         const company = metadata.company || '';
+
+        // Persist transcript to disk before deleting from memory
+        const saved = saveTranscriptToDisk({
+          transcript,
+          company,
+          customerName,
+          customerEmail,
+          customerPhone,
+          callId: retellCallId,
+          sessionId: session.id,
+          source: 'retell-voice-agent'
+        });
+        if (!saved.saved) {
+          console.error('Failed to persist transcript to disk', { error: saved.error, callId: retellCallId });
+        }
 
         // Fire-and-forget local pipeline
         setPipelineStatus(session.id, { status: 'queued' });

@@ -1,12 +1,12 @@
 {
   "agent_id": "",
   "channel": "voice",
-  "last_modification_timestamp": 1777524833878,
+  "last_modification_timestamp": 1777816512559,
   "agent_name": "Annie - AI Business Assessment Voice Agent",
   "response_engine": {
     "type": "conversation-flow",
     "version": 0,
-    "conversation_flow_id": "conversation_flow_6ee2413fbfb5"
+    "conversation_flow_id": "conversation_flow_c02fcf255fc6"
   },
   "language": "en-US",
   "data_storage_setting": "everything",
@@ -14,236 +14,6 @@
   "version": 0,
   "is_published": false,
   "post_call_analysis_model": "gpt-5-mini",
-  "analysis_summary_prompt": "Summarize the AI Business Assessment intake call using this structure: Business, Caller, Role, Email, Phone, Company, Team size, Industry, Customers, Current tools, Top pain points, Repeated tasks, Lead/customer response workflow, Knowledge/documentation gaps, Reporting/visibility gaps, Estimated time loss mentioned, Revenue or customer impact mentioned, Constraints, Strong quick-win candidates, Potential implementation candidates, Open questions for follow-up, Payment status, Assessment readiness.",
-  "analysis_successful_prompt": "The call is successful only if Annie disclosed the $1,200.00 AUD assessment fee, terms, privacy policy, and disclaimer; the caller gave verbal approval; Annie gathered enough workflow context for an assessment; and payment was requested before transcript processing.",
-  "analysis_user_sentiment_prompt": "Evaluate the caller's sentiment and readiness to proceed with an AI Business Assessment based on their answers, objections, urgency, and approval language.",
-  "post_call_analysis_data": [
-    {
-      "type": "boolean",
-      "name": "verbal_approval_given",
-      "description": "Whether the caller clearly approved the $1,200.00 AUD assessment fee, Agentic AI terms, privacy policy, and disclaimer before intake started.",
-      "examples": [
-        "true"
-      ],
-      "required": true
-    },
-    {
-      "type": "boolean",
-      "name": "payment_link_sent",
-      "description": "Whether Annie sent or attempted to send the Stripe checkout link after intake.",
-      "examples": [
-        "true"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "caller_name",
-      "description": "Caller name captured during intake.",
-      "examples": [
-        "Sarah Mitchell"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "caller_role",
-      "description": "Caller role in the business.",
-      "examples": [
-        "Owner"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "caller_email",
-      "description": "Email address for assessment updates and report delivery.",
-      "examples": [
-        "sarah@example.com"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "caller_phone",
-      "description": "Phone number for clarification or payment follow-up.",
-      "examples": [
-        "0400 123 456"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "company",
-      "description": "Company or trading name.",
-      "examples": [
-        "Harbour Lane Events"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "industry",
-      "description": "Caller industry or business category.",
-      "examples": [
-        "Hospitality and events"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "team_size",
-      "description": "Approximate team size, including employees, contractors, virtual assistants, or regular external partners.",
-      "examples": [
-        "Five full-time staff plus casual event staff"
-      ],
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "current_tools",
-      "description": "Software stack, systems, spreadsheets, and document stores mentioned by the caller.",
-      "examples": [
-        "Google Workspace, EventPro, Xero, Asana, spreadsheets"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "top_pain_points",
-      "description": "Main workflow pain points and their business impact.",
-      "examples": [
-        "Slow enquiry response, manual reporting, duplicated event setup"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "repeated_tasks",
-      "description": "Daily or weekly repeated work that may be suitable for automation or workflow improvement.",
-      "examples": [
-        "Lead follow-up, folder creation, Asana task setup, weekly reporting"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "operating_rhythm",
-      "description": "How the caller and team spend a typical day or week, including owner-dependent work and bottlenecks when the owner is unavailable.",
-      "examples": [
-        "Owner reviews sales enquiries, checks run sheets, answers staff questions, approves supplier details, and handles exceptions"
-      ],
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "lead_customer_response_workflow",
-      "description": "How new enquiries arrive, what happens after they arrive, response speed, missed follow-up, customer value, and value of extra qualified customers or bookings.",
-      "examples": [
-        "Website and Instagram enquiries are manually qualified, sent a package PDF, and booked for tours; delays can cost wedding bookings"
-      ],
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "knowledge_documentation_gaps",
-      "description": "Where procedures, FAQs, policies, pricing rules, product details, or customer instructions live, and what knowledge sits in one person's head.",
-      "examples": [
-        "Supplier rules and custom package decisions are partly in Google Docs and partly in the owner's head"
-      ],
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "reporting_visibility_gaps",
-      "description": "Numbers reviewed weekly or monthly, how they are collected, manually compiled dashboards or reports, and visibility gaps.",
-      "examples": [
-        "Weekly marketing and sales report is compiled manually from Google Analytics, Meta Ads, EventPro, and spreadsheets"
-      ],
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "estimated_time_loss_mentioned",
-      "description": "Specific time loss, delay frequency, or repeated effort quantified during the call.",
-      "examples": [
-        "Weekly reporting takes two to three hours every Monday"
-      ],
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "revenue_or_customer_impact_mentioned",
-      "description": "Missed revenue, customer experience impact, lost leads, customer value, or other business impact quantified by the caller.",
-      "examples": [
-        "Average wedding booking is around $14,000 and slow response can lose tours"
-      ],
-      "required": false
-    },
-    {
-      "type": "boolean",
-      "name": "lead_response_gap",
-      "description": "Whether speed-to-lead or customer response appears to be a relevant opportunity.",
-      "examples": [
-        "true"
-      ],
-      "required": false
-    },
-    {
-      "type": "boolean",
-      "name": "knowledge_gap",
-      "description": "Whether operational knowledge is undocumented, scattered, or dependent on one person.",
-      "examples": [
-        "true"
-      ],
-      "required": false
-    },
-    {
-      "type": "boolean",
-      "name": "manual_reporting_gap",
-      "description": "Whether reporting, dashboards, or management updates are manually compiled.",
-      "examples": [
-        "true"
-      ],
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "priority_outcome",
-      "description": "The caller's priority, such as saving owner time, improving customer response, reducing admin cost, increasing sales, or improving team consistency.",
-      "examples": [
-        "Customer response first, then team consistency"
-      ],
-      "required": true
-    },
-    {
-      "type": "string",
-      "name": "privacy_or_compliance_constraints",
-      "description": "Privacy, compliance, customer data, payment, brand voice, or approval constraints mentioned by the caller.",
-      "examples": [
-        "AI can help with early enquiries but should not handle contracts or payment details"
-      ],
-      "required": false
-    },
-    {
-      "type": "string",
-      "name": "open_questions_for_follow_up",
-      "description": "Important unanswered questions, missing workflow details, or topics the assessment team should clarify later.",
-      "examples": [
-        "Clarify CRM access, exact tour conversion rates, and SMS permissions"
-      ],
-      "required": false
-    },
-    {
-      "type": "boolean",
-      "name": "assessment_ready",
-      "description": "Whether the transcript has enough approved intake context for the assessment report workflow.",
-      "examples": [
-        "true"
-      ],
-      "required": true
-    }
-  ],
   "pii_config": {
     "mode": "post_call",
     "categories": []
@@ -267,14 +37,262 @@
     "ai_disclosure": true,
     "smart_matching": false
   },
+  "analysis_successful_prompt": "The call is successful only if Annie disclosed the $1,200.00 AUD assessment fee, terms, privacy policy, and disclaimer; the caller gave verbal approval; Annie gathered enough workflow context for an assessment; and payment was requested before transcript processing.",
+  "analysis_summary_prompt": "Summarize the AI Business Assessment intake call using this structure: Business, Caller, Role, Email, Phone, Company, Team size, Industry, Customers, Current tools, Top pain points, Repeated tasks, Lead/customer response workflow, Knowledge/documentation gaps, Reporting/visibility gaps, Estimated time loss mentioned, Revenue or customer impact mentioned, Constraints, Strong quick-win candidates, Potential implementation candidates, Open questions for follow-up, Payment status, Assessment readiness.",
+  "analysis_user_sentiment_prompt": "Evaluate the caller's sentiment and readiness to proceed with an AI Business Assessment based on their answers, objections, urgency, and approval language.",
+  "post_call_analysis_data": [
+    {
+      "name": "verbal_approval_given",
+      "description": "Whether the caller clearly approved the $1,200.00 AUD assessment fee, Agentic AI terms, privacy policy, and disclaimer before intake started.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": true
+    },
+    {
+      "name": "payment_link_sent",
+      "description": "Whether Annie sent or attempted to send the Stripe checkout link after intake.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": true
+    },
+    {
+      "name": "caller_name",
+      "description": "Caller name captured during intake.",
+      "type": "string",
+      "examples": [
+        "Sarah Mitchell"
+      ],
+      "required": true
+    },
+    {
+      "name": "caller_role",
+      "description": "Caller role in the business.",
+      "type": "string",
+      "examples": [
+        "Owner"
+      ],
+      "required": true
+    },
+    {
+      "name": "caller_email",
+      "description": "Email address for assessment updates and report delivery.",
+      "type": "string",
+      "examples": [
+        "sarah@example.com"
+      ],
+      "required": true
+    },
+    {
+      "name": "caller_phone",
+      "description": "Phone number for clarification or payment follow-up.",
+      "type": "string",
+      "examples": [
+        "0400 123 456"
+      ],
+      "required": true
+    },
+    {
+      "name": "company",
+      "description": "Company or trading name.",
+      "type": "string",
+      "examples": [
+        "Harbour Lane Events"
+      ],
+      "required": true
+    },
+    {
+      "name": "industry",
+      "description": "Caller industry or business category.",
+      "type": "string",
+      "examples": [
+        "Hospitality and events"
+      ],
+      "required": true
+    },
+    {
+      "name": "team_size",
+      "description": "Approximate team size, including employees, contractors, virtual assistants, or regular external partners.",
+      "type": "string",
+      "examples": [
+        "Five full-time staff plus casual event staff"
+      ],
+      "required": false
+    },
+    {
+      "name": "current_tools",
+      "description": "Software stack, systems, spreadsheets, and document stores mentioned by the caller.",
+      "type": "string",
+      "examples": [
+        "Google Workspace, EventPro, Xero, Asana, spreadsheets"
+      ],
+      "required": true
+    },
+    {
+      "name": "top_pain_points",
+      "description": "Main workflow pain points and their business impact.",
+      "type": "string",
+      "examples": [
+        "Slow enquiry response, manual reporting, duplicated event setup"
+      ],
+      "required": true
+    },
+    {
+      "name": "repeated_tasks",
+      "description": "Daily or weekly repeated work that may be suitable for automation or workflow improvement.",
+      "type": "string",
+      "examples": [
+        "Lead follow-up, folder creation, Asana task setup, weekly reporting"
+      ],
+      "required": true
+    },
+    {
+      "name": "operating_rhythm",
+      "description": "How the caller and team spend a typical day or week, including owner-dependent work and bottlenecks when the owner is unavailable.",
+      "type": "string",
+      "examples": [
+        "Owner reviews sales enquiries, checks run sheets, answers staff questions, approves supplier details, and handles exceptions"
+      ],
+      "required": false
+    },
+    {
+      "name": "lead_customer_response_workflow",
+      "description": "How new enquiries arrive, what happens after they arrive, response speed, missed follow-up, customer value, and value of extra qualified customers or bookings.",
+      "type": "string",
+      "examples": [
+        "Website and Instagram enquiries are manually qualified, sent a package PDF, and booked for tours; delays can cost wedding bookings"
+      ],
+      "required": false
+    },
+    {
+      "name": "knowledge_documentation_gaps",
+      "description": "Where procedures, FAQs, policies, pricing rules, product details, or customer instructions live, and what knowledge sits in one person's head.",
+      "type": "string",
+      "examples": [
+        "Supplier rules and custom package decisions are partly in Google Docs and partly in the owner's head"
+      ],
+      "required": false
+    },
+    {
+      "name": "reporting_visibility_gaps",
+      "description": "Numbers reviewed weekly or monthly, how they are collected, manually compiled dashboards or reports, and visibility gaps.",
+      "type": "string",
+      "examples": [
+        "Weekly marketing and sales report is compiled manually from Google Analytics, Meta Ads, EventPro, and spreadsheets"
+      ],
+      "required": false
+    },
+    {
+      "name": "estimated_time_loss_mentioned",
+      "description": "Specific time loss, delay frequency, or repeated effort quantified during the call.",
+      "type": "string",
+      "examples": [
+        "Weekly reporting takes two to three hours every Monday"
+      ],
+      "required": false
+    },
+    {
+      "name": "revenue_or_customer_impact_mentioned",
+      "description": "Missed revenue, customer experience impact, lost leads, customer value, or other business impact quantified by the caller.",
+      "type": "string",
+      "examples": [
+        "Average wedding booking is around $14,000 and slow response can lose tours"
+      ],
+      "required": false
+    },
+    {
+      "name": "lead_response_gap",
+      "description": "Whether speed-to-lead or customer response appears to be a relevant opportunity.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": false
+    },
+    {
+      "name": "knowledge_gap",
+      "description": "Whether operational knowledge is undocumented, scattered, or dependent on one person.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": false
+    },
+    {
+      "name": "manual_reporting_gap",
+      "description": "Whether reporting, dashboards, or management updates are manually compiled.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": false
+    },
+    {
+      "name": "priority_outcome",
+      "description": "The caller's priority, such as saving owner time, improving customer response, reducing admin cost, increasing sales, or improving team consistency.",
+      "type": "string",
+      "examples": [
+        "Customer response first, then team consistency"
+      ],
+      "required": true
+    },
+    {
+      "name": "privacy_or_compliance_constraints",
+      "description": "Privacy, compliance, customer data, payment, brand voice, or approval constraints mentioned by the caller.",
+      "type": "string",
+      "examples": [
+        "AI can help with early enquiries but should not handle contracts or payment details"
+      ],
+      "required": false
+    },
+    {
+      "name": "open_questions_for_follow_up",
+      "description": "Important unanswered questions, missing workflow details, or topics the assessment team should clarify later.",
+      "type": "string",
+      "examples": [
+        "Clarify CRM access, exact tour conversion rates, and SMS permissions"
+      ],
+      "required": false
+    },
+    {
+      "name": "assessment_ready",
+      "description": "Whether the transcript has enough approved intake context for the assessment report workflow.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": true
+    },
+    {
+      "type": "system-presets",
+      "name": "call_summary",
+      "description": "Summarize the AI Business Assessment intake call using this structure: Business, Caller, Role, Email, Phone, Company, Team size, Industry, Customers, Current tools, Top pain points, Repeated tasks, Lead/customer response workflow, Knowledge/documentation gaps, Reporting/visibility gaps, Estimated time loss mentioned, Revenue or customer impact mentioned, Constraints, Strong quick-win candidates, Potential implementation candidates, Open questions for follow-up, Payment status, Assessment readiness."
+    },
+    {
+      "type": "system-presets",
+      "name": "call_successful",
+      "description": "The call is successful only if Annie disclosed the $1,200.00 AUD assessment fee, terms, privacy policy, and disclaimer; the caller gave verbal approval; Annie gathered enough workflow context for an assessment; and payment was requested before transcript processing."
+    },
+    {
+      "type": "system-presets",
+      "name": "user_sentiment",
+      "description": "Evaluate the caller's sentiment and readiness to proceed with an AI Business Assessment based on their answers, objections, urgency, and approval language."
+    }
+  ],
   "voice_id": "retell-Cimo",
-  "normalize_for_speech": false,
+  "max_call_duration_ms": 3600000,
+  "interruption_sensitivity": 0.9,
+  "normalize_for_speech": true,
+  "allow_user_dtmf": true,
   "user_dtmf_options": {},
   "webhook_events": [
     "call_analyzed"
   ],
   "conversationFlow": {
-    "conversation_flow_id": "conversation_flow_6ee2413fbfb5",
+    "conversation_flow_id": "conversation_flow_c02fcf255fc6",
     "version": 0,
     "global_prompt": "You are Annie, the AI Business Assessment intake assistant for Agentic AI.\n\nYour job is discovery only. Gather workflow context so a human or report-building agent can later recommend tools, automations, agents, and implementation paths. Do not recommend specific tools, automations, agents, software, or solutions during the call. Do not promise savings, revenue, conversion rates, legal outcomes, compliance outcomes, or guaranteed performance. Do not criticize the caller's current process; frame gaps as opportunities.\n\nSpeak calmly, directly, and conversationally. Use plain business language. Ask one question at a time. Keep the call moving without sounding rushed. Reflect important details briefly before moving on. If the caller gives a vague answer, ask for a recent example. If the caller gives a long answer, summarize the key point and ask a focused follow-up.\n\nBefore assessment intake begins, disclose the $1,200.00 AUD assessment fee, process, report contents, terms, privacy policy, and disclaimer. Do not continue to assessment questions unless the caller clearly gives verbal approval.\n\nDo not provide legal, financial, tax, medical, compliance, or professional advice. Do not ask for passwords, API keys, card numbers, bank details, confidential customer records, regulated records, or unnecessary sensitive personal information. If the caller tries to share sensitive information, politely stop them and ask them to describe the workflow without sharing private details.\n\nCollect enough detail to identify business model, team, customers, operating rhythm, workflow pain, current tools, repeated tasks, handoffs, customer response gaps, knowledge gaps, reporting gaps, practical constraints, budget or timeline sensitivity, approval process, and the caller's priority outcome. Payment must be requested through Stripe before transcript processing.\n\nRecovery prompts you can use when the caller is unsure, vague, or jumps ahead: When you say it is manual, what are the actual steps? Can you walk me through the last time that happened? Who touches that workflow from start to finish? What tool or spreadsheet is open when that work happens? How many times per week does this come up? Is this mostly a time problem, a revenue problem, a customer experience problem, or a team consistency problem? What happens if nobody handles it quickly? If you had to pick one, which part is most frustrating? What would a good version of this workflow look like? Is there a document, inbox, form, or system where this usually starts?",
     "nodes": [
@@ -282,7 +300,7 @@
         "name": "Greeting and Call Purpose",
         "edges": [
           {
-            "destination_node_id": "node-disclaimer-price-process",
+            "destination_node_id": "node-1777816548949",
             "id": "edge-greeting-to-disclaimer",
             "transition_condition": {
               "type": "prompt",
@@ -293,12 +311,12 @@
         "id": "node-greeting-purpose",
         "type": "conversation",
         "display_position": {
-          "x": 500,
-          "y": 80
+          "x": 558,
+          "y": 174
         },
         "instruction": {
           "type": "static_text",
-          "text": "Hi there, I'm Annie from Agentic AI. Thanks for hopping on. This is a quick chat to learn about your business and what your day-to-day looks like so I can spot the best places AI can give you time back."
+          "text": "Hi there, I'm Annie from Agentic AI. Thanks for hopping on. This is a quick chat to learn about your business and what your day-to-day looks like so I can spot the best places AI can give you time back. Are you ready to get started?"
         }
       },
       {
@@ -324,8 +342,8 @@
         "id": "node-disclaimer-price-process",
         "type": "conversation",
         "display_position": {
-          "x": 1050,
-          "y": 80
+          "x": 1662,
+          "y": 6
         },
         "instruction": {
           "type": "prompt",
@@ -347,8 +365,8 @@
         "id": "node-contact-details",
         "type": "conversation",
         "display_position": {
-          "x": 1600,
-          "y": 80
+          "x": 2190,
+          "y": 78
         },
         "instruction": {
           "type": "prompt",
@@ -370,8 +388,8 @@
         "id": "node-business-context",
         "type": "conversation",
         "display_position": {
-          "x": 2150,
-          "y": 80
+          "x": 2742,
+          "y": 78
         },
         "instruction": {
           "type": "prompt",
@@ -393,8 +411,8 @@
         "id": "node-operating-rhythm",
         "type": "conversation",
         "display_position": {
-          "x": 2700,
-          "y": 80
+          "x": 3294,
+          "y": 150
         },
         "instruction": {
           "type": "prompt",
@@ -416,8 +434,8 @@
         "id": "node-pain-discovery",
         "type": "conversation",
         "display_position": {
-          "x": 3250,
-          "y": 80
+          "x": 3846,
+          "y": 150
         },
         "instruction": {
           "type": "prompt",
@@ -439,8 +457,8 @@
         "id": "node-tools-systems",
         "type": "conversation",
         "display_position": {
-          "x": 3800,
-          "y": 80
+          "x": 4398,
+          "y": 102
         },
         "instruction": {
           "type": "prompt",
@@ -462,8 +480,8 @@
         "id": "node-repeated-work",
         "type": "conversation",
         "display_position": {
-          "x": 4350,
-          "y": 80
+          "x": 4950,
+          "y": 102
         },
         "instruction": {
           "type": "prompt",
@@ -485,8 +503,8 @@
         "id": "node-leads-sales-response",
         "type": "conversation",
         "display_position": {
-          "x": 4900,
-          "y": 80
+          "x": 5502,
+          "y": 126
         },
         "instruction": {
           "type": "prompt",
@@ -508,8 +526,8 @@
         "id": "node-knowledge-documentation",
         "type": "conversation",
         "display_position": {
-          "x": 5450,
-          "y": 80
+          "x": 6054,
+          "y": 126
         },
         "instruction": {
           "type": "prompt",
@@ -531,8 +549,8 @@
         "id": "node-reporting-visibility",
         "type": "conversation",
         "display_position": {
-          "x": 6000,
-          "y": 80
+          "x": 6606,
+          "y": 150
         },
         "instruction": {
           "type": "prompt",
@@ -554,8 +572,8 @@
         "id": "node-industry-deep-dive",
         "type": "conversation",
         "display_position": {
-          "x": 6550,
-          "y": 80
+          "x": 7158,
+          "y": 30
         },
         "instruction": {
           "type": "prompt",
@@ -577,8 +595,8 @@
         "id": "node-priority-constraints",
         "type": "conversation",
         "display_position": {
-          "x": 7100,
-          "y": 80
+          "x": 7710,
+          "y": 102
         },
         "instruction": {
           "type": "prompt",
@@ -593,19 +611,19 @@
             "id": "edge-summary-confirmed-to-payment",
             "transition_condition": {
               "type": "prompt",
-              "prompt": "The caller confirms the summary is accurate or has finished correcting details."
+              "prompt": "Annie has thanked the caller and is ready to move on."
             }
           }
         ],
         "id": "node-intake-summary",
         "type": "conversation",
         "display_position": {
-          "x": 7650,
-          "y": 80
+          "x": 8262,
+          "y": 174
         },
         "instruction": {
           "type": "prompt",
-          "text": "Summarize what Annie heard and ask for corrections.\n\nInclude:\n- business type\n- top pain points\n- current tools\n- repeated work\n- lead/customer response workflow\n- knowledge gaps\n- reporting gaps\n- estimated time loss or revenue impact mentioned\n- constraints\n- priority outcome\n\nUse this style:\nLet me summarise what I heard. Your main opportunities appear to be faster enquiry response, reducing manual reporting, and automating repeated setup work across your tools. A lot of operational knowledge also appears to live in your head or scattered documents. Is that accurate?\n\nIf the caller corrects details, acknowledge the correction, update the summary briefly, then move to the final open question."
+          "text": "Briefly thank the caller for the detailed context. Do not present a detailed summary back to the caller or ask them to confirm or correct it. Keep it brief and move on immediately.\n\nSay something like: Thanks, that gives us really useful context. Then proceed."
         }
       },
       {
@@ -623,8 +641,8 @@
         "id": "node-final-open-question",
         "type": "conversation",
         "display_position": {
-          "x": 8200,
-          "y": 80
+          "x": 8790,
+          "y": 174
         },
         "instruction": {
           "type": "prompt",
@@ -659,30 +677,19 @@
         ],
         "type": "subagent",
         "display_position": {
-          "x": 8750,
-          "y": 80
+          "x": 9294,
+          "y": -42
         }
       },
       {
         "name": "Payment Result Split",
         "edges": [
           {
-            "destination_node_id": "node-payment-link-message",
-            "id": "edge-payment-success-to-message",
+            "destination_node_id": "node-end-call",
+            "id": "edge-1777817174676-3rc4uwde4",
             "transition_condition": {
-              "type": "equation",
-              "equations": [
-                {
-                  "left": "{{url}}",
-                  "operator": "exists"
-                },
-                {
-                  "left": "{{url}}",
-                  "operator": "contains",
-                  "right": "checkout.stripe.com"
-                }
-              ],
-              "operator": "&&"
+              "type": "prompt",
+              "prompt": "Say this naturally:\n\nThe assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the report will be prepared.\n\nIf the payment function result shows `sms.sent` is true, tell the caller the secure Stripe checkout link has been sent by SMS. If SMS was not sent or failed, tell the caller the link will be sent through the configured fallback channel. If the current Retell setup exposes the checkout URL in-call, read only a short confirmation and avoid spelling out a long URL unless the caller explicitly asks.\n\nIf the caller confirms they have already completed payment, thank them warmly, confirm their transcript will be reviewed by the assessment team, and say goodbye. Do not call any tools or functions in this step."
             }
           }
         ],
@@ -697,30 +704,30 @@
         },
         "type": "branch",
         "display_position": {
-          "x": 6550,
-          "y": 80
+          "x": 10182,
+          "y": -450
         }
       },
       {
-        "instruction": {
-          "type": "prompt",
-          "text": "Say this naturally:\n\nThe assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the report will be prepared.\n\nIf the payment function result shows `sms.sent` is true, tell the caller the secure Stripe checkout link has been sent by SMS. If SMS was not sent or failed, tell the caller the link will be sent through the configured fallback channel. If the current Retell setup exposes the checkout URL in-call, read only a short confirmation and avoid spelling out a long URL unless the caller explicitly asks."
-        },
-        "always_edge": {
-          "destination_node_id": "node-end-call",
-          "id": "always-edge-payment-message-to-end",
-          "transition_condition": {
-            "type": "prompt",
-            "prompt": "Always"
-          }
-        },
         "name": "Payment Link Message",
-        "edges": [],
+        "edges": [
+          {
+            "id": "edge-payment-message-to-end",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Annie has delivered the payment message and caller response."
+            }
+          }
+        ],
         "id": "node-payment-link-message",
         "type": "conversation",
         "display_position": {
-          "x": 7100,
-          "y": 80
+          "x": 10590,
+          "y": -1146
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Say this naturally:\n\nThe assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the report will be prepared.\n\nIf the payment function result shows `sms.sent` is true, tell the caller the secure Stripe checkout link has been sent by SMS. If SMS was not sent or failed, tell the caller the link will be sent through the configured fallback channel. If the current Retell setup exposes the checkout URL in-call, read only a short confirmation and avoid spelling out a long URL unless the caller explicitly asks.\n\nIf the caller confirms they have already completed payment, thank them warmly, confirm their transcript will be reviewed by the assessment team, and say goodbye. Do not call any tools or functions in this step."
         }
       },
       {
@@ -729,8 +736,8 @@
         "type": "end",
         "speak_during_execution": true,
         "display_position": {
-          "x": 1600,
-          "y": 520
+          "x": 2190,
+          "y": 798
         },
         "instruction": {
           "type": "static_text",
@@ -743,8 +750,8 @@
         "type": "end",
         "speak_during_execution": true,
         "display_position": {
-          "x": 7100,
-          "y": 520
+          "x": 10662,
+          "y": 822
         },
         "instruction": {
           "type": "static_text",
@@ -757,12 +764,39 @@
         "type": "end",
         "speak_during_execution": true,
         "display_position": {
-          "x": 7650,
-          "y": 80
+          "x": 10806,
+          "y": -210
         },
         "instruction": {
           "type": "static_text",
           "text": "Thanks again. Once payment is complete, your intake transcript will be reviewed and used to prepare your AI Business Assessment report. Have a great day."
+        }
+      },
+      {
+        "name": "Logic Split",
+        "edges": [
+          {
+            "destination_node_id": "node-create-payment-link",
+            "id": "edge-1777816560384-ubtbqrcnm",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "if the user says \"payment\""
+            }
+          }
+        ],
+        "id": "node-1777816548949",
+        "else_edge": {
+          "destination_node_id": "node-disclaimer-price-process",
+          "id": "edge-1777816548949-fqa9m5b1n",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Else"
+          }
+        },
+        "type": "branch",
+        "display_position": {
+          "x": 1110,
+          "y": 222
         }
       }
     ],
@@ -805,6 +839,16 @@
             "transcriptPreview"
           ],
           "properties": {
+            "customerPhone": {
+              "type": "string",
+              "const": "{{customer_phone}}",
+              "description": "Business owner's phone number."
+            },
+            "company": {
+              "type": "string",
+              "const": "{{company}}",
+              "description": "Company or business name."
+            },
             "source": {
               "type": "string",
               "const": "retell-voice-agent"
@@ -818,16 +862,6 @@
               "type": "string",
               "const": "{{customer_email}}",
               "description": "Business owner's email address."
-            },
-            "customerPhone": {
-              "type": "string",
-              "const": "{{customer_phone}}",
-              "description": "Business owner's phone number."
-            },
-            "company": {
-              "type": "string",
-              "const": "{{company}}",
-              "description": "Company or business name."
             },
             "transcriptPreview": {
               "type": "string",
@@ -851,7 +885,7 @@
     },
     "begin_tag_display_position": {
       "x": 6,
-      "y": 198
+      "y": 246
     },
     "is_published": false,
     "flex_mode": false,

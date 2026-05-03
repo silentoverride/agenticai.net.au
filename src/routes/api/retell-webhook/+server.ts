@@ -3,7 +3,6 @@ import { json, text } from '@sveltejs/kit';
 import { createAssessmentReportJob } from '$lib/server/assessment/retell-job';
 import { storeTranscript } from '$lib/server/assessment/transcript-store';
 import { runReportPipeline } from '$lib/server/assessment/pipeline';
-import { sendWelcomeEmail } from '$lib/server/assessment/emails';
 import { verifyRetellSignature } from '$lib/server/retell';
 import type { RequestHandler } from './$types';
 
@@ -57,22 +56,6 @@ export const POST: RequestHandler = async ({ request }) => {
     company: job.company,
     source: job.source
   });
-
-  // Send welcome email after intake (non-blocking)
-  if (job.customerEmail) {
-    try {
-      const welcome = await sendWelcomeEmail({
-        to: job.customerEmail,
-        customerName: job.customerName,
-        company: job.company
-      });
-      if (welcome.sent) {
-        console.info('Welcome email sent', { to: job.customerEmail, id: welcome.id });
-      }
-    } catch (err) {
-      console.error('Welcome email failed:', err);
-    }
-  }
 
   // Run the pipeline if payment already marked complete
   // Otherwise transcript stays stored until payment triggers analysis

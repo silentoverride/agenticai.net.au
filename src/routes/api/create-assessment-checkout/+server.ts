@@ -76,7 +76,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
     'line_items[0][price_data][product_data][description]',
     'Agentic AI workflow intake, analysis, opportunity report, quick wins, and implementation roadmap.'
   );
-  params.set('metadata[source]', body.source || 'website-chatbot');
+  params.set('metadata[source]', body.source || '');
   params.set('metadata[assessment_fee_aud]', '1200.00');
   params.set('metadata[transcript_preview]', (body.transcriptPreview || '').slice(0, 450));
   params.set('metadata[customer_name]', (body.customerName || '').slice(0, 120));
@@ -90,6 +90,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
   const sanitizedEmail = body.customerEmail ? sanitizeVoiceEmail(body.customerEmail) : null;
   if (sanitizedEmail) {
     params.set('customer_email', sanitizedEmail);
+    params.set('metadata[customer_email]', sanitizedEmail);
   }
 
   const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {

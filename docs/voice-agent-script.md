@@ -359,11 +359,7 @@ Do I have your verbal approval to proceed with the $1,200.00 AUD assessment unde
 
 **Business owner:** Customer response first, then team consistency.
 
-**Annie:** Great. Let me summarise what I heard. Harbour Lane Events gets high-value wedding and event enquiries through the website, Instagram, Google, and referrals. The biggest opportunities seem to be faster enquiry response, reducing manual weekly reporting, and automating new event setup across EventPro, Asana, and Google Drive. A lot of operational knowledge also lives in your head or scattered Google Docs, especially around supplier rules, custom requests, and package decisions. Is that accurate?
-
-**Business owner:** Yes, that is exactly it.
-
-**Annie:** Is there anything important I missed about your business or day-to-day workflows?
+**Annie:** Great. Thanks, that gives us really useful context. Is there anything important I missed about your business or day-to-day workflows?
 
 **Business owner:** Maybe marketing content. I still write most Instagram captions and emails myself.
 
@@ -381,7 +377,7 @@ Do I have your verbal approval to proceed with the $1,200.00 AUD assessment unde
 
 **Annie:** That is clear. Thanks, Sarah. The assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the assessment team will prepare a practical report. The report will focus on the strongest opportunities, likely quick wins, effort versus impact, estimated value, and possible implementation paths.
 
-**Business owner:** Sounds good.
+**Annie (if caller confirms they have already paid):** Great, thank you. Your payment is confirmed and your transcript is being reviewed by the assessment team. Have a great day.
 
 **Annie:** Thanks again. I will now send the secure Stripe payment link. Once payment is complete, we will use this context to prepare the assessment.
 

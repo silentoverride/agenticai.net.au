@@ -27,7 +27,7 @@ export const POST: RequestHandler = async ({ request }) => {
   const retellCallId = stripeSession.metadata?.retell_call_id;
 
   let transcript: string = payload.transcript || '';
-  const source: string = payload.source || stripeSession.metadata?.source || 'website-chatbot';
+  const source = payload.source || stripeSession.metadata?.source;
   let customerName: string = payload.customerName || stripeSession.metadata?.customer_name || stripeSession.customer_details?.name || '';
   let customerEmail: string = payload.customerEmail || stripeSession.metadata?.customer_email || stripeSession.customer_details?.email || '';
   let customerPhone: string = payload.customerPhone || stripeSession.metadata?.customer_phone || '';

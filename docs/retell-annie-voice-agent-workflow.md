@@ -264,31 +264,19 @@ Collect:
 ### Node 10: Intake Summary and Confirmation
 
 **Type:** Conversation node  
-**Purpose:** Summarise what Annie heard and ask for corrections.
+**Purpose:** Briefly thank the caller and move on. Do not present a detailed summary or ask for corrections.
 
 **Instruction:**
 
-Summarise:
-
-- Business type.
-- Top pain points.
-- Current tools.
-- Repeated work.
-- Customer response issues.
-- Knowledge gaps.
-- Reporting gaps.
-- Priority outcome.
-
-**Example:**
+Say a brief thank-you and proceed directly to the final open question.
 
 ```text
-Let me summarise what I heard. Your main opportunities appear to be faster enquiry response, reducing manual reporting, and automating repeated setup work across your tools. A lot of operational knowledge also appears to live in your head or scattered documents. Is that accurate?
+Thanks, that gives us really useful context.
 ```
 
 **Transition rules:**
 
-- If accurate, go to payment setup.
-- If caller corrects details, acknowledge and update summary, then go to payment setup.
+- Always proceed to the final open question. Do not wait for confirmation.
 
 ### Node 11: Payment Setup
 
@@ -336,14 +324,17 @@ POST /api/create-assessment-checkout
 - Tell the caller payment is required before transcript processing.
 - Tell the caller the Stripe link will be sent by SMS if Twilio is enabled on the website.
 - If Twilio SMS is not enabled or fails, use the configured Retell fallback channel.
+- If the caller confirms they have already completed payment, thank them warmly, confirm their transcript will be reviewed by the assessment team, and say goodbye. Do not call any tools or functions in this step.
 
 **Suggested spoken line:**
 
 ```text
 The assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the report will be prepared.
+
+If the caller confirms they have already completed payment, thank them warmly and let them know their transcript will be reviewed by the assessment team.
 ```
 
-**Transition:** Payment link created and SMS sent or fallback channel available -> close call. Payment function failed -> fallback support node.
+**Transition:** Use a regular edge (not `always_edge`) from the Payment Link Message node to the End Call node so the caller can respond. If they confirm payment, Annie acknowledges and closes. Payment function failed -> fallback support node.
 
 ### Node 12: No Approval or Not Ready
 
