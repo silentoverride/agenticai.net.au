@@ -1,15 +1,3 @@
-/**
- * Client Portal Database Module — Async Dual-Mode
- *
- * Supports Cloudflare D1 in production and better-sqlite3 in local dev.
- * All queries are async to accommodate D1's Promise-based API.
- *
- * Initialise with `setD1Binding(event.platform.env.assessment_db)` from
- * hooks.server.ts or any server route that has access to the platform env.
- *
- * @module db
- */
-
 import type { D1Database } from '@cloudflare/workers-types';
 import Database from 'better-sqlite3';
 import * as path from 'node:path';
@@ -87,54 +75,6 @@ function initSchema(db: Database.Database) {
 
     CREATE INDEX IF NOT EXISTS idx_receipts_user_id ON receipts(user_id);
     CREATE INDEX IF NOT EXISTS idx_receipts_session ON receipts(stripe_session_id);
-
-    CREATE TABLE IF NOT EXISTS transcripts (
-      call_id TEXT PRIMARY KEY,
-      transcript TEXT NOT NULL,
-      metadata TEXT,
-      created_at TEXT DEFAULT (datetime('now')),
-      processed_at TEXT
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_transcripts_created_at ON transcripts(created_at);
-
-    CREATE TABLE IF NOT EXISTS pipeline_status (
-      session_id TEXT PRIMARY KEY,
-      status TEXT NOT NULL,
-      deck_url TEXT,
-      report_id TEXT,
-      error TEXT,
-      attempts INTEGER DEFAULT 0,
-      created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_pipeline_status ON pipeline_status(status, updated_at);
-
-    CREATE TABLE IF NOT EXISTS processed_events (
-      event_id TEXT PRIMARY KEY,
-      event_type TEXT NOT NULL,
-      processed_at TEXT DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_processed_events_type ON processed_events(event_type, processed_at);
-
-    CREATE TABLE IF NOT EXISTS reports (
-      id TEXT PRIMARY KEY,
-      call_id TEXT,
-      session_id TEXT,
-      customer_email TEXT,
-      customer_name TEXT,
-      company TEXT,
-      r2_key TEXT,
-      deck_url TEXT,
-      title TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_reports_session ON reports(session_id);
-    CREATE INDEX IF NOT EXISTS idx_reports_email ON reports(customer_email);
-    CREATE INDEX IF NOT EXISTS idx_reports_call_id ON reports(call_id);
   `);
 }
 
@@ -154,9 +94,7 @@ export interface AsyncDb {
   raw(sql: string): { run(): Promise<void> };
 }
 
-let cachedDb: AsyncDb | null = null;
-let d1Binding: D1Database | undefined;
-
+// D1 async wrapper
 function createD1Db(d1: D1Database): AsyncDb {
   return {
     async queryOne<T = Record<string, unknown>>(sql: string, ...params: unknown[]) {
@@ -169,18 +107,19 @@ function createD1Db(d1: D1Database): AsyncDb {
       const { results } = await stmt.bind(...params).all();
       return (results as T[]) || [];
     },
-    async exec(sql: string, ...params: unknown[]) {
+    async exec(sql, ...params) {
       const stmt = d1.prepare(sql);
       const result = await stmt.bind(...params).run();
-      return { changes: result.meta?.changes ?? 0, lastInsertRowid: result.meta?.last_row_id };
+      return { changes: result.meta?.changes || 0, lastInsertRowid: result.meta?.last_row_id };
     },
-    raw(sql: string) {
+    raw(sql) {
       const stmt = d1.prepare(sql);
       return { run: () => stmt.run().then(() => undefined) };
     }
   };
 }
 
+// Local better-sqlite3 async wrapper
 function createLocalDb(): AsyncDb {
   const db = getLocalDb();
   return {
@@ -194,37 +133,40 @@ function createLocalDb(): AsyncDb {
       const rows = stmt.all(...params);
       return (rows as T[]) || [];
     },
-    async exec(sql: string, ...params: unknown[]) {
+    async exec(sql, ...params) {
       const stmt = db.prepare(sql);
       const result = stmt.run(...params);
       return { changes: result.changes, lastInsertRowid: result.lastInsertRowid };
     },
-    raw(sql: string) {
+    raw(sql) {
       const stmt = db.prepare(sql);
       return { run: () => Promise.resolve(stmt.run()).then(() => undefined) };
     }
   };
 }
 
-/** Pass the D1 binding from `event.platform.env.assessment_db`. Call once in hooks.server.ts. */
-export function setD1Binding(db: D1Database | undefined) {
-  if (db) {
-    d1Binding = db;
-    cachedDb = null;
-    console.info('DB: D1 binding registered');
-  }
-}
+let cachedDb: AsyncDb | null = null;
+let isD1 = false;
 
-/** Get the unified async database client. */
-export function getDb(): AsyncDb {
+/**
+ * Get the unified async database client.
+ *
+ * In production (Cloudflare Workers / Pages), pass the D1Database binding
+ * from `event.platform.env.assessment_db`.
+ *
+ * In local dev, falls back to better-sqlite3 file at `./app_data/portal.db`.
+ */
+export function getDb(d1Binding?: D1Database): AsyncDb {
   if (cachedDb) return cachedDb;
 
   if (d1Binding) {
     cachedDb = createD1Db(d1Binding);
+    isD1 = true;
     console.info('DB: using Cloudflare D1');
   } else {
     try {
       cachedDb = createLocalDb();
+      isD1 = false;
       console.info('DB: using local SQLite');
     } catch (err) {
       console.error('DB: local SQLite unavailable:', err);
@@ -235,60 +177,17 @@ export function getDb(): AsyncDb {
   return cachedDb;
 }
 
-/** Returns true if we are connected to D1 (not local SQLite). */
+/** Returns true if the current runtime is using D1 (production). */
 export function isD1Mode(): boolean {
-  return !!d1Binding;
+  return isD1;
 }
 
-/** Check if the database is available. */
+/** Check if the database is available (always true once getDb succeeds). */
 export function isDatabaseAvailable(): boolean {
-  if (cachedDb) return true;
-  if (d1Binding) return true;
-  try {
-    getLocalDb();
-    return true;
-  } catch {
-    return false;
-  }
+  return cachedDb !== null;
 }
 
-/** Get the last error if DB init failed. */
+/** Get the last error if DB init failed (null if healthy). */
 export function getDatabaseError(): Error | null {
   return localDbError;
 }
-
-// ---------------------------------------------------------------------------
-// Type definitions (kept for backward compat)
-// ---------------------------------------------------------------------------
-
-export type DbUser = {
-  clerk_id: string;
-  email: string;
-  name: string | null;
-  phone: string | null;
-  created_at: string;
-};
-
-export type DbReport = {
-  id: string;
-  user_id: string;
-  report_id: string;
-  stripe_session_id: string | null;
-  deck_url: string | null;
-  title: string | null;
-  company: string | null;
-  created_at: string;
-};
-
-export type DbReceipt = {
-  id: string;
-  user_id: string | null;
-  stripe_session_id: string | null;
-  amount_cents: number | null;
-  currency: string | null;
-  customer_email: string | null;
-  customer_name: string | null;
-  company: string | null;
-  receipt_url: string | null;
-  created_at: string;
-};

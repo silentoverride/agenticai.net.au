@@ -1,45 +1,38 @@
-export interface StoredTranscript {
-  transcript: string;
-  metadata: Record<string, unknown>;
-  timestamp: number;
-}
+/**
+ * Unified transcript store — D1-backed with graceful fallback
+ *
+ * In production (D1 wired) transcripts are written to the D1 `transcripts` table.
+ * In local dev or when D1 is down, falls back to in-memory storage
+ * so that `node:fs` reports and other routes still function.
+ */
 
-export interface TranscriptStore {
-  set(callId: string, transcript: string, metadata?: Record<string, unknown>): void | Promise<void>;
-  get(callId: string): StoredTranscript | undefined | Promise<StoredTranscript | undefined>;
-  delete(callId: string): void | Promise<void>;
-}
+import type { StoredTranscript } from './transcript-store-memory';
+import { d1TranscriptStore } from './transcript-store-db';
+import { isDatabaseAvailable } from '$lib/server/db';
+import { InMemoryTranscriptStore } from './transcript-store-memory';
 
-class InMemoryTranscriptStore implements TranscriptStore {
-  private readonly store = new Map<string, StoredTranscript>();
+// Fallback in-memory store for local dev / CI where D1 is not bound
+const fallbackStore = new InMemoryTranscriptStore();
 
-  set(callId: string, transcript: string, metadata?: Record<string, unknown>) {
-    this.store.set(callId, {
-      transcript,
-      metadata: metadata || {},
-      timestamp: Date.now()
-    });
-  }
-
-  get(callId: string) {
-    return this.store.get(callId);
-  }
-
-  delete(callId: string) {
-    this.store.delete(callId);
+export async function storeTranscript(callId: string, transcript: string, metadata?: Record<string, unknown>) {
+  if (isDatabaseAvailable()) {
+    await d1TranscriptStore.set(callId, transcript, metadata);
+  } else {
+    fallbackStore.set(callId, transcript, metadata);
   }
 }
 
-const transcriptStore: TranscriptStore = new InMemoryTranscriptStore();
-
-export function storeTranscript(callId: string, transcript: string, metadata?: Record<string, unknown>) {
-  return transcriptStore.set(callId, transcript, metadata);
+export async function getTranscript(callId: string): Promise<StoredTranscript | undefined> {
+  if (isDatabaseAvailable()) {
+    return d1TranscriptStore.get(callId);
+  }
+  return fallbackStore.get(callId);
 }
 
-export function getTranscript(callId: string) {
-  return transcriptStore.get(callId) as StoredTranscript | undefined;
+export async function deleteTranscript(callId: string) {
+  if (isDatabaseAvailable()) {
+    await d1TranscriptStore.delete(callId);
+  }
+  fallbackStore.delete(callId);
 }
 
-export function deleteTranscript(callId: string) {
-  return transcriptStore.delete(callId);
-}

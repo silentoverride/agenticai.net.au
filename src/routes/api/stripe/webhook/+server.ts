@@ -4,12 +4,13 @@ import { verifyStripeSignature } from '$lib/server/stripe';
 import { sendReceiptEmail } from '$lib/server/assessment/emails';
 import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
 import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
-import { runReportPipeline } from '$lib/server/assessment/pipeline';
+import { enqueueReportJob } from '$lib/server/assessment/queue';
 import { saveReceipt, savePendingReceipt, findOrCreateUserFromStripe } from '$lib/server/portal';
+import { isEventProcessed, markEventProcessed } from '$lib/server/stripe/processed-events';
 import { saveTranscriptToDisk } from '$lib/server/assessment/transcript-file-store';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, platform }) => {
   if (!env.STRIPE_WEBHOOK_SECRET) {
     return text('Webhook secret not configured', { status: 501 });
   }
@@ -29,6 +30,12 @@ export const POST: RequestHandler = async ({ request }) => {
     event = JSON.parse(rawBody || '{}');
   } catch {
     return text('Invalid JSON payload', { status: 400 });
+  }
+
+  const eventId = event.id as string;
+  if (eventId && await isEventProcessed(eventId)) {
+    console.info('Stripe webhook: event already processed, skipping', { eventId, type: event.type });
+    return new Response(null, { status: 200 });
   }
 
   if (event.type === 'checkout.session.completed') {
@@ -57,9 +64,9 @@ export const POST: RequestHandler = async ({ request }) => {
     if (record.customerEmail && record.amountTotal) {
       try {
         // Try to link to an existing user by email
-        const user = findOrCreateUserFromStripe(record.customerEmail, record.customerName);
+        const user = await findOrCreateUserFromStripe(record.customerEmail, record.customerName);
         if (user) {
-          const receipt = saveReceipt(
+          const receipt = await saveReceipt(
             user.clerk_id,
             session.id,
             record.amountTotal,
@@ -75,7 +82,7 @@ export const POST: RequestHandler = async ({ request }) => {
           }
         } else {
           // Save as pending receipt — will link when user signs up
-          const pending = savePendingReceipt(
+          const pending = await savePendingReceipt(
             session.id,
             record.amountTotal,
             record.currency || 'aud',
@@ -127,10 +134,10 @@ export const POST: RequestHandler = async ({ request }) => {
       });
     }
 
-    // For voice-agent flow: if retell_call_id is in metadata, run report pipeline directly
+    // For voice-agent flow: if retell_call_id is in metadata, enqueue report pipeline
     const retellCallId = metadata.retell_call_id;
     if (retellCallId) {
-      const stored = getTranscript(retellCallId);
+      const stored = await getTranscript(retellCallId);
       if (stored?.transcript) {
         const transcript = stored.transcript;
         const customerName = metadata.customer_name || session.customer_details?.name || '';
@@ -153,9 +160,9 @@ export const POST: RequestHandler = async ({ request }) => {
           console.error('Failed to persist transcript to disk', { error: saved.error, callId: retellCallId });
         }
 
-        // Fire-and-forget local pipeline
-        setPipelineStatus(session.id, { status: 'queued' });
-        runReportPipeline({
+        await setPipelineStatus(session.id, { status: 'queued' });
+        const queue = platform?.env?.assessment_queue;
+        await enqueueReportJob(queue, {
           receivedAt: record.receivedAt,
           source: 'retell-voice-agent',
           sessionId: session.id,
@@ -164,23 +171,18 @@ export const POST: RequestHandler = async ({ request }) => {
           customerPhone,
           company,
           transcript
-        }).then((result) => {
-          setPipelineStatus(session.id, {
-            status: 'completed',
-            deckUrl: result.deckUrl || undefined,
-            reportId: result.savedReport?.id
-          });
-          console.info('Pipeline completed for retell call', { callId: retellCallId, reportId: result.savedReport?.id });
-        }).catch((error) => {
-          setPipelineStatus(session.id, { status: 'error', error: String(error) });
-          console.error('Pipeline failed for retell call', { callId: retellCallId, error: String(error) });
         });
 
-        deleteTranscript(retellCallId);
+        await deleteTranscript(retellCallId);
       } else {
-        setPipelineStatus(session.id, { status: 'pending_transcript' });
+        await setPipelineStatus(session.id, { status: 'pending_transcript' });
         console.info('Payment confirmed for retell call, but transcript not yet available', { callId: retellCallId });
       }
+    }
+
+    // Mark event as processed after all side effects
+    if (eventId) {
+      await markEventProcessed(eventId, event.type);
     }
   }
 

@@ -52,13 +52,13 @@ const REPORTS_DIR = env.REPORTS_DIR || './app_data/reports';
  * @example
  * const user = upsertUser('user_123', 'alice@example.com', 'Alice Smith');
  */
-export function upsertUser(clerkId: string, email: string, name?: string, phone?: string): DbUser | null {
+export async function upsertUser(clerkId: string, email: string, name?: string, phone?: string): Promise<DbUser | null> {
   if (!isDatabaseAvailable()) {
     console.warn('upsertUser skipped: database unavailable');
     return null;
   }
   const db = getDb();
-  const stmt = db.prepare(`
+  const row = await db.queryOne<DbUser>(`
     INSERT INTO users (clerk_id, email, name, phone)
     VALUES (?, ?, ?, ?)
     ON CONFLICT(clerk_id) DO UPDATE SET
@@ -66,8 +66,8 @@ export function upsertUser(clerkId: string, email: string, name?: string, phone?
       name = COALESCE(excluded.name, users.name),
       phone = COALESCE(excluded.phone, users.phone)
     RETURNING *
-  `);
-  return stmt.get(clerkId, email, name || null, phone || null) as DbUser;
+  `, clerkId, email, name || null, phone || null);
+  return row;
 }
 
 /**
@@ -79,11 +79,11 @@ export function upsertUser(clerkId: string, email: string, name?: string, phone?
  * const user = getUser('user_abc123');
  * if (!user) throw error(404, 'User not found');
  */
-export function getUser(clerkId: string): DbUser | null {
+export async function getUser(clerkId: string): Promise<DbUser | null> {
   if (!isDatabaseAvailable()) return null;
   const db = getDb();
-  const stmt = db.prepare('SELECT * FROM users WHERE clerk_id = ?');
-  return (stmt.get(clerkId) as DbUser | undefined) || null;
+  const row = await db.queryOne<DbUser>('SELECT * FROM users WHERE clerk_id = ?', clerkId);
+  return row;
 }
 
 /**
@@ -104,12 +104,11 @@ export function getUser(clerkId: string): DbUser | null {
  *   saveReceipt(user.clerk_id, session.id, 120000, 'aud');
  * }
  */
-export function findOrCreateUserFromStripe(email: string, name?: string, phone?: string): DbUser | null {
+export async function findOrCreateUserFromStripe(email: string, _name?: string, _phone?: string): Promise<DbUser | null> {
   if (!email || !isDatabaseAvailable()) return null;
   const db = getDb();
-  const existing = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as DbUser | undefined;
-  if (existing) return existing;
-  return null;
+  const row = await db.queryOne<DbUser>('SELECT * FROM users WHERE email = ?', email);
+  return row;
 }
 
 // ---------------------------------------------------------------------------
@@ -141,26 +140,26 @@ export function findOrCreateUserFromStripe(email: string, name?: string, phone?:
  *   'Acme Inc'
  * );
  */
-export function linkReportToUser(
+export async function linkReportToUser(
   userId: string,
   reportId: string,
   stripeSessionId?: string,
   deckUrl?: string,
   title?: string,
   company?: string
-): DbReport | null {
+): Promise<DbReport | null> {
   if (!isDatabaseAvailable()) {
     console.warn('linkReportToUser skipped: database unavailable');
     return null;
   }
   const db = getDb();
   const id = `${Date.now()}-${reportId.slice(0, 8)}`;
-  const stmt = db.prepare(`
+  const row = await db.queryOne<DbReport>(`
     INSERT INTO user_reports (id, user_id, report_id, stripe_session_id, deck_url, title, company)
     VALUES (?, ?, ?, ?, ?, ?, ?)
     RETURNING *
-  `);
-  return stmt.get(id, userId, reportId, stripeSessionId || null, deckUrl || null, title || null, company || null) as DbReport;
+  `, id, userId, reportId, stripeSessionId || null, deckUrl || null, title || null, company || null);
+  return row;
 }
 
 /**
@@ -172,11 +171,11 @@ export function linkReportToUser(
  * const reports = getUserReports('user_abc123');
  * return json(reports);
  */
-export function getUserReports(userId: string): DbReport[] {
+export async function getUserReports(userId: string): Promise<DbReport[]> {
   if (!isDatabaseAvailable()) return [];
   const db = getDb();
-  const stmt = db.prepare('SELECT * FROM user_reports WHERE user_id = ? ORDER BY created_at DESC');
-  return stmt.all(userId) as DbReport[];
+  const rows = await db.queryAll<DbReport>('SELECT * FROM user_reports WHERE user_id = ? ORDER BY created_at DESC', userId);
+  return rows;
 }
 
 /**
@@ -189,11 +188,11 @@ export function getUserReports(userId: string): DbReport[] {
  * const report = getUserReport('user_abc123', 'report-456');
  * if (!report) throw error(404, 'Report not found');
  */
-export function getUserReport(userId: string, reportId: string): DbReport | null {
+export async function getUserReport(userId: string, reportId: string): Promise<DbReport | null> {
   if (!isDatabaseAvailable()) return null;
   const db = getDb();
-  const stmt = db.prepare('SELECT * FROM user_reports WHERE user_id = ? AND report_id = ?');
-  return (stmt.get(userId, reportId) as DbReport | undefined) || null;
+  const row = await db.queryOne<DbReport>('SELECT * FROM user_reports WHERE user_id = ? AND report_id = ?', userId, reportId);
+  return row;
 }
 
 // ---------------------------------------------------------------------------
@@ -227,7 +226,7 @@ export function getUserReport(userId: string, reportId: string): DbReport | null
  *   'Acme Inc'
  * );
  */
-export function saveReceipt(
+export async function saveReceipt(
   userId: string,
   stripeSessionId: string,
   amountCents: number,
@@ -236,14 +235,14 @@ export function saveReceipt(
   customerName?: string,
   company?: string,
   receiptUrl?: string
-): DbReceipt | null {
+): Promise<DbReceipt | null> {
   if (!isDatabaseAvailable()) {
     console.warn('saveReceipt skipped: database unavailable');
     return null;
   }
   const db = getDb();
   const id = `receipt-${Date.now()}`;
-  const stmt = db.prepare(`
+  const row = await db.queryOne<DbReceipt>(`
     INSERT INTO receipts (id, user_id, stripe_session_id, amount_cents, currency, customer_email, customer_name, company, receipt_url)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(stripe_session_id) DO UPDATE SET
@@ -251,11 +250,9 @@ export function saveReceipt(
       currency = excluded.currency,
       receipt_url = COALESCE(excluded.receipt_url, receipts.receipt_url)
     RETURNING *
-  `);
-  return stmt.get(
-    id, userId, stripeSessionId, amountCents, currency,
-    customerEmail || null, customerName || null, company || null, receiptUrl || null
-  ) as DbReceipt;
+  `, id, userId, stripeSessionId, amountCents, currency,
+    customerEmail || null, customerName || null, company || null, receiptUrl || null);
+  return row;
 }
 
 /**
@@ -281,7 +278,7 @@ export function saveReceipt(
  *   'Acme Inc'
  * );
  */
-export function savePendingReceipt(
+export async function savePendingReceipt(
   stripeSessionId: string,
   amountCents: number,
   currency: string,
@@ -289,14 +286,14 @@ export function savePendingReceipt(
   customerName?: string,
   company?: string,
   receiptUrl?: string
-): DbReceipt | null {
+): Promise<DbReceipt | null> {
   if (!isDatabaseAvailable()) {
     console.warn('savePendingReceipt skipped: database unavailable');
     return null;
   }
   const db = getDb();
   const id = `receipt-${Date.now()}`;
-  const stmt = db.prepare(`
+  const row = await db.queryOne<DbReceipt>(`
     INSERT INTO receipts (id, user_id, stripe_session_id, amount_cents, currency, customer_email, customer_name, company, receipt_url)
     VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(stripe_session_id) DO UPDATE SET
@@ -304,11 +301,9 @@ export function savePendingReceipt(
       currency = excluded.currency,
       receipt_url = COALESCE(excluded.receipt_url, receipts.receipt_url)
     RETURNING *
-  `);
-  return stmt.get(
-    id, stripeSessionId, amountCents, currency,
-    customerEmail || null, customerName || null, company || null, receiptUrl || null
-  ) as DbReceipt;
+  `, id, stripeSessionId, amountCents, currency,
+    customerEmail || null, customerName || null, company || null, receiptUrl || null);
+  return row;
 }
 
 /**
@@ -320,11 +315,11 @@ export function savePendingReceipt(
  * const receipts = getUserReceipts('user_abc123');
  * return json(receipts);
  */
-export function getUserReceipts(userId: string): DbReceipt[] {
+export async function getUserReceipts(userId: string): Promise<DbReceipt[]> {
   if (!isDatabaseAvailable()) return [];
   const db = getDb();
-  const stmt = db.prepare('SELECT * FROM receipts WHERE user_id = ? ORDER BY created_at DESC');
-  return stmt.all(userId) as DbReceipt[];
+  const rows = await db.queryAll<DbReceipt>('SELECT * FROM receipts WHERE user_id = ? ORDER BY created_at DESC', userId);
+  return rows;
 }
 
 /**
@@ -337,11 +332,11 @@ export function getUserReceipts(userId: string): DbReceipt[] {
  * const receipt = getUserReceipt('user_abc123', 'receipt-1715600000000');
  * if (!receipt) throw error(404, 'Receipt not found');
  */
-export function getUserReceipt(userId: string, receiptId: string): DbReceipt | null {
+export async function getUserReceipt(userId: string, receiptId: string): Promise<DbReceipt | null> {
   if (!isDatabaseAvailable()) return null;
   const db = getDb();
-  const stmt = db.prepare('SELECT * FROM receipts WHERE user_id = ? AND id = ?');
-  return (stmt.get(userId, receiptId) as DbReceipt | undefined) || null;
+  const row = await db.queryOne<DbReceipt>('SELECT * FROM receipts WHERE user_id = ? AND id = ?', userId, receiptId);
+  return row;
 }
 
 // ---------------------------------------------------------------------------
@@ -367,7 +362,7 @@ export function getUserReceipt(userId: string, receiptId: string): DbReceipt | n
  * const linked = scanAndLinkReportsByEmail('user_123', 'alice@example.com');
  * console.log(`Linked ${linked} historical reports`);
  */
-export function scanAndLinkReportsByEmail(userId: string, email: string): number {
+export async function scanAndLinkReportsByEmail(userId: string, email: string): Promise<number> {
   if (!isDatabaseAvailable()) return 0;
 
   try {
@@ -389,10 +384,10 @@ export function scanAndLinkReportsByEmail(userId: string, email: string): number
         if (!reportEmail || reportEmail.toLowerCase() !== email.toLowerCase()) continue;
 
         const reportId = meta.id || name;
-        const existing = db.prepare('SELECT 1 FROM user_reports WHERE report_id = ? AND user_id = ?').get(reportId, userId);
+        const existing = await db.queryOne<{ 1: number }>('SELECT 1 FROM user_reports WHERE report_id = ? AND user_id = ?', reportId, userId);
         if (existing) continue;
 
-        linkReportToUser(
+        await linkReportToUser(
           userId,
           reportId,
           meta.job?.sessionId,
@@ -425,16 +420,16 @@ export function scanAndLinkReportsByEmail(userId: string, email: string): number
  * const linked = linkPendingReceiptsByEmail('user_abc123', 'alice@example.com');
  * console.log(`Linked ${linked} pending receipts`);
  */
-export function linkPendingReceiptsByEmail(userId: string, email: string): number {
+export async function linkPendingReceiptsByEmail(userId: string, email: string): Promise<number> {
   if (!isDatabaseAvailable()) return 0;
   const db = getDb();
-  const result = db.prepare(`
+  const result = await db.exec(`
     UPDATE receipts
     SET user_id = ?
     WHERE user_id IS NULL
       AND customer_email IS NOT NULL
       AND LOWER(customer_email) = LOWER(?)
-  `).run(userId, email);
+  `, userId, email);
   return result.changes || 0;
 }
 
@@ -445,9 +440,9 @@ export function linkPendingReceiptsByEmail(userId: string, email: string): numbe
  *
  * @deprecated Use the individual link functions above.
  */
-export function linkOrphanedRecordsByEmail(userId: string, email: string): { reports: number; receipts: number } {
+export async function linkOrphanedRecordsByEmail(userId: string, email: string): Promise<{ reports: number; receipts: number }> {
   return {
-    reports: scanAndLinkReportsByEmail(userId, email),
-    receipts: linkPendingReceiptsByEmail(userId, email)
+    reports: await scanAndLinkReportsByEmail(userId, email),
+    receipts: await linkPendingReceiptsByEmail(userId, email)
   };
 }

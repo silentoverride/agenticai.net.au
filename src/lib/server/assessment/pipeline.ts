@@ -2,11 +2,14 @@ import type { AssessmentReportJob, PipelineResult, SavedReport } from './types';
 import { analyzeTranscript } from './llm-analysis';
 import { lookupToolsForTranscript, enrichAnalysisWithTools } from './tool-lookup';
 import { generatePresentonDeck } from './presenton';
-import { saveReport } from './report-store';
+import { saveReportUnified } from './report-store-r2';
 import { sendReportReadyEmail } from './emails';
-import { findOrCreateUserFromStripe, linkReportToUser } from '../portal';
+import { findOrCreateUserFromStripe, linkReportToUser } from '$lib/server/portal';
 
-export async function runReportPipeline(job: AssessmentReportJob): Promise<PipelineResult> {
+export async function runReportPipeline(
+  job: AssessmentReportJob,
+  opts?: { r2Bucket?: R2Bucket | null }
+): Promise<PipelineResult> {
   console.info('Starting report pipeline for', job.callId || job.sessionId, JSON.stringify({
     customer: job.customerName,
     company: job.company,
@@ -51,10 +54,10 @@ export async function runReportPipeline(job: AssessmentReportJob): Promise<Pipel
     console.error('Presenton deck generation failed:', error);
   }
 
-  // Step 3: Save locally
+  // Step 3: Save to R2 (production) or filesystem (dev)
   let saved: SavedReport;
   try {
-    saved = saveReport(job, analysis, deckUrl);
+    saved = await saveReportUnified(opts?.r2Bucket ?? null, job, analysis, deckUrl);
   } catch (error) {
     console.error('Report save failed:', error);
     throw new Error('Report save failed: ' + (error instanceof Error ? error.message : String(error)));
@@ -63,9 +66,9 @@ export async function runReportPipeline(job: AssessmentReportJob): Promise<Pipel
   // Step 3b: Link report to user in portal if email matches an existing user
   if (job.customerEmail) {
     try {
-      const user = findOrCreateUserFromStripe(job.customerEmail, job.customerName);
+      const user = await findOrCreateUserFromStripe(job.customerEmail, job.customerName);
       if (user) {
-        linkReportToUser(
+        await linkReportToUser(
           user.clerk_id,
           saved.id,
           job.sessionId,
@@ -104,13 +107,16 @@ export async function runReportPipeline(job: AssessmentReportJob): Promise<Pipel
     queued: true,
     savedReport: saved,
     deckUrl,
-    destination: 'local-pipeline',
+    destination: 'r2-or-local',
     emailSent: emailResult.sent,
     emailId: emailResult.id
   };
 }
 
 // Backward-compat alias
-export async function pipeAssessmentReportJob(job: AssessmentReportJob): Promise<PipelineResult> {
-  return runReportPipeline(job);
+export async function pipeAssessmentReportJob(
+  job: AssessmentReportJob,
+  opts?: { r2Bucket?: R2Bucket | null }
+): Promise<PipelineResult> {
+  return runReportPipeline(job, opts);
 }

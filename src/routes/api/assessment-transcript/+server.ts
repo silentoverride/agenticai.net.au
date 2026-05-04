@@ -2,11 +2,20 @@ import { json } from '@sveltejs/kit';
 import { getCheckoutSession } from '$lib/server/stripe';
 import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
 import { getPipelineStatus, setPipelineStatus } from '$lib/server/assessment/pipeline-store';
-import { runReportPipeline } from '$lib/server/assessment/pipeline';
+import { enqueueReportJob } from '$lib/server/assessment/queue';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
-  const payload = await request.json().catch(() => null);
+export const POST: RequestHandler = async ({ request, platform }) => {
+  interface Payload {
+    sessionId?: string;
+    transcript?: string;
+    source?: string;
+    customerName?: string;
+    customerEmail?: string;
+    customerPhone?: string;
+    company?: string;
+  }
+  const payload = (await request.json().catch(() => null)) as Payload | null;
 
   if (!payload?.sessionId) {
     return json({ message: 'Missing Stripe session id.' }, { status: 400 });
@@ -35,19 +44,19 @@ export const POST: RequestHandler = async ({ request }) => {
 
   // For voice-agent flows: retrieve transcript stored by Retell webhook
   if (!hasTranscript && retellCallId) {
-    const stored = getTranscript(retellCallId);
+    const stored = await getTranscript(retellCallId);
     if (stored?.transcript) {
       transcript = stored.transcript;
       customerName = customerName || (stored.metadata.customer_name as string) || '';
       customerEmail = customerEmail || (stored.metadata.customer_email as string) || '';
       customerPhone = customerPhone || (stored.metadata.customer_phone as string) || '';
       company = company || (stored.metadata.company as string) || '';
-      deleteTranscript(retellCallId);
+      await deleteTranscript(retellCallId);
     }
   }
 
   if (!transcript) {
-    setPipelineStatus(payload.sessionId, { status: 'pending_transcript' });
+    await setPipelineStatus(payload.sessionId, { status: 'pending_transcript' });
     return json({
       message: 'Payment verified, but transcript not available yet. It will be processed when the interview completes.',
       status: 'pending_transcript',
@@ -63,9 +72,10 @@ export const POST: RequestHandler = async ({ request }) => {
     transcriptLength: transcript.length
   }));
 
-  // Step 3: Run the report pipeline (async — don't block client)
-  setPipelineStatus(payload.sessionId, { status: 'queued' });
-  runReportPipeline({
+  // Step 3: Enqueue the report pipeline (async — don't block client)
+  await setPipelineStatus(payload.sessionId, { status: 'queued' });
+  const queue = platform?.env?.assessment_queue;
+  await enqueueReportJob(queue, {
     receivedAt: new Date().toISOString(),
     source,
     sessionId: payload.sessionId,
@@ -74,16 +84,6 @@ export const POST: RequestHandler = async ({ request }) => {
     customerPhone,
     company,
     transcript
-  }).then((result) => {
-    setPipelineStatus(payload.sessionId, {
-      status: 'completed',
-      deckUrl: result.deckUrl || undefined,
-      reportId: result.savedReport?.id
-    });
-    console.info('Pipeline completed for', payload.sessionId, result.savedReport?.id || 'no report');
-  }).catch((error) => {
-    setPipelineStatus(payload.sessionId, { status: 'error', error: String(error) });
-    console.error('Pipeline failed for', payload.sessionId, error);
   });
 
   // Return 202 Accepted immediately so the success page doesn't hang
@@ -99,7 +99,7 @@ export const GET: RequestHandler = async ({ url }) => {
   const sessionId = url.searchParams.get('sessionId');
   if (!sessionId) return json({ message: 'Missing sessionId' }, { status: 400 });
 
-  const result = getPipelineStatus(sessionId);
+  const result = await getPipelineStatus(sessionId);
   if (!result) return json({ status: 'unknown' });
 
   return json({

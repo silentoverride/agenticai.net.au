@@ -2,11 +2,11 @@ import { env } from '$env/dynamic/private';
 import { json, text } from '@sveltejs/kit';
 import { createAssessmentReportJob } from '$lib/server/assessment/retell-job';
 import { storeTranscript } from '$lib/server/assessment/transcript-store';
-import { runReportPipeline } from '$lib/server/assessment/pipeline';
+import { enqueueReportJob } from '$lib/server/assessment/queue';
 import { verifyRetellSignature } from '$lib/server/retell';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, platform }) => {
   const rawBody = await request.text();
 
   if (env.RETELL_API_KEY) {
@@ -48,8 +48,8 @@ export const POST: RequestHandler = async ({ request }) => {
     return new Response(null, { status: 204 });
   }
 
-  // Always store transcript for pickup by assessment-transcript endpoint
-  storeTranscript(job.callId!, job.transcript, {
+  // Always store transcript durably for pickup by assessment-transcript endpoint
+  await storeTranscript(job.callId!, job.transcript, {
     customer_name: job.customerName,
     customer_email: job.customerEmail,
     customer_phone: job.customerPhone,
@@ -90,12 +90,10 @@ export const POST: RequestHandler = async ({ request }) => {
   // Run the pipeline if payment already marked complete
   // Otherwise transcript stays stored until payment triggers analysis
   if (job.paymentStatus === 'paid' || job.paymentStatus === 'complete') {
-    try {
-      const result = await runReportPipeline(job);
-      console.info('Assessment report job handled', JSON.stringify({ callId: job.callId, ...result }));
-    } catch (error) {
-      console.error('Assessment report agent handoff failed:', error);
-      return json({ message: 'Report agent handoff failed.' }, { status: 502 });
+    const queue = platform?.env?.assessment_queue;
+    const { queued, inline } = await enqueueReportJob(queue, job);
+    if (!queued && !inline) {
+      return json({ message: 'Failed to queue pipeline job.' }, { status: 502 });
     }
   } else {
     console.info('Transcript stored for later processing upon payment', { callId: job.callId });

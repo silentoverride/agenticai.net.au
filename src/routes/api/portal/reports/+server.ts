@@ -31,14 +31,14 @@ export const GET: RequestHandler = async ({ locals }) => {
 
   const user = locals.user;
   if (user) {
-    upsertUser(auth.userId, user.email || '', user.name || undefined);
-    const linkedReports = scanAndLinkReportsByEmail(auth.userId, user.email || '');
-    const linkedReceipts = linkPendingReceiptsByEmail(auth.userId, user.email || '');
+    await upsertUser(auth.userId, user.email || '', user.name || undefined);
+    const linkedReports = await scanAndLinkReportsByEmail(auth.userId, user.email || '');
+    const linkedReceipts = await linkPendingReceiptsByEmail(auth.userId, user.email || '');
     if (linkedReports > 0 || linkedReceipts > 0) {
       console.info('Auto-linked records on portal login', { userId: auth.userId, linkedReports, linkedReceipts });
     }
   }
 
-  const reports = getUserReports(auth.userId);
+  const reports = await getUserReports(auth.userId);
   return json(reports);
 };

@@ -32,10 +32,10 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
   const user = locals.user;
   if (user) {
-    upsertUser(auth.userId, user.email || '', user.name || undefined);
+    await upsertUser(auth.userId, user.email || '', user.name || undefined);
   }
 
-  const receipt = getUserReceipt(auth.userId, params.id);
+  const receipt = await getUserReceipt(auth.userId, params.id);
   if (!receipt) {
     throw error(404, 'Receipt not found');
   }

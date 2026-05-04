@@ -59,6 +59,8 @@ export type PipelineStatus = {
   deckUrl?: string;
   reportId?: string;
   error?: string;
+  /** Retry attempt count (used by durable queue; not always present). */
+  attempts?: number;
 };
 
 export interface SavedReport {

@@ -31,13 +31,13 @@ export const GET: RequestHandler = async ({ locals }) => {
 
   const user = locals.user;
   if (user) {
-    upsertUser(auth.userId, user.email || '', user.name || undefined);
-    const linked = linkPendingReceiptsByEmail(auth.userId, user.email || '');
+    await upsertUser(auth.userId, user.email || '', user.name || undefined);
+    const linked = await linkPendingReceiptsByEmail(auth.userId, user.email || '');
     if (linked > 0) {
       console.info('Auto-linked receipts on portal load', { userId: auth.userId, linked });
     }
   }
 
-  const receipts = getUserReceipts(auth.userId);
+  const receipts = await getUserReceipts(auth.userId);
   return json(receipts);
 };

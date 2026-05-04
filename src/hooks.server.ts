@@ -9,6 +9,7 @@
  */
 
 import { withClerkHandler } from 'svelte-clerk/server';
+import { setD1Binding } from '$lib/server/db';
 import type { Handle } from '@sveltejs/kit';
 
 const PUBLIC_API_PREFIXES = [
@@ -28,6 +29,12 @@ function isPublicApi(path: string): boolean {
 const clerkHandler = withClerkHandler();
 
 export const handle: Handle = async ({ event, resolve }) => {
+  // Wire Cloudflare D1 binding when available (production / preview)
+  const d1 = (event.platform as Record<string, any>)?.env?.assessment_db;
+  if (d1) {
+    setD1Binding(d1);
+  }
+
   if (isPublicApi(event.url.pathname)) {
     return resolve(event);
   }

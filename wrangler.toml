@@ -9,3 +9,13 @@ database_id = "e497e4c9-7dd2-4fbf-a4ff-2c24899a4d83"
 [[r2_buckets]]
 bucket_name = "assessment-blobs"
 binding = "assessment_blobs"
+
+[[queues.producers]]
+binding = "assessment_queue"
+queue = "assessment-jobs"
+
+[[queues.consumers]]
+queue = "assessment-jobs"
+max_batch_size = 1
+max_retries = 3
+dead_letter_queue = "assessment-jobs-dlq"
