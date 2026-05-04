@@ -707,11 +707,22 @@
         "name": "Payment Result Split",
         "edges": [
           {
-            "destination_node_id": "node-end-call",
-            "id": "edge-1777817174676-3rc4uwde4",
+            "destination_node_id": "node-payment-link-message",
+            "id": "edge-payment-success-to-message",
             "transition_condition": {
-              "type": "prompt",
-              "prompt": "Say this naturally:\n\nThe assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the report will be prepared.\n\nIf the payment function result shows `sms.sent` is true, tell the caller the secure Stripe checkout link has been sent by SMS. If SMS was not sent or failed, tell the caller the link will be sent through the configured fallback channel. If the current Retell setup exposes the checkout URL in-call, read only a short confirmation and avoid spelling out a long URL unless the caller explicitly asks.\n\nIf the caller confirms they have already completed payment, thank them warmly, confirm their transcript will be reviewed by the assessment team, and say goodbye. Do not call any tools or functions in this step."
+              "type": "equation",
+              "equations": [
+                {
+                  "left": "{{url}}",
+                  "operator": "exists"
+                },
+                {
+                  "left": "{{url}}",
+                  "operator": "contains",
+                  "right": "checkout.stripe.com"
+                }
+              ],
+              "operator": "&&"
             }
           }
         ],
@@ -759,6 +770,28 @@
         }
       },
       {
+        "instruction": {
+          "type": "prompt",
+          "text": "Say this naturally:\n\nThe assessment intake is complete. I have sent you a secure payment link through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the report will be prepared in the next 48 hours.\n\nThe secure Stripe checkout link has been sent by SMS to your phone. If you do not receive it within a few minutes, please check your messages or email hello@agenticai.net.au.\n\nDo not call any tools or functions in this step."
+        },
+        "always_edge": {
+          "destination_node_id": "node-end-call",
+          "id": "always-edge-payment-message-to-end",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Always"
+          }
+        },
+        "name": "Payment Link Message",
+        "edges": [],
+        "id": "node-payment-link-message",
+        "type": "conversation",
+        "display_position": {
+          "x": 10662,
+          "y": 150
+        }
+      },
+      {
         "name": "End Call",
         "id": "node-end-call",
         "type": "end",
@@ -769,7 +802,7 @@
         },
         "instruction": {
           "type": "static_text",
-          "text": "Thanks again. Your payment is complete, your intake transcript will be reviewed and used to prepare your AI Business Assessment report within 48 hours. Have a great day."
+          "text": "Thanks again. Your assessment intake is complete. The payment link has been sent to your phone by SMS. Once payment is confirmed, your transcript will be reviewed and your AI Business Assessment report will be prepared within 48 hours. Have a great day."
         }
       },
       {
