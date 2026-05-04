@@ -103,11 +103,11 @@ Great, thank you. I have recorded your approval. I will ask one question at a ti
 
 **Required fields to collect before general discovery:**
 
-- `customer_name`
-- `customer_role`
+- `caller_name`
+- `caller_role`
 - `company`
-- `customer_email`
-- `customer_phone`
+- `caller_email`
+- `caller_phone`
 
 **Required questions:**
 
@@ -298,9 +298,9 @@ POST /api/create-assessment-checkout
 ```json
 {
   "source": "retell-voice-agent",
-  "customerName": "{{customer_name}}",
-  "customerPhone": "{{caller_phone}}",
-  "customerEmail": "{{customer_email}}",
+  "callerName": "{{caller_name}}",
+  "callerPhone": "{{caller_phone}}",
+  "callerEmail": "{{caller_email}}",
   "company": "{{company}}",
   "transcriptPreview": "{{transcript_preview}}"
 }
@@ -435,9 +435,9 @@ Queues transcript data for report processing after payment or after a `call_anal
 {
   "source": "retell-voice-agent",
   "callId": "{{call_id}}",
-  "customerName": "{{customer_name}}",
-  "customerPhone": "{{caller_phone}}",
-  "customerEmail": "{{customer_email}}",
+  "callerName": "{{caller_name}}",
+  "callerPhone": "{{caller_phone}}",
+  "callerEmail": "{{caller_email}}",
   "company": "{{company}}",
   "paymentStatus": "{{payment_status}}",
   "transcript": "{{transcript}}",

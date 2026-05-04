@@ -169,9 +169,9 @@ Required args:
 ```json
 {
   "source": "retell-voice-agent",
-  "customerName": "{{customer_name}}",
-  "customerEmail": "{{customer_email}}",
-  "customerPhone": "{{customer_phone}}",
+  "callerName": "{{caller_name}}",
+  "callerEmail": "{{caller_email}}",
+  "callerPhone": "{{caller_phone}}",
   "company": "{{company}}",
   "transcriptPreview": "Short intake summary"
 }
@@ -204,7 +204,7 @@ Required args:
 
 ```json
 {
-  "customerPhone": "{{customer_phone}}",
+  "customerPhone": "{{caller_phone}}",
   "checkoutUrl": "https://checkout.stripe.com/..."
 }
 ```

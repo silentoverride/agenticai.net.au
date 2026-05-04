@@ -106,9 +106,9 @@ Arguments:
 ```json
 {
   "source": "retell-voice-agent",
-  "customerName": "{{customer_name}}",
-  "customerEmail": "{{customer_email}}",
-  "customerPhone": "{{customer_phone}}",
+  "callerName": "{{caller_name}}",
+  "callerEmail": "{{caller_email}}",
+  "callerPhone": "{{caller_phone}}",
   "company": "{{company}}",
   "transcriptPreview": "Short voice intake summary"
 }
@@ -156,11 +156,11 @@ The Checkout session stores:
 | `source` | `retell-voice-agent` |
 | `assessment_fee_aud` | `1200.00` |
 | `transcript_preview` | Short intake preview |
-| `customer_name` | Caller name |
-| `customer_phone` | Caller phone |
+| `caller_name` | Caller name |
+| `caller_phone` | Caller phone |
 | `company` | Business name |
 
-Stripe also receives `customer_email` when supplied.
+Stripe also receives `caller_email` when supplied.
 
 ## 7. Payment Confirmation
 

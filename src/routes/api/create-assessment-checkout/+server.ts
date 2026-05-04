@@ -15,9 +15,13 @@ type CheckoutFields = {
   customerEmail?: string;
   customerName?: string;
   customerPhone?: string;
+  caller_name?: string;
+  caller_email?: string;
   caller_phone?: string;
   customer_phone?: string;
   callerPhone?: string;
+  callerName?: string;
+  callerEmail?: string;
   company?: string;
   retellCallId?: string;
   retell_call_id?: string;
@@ -58,6 +62,8 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
   const requestBody = (await request.json().catch(() => ({}))) as CheckoutRequestBody;
   const body = requestBody.args || requestBody;
+  const customerName = firstString(body.customerName, body.callerName, body.caller_name);
+  const customerEmail = firstString(body.customerEmail, body.callerEmail, body.caller_email);
   const customerPhone = firstString(body.customerPhone, body.customer_phone, body.callerPhone, body.caller_phone);
   const retellCallId = firstString(body.retellCallId, body.retell_call_id);
 
@@ -79,7 +85,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
   params.set('metadata[source]', body.source || '');
   params.set('metadata[assessment_fee_aud]', '1200.00');
   params.set('metadata[transcript_preview]', (body.transcriptPreview || '').slice(0, 450));
-  params.set('metadata[customer_name]', (body.customerName || '').slice(0, 120));
+  params.set('metadata[customer_name]', customerName.slice(0, 120));
   params.set('metadata[customer_phone]', customerPhone.slice(0, 60));
   params.set('metadata[company]', (body.company || '').slice(0, 140));
   params.set('metadata[retell_call_id]', retellCallId.slice(0, 64));
@@ -87,7 +93,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
   params.set('billing_address_collection', 'auto');
   params.set('phone_number_collection[enabled]', 'true');
 
-  const sanitizedEmail = body.customerEmail ? sanitizeVoiceEmail(body.customerEmail) : null;
+  const sanitizedEmail = customerEmail ? sanitizeVoiceEmail(customerEmail) : null;
   if (sanitizedEmail) {
     params.set('customer_email', sanitizedEmail);
     params.set('metadata[customer_email]', sanitizedEmail);
@@ -126,7 +132,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
   } = { url: stripeBody.url };
 
   if (body.source === 'retell-voice-agent' && customerPhone && isTwilioConfigured()) {
-    const message = `Hi${body.customerName ? ` ${body.customerName}` : ''}, your secure Agentic AI Business Assessment payment link is ${stripeBody.url}. Once payment is complete, your transcript will be queued for analysis.`;
+    const message = `Hi${customerName ? ` ${customerName}` : ''}, your secure Agentic AI Business Assessment payment link is ${stripeBody.url}. Once payment is complete, your transcript will be queued for analysis.`;
 
     try {
       const sms = await sendTwilioSms(customerPhone, message);

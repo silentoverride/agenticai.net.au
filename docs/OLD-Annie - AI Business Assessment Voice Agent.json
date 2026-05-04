@@ -378,7 +378,7 @@
         },
         "instruction": {
           "type": "prompt",
-          "text": "Start by saying: Great, thank you. I have recorded your approval. I will ask one question at a time and focus on how your business works, where time is being lost, and where AI or automation may help.\n\nCollect these required fields before moving on:\n- customer_name\n- customer_role\n- company\n- customer_email\n- customer_phone\n\nAsk one question at a time:\n1. What is your name and role in the business?\n2. What is the company or business name?\n3. What is the best email address for assessment updates and the report?\n4. What is the best phone number to contact you if the assessment team needs to clarify anything?\n\nConfirm the contact details back naturally. Then say: Thanks. I have your contact details recorded. Now I will move into the business workflow questions."
+          "text": "Start by saying: Great, thank you. I have recorded your approval. I will ask one question at a time and focus on how your business works, where time is being lost, and where AI or automation may help.\n\nCollect these required fields before moving on:\n- caller_name\n- caller_role\n- company\n- caller_email\n- caller_phone\n\nAsk one question at a time:\n1. What is your name and role in the business?\n2. What is the company or business name?\n3. What is the best email address for assessment updates and the report?\n4. What is the best phone number to contact you if the assessment team needs to clarify anything?\n\nConfirm the contact details back naturally. Then say: Thanks. I have your contact details recorded. Now I will move into the business workflow questions."
         }
       },
       {
@@ -661,7 +661,7 @@
       {
         "instruction": {
           "type": "prompt",
-          "text": "Create a Stripe Checkout payment link for the completed Agentic AI Business Assessment voice intake.\n\nUse the stored fields:\n- customer_name: {{customer_name}}\n- customer_email: {{customer_email}}\n- customer_phone: {{customer_phone}}\n- company: {{company}}\n\nBefore calling the function, create a short transcriptPreview summarising:\n- business context\n- operating rhythm\n- top pain points\n- current systems\n- repeated work\n- lead/customer response workflow\n- knowledge/documentation gaps\n- reporting/visibility gaps\n- constraints\n- priority outcome\n- open questions for follow-up\n\nCall the `create_assessment_payment_link` function once. Do not invent a payment URL. Do not ask another assessment question."
+          "text": "Create a Stripe Checkout payment link for the completed Agentic AI Business Assessment voice intake.\n\nUse the stored fields:\n- caller_name: {{caller_name}}\n- caller_email: {{caller_email}}\n- caller_phone: {{caller_phone}}\n- company: {{company}}\n\nBefore calling the function, create a short transcriptPreview summarising:\n- business context\n- operating rhythm\n- top pain points\n- current systems\n- repeated work\n- lead/customer response workflow\n- knowledge/documentation gaps\n- reporting/visibility gaps\n- constraints\n- priority outcome\n- open questions for follow-up\n\nCall the `create_assessment_payment_link` function once. Do not invent a payment URL. Do not ask another assessment question."
         },
         "name": "Create Payment Link",
         "edges": [

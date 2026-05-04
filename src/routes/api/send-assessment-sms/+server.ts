@@ -24,26 +24,31 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const body = (await request.json().catch(() => ({}))) as {
     customerPhone?: string;
+    callerPhone?: string;
     customerName?: string;
+    callerName?: string;
     company?: string;
     checkoutUrl?: string;
     message?: string;
   };
 
-  if (!body.customerPhone) {
-    return json({ message: 'customerPhone is required.' }, { status: 400 });
+  const toPhone = body.customerPhone || body.callerPhone;
+  const customerName = body.customerName || body.callerName;
+
+  if (!toPhone) {
+    return json({ message: 'customerPhone or callerPhone is required.' }, { status: 400 });
   }
 
   const smsBody =
     body.message ||
-    `Hi${body.customerName ? ` ${body.customerName}` : ''}, your secure Agentic AI Business Assessment payment link is ${body.checkoutUrl || '[payment link pending]'}. Once payment is complete, your transcript will be queued for analysis.`;
+    `Hi${customerName ? ` ${customerName}` : ''}, your secure Agentic AI Business Assessment payment link is ${body.checkoutUrl || '[payment link pending]'}. Once payment is complete, your transcript will be queued for analysis.`;
 
   if (!body.checkoutUrl && !body.message) {
     return json({ message: 'checkoutUrl or message is required.' }, { status: 400 });
   }
 
   try {
-    const sms = await sendTwilioSms(body.customerPhone, smsBody);
+    const sms = await sendTwilioSms(toPhone, smsBody);
 
     return json({
       sent: true,

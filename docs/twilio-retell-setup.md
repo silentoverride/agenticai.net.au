@@ -157,12 +157,12 @@ Parameters:
   "properties": {
     "customerPhone": {
       "type": "string",
-      "const": "{{customer_phone}}",
+      "const": "{{caller_phone}}",
       "description": "Customer phone number in E.164 or local Australian format."
     },
     "customerName": {
       "type": "string",
-      "const": "{{customer_name}}",
+      "const": "{{caller_name}}",
       "description": "Customer name."
     },
     "company": {
