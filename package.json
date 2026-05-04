@@ -10,7 +10,8 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:visual": "node scripts/visual-check.mjs",
     "deploy": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name agenticai-net-au",
-    "deploy:preview": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name agenticai-net-au --branch preview"
+    "deploy:preview": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name agenticai-net-au --branch preview",
+    "deploy:worker": "cd workers && wrangler deploy"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260504.1",

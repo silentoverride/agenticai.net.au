@@ -1,0 +1,40 @@
+name = "agenticai-queue-consumer"
+main = "queue-consumer.ts"
+compatibility_date = "2026-04-29"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 is wired in case the worker ever needs to read pipeline
+# status directly before POSTing.
+[[d1_databases]]
+binding = "assessment_db"
+database_name = "portal"
+database_id = "e497e4c9-7dd2-4fbf-a4ff-2c24899a4d83"
+
+# R2 wired for the same forward-compatibility reason.
+[[r2_buckets]]
+binding = "assessment_blobs"
+bucket_name = "assessment-blobs"
+
+# Reads from this queue (SvelteKit Pages Functions produce to it).
+[[queues.consumers]]
+queue = "assessment-jobs"
+max_batch_size = 1
+max_retries = 3
+dead_letter_queue = "assessment-jobs-dlq"
+
+[vars]
+# The public URL of the SvelteKit Pages site.
+# Override per-env below.
+SELF_URL = "https://agenticai.net.au"
+
+[env.staging]
+name = "agenticai-queue-consumer-staging"
+
+[env.staging.vars]
+SELF_URL = "https://staging.agenticai.net.au"
+
+[env.local]
+name = "agenticai-queue-consumer-local"
+
+[env.local.vars]
+SELF_URL = "http://127.0.0.1:5173"

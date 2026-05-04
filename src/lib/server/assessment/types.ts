@@ -55,7 +55,7 @@ export type AssessmentReportJob = {
 };
 
 export type PipelineStatus = {
-  status: 'queued' | 'pending_transcript' | 'completed' | 'error';
+  status: 'queued' | 'pending_transcript' | 'running_llm' | 'completed' | 'error';
   deckUrl?: string;
   reportId?: string;
   error?: string;

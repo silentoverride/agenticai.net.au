@@ -13,9 +13,3 @@ binding = "assessment_blobs"
 [[queues.producers]]
 binding = "assessment_queue"
 queue = "assessment-jobs"
-
-[[queues.consumers]]
-queue = "assessment-jobs"
-max_batch_size = 1
-max_retries = 3
-dead_letter_queue = "assessment-jobs-dlq"
