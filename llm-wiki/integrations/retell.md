@@ -76,8 +76,8 @@ Post-call analysis fields configured for Annie include:
 
 - **Stripe** — Custom function calls `/api/create-assessment-checkout` to generate payment links
 - **Twilio** — SIP trunk for voice; SMS delivery of payment links
-- **Website widget** — Retell chat widget embedded in `src/lib/components/RetellChatWidget.svelte`
-- **Report pipeline** — Webhook payload forwarded to `ASSESSMENT_REPORT_AGENT_WEBHOOK_URL`
+- **Website widget** — Retell chat widget (see Clerk authentication setup)
+- **Report pipeline** — Self-contained: Perplexity tool lookup → LLM analysis → R2 storage → SendGrid email delivery
 
 ## Environment Variables
 
@@ -86,10 +86,7 @@ Post-call analysis fields configured for Annie include:
 RETELL_API_KEY=key_xxxxxxxxxxxxxxxxxxxxx
 
 # Website widget (public)
-PUBLIC_RETELL_PUBLIC_KEY=key_xxxxxxxxxxxxxxxxxxxxx
-PUBLIC_RETELL_CHAT_AGENT_ID=agent_xxxxxxxxxxxxxxxxxxx
-PUBLIC_RETELL_CHAT_AGENT_VERSION=0
-PUBLIC_RETELL_RECAPTCHA_KEY=optional_recaptcha_v3_site_key
+PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxx
 ```
 
 ## Security

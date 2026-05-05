@@ -3,7 +3,7 @@
     <p class="eyebrow">Terms of service</p>
     <h1>AI Business Assessment terms</h1>
     <p>
-      These terms apply to the Agentic AI Business Assessment purchased through the website chatbot,
+      These terms apply to the Agentic AI Business Assessment purchased through the website
       voice agent, direct booking, or Stripe checkout.
     </p>
   </section>
@@ -40,7 +40,7 @@
       <p>
         You are responsible for providing accurate, lawful, and appropriate information. Do not provide
         passwords, API keys, payment details, regulated client records, or sensitive personal information
-        through the chatbot or voice agent.
+        through the voice agent.
       </p>
     </article>
 

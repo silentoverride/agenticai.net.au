@@ -1,6 +1,6 @@
-# Retell Report Agent Handoff
+# Retell Report Pipeline Handoff
 
-This handoff makes Annie's completed voice intake automatically flow into a separate report-building agent.
+This document describes how Annie's completed voice intake flows into the AI Business Assessment report pipeline.
 
 ## Flow
 
@@ -9,8 +9,11 @@ This handoff makes Annie's completed voice intake automatically flow into a sepa
 3. The website verifies `x-retell-signature` using `RETELL_API_KEY` when configured.
 4. The website processes `call_analyzed` by default because that event includes the transcript and `call_analysis`.
 5. The website packages the transcript, caller details, post-call analysis, metadata, and dynamic variables.
-6. The website posts that package to `ASSESSMENT_REPORT_AGENT_WEBHOOK_URL`.
-7. The report agent analyzes the conversation and builds the AI Business Assessment report.
+6. The website runs the self-contained report pipeline:
+   - **Perplexity lookup** — Searches Futurepedia and There's An AI For That for relevant AI tools
+   - **LLM analysis** — The Kimi K2.6 model (via Ollama Cloud) structures the transcript, extracts pain points, ranks recommendations
+   - **R2 storage** — Saves the analysis and transcript durably
+   - **SendGrid email** — Delivers a report-ready notification to the customer
 
 Retell documentation references:
 
@@ -38,22 +41,22 @@ call_analyzed
 
 ```sh
 RETELL_API_KEY=key_xxxxxxxxxxxxxxxxxxxxx
-ASSESSMENT_REPORT_AGENT_WEBHOOK_URL=https://report-agent.example.com/webhook
-ASSESSMENT_REPORT_AGENT_WEBHOOK_SECRET=replace_with_report_agent_secret
 ASSESSMENT_REPORT_PROCESS_CALL_ENDED=false
+PERPLEXITY_API_KEY=pplx-xxxxxxxxxxxxxxxx
+PERPLEXITY_MODEL=sonar-pro
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+DEFAULT_FROM_EMAIL=hello@agenticai.net.au
 ```
 
 `RETELL_API_KEY` is used to verify the `x-retell-signature` header. Use the Retell API key that has the webhook badge in Retell.
 
-`ASSESSMENT_REPORT_AGENT_WEBHOOK_SECRET` is sent to the report agent as:
+`PERPLEXITY_API_KEY` powers the AI tool research step. If unconfigured, the pipeline continues with the LLM's internal tool knowledge only.
 
-```http
-Authorization: Bearer <secret>
-```
+`SENDGRID_API_KEY` and `DEFAULT_FROM_EMAIL` are required for email delivery of the final report notification.
 
-## Report Agent Payload
+## Pipeline Payload
 
-The website sends this shape to the report agent:
+The pipeline receives this shape from the Retell webhook:
 
 ```json
 {
@@ -81,37 +84,26 @@ The website sends this shape to the report agent:
 }
 ```
 
-The report agent should build the assessment report from:
+The pipeline produces:
 
-- transcript
-- post-call analysis fields
-- company and caller details
-- current tools
-- top pain points
-- repeated tasks
-- lead/customer response workflow
-- knowledge/documentation gaps
-- reporting/visibility gaps
-- constraints
-- priority outcome
-- open questions for follow-up
+- **Structured analysis** — pain points, quick wins, effort vs. impact matrix, tool recommendations
+- **Estimated ROI** — hours saved, financial impact
+- **Implementation roadmap** — four-day quick-win plan and larger opportunities
+- **Open follow-up questions** — areas that need clarification
 
-## Report Agent Instructions
+## Pipeline Steps
 
-The report agent should:
+1. **Tool lookup** — Query Perplexity for relevant AI tools from pain points (fallback: LLM training knowledge)
+2. **LLM analysis** — Kimi K2.6 (via Ollama Cloud) structures transcript into the assessment report JSON
+3. **Tool enrichment** — Merge researched tool URLs, pricing, and descriptions into the analysis
+4. **Storage** — Save analysis and metadata to R2 (production) or local filesystem (dev)
+5. **User linking** — Link report to customer portal user if email matches
+6. **Email delivery** — Send report-ready notification via SendGrid
 
-1. Clean and structure the transcript.
-2. Extract workflow pain points, repeated work, handoffs, constraints, and business impact.
-3. Identify quick wins without promising guaranteed results.
-4. Rank recommendations by effort, impact, cost, and speed to value.
-5. Produce the AI Business Assessment report sections:
-   - executive summary
-   - pain points
-   - effort versus impact matrix
-   - recommended solutions
-   - four-day quick-win plan
-   - estimated hours saved and financial impact
-   - larger implementation opportunities
-   - open follow-up questions
+## Related Files
 
-Do not generate legal, financial, tax, medical, compliance, or professional advice.
+- Pipeline entry: `src/routes/api/retell-webhook/+server.ts`
+- Pipeline runner: `src/lib/server/assessment/pipeline.ts`
+- Queue consumer: `workers/queue-consumer.ts`
+- Tool lookup: `src/lib/server/assessment/tool-lookup.ts`
+- Email delivery: `src/lib/server/assessment/emails.ts`

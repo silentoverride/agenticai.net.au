@@ -23,7 +23,7 @@ Retell Annie (voice or chat) completes intake
 → [Voice only] Twilio sends Checkout link by SMS
 → Customer pays in Stripe Checkout
 → Stripe confirms payment via webhook
-→ Retell transcript sent to report agent
+→ Retell transcript sent to report pipeline
 ```
 
 ## Environment Variables
@@ -95,9 +95,9 @@ Handler:
 1. Verifies Stripe signature using HMAC-SHA256
 2. Extracts metadata and payment details
 3. Logs structured record with session ID, status, customer info
-4. If `ASSESSMENT_REPORT_AGENT_WEBHOOK_URL` configured, forwards payment confirmation to report agent
+4. Triggers the report pipeline to match payment to transcript and generate the assessment report
 
-Correlation: metadata includes `retell_call_id` so the report agent can match payment to transcript.
+Correlation: metadata includes `retell_call_id` so the report pipeline can match payment to transcript.
 
 ## Test Card
 

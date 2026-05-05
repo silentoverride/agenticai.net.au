@@ -98,7 +98,7 @@ Operational log of ingests, queries, lints, and schema changes.
 - **Report pipeline (`operations/report-pipeline.md`):**
   - Added Step 3: Research AI software solutions from [Futurepedia](https://www.futurepedia.io/ai-tools) and [There's An AI For That](https://theresanaiforthat.com/)
   - Added tool lookup strategy table mapping pain point categories to search terms and example tools
-  - Updated report agent instructions to require tool name, URL, pricing, fit rationale, and integration complexity for each recommendation
+  - Updated pipeline instructions to require tool name, URL, pricing, fit rationale, and integration complexity for each recommendation
   - Added open question about live web search vs. training knowledge for tool recommendations
 - **Service model (`business/service-model.md`):**
   - Updated "Recommended Solutions" report section to reference Futurepedia and TAAFT as research sources
@@ -140,7 +140,7 @@ Operational log of ingests, queries, lints, and schema changes.
 - **Question Knowledgebase** (`docs/question-knowledgebase.md`) — in-project reference
 - **Retell Chat Agent Workflow** (`docs/retell-annie-chat-agent-workflow.md`) — in-project reference
 - **Retell Voice Agent Workflow** (`docs/retell-annie-voice-agent-workflow.md`) — in-project reference
-- **Retell Report Agent Handoff** (`docs/retell-report-agent-handoff.md`) — in-project reference
+- **Retell Report Pipeline Handoff** (`docs/retell-report-agent-handoff.md`) — in-project reference
 - **Twilio and Retell Setup** (`docs/twilio-retell-setup.md`) — in-project reference
 - **Connect Twilio Number** (`docs/connect-twilio-number-to-retell-voice-agent.md`) — in-project reference
 - **Stripe Setup** (`docs/stripe-setup.md`) — in-project reference

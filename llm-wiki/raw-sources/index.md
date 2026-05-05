@@ -12,7 +12,7 @@ Registry of every source. In-project paths are relative to project root.
 - **Question Knowledgebase** — `docs/question-knowledgebase.md` — collected 2026-05-02 → [Question knowledgebase](../agents/question-knowledgebase.md)
 - **Retell Chat Agent Workflow** — `docs/retell-annie-chat-agent-workflow.md` — collected 2026-05-02 → [Annie chat agent](../agents/annie-chat-agent.md)
 - **Retell Voice Agent Workflow** — `docs/retell-annie-voice-agent-workflow.md` — collected 2026-05-02 → [Annie voice agent](../agents/annie-voice-agent.md)
-- **Retell Report Agent Handoff** — `docs/retell-report-agent-handoff.md` — collected 2026-05-02 → [Report pipeline](../operations/report-pipeline.md)
+- **Retell Report Pipeline Handoff** — `docs/retell-report-agent-handoff.md` — collected 2026-05-02 → [Report pipeline](../operations/report-pipeline.md)
 - **Twilio and Retell Setup** — `docs/twilio-retell-setup.md` — collected 2026-05-02 → [Twilio integration](../integrations/twilio.md)
 - **Stripe Setup** — `docs/stripe-setup.md` — collected 2026-05-02 → [Stripe payments](../integrations/stripe.md)
 - **Connect Twilio Number** — `docs/connect-twilio-number-to-retell-voice-agent.md` — collected 2026-05-02 → [Twilio integration](../integrations/twilio.md)

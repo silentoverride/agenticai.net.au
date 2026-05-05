@@ -1,6 +1,6 @@
 # Voice Agent Disclaimer
 
-Use this disclaimer for the Annie voice agent, chatbot, booking pages, and any pre-call confirmation messages.
+Use this disclaimer for the Annie voice agent, booking pages, and any pre-call confirmation messages.
 
 ## Short Disclaimer
 
@@ -16,7 +16,7 @@ The AI Business Assessment costs $1,200.00 AUD. With your approval, I will compl
 
 Do you understand and approve proceeding on that basis?
 
-## Website Chatbot Disclaimer
+## Website Disclaimer
 
 Annie is an AI intake assistant. By continuing, you agree that:
 

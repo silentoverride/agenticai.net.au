@@ -31,3 +31,6 @@ Thumbs.db
 # Pi internal logs
 .pi/
 .crew/
+
+# Wrangler local state
+.wrangler/

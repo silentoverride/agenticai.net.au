@@ -46,7 +46,7 @@ The $1,000 fee is not about the assessment revenue — it is a **psychological a
 2. Annie conducts structured 20–30 minute discovery interview
 3. Client pays $1,200 AUD via Stripe Checkout
 4. Transcript + analysis forwarded to report pipeline
-5. Report agent (Claude) analyzes and builds assessment report
+5. Report agent (Kimi K2.6 via Ollama Cloud) analyzes and builds assessment report
 6. Report formatted in Presenton (professional visual report)
 7. Delivered within 48 hours
 8. 30-minute follow-up call to walk through report
@@ -112,4 +112,4 @@ Beyond assessments and upsells, the business opens five natural extensions:
 - Should the assessment price start at $1,200 AUD or begin lower and escalate?
 - Which upsell specialisation aligns best with the team's current technical capabilities?
 - How quickly can the report pipeline deliver the 48-hour turnaround?
-- Should the report agent use live web search to look up tools on [Futurepedia](https://www.futurepedia.io/ai-tools) and [There's An AI For That](https://theresanaiforthat.com/), or rely on its training knowledge?
+- Should the pipeline use live web search to look up tools on [Futurepedia](https://www.futurepedia.io/ai-tools) and [There's An AI For That](https://theresanaiforthat.com/), or rely on its training knowledge?

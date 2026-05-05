@@ -235,15 +235,13 @@ ASSESSMENT_REPORT_PROCESS_CALL_ENDED=true
 
 ![Retell webhook call_analyzed](./screenshots/retell-twilio/14-retell-webhook-call-analyzed.png)
 
-Set report-agent env vars:
+Set report pipeline env var:
 
 ```sh
-ASSESSMENT_REPORT_AGENT_WEBHOOK_URL=https://report-agent.example.com/webhook
-ASSESSMENT_REPORT_AGENT_WEBHOOK_SECRET=replace_with_report_agent_secret
-ASSESSMENT_REPORT_PROCESS_CALL_ENDED=false
+ASSESSMENT_REPORT_PROCESS_CALL_ENDED=true
 ```
 
-![Report agent env vars](./screenshots/retell-twilio/15-hosting-env-vars-report-agent.png)
+![Report pipeline env vars](./screenshots/retell-twilio/15-hosting-env-vars-report-agent.png)
 
 ## 5. End-to-End Test
 
@@ -255,7 +253,7 @@ ASSESSMENT_REPORT_PROCESS_CALL_ENDED=false
 6. End the call.
 7. Confirm Retell emits `call_analyzed`.
 8. Confirm website receives `/api/retell-webhook`.
-9. Confirm report agent receives transcript payload.
+9. Confirm report pipeline completes (check `/admin/assessments` or portal).
 
 ![Retell call history](./screenshots/retell-twilio/16-retell-call-history-test.png)
 
@@ -263,7 +261,7 @@ ASSESSMENT_REPORT_PROCESS_CALL_ENDED=false
 
 ![Twilio SMS delivered](./screenshots/retell-twilio/18-twilio-sms-log-delivered.png)
 
-![Report agent received payload](./screenshots/retell-twilio/19-report-agent-received-payload.png)
+![Report pipeline received payload](./screenshots/retell-twilio/19-report-agent-received-payload.png)
 
 ## Troubleshooting
 
@@ -273,5 +271,5 @@ ASSESSMENT_REPORT_PROCESS_CALL_ENDED=false
 | Outbound calls fail | Termination URI is correct; Retell CIDR `18.98.16.120/30` is allowed or SIP credentials match |
 | SMS does not send | Twilio API key, Account SID, Messaging Service SID, and sender pool are configured |
 | SMS endpoint returns 401 | `x-agenticai-webhook-secret` matches `RETELL_TWILIO_WEBHOOK_SECRET` |
-| Report agent gets nothing | Retell webhook has `call_analyzed`; `ASSESSMENT_REPORT_AGENT_WEBHOOK_URL` is set |
+| Report pipeline does not run | Retell webhook has `call_analyzed` enabled; payment is completed |
 | Duplicate reports | Keep `ASSESSMENT_REPORT_PROCESS_CALL_ENDED=false` |

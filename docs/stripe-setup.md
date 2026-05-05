@@ -10,7 +10,7 @@ Retell Annie voice intake
 -> Twilio sends Checkout link by SMS
 -> Customer pays in Stripe Checkout
 -> Stripe confirms payment
--> Retell transcript is sent to report agent
+-> Retell transcript is sent to the report pipeline
 ```
 
 ## Stripe Docs
@@ -201,9 +201,9 @@ The handler:
 1. Verifies the Stripe signature using HMAC-SHA256.
 2. On `checkout.session.completed`, extracts metadata and payment details.
 3. Logs a structured record with session ID, payment status, customer info, and transcript preview.
-4. If `ASSESSMENT_REPORT_AGENT_WEBHOOK_URL` is configured, forwards the payment confirmation to the report agent.
+4. Triggers the report pipeline to enqueue the assessment for processing.
 
-Correlation: metadata includes `retell_call_id` (passed from Retell during checkout creation), so the report agent can match payment to transcript.
+Correlation: metadata includes `retell_call_id` (passed from Retell during checkout creation), so the pipeline can match payment to transcript.
 
 Webhook handling should:
 
@@ -211,7 +211,7 @@ Webhook handling should:
 2. Read Checkout session metadata.
 3. Mark assessment as paid.
 4. Match payment to Retell call by email, phone, company, source, and session ID.
-5. Allow the report agent to process the transcript.
+5. Allow the report pipeline to process the transcript.
 
 ## 8. Test Checklist
 
@@ -267,4 +267,4 @@ Before live mode:
 - Success page: `src/routes/assessment/success/+page.svelte`
 - Twilio setup: `docs/twilio-retell-setup.md`
 - Retell voice workflow: `docs/retell-annie-voice-agent-workflow.md`
-- Report agent handoff: `docs/retell-report-agent-handoff.md`
+- Report pipeline handoff: `docs/retell-report-agent-handoff.md`

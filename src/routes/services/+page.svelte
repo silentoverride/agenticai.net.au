@@ -47,7 +47,7 @@
   <section class="section">
     <div class="section-heading">
       <p class="eyebrow">How the report is built</p>
-      <h2>Claude processes. Presenton formats.</h2>
+      <h2>Kimi K2.6 processes. Presenton formats.</h2>
       <p>
         When Annie's call ends, the transcript is automatically handed off to a report-building pipeline.
         No manual formatting. No waiting for a consultant to write it up. The report is ready in 48 hours.
@@ -58,7 +58,7 @@
       <article class="report-build-step">
         <div class="report-build-header">
           <span class="step-tag">Step 01</span>
-          <h3>Claude processes the transcript</h3>
+          <h3>Kimi K2.6 processes the transcript</h3>
           <p>
             A series of specialised AI agents — each with one job — works through the raw transcript in sequence,
             extracting pain points, researching tools, and producing a structured assessment document.

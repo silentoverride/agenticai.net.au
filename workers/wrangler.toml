@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 # status directly before POSTing.
 [[d1_databases]]
 binding = "assessment_db"
-database_name = "portal"
+database_name = "assessment-db"
 database_id = "e497e4c9-7dd2-4fbf-a4ff-2c24899a4d83"
 
 # R2 wired for the same forward-compatibility reason.

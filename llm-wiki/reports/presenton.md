@@ -19,7 +19,9 @@ see_also:
 
 # Presenton Report Generator
 
-Presenton is an open-source (Apache 2.0) AI presentation generator used by Agentic AI to format AI Business Assessment reports into professional visual decks. It serves as the report formatting step in the assessment pipeline: Claude generates the structured content, and Presenton converts it into a polished PPTX or PDF deliverable.
+> **Status:** Informational reference only. Presenton is not currently integrated in the live report pipeline. The pipeline produces structured JSON analysis and delivers email notifications directly without generating slide decks.
+
+Presenton is an open-source (Apache 2.0) AI presentation generator used to format AI Business Assessment reports into professional visual decks. It serves as the report formatting step in the assessment pipeline: Kimi K2.6 (via Ollama Cloud) generates the structured content, and Presenton converts it into a polished PPTX or PDF deliverable.
 
 ## What Presenton Provides
 
@@ -29,7 +31,7 @@ Presenton is an open-source (Apache 2.0) AI presentation generator used by Agent
 | **Multiple export formats** | PPTX (editable) or PDF (final deliverable) |
 | **Template system** | Consistent branded look across all assessment reports |
 | **Self-hostable** | Run on own infrastructure for data privacy |
-| **Multi-LLM support** | Use Claude, GPT, Gemini, or local Ollama models |
+| **Multi-LLM support** | Use GPT, Gemini, Kimi K2.6, or local Ollama models |
 | **API-driven** | Integrate into the automated report pipeline |
 
 ## Deployment Options
@@ -199,7 +201,7 @@ Presenton fits into the Agentic AI report pipeline at the formatting stage:
 
 ```
 Annie completes intake → Retell transcript
-→ Claude analyzes and structures content (markdown/JSON)
+→ Kimi K2.6 (via Ollama Cloud) analyzes and structures content (markdown/JSON)
 → **Template mapper transforms analysis JSON into structured slides**
 → Presenton API receives from-json payload with 9-slide template
 → Presenton generates visual slide deck from neo-general template + professional-blue theme

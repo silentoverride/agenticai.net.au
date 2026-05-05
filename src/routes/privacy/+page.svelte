@@ -4,7 +4,7 @@
     <h1>How Agentic AI handles assessment information</h1>
     <p>
       This policy explains how Agentic AI collects, uses, stores, and protects information provided
-      through the website, chatbot, voice agent, contact forms, Stripe checkout, and assessment process.
+      through the website, voice agent, contact forms, Stripe checkout, and assessment process.
     </p>
   </section>
 
@@ -13,8 +13,8 @@
       <h2>Information we collect</h2>
       <p>
         We may collect your name, business name, contact details, role, industry, team size, workflow
-        descriptions, software tools used, operational pain points, assessment answers, chatbot
-        transcripts, voice-agent transcripts, payment references, and related business context you
+        descriptions, software tools used, operational pain points, assessment answers,
+        voice-agent transcripts, payment references, and related business context you
         choose to provide.
       </p>
     </article>
@@ -24,7 +24,7 @@
       <p>
         Do not provide passwords, API keys, bank details, card numbers, health records, regulated client
         records, confidential customer files, or unnecessary sensitive personal information through the
-        chatbot or voice agent.
+        voice agent.
       </p>
     </article>
 

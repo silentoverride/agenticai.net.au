@@ -6,7 +6,7 @@
  * acks or retries based on the response.
  *
  * This is a standalone Worker (not Pages Functions) so it gets
- * unbound execution time and can survive long LLM / Presenton calls.
+ * unbound execution time and can survive long LLM calls.
  */
 
 /// <reference types="@cloudflare/workers-types" />
@@ -18,10 +18,11 @@ export interface Env {
 
 /**
  * Message shape produced by enqueueReportJob() in the SvelteKit app.
+ * Matches producer: { type, payload: job, sentAt }
  */
 interface PipelineJobMessage {
   type: 'pipeline:run';
-  job: {
+  payload: {
     callId?: string;
     sessionId: string;
     transcript: string;
@@ -31,7 +32,7 @@ interface PipelineJobMessage {
     customerPhone?: string;
     company?: string;
   };
-  receivedAt: string;
+  sentAt: string;
 }
 
 export default {
@@ -45,7 +46,16 @@ export default {
     const endpoint = `${env.SELF_URL}/api/internal/run-pipeline`;
 
     for (const message of batch.messages) {
-      const { job } = message.body;
+      const { payload: job, sentAt } = message.body;
+
+      if (!job || !job.sessionId) {
+        console.error('Queue consumer: invalid message shape, missing payload or sessionId', {
+          id: message.id,
+          body: message.body
+        });
+        message.ack();
+        continue;
+      }
 
       try {
         const response = await fetch(endpoint, {
@@ -66,7 +76,7 @@ export default {
           continue;
         }
 
-        console.info('Pipeline completed successfully via queue', { sessionId: job.sessionId });
+        console.info('Pipeline completed successfully via queue', { sessionId: job.sessionId, sentAt });
         message.ack();
       } catch (err) {
         console.error('Pipeline POST failed, will retry', {
