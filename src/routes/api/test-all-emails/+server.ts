@@ -4,6 +4,7 @@ import {
   genericTemplate,
   welcomeTemplate,
   receiptTemplate,
+  portalInvitationTemplate,
   reportReadyTemplate
 } from '$lib/server/email-templates';
 import type { RequestHandler } from './$types';
@@ -62,7 +63,20 @@ export const POST: RequestHandler = async ({ request }) => {
     results.push({ template: 'receipt', sent: false, error: String(e) });
   }
 
-  // 4. Report ready
+  // 4. Portal invitation
+  try {
+    const { html, text } = portalInvitationTemplate({
+      customerName: 'Lorin',
+      company: 'Acme Pty Ltd',
+      customerEmail: to
+    });
+    const r = await sendEmail({ to, subject: 'Your Agentic AI Portal — Access Your Account', html, text });
+    results.push({ template: 'portalInvitation', sent: r.sent, id: r.id, error: r.message });
+  } catch (e) {
+    results.push({ template: 'portalInvitation', sent: false, error: String(e) });
+  }
+
+  // 5. Report ready
   try {
     const { html, text } = reportReadyTemplate({
       customerName: 'Lorin',

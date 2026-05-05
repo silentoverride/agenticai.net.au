@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { text } from '@sveltejs/kit';
 import { verifyStripeSignature } from '$lib/server/stripe';
-import { sendReceiptEmail } from '$lib/server/assessment/emails';
+import { sendReceiptEmail, sendPortalInvitationEmail } from '$lib/server/assessment/emails';
 import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
 import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
@@ -131,6 +131,27 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         metadataCustomerEmail: metadata.customer_email,
         metadataCustomerName: metadata.customer_name,
         metadataCompany: metadata.company
+      });
+    }
+
+    // Send portal invitation email (non-blocking)
+    if (record.customerEmail) {
+      try {
+        const inviteResult = await sendPortalInvitationEmail({
+          to: record.customerEmail,
+          customerName: record.customerName || undefined,
+          company: record.company || undefined,
+          customerEmail: record.customerEmail
+        });
+        if (inviteResult.sent) {
+          console.info('Portal invitation email sent', { to: record.customerEmail, id: inviteResult.id });
+        }
+      } catch (err) {
+        console.error('Portal invitation email failed:', err);
+      }
+    } else {
+      console.warn('Portal invitation email NOT sent — no customerEmail in Stripe session', {
+        stripeSessionId: session.id
       });
     }
 

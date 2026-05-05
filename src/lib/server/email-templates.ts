@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/public';
+import { PUBLIC_CALENDLY_URL } from '$env/static/public';
 
 const BRAND_PRIMARY = '#1a1a2e';
 const BRAND_ACCENT = '#e94560';
@@ -12,6 +13,7 @@ const BUSINESS_ABN = '23 697 415 151';
 const BUSINESS_ACN = '697 415 151';
 const BUSINESS_EMAIL = 'hello@agenticai.net.au';
 const GST_RATE = 0.1;
+const CALENDLY_URL = PUBLIC_CALENDLY_URL || 'https://calendly.com/agenticai/';
 
 function baseHtml({ title, preheader, body }: { title: string; preheader: string; body: string }): string {
   return `<!DOCTYPE html>
@@ -106,7 +108,81 @@ function formatDate(value?: string) {
 }
 
 // ---------------------------------------------------------------------------
-// 1. Report Ready — sent after deck + analysis are saved
+// 1. Portal Invitation — sent after payment, before report is ready
+// ---------------------------------------------------------------------------
+export function portalInvitationTemplate(opts: {
+  customerName?: string;
+  company?: string;
+  customerEmail: string;
+}): { html: string; text: string } {
+  const name = opts.customerName || 'there';
+  const company = opts.company || 'Your Business';
+  const portalUrl = `${SITE_URL}/portal`;
+
+  const body = `
+<h1 style="margin:0 0 16px 0; font-size:26px; font-weight:700; color:${BRAND_PRIMARY};">Your portal is ready</h1>
+
+<p style="margin:0 0 20px 0; font-size:16px; color:${BRAND_TEXT};">Hi ${name},</p>
+
+<p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
+  We have set up your client account for <strong>${company}</strong>. Your receipt and upcoming report will both be available in your portal.
+</p>
+
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:28px 0;">
+  <tr>
+    <td align="center">
+      <a href="${portalUrl}" class="btn" style="display:inline-block; padding:16px 32px; background:${BRAND_ACCENT}; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px;">Open your portal</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:16px 0 0 0; font-size:13px; color:${BRAND_MUTED}; word-break:break-all;">
+  Or copy this link: <a href="${portalUrl}" style="color:${BRAND_ACCENT};">${portalUrl}</a>
+</p>
+
+<h3 style="margin:32px 0 12px 0; font-size:17px; font-weight:600; color:${BRAND_PRIMARY};">How to sign in</h3>
+<ul style="margin:0 0 20px 0; padding-left:20px; font-size:15px; color:${BRAND_TEXT};">
+  <li style="margin-bottom:8px;"><strong>Google</strong> — click "Continue with Google" on the portal sign-in page.</li>
+  <li style="margin-bottom:8px;"><strong>Email</strong> — enter your email address and click "Send OTP" to receive a one-time code. No password required.</li>
+  <li>Your account is linked to <strong>${opts.customerEmail}</strong>.</li>
+</ul>
+
+<p style="margin:16px 0 0 0; font-size:15px; color:${BRAND_TEXT};">
+  If you have any trouble accessing your account, reply directly to this email.
+</p>
+
+<p style="margin:24px 0 0 0; font-size:15px; color:${BRAND_TEXT};">— The Agentic AI team</p>
+`;
+
+  const html = baseHtml({
+    title: `Your Agentic AI Portal — ${company}`,
+    preheader: `Your client account for ${company} is ready. Sign in to view your receipt and upcoming report.`,
+    body
+  });
+
+  const text = `Hi ${name},
+
+Your client account for ${company} is ready.
+
+Open your portal: ${portalUrl}
+
+HOW TO SIGN IN
+- Google — click "Continue with Google" on the portal sign-in page.
+- Email — enter your email address and click "Send OTP" to receive a one-time code. No password required.
+
+Your account is linked to ${opts.customerEmail}.
+
+If you have any trouble accessing your account, reply directly to this email.
+
+— The Agentic AI team
+agenticai.net.au · hello@agenticai.net.au
+`;
+
+  return { html, text };
+}
+
+// ---------------------------------------------------------------------------
+// 2. Report Ready — sent after deck + analysis are saved
 // ---------------------------------------------------------------------------
 export function reportReadyTemplate(opts: {
   customerName?: string;
@@ -141,10 +217,27 @@ ${reportUrl ? `
 </p>
 ` : '<p style="margin:16px 0; font-size:15px; color:' + BRAND_MUTED + ';">Your report is available in your client portal. We will send a separate link once it is generated.</p>'}
 
+<h3 style="margin:32px 0 12px 0; font-size:17px; font-weight:600; color:${BRAND_PRIMARY};">Complimentary 30-minute consultation</h3>
+<p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
+  Want to walk through the report live and discuss implementation? Book a complimentary 30-minute session with one of our consultants.
+</p>
+
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:28px 0;">
+  <tr>
+    <td align="center">
+      <a href="${CALENDLY_URL}" class="btn" style="display:inline-block; padding:16px 32px; background:#0066ff; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px;">Book your 30-min session</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:16px 0 0 0; font-size:13px; color:${BRAND_MUTED}; word-break:break-all;">
+  Or visit: <a href="${CALENDLY_URL}" style="color:${BRAND_ACCENT};">${CALENDLY_URL}</a>
+</p>
+
 <h3 style="margin:32px 0 12px 0; font-size:17px; font-weight:600; color:${BRAND_PRIMARY};">What happens next</h3>
 <ul style="margin:0 0 20px 0; padding-left:20px; font-size:15px; color:${BRAND_TEXT};">
-  <li style="margin-bottom:8px;">Review the deck and highlight anything you want to discuss.</li>
-  <li style="margin-bottom:8px;">We can run a 30‑minute follow‑up call to answer questions and scope implementation.</li>
+  <li style="margin-bottom:8px;">Review the report and highlight anything you want to discuss.</li>
+  <li style="margin-bottom:8px;">Book your complimentary 30-minute follow-up call above — this is included with your assessment.</li>
   <li>Reply to this email if you want us to forward the report to colleagues.</li>
 </ul>
 
@@ -153,7 +246,7 @@ ${reportUrl ? `
 
   const html = baseHtml({
     title: `AI Business Assessment Report — ${company}`,
-    preheader: `Your AI Business Assessment for ${company} is ready.`,
+    preheader: `Your AI Business Assessment for ${company} is ready. View your report and book your complimentary consultation.`,
     body
   });
 
@@ -165,91 +258,14 @@ ${reportUrl ? `View your report:
 ${reportUrl}
 ` : 'Your report is available in your client portal. We will send a separate link once it is generated.'}
 
-WHAT HAPPENS NEXT
-- Review the deck and highlight anything you want to discuss.
-- We can run a 30-minute follow-up call to scope implementation.
-- Reply to forward the report to colleagues.
-
-— The Agentic AI team
-agenticai.net.au · hello@agenticai.net.au
-`;
-
-  return { html, text };
-}
-
-// ---------------------------------------------------------------------------
-// 2. Welcome / Assessment Booked — sent after voice call or checkout
-// ---------------------------------------------------------------------------
-export function welcomeTemplate(opts: {
-  customerName?: string;
-  company?: string;
-}): { html: string; text: string } {
-  const name = opts.customerName || 'there';
-  const company = opts.company || 'Your Business';
-
-  const body = `
-<h1 style="margin:0 0 16px 0; font-size:26px; font-weight:700; color:${BRAND_PRIMARY};">Thank you for booking</h1>
-
-<p style="margin:0 0 20px 0; font-size:16px; color:${BRAND_TEXT};">Hi ${name},</p>
-
-<p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
-  We received your request for an AI Business Assessment for <strong>${company}</strong>.
-</p>
-
-<p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
-  Here is what happens next:
-</p>
-
-<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:8px 0 24px 0;">
-  <tr>
-    <td style="padding:0 0 12px 0; vertical-align:top;" width="28">
-      <span style="display:inline-block; width:24px; height:24px; background:${BRAND_PRIMARY}; color:#fff; border-radius:50%; text-align:center; line-height:24px; font-size:12px; font-weight:700;">1</span>
-    </td>
-    <td style="padding:0 0 12px 8px; font-size:15px; color:${BRAND_TEXT};">
-      <strong>Intake call</strong> — our voice agent will call you within 24 hours to gather context (20–30 min).
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:0 0 12px 0; vertical-align:top;" width="28">
-      <span style="display:inline-block; width:24px; height:24px; background:${BRAND_PRIMARY}; color:#fff; border-radius:50%; text-align:center; line-height:24px; font-size:12px; font-weight:700;">2</span>
-    </td>
-    <td style="padding:0 0 12px 8px; font-size:15px; color:${BRAND_TEXT};">
-      <strong>Analysis</strong> — we map your workflows, pain points, and AI tool fits.
-    </td>
-  </tr>
-  <tr>
-    <td style="vertical-align:top;" width="28">
-      <span style="display:inline-block; width:24px; height:24px; background:${BRAND_PRIMARY}; color:#fff; border-radius:50%; text-align:center; line-height:24px; font-size:12px; font-weight:700;">3</span>
-    </td>
-    <td style="padding-left:8px; font-size:15px; color:${BRAND_TEXT};">
-      <strong>Report delivery</strong> — you receive a presentation‑style report within 48 hours.
-    </td>
-  </tr>
-</table>
-
-<p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
-  If you need to reschedule or have questions before the call, reply to this email.
-</p>
-
-<p style="margin:24px 0 0 0; font-size:15px; color:${BRAND_TEXT};">— The Agentic AI team</p>
-`;
-
-  const html = baseHtml({
-    title: `AI Business Assessment — Booking Confirmed`,
-    preheader: `We have received your assessment request for ${company}.`,
-    body
-  });
-
-  const text = `Hi ${name},
-
-Thank you for booking an AI Business Assessment for ${company}.
+COMPLIMENTARY 30-MINUTE CONSULTATION
+Want to walk through the report live and discuss implementation? Book a complimentary 30-minute session with one of our consultants:
+${CALENDLY_URL}
 
 WHAT HAPPENS NEXT
-1. Intake call — our voice agent will call you within 24 hours (20–30 min).
-2. Analysis — we map your workflows, pain points, and AI tool fits.
-3. Report delivery — you receive a presentation-style report within 48 hours.
-
-If you need to reschedule or have questions, reply to this email.
+- Review the report and highlight anything you want to discuss.
+- Book your complimentary 30-minute follow-up call — this is included with your assessment.
+- Reply to this email if you want us to forward the report to colleagues.
 
 — The Agentic AI team
 agenticai.net.au · hello@agenticai.net.au
@@ -354,7 +370,7 @@ export function receiptTemplate(opts: {
 </table>
 
 <p style="margin:16px 0 0 0; font-size:15px; color:${BRAND_TEXT};">
-  Your transcript will be processed and your report will be ready within 48 hours. Once you receive your report, you will have the opportunity to book a complimentary 30-minute consultation with one of our consultants.
+  Your transcript will be processed and your report will be ready within 48 hours. Once your report is ready, you will receive a separate email with a link to view it in your portal. You will also be able to book a complimentary 30-minute consultation with one of our consultants.
 </p>
 
 <p style="margin:24px 0 0 0; font-size:15px; color:${BRAND_TEXT};">— The Agentic AI team</p>
@@ -387,7 +403,7 @@ Subtotal excluding GST: ${money(subtotalCents, currency)}
 GST 10%: ${money(gstCents, currency)}
 Total paid including GST: ${money(totalCents, currency)}
 
-Your transcript will be processed and your report will be ready within 48 hours. Once you receive your report, you will have the opportunity to book a complimentary 30-minute consultation.
+Your transcript will be processed and your report will be ready within 48 hours. Once your report is ready, you will receive a separate email with a link to view it in your portal. You will also be able to book a complimentary 30-minute consultation.
 
 — The Agentic AI team
 agenticai.net.au · hello@agenticai.net.au
@@ -397,7 +413,88 @@ agenticai.net.au · hello@agenticai.net.au
 }
 
 // ---------------------------------------------------------------------------
-// 4. Generic
+// 4. Welcome / Assessment Booked — sent after voice call or checkout
+// ---------------------------------------------------------------------------
+export function welcomeTemplate(opts: {
+  customerName?: string;
+  company?: string;
+}): { html: string; text: string } {
+  const name = opts.customerName || 'there';
+  const company = opts.company || 'Your Business';
+
+  const body = `
+<h1 style="margin:0 0 16px 0; font-size:26px; font-weight:700; color:${BRAND_PRIMARY};">Thank you for booking</h1>
+
+<p style="margin:0 0 20px 0; font-size:16px; color:${BRAND_TEXT};">Hi ${name},</p>
+
+<p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
+  We received your request for an AI Business Assessment for <strong>${company}</strong>.
+</p>
+
+<p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
+  Here is what happens next:
+</p>
+
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:8px 0 24px 0;">
+  <tr>
+    <td style="padding:0 0 12px 0; vertical-align:top;" width="28">
+      <span style="display:inline-block; width:24px; height:24px; background:${BRAND_PRIMARY}; color:#fff; border-radius:50%; text-align:center; line-height:24px; font-size:12px; font-weight:700;">1</span>
+    </td>
+    <td style="padding:0 0 12px 8px; font-size:15px; color:${BRAND_TEXT};">
+      <strong>Intake call</strong> — our voice agent will call you within 24 hours to gather context (20–30 min).
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 12px 0; vertical-align:top;" width="28">
+      <span style="display:inline-block; width:24px; height:24px; background:${BRAND_PRIMARY}; color:#fff; border-radius:50%; text-align:center; line-height:24px; font-size:12px; font-weight:700;">2</span>
+    </td>
+    <td style="padding:0 0 12px 8px; font-size:15px; color:${BRAND_TEXT};">
+      <strong>Analysis</strong> — we map your workflows, pain points, and AI tool fits.
+    </td>
+  </tr>
+  <tr>
+    <td style="vertical-align:top;" width="28">
+      <span style="display:inline-block; width:24px; height:24px; background:${BRAND_PRIMARY}; color:#fff; border-radius:50%; text-align:center; line-height:24px; font-size:12px; font-weight:700;">3</span>
+    </td>
+    <td style="padding-left:8px; font-size:15px; color:${BRAND_TEXT};">
+      <strong>Report delivery</strong> — you receive a presentation‑style report within 48 hours.
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
+  If you need to reschedule or have questions before the call, reply to this email.
+</p>
+
+<p style="margin:24px 0 0 0; font-size:15px; color:${BRAND_TEXT};">— The Agentic AI team</p>
+`;
+
+  const html = baseHtml({
+    title: `AI Business Assessment — Booking Confirmed`,
+    preheader: `We have received your assessment request for ${company}.`,
+    body
+  });
+
+  const text = `Hi ${name},
+
+Thank you for booking an AI Business Assessment for ${company}.
+
+WHAT HAPPENS NEXT
+1. Intake call — our voice agent will call you within 24 hours (20–30 min).
+2. Analysis — we map your workflows, pain points, and AI tool fits.
+3. Report delivery — you receive a presentation-style report within 48 hours.
+
+If you need to reschedule or have questions, reply to this email.
+
+— The Agentic AI team
+agenticai.net.au · hello@agenticai.net.au
+`;
+
+  return { html, text };
+}
+
+// ---------------------------------------------------------------------------
+// 5. Generic
 // ---------------------------------------------------------------------------
 export function genericTemplate(opts: {
   subject: string;

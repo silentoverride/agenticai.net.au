@@ -1,5 +1,5 @@
 import { sendEmail } from '../email';
-import { welcomeTemplate, receiptTemplate, reportReadyTemplate } from '../email-templates';
+import { welcomeTemplate, receiptTemplate, reportReadyTemplate, portalInvitationTemplate } from '../email-templates';
 
 type EmailResult = { sent: boolean; id?: string; message?: string };
 
@@ -15,6 +15,25 @@ export async function sendWelcomeEmail(opts: {
   return sendEmail({
     to: opts.to,
     subject: 'Agentic AI — Assessment booked',
+    html,
+    text
+  });
+}
+
+export async function sendPortalInvitationEmail(opts: {
+  to: string;
+  customerName?: string;
+  company?: string;
+  customerEmail: string;
+}): Promise<EmailResult> {
+  const { html, text } = portalInvitationTemplate({
+    customerName: opts.customerName,
+    company: opts.company,
+    customerEmail: opts.customerEmail
+  });
+  return sendEmail({
+    to: opts.to,
+    subject: 'Your Agentic AI Portal — Access Your Account',
     html,
     text
   });
