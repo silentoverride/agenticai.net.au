@@ -14,6 +14,16 @@ This guide walks through every step needed to configure the Retell voice agent (
 
 1. [Retell Account Setup](#1-retell-account-setup)
 2. [Agent Creation](#2-agent-creation)
+   - [Basic Settings](#22-basic-settings)
+   - [Speech Settings](#23-speech-settings)
+   - [Voice Characteristics](#24-additional-voice-characteristics)
+   - [Realtime Transcription](#25-realtime-transcription-settings)
+   - [Transition Flexibility](#26-transition-flexibility)
+   - [Pronunciation](#27-pronunciation)
+   - [Knowledge Base](#28-knowledge-base)
+   - [Call Settings](#29-call-settings)
+   - [Security & Fallback](#210-security--fallback-settings)
+   - [Agent Webhook](#211-webhook-settings-agent-level)
 3. [Global Prompt (System Prompt)](#3-global-prompt-system-prompt)
 4. [Configure Post-Call Analysis Fields](#4-configure-post-call-analysis-fields)
 5. [Webhook Configuration](#5-webhook-configuration)
@@ -131,6 +141,152 @@ ClickUp
 > **Tip**: Add or remove keywords based on your client's industry. If you serve trades, add "Quote2Cash", "ServiceM8", "simPRO". If you serve professional services, add "Practice Ignition", "Karbon", "FYI Docs".
 
 > **Why boosted keywords matter**: The transcript feeds directly into the AI report pipeline. If "Zapier" is transcribed as "Zap year" or "HubSpot" as "Hub's pot", the tool-lookup step and LLM analysis will produce lower-quality or incorrect recommendations. Accuracy at the transcription layer cascades through the entire report.
+
+---
+
+### 2.6 Transition Flexibility
+
+Found at **Dashboard → Your Agent → General → Transition Flexibility**.
+
+| Setting | Recommended Value | Reason |
+|---------|-------------------|--------|
+| **Transition Flexibility** | **Flex Mode** | The assessment is a conversation, not a rigid script. Business owners may go on tangents about their workflows, ask clarifying questions, or jump back to earlier topics. Flex Mode allows Annie to handle natural conversational flow rather than forcing a linear sequence. |
+
+> **When to use Rigid Mode**: Only if you find Annie is skipping critical questions or going off-topic too frequently. For most business assessments, Flex Mode produces a more natural caller experience.
+
+---
+
+### 2.7 Pronunciation
+
+Found at **Dashboard → Your Agent → Speech → Pronunciation**.
+
+Add pronunciation guides for names and terms that could be mispronounced:
+
+| Word / Phrase | Pronunciation Hint |
+|---------------|-------------------|
+| **Agentic** | "uh-JEN-tick" |
+| **Xero** | "ZEER-oh" (not "zero") |
+| **HubSpot** | "HUB-spot" |
+| **Zapier** | "ZAP-ee-er" |
+| **Mailchimp** | "MAIL-chimp" |
+| **Airtable** | "AIR-table" |
+| **Asana** | "ah-SAH-nah" |
+| **Miro** | "MEER-oh" |
+| **SME** | "ess-em-ee" (spell it out: Small and Medium Enterprise) |
+| **KPI** | "kay-pee-eye" |
+| **SOP** | "ess-oh-pee" |
+
+> **When to add more**: After your first 5–10 real calls, review the transcripts for any mispronounced words. Add them here so Annie sounds professional on every call.
+
+---
+
+### 2.8 Knowledge Base
+
+Found at **Dashboard → Your Agent → Knowledge Base**.
+
+The Knowledge Base provides Annie with factual context she can reference during the call. Unlike the Global Prompt (which sets personality), the Knowledge Base is for **reference material**.
+
+**Recommended setup**:
+
+1. **Upload your question knowledgebase**: Add `docs/question-knowledgebase.md` as the primary knowledge base document. This contains the structured interview questions and follow-up prompts Annie should use.
+
+2. **Add a company FAQ** (optional): Create a document with answers to common questions:
+   - "What does the $1,200 include?"
+   - "How long does the report take?"
+   - "What happens after the assessment?"
+   - "Can I share the report with my team?"
+   - "Do you implement the recommendations?"
+
+#### Knowledge Base configuration
+
+| Setting | Recommended Value | Reason |
+|---------|-------------------|--------|
+| **Industry Specific Questions** | **Add** | Upload `docs/question-knowledgebase.md` — this is the backbone of the assessment interview |
+| **KB Retrieval Chunks** | 3 | Annie only needs a few relevant questions at a time; too many chunks cause her to jump around |
+| **Similarity Threshold** | 0.7 | Balances between recalling the exact right question and having flexibility for related topics |
+
+#### Knowledge Base Instruction
+
+Paste this into **Configure Knowledge Base Instruction**:
+
+```text
+Use the knowledge base as a structured interview guide.
+- When a caller describes a workflow or pain point, look up the relevant follow-up questions in the knowledge base
+- Ask ONE question at a time — never ask multiple questions in one turn
+- Use the knowledge base to guide the conversation, but do not read questions verbatim like a robot
+- Adapt the phrasing to feel natural and conversational
+- After completing a section, move to the next topic smoothly
+- If the caller goes off-topic, gently redirect back using the knowledge base structure
+- Never skip the pricing disclosure and approval step — this is mandatory regardless of knowledge base content
+```
+
+---
+
+### 2.9 Call Settings
+
+Found at **Dashboard → Your Agent → Call Settings**.
+
+| Setting | Recommended Value | Reason |
+|---------|-------------------|--------|
+| **Voicemail Detection** | Enabled — Hang up | If the call hits voicemail, Annie should hang up rather than leave a message. The assessment requires a live two-way conversation |
+| **IVR Hangup** | Enabled | If an automated phone system answers, Annie should hang up immediately. She cannot navigate IVR menus |
+| **User Keypad Input Detection** | Enabled | Caller can press digits during the call (e.g., to confirm a selection). The DTMF interruption setting also enables this |
+| **Timeout** | 2.5 seconds | How long Annie waits for keypad input before responding. 2.5s is fast enough to feel responsive without cutting off someone who's still deciding |
+| **End Call on Silence** | 10 minutes | If a caller is completely silent for 10 minutes, hang up. This prevents runaway calls where someone walked away |
+| **Max Call Duration** | 30 minutes | Cap the call at 30 minutes. The assessment is designed for 20–30 minutes; longer calls degrade transcript quality and increase Retell costs |
+| **Ring Duration** | 30 seconds | Wait up to 30 seconds for the caller to answer. Longer than this usually means no one is available |
+
+> **Note on Max Call Duration**: The default is 1 hour, but the assessment rarely needs more than 30 minutes. A 30-minute cap protects against:
+> - Runaway conversations where Annie and the caller loop
+> - Unexpected Retell billing for very long calls
+> - Transcript quality degradation on very long recordings
+
+---
+
+### 2.10 Security & Fallback Settings
+
+Found at **Dashboard → Your Agent → Security & Fallback**.
+
+| Setting | Recommended Value | Reason |
+|---------|-------------------|--------|
+| **Data Storage** | Everything except PII | Store recordings and transcripts but avoid retaining sensitive personal identifiers in Retell's long-term storage. PII is already captured in your D1 database under your control |
+| **Retention** | Keep forever | Assessment transcripts are valuable for quality review and improving the knowledgebase. Keep them until you have a data retention policy in place |
+| **Personal Info Redaction (PII)** | Set up selectively | Redact credit card numbers and passwords if they slip through (Annie should refuse these, but defense in depth). Keep names, emails, and phone numbers — they're needed for the report |
+| **Safety Guardrails** | Enable all | Prevent Annie from generating harmful, illegal, or inappropriate content |
+| **Opt In Secure URLs** | Disabled | Not needed for the assessment flow. The transcript and call data never leave Retell via URL |
+| **Fallback Voice ID** | Automatic fallback | If the primary voice provider fails, Retell automatically switches to another voice. Don't override this unless you have a specific backup voice preference |
+| **Default Dynamic Variables** | Set fallbacks | If `source`, `assessment_fee`, or `site` are not provided, Annie falls back gracefully. Set defaults: `source` = "unknown", `assessment_fee` = "$1,200.00 AUD", `site` = "agenticai.net.au" |
+
+#### PII Redaction categories to enable
+
+| Category | Enable? | Why |
+|----------|---------|-----|
+| Credit Card Numbers | ✅ Yes | Annie should never ask for these, but defense in depth |
+| Bank Account Numbers | ✅ Yes | Same reason |
+| Passwords / API Keys | ✅ Yes | Annie refuses these, but redact if accidentally spoken |
+| Social Security / Tax IDs | ✅ Yes | Not relevant for Australian callers, but enable anyway |
+| Email Addresses | ☐ No | Needed for the assessment report and portal |
+| Phone Numbers | ☐ No | Needed for SMS payment link delivery |
+| Names | ☐ No | Needed for personalisation and report |
+| Company Names | ☐ No | Core assessment data |
+
+> **Important**: PII redaction in Retell affects the stored transcript, but the raw webhook payload (sent to your server) contains the unredacted data. Your webhook handler at `/api/retell-webhook` receives the full transcript and stores it in D1. Ensure your D1 database has appropriate access controls.
+
+---
+
+### 2.11 Webhook Settings (Agent Level)
+
+Found at **Dashboard → Your Agent → Webhook**.
+
+These settings are specific to this agent. For the global account webhook, see [Section 5](#5-webhook-configuration).
+
+| Setting | Recommended Value | Reason |
+|---------|-------------------|--------|
+| **Agent Level Webhook URL** | Leave blank | Use the account-level webhook instead (Section 5). Agent-level webhooks are only needed if different agents post to different endpoints |
+| **Webhook Timeout** | 5 seconds | Your server should respond in under 3 seconds. 5 seconds gives a small buffer without holding Retell connections open too long |
+| **Webhook Events** | `call_analyzed` only | The agent webhook should only receive post-call analysis events. Call-started and call-ended events are handled by the account-level webhook if needed |
+
+> **When to use agent-level webhooks**: If you run multiple Retell agents (e.g., a sales agent and an assessment agent) and want them to post to different backend endpoints. For single-agent setups, the account-level webhook is cleaner.
 
 ---
 
@@ -265,6 +421,27 @@ Add the following **Custom Analysis Fields** one by one in the Retell dashboard.
 
 ### 4.4 Analysis model temperature
 Set the analysis model temperature to `0.2` — you want consistent, structured extraction, not creative writing.
+
+### 4.5 Built-in post-call data extraction fields
+
+In addition to your 26 custom fields, Retell provides three built-in extraction fields. These are configured separately in **Dashboard → Your Agent → Post-Call Data Extraction**.
+
+| Field | Type | Recommended Prompt / Setting | Used By |
+|-------|------|------------------------------|---------|
+| **Call Summary** | Text | "Summarise the key points of this AI Business Assessment call in 2-3 sentences. Include: who called, their business, the main pain points discussed, and whether they approved the assessment." | Internal review, quality assurance, CRM notes |
+| **Call Successful** | Boolean | "Was this a successful assessment intake? Answer true if the caller completed the discovery questions and gave verbal approval. Answer false if they refused, hung up early, or the call failed." | Pipeline go/no-go logic |
+| **User Sentiment** | Text | "What was the caller's overall attitude during the call? Choose one: Very Positive, Positive, Neutral, Negative, Very Negative." | CRM tagging, follow-up prioritisation |
+
+#### How to configure built-in fields
+
+1. Go to **Dashboard → Your Agent → Post-Call Data Extraction**
+2. Click **Add** next to each field type (Summary, Success, Sentiment)
+3. Paste the recommended prompt into the **Extraction Prompt** field
+4. Select **Model**: GPT-4.1 (fast and accurate for summary tasks)
+
+> **Important distinction**: These built-in fields are **not** sent to your webhook handler. The webhook receives the 26 custom fields plus the raw transcript. The built-in fields are only available inside the Retell dashboard for your internal review. If you want them in your system, extract them yourself from the transcript in the webhook handler or include them as custom fields.
+
+> **Storage note**: By default, Retell stores these analysis results alongside the call recording. If you selected "Everything except PII" in Security settings, personal identifiers may be redacted in the Retell-stored summary but will still be present in the webhook payload your server receives.
 
 ---
 
