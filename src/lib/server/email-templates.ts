@@ -111,10 +111,11 @@ function formatDate(value?: string) {
 export function reportReadyTemplate(opts: {
   customerName?: string;
   company?: string;
-  deckUrl?: string | null;
+  reportId?: string | null;
 }): { html: string; text: string } {
   const name = opts.customerName || 'there';
   const company = opts.company || 'Your Business';
+  const reportUrl = opts.reportId ? `${SITE_URL}/portal/reports/${opts.reportId}` : null;
 
   const body = `
 <h1 style="margin:0 0 16px 0; font-size:26px; font-weight:700; color:${BRAND_PRIMARY};">Your assessment is ready</h1>
@@ -126,17 +127,17 @@ export function reportReadyTemplate(opts: {
   The report identifies operational bottlenecks, AI tool fits, and a practical implementation roadmap ranked by impact and effort.
 </p>
 
-${opts.deckUrl ? `
+${reportUrl ? `
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:28px 0;">
   <tr>
     <td align="center">
-      <a href="${opts.deckUrl}" class="btn" style="display:inline-block; padding:16px 32px; background:${BRAND_ACCENT}; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px;">Download your report</a>
+      <a href="${reportUrl}" class="btn" style="display:inline-block; padding:16px 32px; background:${BRAND_ACCENT}; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px;">View your report</a>
     </td>
   </tr>
 </table>
 
 <p style="margin:16px 0 0 0; font-size:13px; color:${BRAND_MUTED}; word-break:break-all;">
-  Or copy this link: <a href="${opts.deckUrl}" style="color:${BRAND_ACCENT};">${opts.deckUrl}</a>
+  Or copy this link: <a href="${reportUrl}" style="color:${BRAND_ACCENT};">${reportUrl}</a>
 </p>
 ` : '<p style="margin:16px 0; font-size:15px; color:' + BRAND_MUTED + ';">Your report is available in your client portal. We will send a separate link once it is generated.</p>'}
 
@@ -160,8 +161,8 @@ ${opts.deckUrl ? `
 
 Your AI Business Assessment for ${company} is ready.
 
-${opts.deckUrl ? `Download your report:
-${opts.deckUrl}
+${reportUrl ? `View your report:
+${reportUrl}
 ` : 'Your report is available in your client portal. We will send a separate link once it is generated.'}
 
 WHAT HAPPENS NEXT

@@ -53,12 +53,12 @@ export async function sendReportReadyEmail(opts: {
   to: string;
   customerName?: string;
   company?: string;
-  deckUrl?: string | null;
+  reportId?: string | null;
 }): Promise<EmailResult> {
   const { html, text } = reportReadyTemplate({
     customerName: opts.customerName,
     company: opts.company,
-    deckUrl: opts.deckUrl
+    reportId: opts.reportId
   });
   return sendEmail({
     to: opts.to,

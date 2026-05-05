@@ -47,13 +47,10 @@ export const GET: RequestHandler = async ({ params, locals, platform }) => {
 
   // Try R2 first, then filesystem
   let analysis: unknown = null;
-  let deckUrl: string | undefined;
   const bucket = platform?.env?.assessment_blobs;
 
   if (bucket) {
     try {
-      const r2Meta = await getReportMetaFromR2(bucket, reportId);
-      deckUrl = r2Meta?.deckUrl as string | undefined;
       const r2Analysis = await getReportAnalysisFromR2(bucket, reportId);
       if (r2Analysis) analysis = JSON.parse(r2Analysis);
     } catch (err) {
@@ -65,7 +62,6 @@ export const GET: RequestHandler = async ({ params, locals, platform }) => {
   if (!analysis) {
     const saved = getReport(reportId);
     if (saved) {
-      deckUrl = deckUrl || saved.deckUrl;
       try {
         if (fs.existsSync(saved.jsonPath)) {
           analysis = JSON.parse(fs.readFileSync(saved.jsonPath, 'utf-8'));
@@ -78,7 +74,6 @@ export const GET: RequestHandler = async ({ params, locals, platform }) => {
 
   return json({
     ...dbReport,
-    deckUrl: deckUrl || undefined,
     analysis
   });
 };

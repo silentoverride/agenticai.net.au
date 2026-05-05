@@ -110,24 +110,22 @@ export function isR2Available(bucket?: R2Bucket | null): bucket is R2Bucket {
 export async function saveReportUnified(
   bucket: R2Bucket | null,
   job: AssessmentReportJob,
-  analysis: string,
-  deckUrl?: string
+  analysis: string
 ): Promise<R2SavedReport> {
   if (isR2Available(bucket)) {
-    const { id, r2Prefix } = await saveReportToR2(bucket, job, analysis, deckUrl);
+    const { id, r2Prefix } = await saveReportToR2(bucket, job, analysis);
     return {
       id,
       dir: '', // no local dir in R2 mode
       jsonPath: `${r2Prefix}/analysis.json`,
       mdPath: '',
-      deckUrl,
       r2Key: r2Prefix
     };
   }
 
   // Fallback to filesystem for local dev
   const { saveReport } = await import('./report-store');
-  return saveReport(job, analysis, deckUrl);
+  return saveReport(job, analysis);
 }
 
 /** Read a report from R2 if available, otherwise filesystem. */
@@ -143,7 +141,6 @@ export async function getReportUnified(
       dir: '',
       jsonPath: `reports/${reportId}/analysis.json`,
       mdPath: '',
-      deckUrl: (meta.deckUrl as string) || undefined,
       r2Key: `reports/${reportId}`
     };
   }

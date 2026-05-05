@@ -41,8 +41,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
     await setPipelineStatus(job.sessionId, {
       status: 'completed',
-      reportId: result.savedReport?.id,
-      deckUrl: result.deckUrl
+      reportId: result.savedReport?.id
     });
 
     // Clean up transcript from D1 store once pipeline completes

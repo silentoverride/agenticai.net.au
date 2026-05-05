@@ -52,21 +52,22 @@ const REPORTS_DIR = env.REPORTS_DIR || './app_data/reports';
  * @example
  * const user = upsertUser('user_123', 'alice@example.com', 'Alice Smith');
  */
-export async function upsertUser(clerkId: string, email: string, name?: string, phone?: string): Promise<DbUser | null> {
+export async function upsertUser(clerkId: string, email: string, name?: string, phone?: string, role?: string): Promise<DbUser | null> {
   if (!isDatabaseAvailable()) {
     console.warn('upsertUser skipped: database unavailable');
     return null;
   }
   const db = getDb();
   const row = await db.queryOne<DbUser>(`
-    INSERT INTO users (clerk_id, email, name, phone)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO users (clerk_id, email, name, phone, role)
+    VALUES (?, ?, ?, ?, ?)
     ON CONFLICT(clerk_id) DO UPDATE SET
       email = excluded.email,
       name = COALESCE(excluded.name, users.name),
-      phone = COALESCE(excluded.phone, users.phone)
+      phone = COALESCE(excluded.phone, users.phone),
+      role = COALESCE(excluded.role, users.role)
     RETURNING *
-  `, clerkId, email, name || null, phone || null);
+  `, clerkId, email, name || null, phone || null, role || 'client');
   return row;
 }
 
@@ -144,7 +145,6 @@ export async function linkReportToUser(
   userId: string,
   reportId: string,
   stripeSessionId?: string,
-  deckUrl?: string,
   title?: string,
   company?: string
 ): Promise<DbReport | null> {
@@ -155,10 +155,10 @@ export async function linkReportToUser(
   const db = getDb();
   const id = `${Date.now()}-${reportId.slice(0, 8)}`;
   const row = await db.queryOne<DbReport>(`
-    INSERT INTO user_reports (id, user_id, report_id, stripe_session_id, deck_url, title, company)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO user_reports (id, user_id, report_id, stripe_session_id, title, company)
+    VALUES (?, ?, ?, ?, ?, ?)
     RETURNING *
-  `, id, userId, reportId, stripeSessionId || null, deckUrl || null, title || null, company || null);
+  `, id, userId, reportId, stripeSessionId || null, title || null, company || null);
   return row;
 }
 
@@ -391,7 +391,6 @@ export async function scanAndLinkReportsByEmail(userId: string, email: string): 
           userId,
           reportId,
           meta.job?.sessionId,
-          meta.deckUrl,
           `${meta.job?.company || meta.job?.customerName || 'Business'} — AI Assessment`,
           meta.job?.company
         );

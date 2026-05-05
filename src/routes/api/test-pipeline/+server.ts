@@ -80,7 +80,6 @@ export const POST: RequestHandler = async () => {
     return json({
       ok: true,
       durationMs: duration,
-      deckUrl: result.deckUrl || null,
       reportId: result.savedReport?.id || null,
       analysisPreview
     });

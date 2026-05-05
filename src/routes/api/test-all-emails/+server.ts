@@ -67,7 +67,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const { html, text } = reportReadyTemplate({
       customerName: 'Lorin',
       company: 'Acme Pty Ltd',
-      deckUrl: 'https://agenticai.net.au/reports/sample-deck.pdf'
+      reportId: 'sample-report-123'
     });
     const r = await sendEmail({ to, subject: 'AI Business Assessment Report — Acme Pty Ltd', html, text });
     results.push({ template: 'reportReady', sent: r.sent, id: r.id, error: r.message });

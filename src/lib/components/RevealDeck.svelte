@@ -28,6 +28,11 @@
     });
 
     deck.initialize();
+
+    // Auto-trigger print dialog when ?print-pdf is present
+    if (typeof window !== 'undefined' && window.location.search.includes('print-pdf')) {
+      setTimeout(() => window.print(), 1200);
+    }
   });
 
   onDestroy(() => {

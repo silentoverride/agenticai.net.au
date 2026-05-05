@@ -52,16 +52,7 @@
 						day: 'numeric'
 					})}</p>
 					<div class="report-actions">
-						<span class="btn-primary">View Presentation →</span>
-						{#if report.deck_url}
-							<a
-								href={report.deck_url}
-								target="_blank"
-								rel="noopener"
-								class="btn-secondary"
-								onclick={(e) => e.stopPropagation()}
-							>Download PPTX</a>
-						{/if}
+						<span class="btn-primary">View Report →</span>
 					</div>
 				</div>
 			{/each}

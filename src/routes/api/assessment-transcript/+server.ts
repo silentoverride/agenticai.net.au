@@ -105,7 +105,6 @@ export const GET: RequestHandler = async ({ url }) => {
   return json({
     sessionId,
     status: result.status,
-    deckUrl: result.deckUrl || undefined,
     reportId: result.reportId || undefined,
     error: result.error || undefined
   });

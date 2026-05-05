@@ -1,7 +1,6 @@
 import type { AssessmentReportJob, PipelineResult, SavedReport } from './types';
 import { analyzeTranscript } from './llm-analysis';
 import { lookupToolsForTranscript, enrichAnalysisWithTools } from './tool-lookup';
-import { generatePresentonDeck } from './presenton';
 import { saveReportUnified } from './report-store-r2';
 import { sendReportReadyEmail } from './emails';
 import { findOrCreateUserFromStripe, linkReportToUser } from '$lib/server/portal';
@@ -45,25 +44,16 @@ export async function runReportPipeline(
     }
   }
 
-  // Step 2: Presenton Deck (best effort — analysis is still useful without it)
-  let deckUrl = '';
-  try {
-    deckUrl = await generatePresentonDeck(analysis, job);
-    console.info('Presenton deck generated', { callId: job.callId, url: deckUrl });
-  } catch (error) {
-    console.error('Presenton deck generation failed:', error);
-  }
-
-  // Step 3: Save to R2 (production) or filesystem (dev)
+  // Step 2: Save to R2 (production) or filesystem (dev)
   let saved: SavedReport;
   try {
-    saved = await saveReportUnified(opts?.r2Bucket ?? null, job, analysis, deckUrl);
+    saved = await saveReportUnified(opts?.r2Bucket ?? null, job, analysis);
   } catch (error) {
     console.error('Report save failed:', error);
     throw new Error('Report save failed: ' + (error instanceof Error ? error.message : String(error)));
   }
 
-  // Step 3b: Link report to user in portal if email matches an existing user
+  // Step 2b: Link report to user in portal if email matches an existing user
   if (job.customerEmail) {
     try {
       const user = await findOrCreateUserFromStripe(job.customerEmail, job.customerName);
@@ -72,7 +62,6 @@ export async function runReportPipeline(
           user.clerk_id,
           saved.id,
           job.sessionId,
-          deckUrl,
           `${job.company || job.customerName || 'Business'} — AI Assessment`,
           job.company
         );
@@ -83,7 +72,7 @@ export async function runReportPipeline(
     }
   }
 
-  // Step 4: Email delivery to customer
+  // Step 3: Email delivery to customer
   let emailResult: { sent: boolean; id?: string; message?: string } = { sent: false };
   if (job.customerEmail) {
     try {
@@ -91,7 +80,7 @@ export async function runReportPipeline(
         to: job.customerEmail,
         customerName: job.customerName,
         company: job.company,
-        deckUrl
+        reportId: saved.id
       });
       if (emailResult.sent) {
         console.info('Report delivered by email', { to: job.customerEmail, id: emailResult.id });
@@ -106,7 +95,6 @@ export async function runReportPipeline(
   return {
     queued: true,
     savedReport: saved,
-    deckUrl,
     destination: 'r2-or-local',
     emailSent: emailResult.sent,
     emailId: emailResult.id

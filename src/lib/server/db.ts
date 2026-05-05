@@ -55,6 +55,7 @@ function initSchema(db: Database.Database) {
       email TEXT NOT NULL,
       name TEXT,
       phone TEXT,
+      role TEXT DEFAULT 'client',
       created_at TEXT DEFAULT (datetime('now'))
     );
 
@@ -266,6 +267,7 @@ export type DbUser = {
   email: string;
   name: string | null;
   phone: string | null;
+  role: string | null;
   created_at: string;
 };
 

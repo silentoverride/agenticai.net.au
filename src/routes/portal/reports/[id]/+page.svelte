@@ -41,9 +41,7 @@
     <div class="viewer-header">
       <h1>{report?.company || 'AI Business Assessment'}</h1>
       <div class="viewer-actions">
-        {#if report?.deck_url}
-          <a href={report.deck_url} target="_blank" class="btn-download">Download PPTX</a>
-        {/if}
+        <a href="/portal/reports/{reportId}?print-pdf" target="_blank" class="btn-download">Download PDF</a>
       </div>
     </div>
     <RevealDeck {analysis} company={report?.company} />

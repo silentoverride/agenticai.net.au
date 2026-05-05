@@ -19,7 +19,7 @@ function reportId(job: AssessmentReportJob) {
   return `${Date.now()}-${base}`;
 }
 
-export function saveReport(job: AssessmentReportJob, analysis: string, deckUrl?: string): SavedReport {
+export function saveReport(job: AssessmentReportJob, analysis: string): SavedReport {
   const dir = reportsDir();
   const id = reportId(job);
   const subDir = path.join(dir, id);
@@ -47,13 +47,12 @@ export function saveReport(job: AssessmentReportJob, analysis: string, deckUrl?:
       company: job.company,
       receivedAt: job.receivedAt
     },
-    deckUrl: deckUrl || null,
     createdAt: new Date().toISOString()
   };
   fs.writeFileSync(path.join(subDir, 'meta.json'), JSON.stringify(meta, null, 2), 'utf-8');
 
   console.info('Report saved locally', { id, jsonPath, mdPath });
-  return { id, dir: subDir, jsonPath, mdPath, deckUrl };
+  return { id, dir: subDir, jsonPath, mdPath };
 }
 
 export function listReports(): SavedReport[] {
@@ -72,8 +71,7 @@ export function listReports(): SavedReport[] {
           id: meta.id || name,
           dir: subDir,
           jsonPath: path.join(subDir, 'analysis.json'),
-          mdPath: path.join(subDir, 'report.md'),
-          deckUrl: meta.deckUrl || undefined
+          mdPath: path.join(subDir, 'report.md')
         };
       } catch {
         return null;
@@ -88,15 +86,10 @@ export function getReport(id: string): SavedReport | null {
   const dir = path.resolve(reportsDir(), id);
   if (!fs.existsSync(dir)) return null;
   if (!fs.existsSync(path.join(dir, 'analysis.json'))) return null;
-  const metaPath = path.join(dir, 'meta.json');
-  const meta = fs.existsSync(metaPath)
-    ? JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
-    : {};
   return {
     id,
     dir,
     jsonPath: path.join(dir, 'analysis.json'),
-    mdPath: path.join(dir, 'report.md'),
-    deckUrl: meta.deckUrl || undefined
+    mdPath: path.join(dir, 'report.md')
   };
 }

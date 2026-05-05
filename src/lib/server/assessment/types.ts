@@ -68,13 +68,11 @@ export interface SavedReport {
   dir: string;
   jsonPath: string;
   mdPath: string;
-  deckUrl?: string;
 }
 
 export interface PipelineResult {
   queued: boolean;
   savedReport?: SavedReport;
-  deckUrl?: string;
   destination: string;
   emailSent?: boolean;
   emailId?: string;

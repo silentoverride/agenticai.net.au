@@ -47,7 +47,6 @@ export async function runPipelineInline(job: AssessmentReportJob): Promise<void>
     const result = await runReportPipeline(job);
     await setPipelineStatus(sessionId, {
       status: 'completed',
-      deckUrl: result.deckUrl || undefined,
       reportId: result.savedReport?.id
     });
     console.info('Pipeline completed inline', { sessionId, reportId: result.savedReport?.id });
