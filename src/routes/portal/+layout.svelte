@@ -21,6 +21,7 @@
       <a href="/portal">Dashboard</a>
       <a href="/portal/reports">Reports</a>
       <a href="/portal/receipts">Receipts</a>
+      <a href="/services" class="nav-cta">Start Assessment</a>
       <div class="portal-nav-right">
         <span>{clerk.user?.firstName || clerk.user?.emailAddresses?.[0]?.emailAddress}</span>
         <button onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })} class="portal-signout">Sign Out</button>
@@ -77,6 +78,18 @@
   }
   .portal-nav a:hover {
     border-color: #0066ff;
+  }
+  .portal-nav a.nav-cta {
+    background: #0066ff;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border-bottom: none;
+    text-decoration: none;
+  }
+  .portal-nav a.nav-cta:hover {
+    background: #0052cc;
+    border-bottom: none;
   }
   .portal-nav-right {
     margin-left: auto;

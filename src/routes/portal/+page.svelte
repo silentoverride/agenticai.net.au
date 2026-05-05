@@ -1,5 +1,6 @@
 <script lang="ts">
   import { useClerkContext } from 'svelte-clerk';
+  import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
 
   const clerk = useClerkContext();
 
@@ -83,8 +84,20 @@
         <a href="/portal/receipts" class="dashboard-link">View all receipts →</a>
       </div>
     </div>
-  {/if}
-</div>
+
+    <div class="portal-cta-row">
+      <div class="start-assessment-card">
+        <h3>🎤 Start New Assessment</h3>
+        <p>Ready to assess another workflow or business area?</p>
+        <CallAssessmentButton label="Start AI Business Assessment" source="portal-dashboard" />
+      </div>
+      <div class="portal-help-card">
+        <h3>📧 Need help?</h3>
+        <p>Questions about your report, payments, or next steps?</p>
+        <a href="mailto:hello@agenticai.net.au" class="btn-secondary">Contact us</a>
+      </div>
+    </div>
+  {/if}</div>
 
 <style>
   .portal-dashboard h1 {
@@ -147,6 +160,38 @@
     display: inline-block;
     margin-top: 0.75rem;
     color: #0066ff;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9375rem;
+  }
+  .portal-cta-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .start-assessment-card, .portal-help-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .start-assessment-card h3, .portal-help-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+    color: #1a1a2e;
+  }
+  .start-assessment-card p, .portal-help-card p {
+    color: #666;
+    font-size: 0.9375rem;
+    margin-bottom: 1rem;
+  }
+  .btn-secondary {
+    display: inline-block;
+    background: #f0f0f0;
+    color: #1a1a2e;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
     text-decoration: none;
     font-weight: 500;
     font-size: 0.9375rem;

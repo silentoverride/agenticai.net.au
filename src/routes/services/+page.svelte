@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import { processSteps, reportSections, services, upsells } from '$lib/content';
 </script>
 
@@ -187,4 +188,35 @@
       {/each}
     </div>
   </section>
+
+  <section class="section cta-section">
+    <div class="cta-box">
+      <h2>Ready to see where AI can save your business time?</h2>
+      <p>Book a free AI Business Assessment call with Annie and get a practical report within 48 hours.</p>
+      <CallAssessmentButton label="Start AI Business Assessment" source="services-cta" />
+    </div>
+  </section>
 </main>
+
+<style>
+  .cta-section {
+    padding: 4rem 0;
+    text-align: center;
+  }
+  .cta-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .cta-box h2 {
+    font-size: 1.5rem;
+    color: #1a1a2e;
+    margin-bottom: 0.75rem;
+  }
+  .cta-box p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+  }
+</style>
