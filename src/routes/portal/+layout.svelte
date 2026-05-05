@@ -21,6 +21,7 @@
       <a href="/portal">Dashboard</a>
       <a href="/portal/reports">Reports</a>
       <a href="/portal/receipts">Receipts</a>
+      <a href="/portal/profile">Profile</a>
       <a href="/services" class="nav-cta">Start Assessment</a>
       <div class="portal-nav-right">
         <span>{clerk.user?.firstName || clerk.user?.emailAddresses?.[0]?.emailAddress}</span>
