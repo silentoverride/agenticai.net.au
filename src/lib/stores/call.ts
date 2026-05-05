@@ -7,6 +7,11 @@ export const callError = writable<string>('');
 
 let retellClient: any = null;
 
+interface RetellCallResponse {
+  accessToken?: string;
+  message?: string;
+}
+
 export async function startCall(source: string): Promise<void> {
   callStatus.set('connecting');
   callError.set('');
@@ -18,7 +23,7 @@ export async function startCall(source: string): Promise<void> {
       body: JSON.stringify({ source })
     });
 
-    const data = await response.json();
+    const data = (await response.json()) as RetellCallResponse;
 
     if (!response.ok || !data.accessToken) {
       throw new Error(data.message || 'Unable to connect to Annie.');

@@ -29,6 +29,19 @@ function getLlmConfig() {
   return { baseUrl, apiKey, model };
 }
 
+interface OpenAIChatCompletionResponse {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
+}
+
 export async function llmChat(messages: LlmMessage[], options: LlmOptions = {}): Promise<LlmResponse> {
   const config = getLlmConfig();
   const model = options.model || config.model;
@@ -61,7 +74,7 @@ export async function llmChat(messages: LlmMessage[], options: LlmOptions = {}):
     throw new Error(`LLM request failed (${response.status}): ${error}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as OpenAIChatCompletionResponse;
   const choice = data.choices?.[0];
 
   if (!choice?.message?.content) {

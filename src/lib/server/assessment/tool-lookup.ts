@@ -16,6 +16,14 @@ export interface PainPoint {
   search_queries: string[];
 }
 
+interface PerplexityCompletionResponse {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+}
+
 /**
  * Extract pain points from a transcript for tool lookup.
  * Uses a lightweight LLM call to get structured pain points with search queries.
@@ -63,7 +71,7 @@ ${transcript.slice(0, 8000)}${transcript.length > 8000 ? '...[truncated]' : ''}`
     return [];
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as PerplexityCompletionResponse;
   const content = data.choices?.[0]?.message?.content;
 
   if (!content) {
@@ -139,7 +147,7 @@ Return ONLY a JSON array of tools. No markdown, no explanations. Limit to 8 tool
     return [];
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as PerplexityCompletionResponse;
   const content = data.choices?.[0]?.message?.content;
 
   if (!content) {

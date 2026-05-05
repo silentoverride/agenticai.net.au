@@ -67,7 +67,7 @@ export async function getCheckoutSession(sessionId: string): Promise<StripeCheck
     return null;
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as StripeCheckoutSession;
 
   return {
     id: data.id,

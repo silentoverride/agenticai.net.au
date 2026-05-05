@@ -2,6 +2,15 @@ import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
+interface RetellWebCallResponse {
+  access_token?: string;
+  call_id?: string;
+  agent_id?: string;
+  agent_name?: string;
+  message?: string;
+  error?: string;
+}
+
 export const POST: RequestHandler = async ({ request }) => {
   if (!env.RETELL_API_KEY || !env.RETELL_VOICE_AGENT_ID) {
     return json(
@@ -53,7 +62,7 @@ export const POST: RequestHandler = async ({ request }) => {
     body: JSON.stringify(payload)
   });
 
-  const retellBody = await retellResponse.json();
+  const retellBody = (await retellResponse.json()) as RetellWebCallResponse;
 
   if (!retellResponse.ok) {
     return json(

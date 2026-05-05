@@ -42,12 +42,16 @@
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ source: 'test-platform' })
       });
-      const data = await res.json();
+      const data = (await res.json()) as {
+        accessToken?: string;
+        callId?: string;
+        message?: string;
+      };
       if (!res.ok || !data.accessToken) {
         throw new Error(data.message || 'Failed to create call');
       }
       accessToken = data.accessToken;
-      callId = data.callId;
+      callId = data.callId || '';
       log(`Call created: ${callId}`);
       await connectWebRTC(data.accessToken);
     } catch (err: any) {
@@ -206,15 +210,18 @@
           retellCallId: callId
         })
       });
-      const data = await res.json();
+      const data = (await res.json()) as {
+        url?: string;
+        sms?: { sent?: boolean; sid?: string; status?: string; message?: string };
+      };
       if (data.url) {
         log(`Checkout URL: ${data.url}`);
         if (data.sms) log(`SMS sent: ${JSON.stringify(data.sms)}`);
       } else {
         log(`Checkout error: ${JSON.stringify(data)}`);
       }
-    } catch (err: any) {
-      log(`Payment flow error: ${err.message}`);
+    } catch (err) {
+      log(`Payment flow error: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 

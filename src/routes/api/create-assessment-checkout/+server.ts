@@ -110,7 +110,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
     body: params
   });
 
-  const stripeBody = await stripeResponse.json();
+  const stripeBody = (await stripeResponse.json()) as { url: string; error?: { message?: string } };
 
   if (!stripeResponse.ok) {
     return json(
@@ -138,7 +138,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
       const sms = await sendTwilioSms(customerPhone, message);
       responseBody.sms = { sent: true, sid: sms.sid, status: sms.status };
     } catch (error: any) {
-      responseBody.sms = { sent: false, status: 'failed', message: error.message };
+      responseBody.sms = { sent: false, status: 'failed', message: error instanceof Error ? error.message : 'SMS failed' };
     }
   }
 

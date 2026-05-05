@@ -1,12 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  let status = 'Finalising your assessment intake...';
-  let reportId = '';
+  let status = $state('Finalising your assessment intake...');
+  let reportId = $state('');
   let pollInterval: ReturnType<typeof setInterval>;
-  let sessionId = '';
+  let sessionId = $state('');
   const processingStatus =
-    'Payment received. Your transcript is being processed and report will be ready within 48 hours.\n\nOnce you receive your report, you'll have the opportunity to book a complimentary 30-minute consultation with one of our consultants. During this session, they will walk you through the report and discuss how we can support you in implementing the proposed solutions.';
+    "Payment received. Your transcript is being processed and report will be ready within 48 hours.\n\nOnce you receive your report, you'll have the opportunity to book a complimentary 30-minute consultation with one of our consultants. During this session, they will walk you through the report and discuss how we can support you in implementing the proposed solutions.";
+
+  interface TranscriptResponse {
+    status?: string;
+    reportId?: string;
+    message?: string;
+  }
 
   onMount(async () => {
     const params = new URLSearchParams(window.location.search);
@@ -19,12 +25,13 @@
 
     // Step 1: Submit transcript (or trigger server-side retrieval)
     const stored = localStorage.getItem('annie-assessment-transcript');
-    let payload: any = { sessionId };
+    const payload: Record<string, unknown> = { sessionId };
 
     if (stored) {
       try {
-        const parsed = JSON.parse(stored);
-        payload = { ...parsed, sessionId };
+        const parsed = JSON.parse(stored) as Record<string, unknown>;
+        Object.assign(payload, parsed);
+        payload.sessionId = sessionId;
       } catch {
         // ignore invalid stored JSON
       }
@@ -37,7 +44,7 @@
         body: JSON.stringify(payload)
       });
 
-      const data = await response.json().catch(() => ({}));
+      const data = (await response.json().catch(() => ({}))) as TranscriptResponse;
 
       if (!response.ok && response.status !== 202) {
         throw new Error(data.message || 'Transcript submission failed.');
@@ -56,9 +63,9 @@
       }
 
       localStorage.removeItem('annie-assessment-transcript');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Assessment pipeline failed:', err);
-      status = 'Payment received. There was an issue starting the report pipeline - we\'ll retry automatically or contact hello@agenticai.net.au if it persists.';
+      status = "Payment received. There was an issue starting the report pipeline - we'll retry automatically or contact hello@agenticai.net.au if it persists.";
     }
   });
 
@@ -67,7 +74,7 @@
       try {
         const res = await fetch(`/api/assessment-transcript?sessionId=${encodeURIComponent(sid)}`);
         if (!res.ok) return;
-        const data = await res.json();
+        const data = (await res.json()) as TranscriptResponse;
 
         if (data.status === 'completed') {
           clearInterval(pollInterval);
@@ -78,7 +85,7 @@
           status = 'Report generation ran into an issue. Please contact hello@agenticai.net.au with your payment reference.';
         }
         // else keep polling
-      } catch (e) {
+      } catch {
         // ignore polling errors
       }
     }, 5000); // poll every 5 seconds
