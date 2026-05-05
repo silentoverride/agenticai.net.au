@@ -2,6 +2,11 @@
   import { processSteps, reportSections, services, upsells } from '$lib/content';
 </script>
 
+<svelte:head>
+  <title>Services — AI Assessment & Implementation | Agentic AI</title>
+  <meta name="description" content="AI assessment first, implementation second. We inspect your workflows, identify where hours leak, and recommend the simplest AI tools and automations to remove the friction." />
+</svelte:head>
+
 <main>
   <section class="page-hero">
     <p class="eyebrow">Services</p>

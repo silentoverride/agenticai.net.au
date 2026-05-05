@@ -29,6 +29,11 @@
   }
 </script>
 
+<svelte:head>
+  <title>Client Portal — Agentic AI</title>
+  <meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
 <div class="portal-dashboard">
   <h1>Welcome back, {clerk.user?.firstName || 'there'} 👋</h1>
 

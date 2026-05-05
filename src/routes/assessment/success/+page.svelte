@@ -100,6 +100,11 @@
   }
 </script>
 
+<svelte:head>
+  <title>Assessment Payment Confirmed — Agentic AI</title>
+  <meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
 <main>
   <section class="page-hero">
     <p class="eyebrow">Assessment payment</p>

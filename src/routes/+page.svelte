@@ -4,6 +4,16 @@
   import { metrics, reportSections, useCases, upsells } from '$lib/content';
 </script>
 
+<svelte:head>
+  <title>AI Business Assessment for Australian SMBs — Agentic AI</title>
+  <meta name="description" content="Agentic AI reviews your workflows, tools, and daily bottlenecks, then delivers a practical report showing which AI tools, automations, and agents are worth implementing first." />
+  <meta property="og:title" content="AI Business Assessment for Australian SMBs" />
+  <meta property="og:description" content="Find where AI can save your business time. Practical report, quick wins, implementation roadmap." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://agenticai.net.au" />
+  <meta name="twitter:card" content="summary_large_image" />
+</svelte:head>
+
 <main>
   <section class="hero">
     <div class="hero-copy">
