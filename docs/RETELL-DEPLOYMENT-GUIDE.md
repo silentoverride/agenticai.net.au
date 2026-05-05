@@ -63,12 +63,74 @@ This guide walks through every step needed to configure the Retell voice agent (
 | Language | English (en-AU preferred for Australian business context) |
 | First Sentence | See the greeting prompt below |
 
-### 2.3 Set voice characteristics
+### 2.3 Speech settings
+
+Configure these in **Dashboard → Your Agent → Speech**:
+
+| Setting | Value | Why |
+|---------|-------|-----|
+| **Background Sound** | None | Keep the call clean and professional |
+| **Response Eagerness** | 1 | Patient — waits a beat after the caller finishes, avoids cutting in |
+| **Dynamically adjust based on user input** | Enabled | Adapts speech cadence to match the caller's pace |
+| **Interruption Sensitivity** | 0.9 | Stops immediately when the caller talks over her — high sensitivity means Annie yields fast |
+| **Allow DTMF interruption** | Enabled | Caller can press keypad buttons to interrupt if needed |
+| **Reminder Message Frequency** | 10 seconds, 1 time | Sends a gentle "Are you still there?" nudge once if silence exceeds 10 seconds |
+
+### 2.4 Additional voice characteristics
+These settings are usually found in the **Voice** or **General** tab:
+
 - **Speaking speed**: Medium (1.0x recommended)
 - **Temperature**: 0.3–0.5 (keep it focused, don't let Annie ramble)
-- **Interruptions**: Allow (business owners may interrupt with clarifications)
 - **Silence timeout**: 7 seconds (give time for thinking)
 - **End-of-sentence detection**: Enabled
+
+### 2.5 Realtime Transcription Settings
+
+Found at **Dashboard → Your Agent → Realtime Transcription**.
+
+| Setting | Recommended Value | Reason |
+|---------|-------------------|--------|
+| **Denoising Mode** | Remove noise | Filters office hum, keyboard clicks, AC noise. Don't use "Remove noise + background speech" unless callers are in loud open-plan offices — that level of suppression can occasionally clip the caller's voice. |
+| **Transcription Mode** | Optimize for accuracy | Business assessments require precise vocabulary (tool names, roles, workflows). Speed optimization can miss technical terms. |
+| **Vocabulary Specialization** | General | The assessment covers general business workflows, not healthcare. |
+| **Boosted Keywords** | Add below | These are business/tech terms the model might mishear. Boosting them improves transcript accuracy for the downstream report pipeline. |
+
+#### Boosted Keywords to add
+
+Paste these into **Boosted Keywords** (one per line or comma-separated):
+
+```
+Agentic AI
+HubSpot
+Zapier
+Make.com
+Notion
+Slack
+Salesforce
+Stripe
+QuickBooks
+Xero
+SOP
+CRM
+KPI
+SME
+VA
+chatbot
+Miro
+Figma
+Calendly
+Mailchimp
+ActiveCampaign
+Airtable
+Monday.com
+Asana
+Trello
+ClickUp
+```
+
+> **Tip**: Add or remove keywords based on your client's industry. If you serve trades, add "Quote2Cash", "ServiceM8", "simPRO". If you serve professional services, add "Practice Ignition", "Karbon", "FYI Docs".
+
+> **Why boosted keywords matter**: The transcript feeds directly into the AI report pipeline. If "Zapier" is transcribed as "Zap year" or "HubSpot" as "Hub's pot", the tool-lookup step and LLM analysis will produce lower-quality or incorrect recommendations. Accuracy at the transcription layer cascades through the entire report.
 
 ---
 
