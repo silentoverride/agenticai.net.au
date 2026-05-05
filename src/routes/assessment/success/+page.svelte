@@ -5,14 +5,33 @@
   let reportId = $state('');
   let pollInterval: ReturnType<typeof setInterval>;
   let sessionId = $state('');
-  const processingStatus =
-    "Payment received. Your transcript is being processed and report will be ready within 48 hours.\n\nOnce you receive your report, you'll have the opportunity to book a complimentary 30-minute consultation with one of our consultants. During this session, they will walk you through the report and discuss how we can support you in implementing the proposed solutions.";
 
   interface TranscriptResponse {
-    status?: string;
+    status?:
+      | 'queued'
+      | 'pending_transcript'
+      | 'running_llm'
+      | 'running_tools'
+      | 'running_deck'
+      | 'completed'
+      | 'error'
+      | 'retry'
+      | string;
     reportId?: string;
     message?: string;
+    error?: string;
   }
+
+  const statusMessages: Record<string, string> = {
+    queued: 'Assessment received. Your report is now in the queue for processing.',
+    pending_transcript: 'Payment received. Waiting for the voice interview to finish — your report will be generated automatically.',
+    running_llm: 'Transcript received. Our AI is analysing your workflow and identifying opportunities...',
+    running_tools: 'Analysis nearly complete. Matching the best AI tools to your pain points...',
+    running_deck: 'Finalising your report — assembling the presentation with recommendations...',
+    completed: 'Your AI Business Assessment report is ready!',
+    error: 'Report generation ran into an issue. Please contact hello@agenticai.net.au with your payment reference.',
+    retry: 'Retrying report generation — this stage ran into a temporary issue.'
+  };
 
   onMount(async () => {
     const params = new URLSearchParams(window.location.search);
@@ -52,20 +71,27 @@
 
       // If queued (202), start polling for status
       if (data.status === 'queued' || response.status === 202) {
-        status = processingStatus;
+        status = statusMessages.queued || statusMessages.queued;
         startPolling(sessionId);
       } else if (data.status === 'pending_transcript') {
-        status = 'Payment received. Waiting for the voice interview to finish - your report will be generated automatically.';
+        status = statusMessages.pending_transcript;
         startPolling(sessionId);
-      } else {
-        status = 'Your report has been generated and is ready for delivery.';
+      } else if (data.status === 'completed') {
+        status = statusMessages.completed;
         if (data.reportId) reportId = data.reportId;
+      } else if (data.status === 'error') {
+        status = statusMessages.error;
+      } else {
+        status = statusMessages[data.status as string] || statusMessages.queued;
+        if (data.status && data.status !== 'completed' && data.status !== 'error') {
+          startPolling(sessionId);
+        }
       }
 
       localStorage.removeItem('annie-assessment-transcript');
     } catch (err) {
       console.error('Assessment pipeline failed:', err);
-      status = "Payment received. There was an issue starting the report pipeline - we'll retry automatically or contact hello@agenticai.net.au if it persists.";
+      status = statusMessages.error;
     }
   });
 
@@ -78,11 +104,15 @@
 
         if (data.status === 'completed') {
           clearInterval(pollInterval);
-          status = 'Your AI Business Assessment report is ready!';
+          status = statusMessages.completed;
           reportId = data.reportId || '';
         } else if (data.status === 'error') {
           clearInterval(pollInterval);
-          status = 'Report generation ran into an issue. Please contact hello@agenticai.net.au with your payment reference.';
+          status = data.error
+            ? `${statusMessages.error} \u2014 ${data.error}`
+            : statusMessages.error;
+        } else {
+          status = statusMessages[data.status as string] || statusMessages.queued;
         }
         // else keep polling
       } catch {
