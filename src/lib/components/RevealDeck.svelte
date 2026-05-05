@@ -65,7 +65,6 @@
   function getMonthlyToolCost(): number {
     const fi = getFinancialImpact();
     if (fi.estimated_tool_costs_monthly_aud != null) return fi.estimated_tool_costs_monthly_aud;
-    // fallback: parse pricing from researched_tools
     return getResearchedTools().reduce((sum: number, t: any) => {
       const match = String(t.pricing || '').match(/\$?([\d]+)/);
       return sum + (match ? parseInt(match[1]) : 0);
@@ -119,6 +118,72 @@
     return hrs ? `${hrs} hours/week` : '';
   }
 
+  /* ── SVG Chart helpers ──────────────────────────────────── */
+  const CHART_COLORS = ['#2ea44f', '#0969da', '#bc4c00', '#7c3aed', '#e11d48', '#0d9488'];
+
+  function chartBarWidth(value: number, max: number, width = 280): number {
+    return max > 0 ? Math.max(4, Math.round((value / max) * width)) : 0;
+  }
+
+  function renderHoursGauge(hours: number, baseline = 40): string {
+    const pct = Math.min(100, Math.round((hours / baseline) * 100));
+    const cx = 250, cy = 60, r = 45, stroke = 8;
+    const circ = 2 * Math.PI * r;
+    const dash = (pct / 100) * circ;
+    return `<svg viewBox="0 0 500 120" class="chart-gauge">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="${stroke}"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--color-accent)" stroke-width="${stroke}"
+        stroke-dasharray="${dash} ${circ}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>
+      <text x="${cx}" y="${cy + 6}" text-anchor="middle" fill="var(--color-accent)" font-size="26" font-weight="800">${hours}h</text>
+      <text x="${cx}" y="${cy + 24}" text-anchor="middle" fill="var(--color-ink)" font-size="11" opacity="0.6">of ${baseline}h week</text>
+      <text x="${cx}" y="${cy + 40}" text-anchor="middle" fill="var(--color-ink)" font-size="12" font-weight="700">${pct}% reclaimable</text>
+    </svg>`;
+  }
+
+  function renderQuickWinsBars(wins: any[]): string {
+    if (!wins.length) return '';
+    const max = Math.max(...wins.map((w) => w.estimated_hours_saved_per_week || 0), 1);
+    const barH = 22, gap = 12, w = 280;
+    const totalH = wins.length * (barH + gap) + gap;
+    let svg = `<svg viewBox="0 0 580 ${totalH}" class="chart-bars">`;
+    wins.forEach((win, i) => {
+      const val = win.estimated_hours_saved_per_week || 0;
+      const bw = chartBarWidth(val, max, w);
+      const y = gap + i * (barH + gap);
+      const color = CHART_COLORS[i % CHART_COLORS.length];
+      svg += `<rect x="140" y="${y}" width="${bw}" height="${barH}" rx="4" fill="${color}" opacity="0.9"/>
+        <text x="135" y="${y + 16}" text-anchor="end" fill="var(--color-ink)" font-size="12" font-weight="600">${win.title?.slice(0, 26)}${win.title?.length > 26 ? '…' : ''}</text>
+        <text x="${140 + bw + 6}" y="${y + 16}" fill="var(--color-ink)" font-size="12" font-weight="700">${val} hrs/wk</text>`;
+    });
+    svg += '</svg>';
+    return svg;
+  }
+
+  function renderFinancialChart(): string {
+    const fi = getFinancialImpact();
+    const hours = fi.hours_saved_per_week || getTotalHoursSaved() || 0;
+    const rate = fi.hourly_rate_assumed_aud || 150;
+    const weeklyVal = fi.weekly_value_aud || hours * rate;
+    const monthlyVal = weeklyVal * 4.33;
+    const annualVal = fi.annual_value_aud || fi.net_annual_value_aud || monthlyVal * 12;
+    const toolCost = fi.estimated_tool_costs_monthly_aud || getMonthlyToolCost() || 0;
+    const annualCost = toolCost * 12;
+    const max = Math.max(annualVal, annualCost, 1);
+    const barH = 26, gap = 14, w = 220;
+    const totalH = 2 * (barH + gap) + gap;
+    const savW = chartBarWidth(annualVal, max, w);
+    const costW = chartBarWidth(annualCost, max, w);
+    return `<svg viewBox="0 0 520 ${totalH}" class="chart-bars">
+      <rect x="180" y="${gap}" width="${savW}" height="${barH}" rx="4" fill="#2ea44f" opacity="0.9"/>
+      <text x="175" y="${gap + 18}" text-anchor="end" fill="var(--color-ink)" font-size="13" font-weight="600">Annual Value</text>
+      <text x="${180 + savW + 6}" y="${gap + 18}" fill="var(--color-ink)" font-size="13" font-weight="700">$${Math.round(annualVal).toLocaleString('en-AU')}</text>
+
+      <rect x="180" y="${gap + barH + gap}" width="${costW}" height="${barH}" rx="4" fill="#e11d48" opacity="0.9"/>
+      <text x="175" y="${gap + barH + gap + 18}" text-anchor="end" fill="var(--color-ink)" font-size="13" font-weight="600">Annual Tool Cost</text>
+      <text x="${180 + costW + 6}" y="${gap + barH + gap + 18}" fill="var(--color-ink)" font-size="13" font-weight="700">$${Math.round(annualCost).toLocaleString('en-AU')}</text>
+    </svg>`;
+  }
+
   const assessmentDate = new Date().toLocaleDateString('en-AU', {
     day: 'numeric',
     month: 'long',
@@ -130,83 +195,89 @@
   <div bind:this={container} class="reveal">
     <div class="slides">
       {#if analysis}
-        <!-- 1. Title -->
+
+        <!-- ==================== SLIDE 1: TITLE ==================== -->
         <section class="slide-title-bg">
           <div class="title-content">
-            <h1 class="title-heading">AI Tools Assessment</h1>
-            <p class="title-sub">Prepared for {company || 'Your Business'}</p>
-            <p class="title-date">Assessment Date: {assessmentDate}</p>
-            <div class="title-separator"></div>
-            <p class="title-by">Prepared by Agentic AI</p>
+            <h1 class="title-heading fragment">AI Tools Assessment</h1>
+            <p class="title-sub fragment">Prepared for {company || 'Your Business'}</p>
+            <p class="title-date fragment">Assessment Date: {assessmentDate}</p>
+            <div class="title-separator fragment"></div>
+            <p class="title-by fragment">Prepared by Agentic AI</p>
           </div>
         </section>
 
-        <!-- 2. Executive Summary -->
+        <!-- ==================== SLIDE 2: EXECUTIVE SUMMARY ==================== -->
         <section>
           <div class="section-header">
             <h2>Executive Summary</h2>
           </div>
           <div class="exec-grid">
-            <div class="exec-card">
+            <div class="exec-card fragment">
               <div class="exec-label">Pain</div>
               <ul class="exec-list">
                 {#each getPainPoints() as pain}
-                  <li>{pain.title}</li>
+                  <li class="fragment">{pain.title}</li>
                 {/each}
               </ul>
             </div>
-            <div class="exec-card outcome">
+            <div class="exec-card outcome fragment">
               <div class="exec-label">Outcome</div>
               <p class="exec-text">{analysis.executive_summary || 'Targeted tool additions and better process automation can return significant time by eliminating manual steps and protecting strategic focus time.'}</p>
             </div>
           </div>
         </section>
 
-        <!-- 3. Opportunity at a Glance + Quick Wins -->
+        <!-- ==================== SLIDE 3: OPPORTUNITY AT A GLANCE ==================== -->
         <section>
           <div class="section-header">
             <h2>The Opportunity at a Glance</h2>
           </div>
           <div class="glance-grid">
-            <div class="glance-stat">
+            <div class="glance-stat fragment">
               <div class="glance-number">{getTotalHoursSaved()}</div>
               <div class="glance-label">Hours You Can Reclaim Weekly</div>
             </div>
-            <div class="glance-stat">
+            <div class="glance-stat fragment">
               <div class="glance-number">{getQuickWins().length}</div>
               <div class="glance-label">Quick Wins Identified</div>
             </div>
           </div>
-          <div class="glance-focus">
+          <div class="glance-focus fragment">
             <strong>Primary Focus:</strong> Efficiency (Time Savings)
+          </div>
+          <div class="glance-chart fragment">
+            {#if getTotalHoursSaved() > 0}
+              {@html renderHoursGauge(getTotalHoursSaved())}
+            {/if}
           </div>
         </section>
 
-        <!-- 4. Impact-Effort Matrix -->
+        <!-- ==================== SLIDE 4: IMPACT-EFFORT MATRIX ==================== -->
         <section>
           <div class="section-header">
             <h2>Impact-Effort Matrix</h2>
           </div>
-          <p class="matrix-desc">
+          <p class="matrix-desc fragment">
             Your pain points have been analysed and placed into four quadrants based on their business impact and implementation effort.
             This report focuses on <strong>Quick Wins</strong> — the fixes that deliver the highest value with the least effort.
           </p>
-          <div class="matrix-wrapper">
+          <div class="matrix-wrapper fragment">
             <div class="matrix-axis matrix-axis-y">Impact →</div>
             <div class="matrix-grid">
-              <div class="matrix-cell quick-wins">
+              <div class="matrix-cell quick-wins fragment">
                 <div class="cell-title">⭐ Quick Wins</div>
                 <div class="cell-sub">High Impact, Low Effort</div>
               </div>
-              <div class="matrix-cell major">
+              <div class="matrix-cell major fragment">
                 <div class="cell-title">🔨 Major Projects</div>
                 <div class="cell-sub">High Impact, High Effort</div>
               </div>
-              <div class="matrix-cell filler">
+              <div class="matrix-cell filler fragment">
                 <div class="cell-title">🧩 Fill-ins</div>
                 <div class="cell-sub">Low Impact, Low Effort</div>
               </div>
-              <div class="matrix-cell ignore">
+              <div class="matrix-cell ignore fragment">
                 <div class="cell-title">🗑️ Ignore</div>
                 <div class="cell-sub">Low Impact, High Effort</div>
               </div>
@@ -215,7 +286,7 @@
           </div>
         </section>
 
-        <!-- 5. Quick Wins Overview -->
+        <!-- ==================== SLIDE 5: QUICK WINS ==================== -->
         <section>
           <div class="section-header">
             <h2>Quick Wins</h2>
@@ -224,7 +295,7 @@
           <div class="qw-list">
             {#each getQuickWins() as win, i}
               {@const tool = matchToolForWin(win)}
-              <div class="qw-item">
+              <div class="qw-item fragment">
                 <div class="qw-num">{i + 1}</div>
                 <div class="qw-body">
                   <div class="qw-title">
@@ -250,9 +321,14 @@
               </div>
             {/each}
           </div>
+          {#if getQuickWins().some((w: any) => w.estimated_hours_saved_per_week)}
+            <div class="qw-chart fragment">
+              {@html renderQuickWinsBars(getQuickWins())}
+            </div>
+          {/if}
         </section>
 
-        <!-- 6. Recommended Solutions -->
+        <!-- ==================== SLIDE 6: RECOMMENDED SOLUTIONS ==================== -->
         <section>
           <div class="section-header">
             <h2>Recommended Solutions</h2>
@@ -260,7 +336,7 @@
           <div class="sol-grid">
             {#each getQuickWins() as win, i}
               {@const tool = matchToolForWin(win)}
-              <div class="sol-card">
+              <div class="sol-card fragment">
                 <div class="sol-header">
                   <div class="sol-pain">{win.title}</div>
                   <div class="sol-arrow">→</div>
@@ -298,7 +374,7 @@
           </div>
         </section>
 
-        <!-- 7. 4-Day Quick Wins Plan -->
+        <!-- ==================== SLIDE 7: 4-DAY PLAN ==================== -->
         <section>
           <div class="section-header">
             <h2>Your 4-Day Quick Wins Plan</h2>
@@ -306,7 +382,7 @@
           <div class="plan-grid">
             {#each getQuickWins().slice(0, 4) as win, i}
               {@const tool = matchToolForWin(win)}
-              <div class="plan-card">
+              <div class="plan-card fragment">
                 <div class="plan-day-badge">Day {i + 1}</div>
                 <div class="plan-task">{win.title}</div>
                 <div class="plan-tool">
@@ -317,14 +393,14 @@
           </div>
         </section>
 
-        <!-- 8. What Comes After Quick Wins -->
+        <!-- ==================== SLIDE 8: DEEPER OPPORTUNITIES ==================== -->
         <section>
           <div class="section-header">
             <h2>What Comes After Quick Wins</h2>
           </div>
           <div class="after-list">
             {#each getDeeperOpportunities() as opp, i}
-              <div class="after-card">
+              <div class="after-card fragment">
                 <div class="after-num">{String(i + 1).padStart(2, '0')}</div>
                 <div class="after-body">
                   <div class="after-title">{opp.title}</div>
@@ -335,17 +411,17 @@
           </div>
         </section>
 
-        <!-- 9. Financial Impact -->
+        <!-- ==================== SLIDE 9: FINANCIAL IMPACT ==================== -->
         <section>
           <div class="section-header">
             <h2>Financial Impact</h2>
           </div>
           <div class="fin-flex">
-            <div class="fin-card-big">
+            <div class="fin-card-big fragment">
               <div class="fin-label">Weekly Time Returned</div>
               <div class="fin-number">{getTotalHoursSaved()} hours</div>
             </div>
-            <div class="fin-card-big accent">
+            <div class="fin-card-big accent fragment">
               <div class="fin-label">Monthly Net ROI</div>
               <div class="fin-number">
                 ${getMonthlyNetRoi().toLocaleString('en-AU') || '—'}
@@ -353,32 +429,36 @@
             </div>
           </div>
           {#if getMonthlyToolCost() > 0}
-            <p class="fin-note">
+            <p class="fin-note fragment">
               Total monthly tool cost: ${getMonthlyToolCost()}
               {#if getAnnualValue() > 0}
                 · Annual value: ${getAnnualValue().toLocaleString('en-AU')}
               {/if}
             </p>
           {/if}
+          <div class="fin-chart fragment">
+            {@html renderFinancialChart()}
+          </div>
         </section>
 
-        <!-- 10. Next Steps + Calendly -->
+        <!-- ==================== SLIDE 10: NEXT STEPS + CALENDLY ==================== -->
         <section class="slide-title-bg">
           <div class="next-content">
-            <h2 class="next-heading">Your Next Steps</h2>
+            <h2 class="next-heading fragment">Your Next Steps</h2>
             <ol class="next-list">
-              <li>
+              <li class="fragment">
                 <strong>Implement the Quick Wins</strong> — Follow the plan exactly as outlined to reclaim time and stabilise operations.
               </li>
-              <li>
+              <li class="fragment">
                 <strong>Schedule a 30-minute Review Call</strong> — We'll review results, validate wins, and decide if deeper automation is warranted.
               </li>
             </ol>
-            <div class="next-cta">
+            <div class="next-cta fragment">
               <CalendlyButton />
             </div>
           </div>
         </section>
+
       {/if}
     </div>
   </div>
@@ -410,6 +490,24 @@
     flex-direction: column;
     justify-content: center;
     box-sizing: border-box;
+  }
+
+  /* ====== Fragment animations ====== */
+  :global(.reveal .slides section .fragment) {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    will-change: opacity, transform;
+  }
+  :global(.reveal .slides section .fragment.visible) {
+    opacity: 1;
+    visibility: visible;
+  }
+  :global(.reveal .slides section .fragment.fade-up) {
+    transform: translateY(16px);
+  }
+  :global(.reveal .slides section .fragment.fade-up.visible) {
+    transform: translateY(0);
   }
 
   /* ====== Title Background ====== */
@@ -875,11 +973,42 @@
     margin-top: 1rem;
   }
 
+  /* ====== SVG Charts ====== */
+  .chart-gauge {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    display: block;
+  }
+  .chart-bars {
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
+    display: block;
+  }
+  .glance-chart {
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+  .qw-chart {
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+  .fin-chart {
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+
   /* ====== Print overrides ====== */
   @media print {
     .reveal-wrapper {
       border-radius: 0;
       box-shadow: none;
+    }
+    :global(.reveal .slides section .fragment) {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
     }
   }
 </style>
