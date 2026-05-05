@@ -201,7 +201,7 @@ The Knowledge Base provides Annie with factual context she can reference during 
 
 | Setting | Recommended Value | Reason |
 |---------|-------------------|--------|
-| **Industry Specific Questions** | **Add** | Upload `docs/question-knowledgebase.md` — this is the backbone of the assessment interview |
+| **Industry Specific Questions** | **Add** | Upload `docs/question-knowledgebase.md` (interview questions) and `docs/company-faq.md` (common questions about the business) — both are critical for Annie to answer caller questions and guide the assessment |
 | **KB Retrieval Chunks** | 3 | Annie only needs a few relevant questions at a time; too many chunks cause her to jump around |
 | **Similarity Threshold** | 0.7 | Balances between recalling the exact right question and having flexibility for related topics |
 
@@ -218,6 +218,7 @@ Use the knowledge base as a structured interview guide.
 - After completing a section, move to the next topic smoothly
 - If the caller goes off-topic, gently redirect back using the knowledge base structure
 - Never skip the pricing disclosure and approval step — this is mandatory regardless of knowledge base content
+- If the caller asks about pricing, what's included, refunds, data privacy, how long the report takes, or how to share the report, reference the company FAQ document for accurate, up-to-date answers
 ```
 
 ---

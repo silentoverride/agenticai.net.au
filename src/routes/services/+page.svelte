@@ -1,6 +1,7 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import { processSteps, reportSections, services, upsells } from '$lib/content';
+  import { faqItems } from '$lib/data/faq';
 </script>
 
 <svelte:head>
@@ -189,6 +190,30 @@
     </div>
   </section>
 
+  <section class="section faq-section">
+    <div class="section-heading">
+      <p class="eyebrow">Common questions</p>
+      <h2>What people ask before starting</h2>
+    </div>
+    <div class="faq-accordion">
+      {#each faqItems.slice(0, 6) as item, index}
+        <details class="faq-item" open={index === 0}>
+          <summary class="faq-question">
+            <span class="faq-qmark">Q.</span>
+            <span class="faq-qtext">{item.question}</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </summary>
+          <div class="faq-answer">
+            <p>{item.answer}</p>
+          </div>
+        </details>
+      {/each}
+    </div>
+    <p class="faq-more">
+      <a href="/faq" class="link-arrow">View all {faqItems.length} answers →</a>
+    </p>
+  </section>
+
   <section class="section cta-section">
     <div class="cta-box">
       <h2>Ready to see where AI can save your business time?</h2>
@@ -199,6 +224,84 @@
 </main>
 
 <style>
+  .faq-section {
+    padding: 3rem 0;
+  }
+
+  .faq-accordion {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .faq-item {
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    margin-bottom: 0.6rem;
+    overflow: hidden;
+  }
+
+  .faq-question {
+    list-style: none;
+    cursor: pointer;
+    padding: 1rem 1.2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-ink);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-qmark {
+    color: #0066ff;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .faq-qtext {
+    flex: 1;
+  }
+
+  .faq-icon {
+    font-size: 1.3rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--color-muted);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .faq-answer {
+    padding: 0 1.2rem 1.2rem 2.4rem;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .faq-answer p {
+    margin: 0;
+  }
+
+  .faq-more {
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+
+  .faq-more a {
+    color: #0066ff;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .faq-more a:hover {
+    text-decoration: underline;
+  }
+
   .cta-section {
     padding: 4rem 0;
     text-align: center;
