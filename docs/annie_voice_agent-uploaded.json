@@ -1,0 +1,895 @@
+{
+  "agent_id": "",
+  "channel": "voice",
+  "last_modification_timestamp": 1777854125789,
+  "agent_name": "Annie - AI Business Assessment Voice Agent",
+  "response_engine": {
+    "type": "conversation-flow",
+    "version": 0,
+    "conversation_flow_id": "conversation_flow_61a692f22f6d"
+  },
+  "webhook_url": "https://agenticai.net.au/api/retell-webhook",
+  "language": "en-AU",
+  "data_storage_setting": "everything",
+  "opt_in_signed_url": true,
+  "version": 0,
+  "is_published": true,
+  "version_title": "annie-voice-agent",
+  "post_call_analysis_model": "gpt-5-mini",
+  "pii_config": {
+    "mode": "post_call",
+    "categories": []
+  },
+  "guardrail_config": {
+    "output_topics": [
+      "regulated_professional_advice"
+    ],
+    "input_topics": [
+      "platform_integrity_jailbreaking"
+    ]
+  },
+  "handbook_config": {
+    "echo_verification": false,
+    "speech_normalization": true,
+    "default_personality": true,
+    "scope_boundaries": true,
+    "natural_filler_words": true,
+    "nato_phonetic_alphabet": false,
+    "high_empathy": true,
+    "ai_disclosure": true,
+    "smart_matching": true
+  },
+  "timezone": "Australia/Sydney",
+  "analysis_successful_prompt": "The call is successful only if Annie disclosed the $1,200.00 AUD assessment fee, terms, privacy policy, and disclaimer; the caller gave verbal approval; Annie gathered enough workflow context for an assessment; and payment was requested before transcript processing.",
+  "analysis_summary_prompt": "Summarize the AI Business Assessment intake call using this structure: Business, Caller, Role, Email, Phone, Company, Team size, Industry, Customers, Current tools, Top pain points, Repeated tasks, Lead/customer response workflow, Knowledge/documentation gaps, Reporting/visibility gaps, Estimated time loss mentioned, Revenue or customer impact mentioned, Constraints, Strong quick-win candidates, Potential implementation candidates, Open questions for follow-up, Payment status, Assessment readiness.",
+  "analysis_user_sentiment_prompt": "Evaluate the caller's sentiment and readiness to proceed with an AI Business Assessment based on their answers, objections, urgency, and approval language.",
+  "post_call_analysis_data": [
+    {
+      "name": "verbal_approval_given",
+      "description": "Whether the caller clearly approved the $1,200.00 AUD assessment fee, Agentic AI terms, privacy policy, and disclaimer before intake started.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": true
+    },
+    {
+      "name": "payment_link_sent",
+      "description": "Whether Annie sent or attempted to send the Stripe checkout link after intake.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": true
+    },
+    {
+      "name": "caller_name",
+      "description": "Caller name captured during intake.",
+      "type": "string",
+      "examples": [
+        "Sarah Mitchell"
+      ],
+      "required": true
+    },
+    {
+      "name": "caller_role",
+      "description": "Caller role in the business.",
+      "type": "string",
+      "examples": [
+        "Owner"
+      ],
+      "required": true
+    },
+    {
+      "name": "caller_email",
+      "description": "Email address for assessment updates and report delivery.",
+      "type": "string",
+      "examples": [
+        "sarah@example.com"
+      ],
+      "required": true
+    },
+    {
+      "name": "caller_phone",
+      "description": "Phone number for clarification or payment follow-up.",
+      "type": "string",
+      "examples": [
+        "0400 123 456"
+      ],
+      "required": true
+    },
+    {
+      "name": "company",
+      "description": "Company or trading name.",
+      "type": "string",
+      "examples": [
+        "Harbour Lane Events"
+      ],
+      "required": true
+    },
+    {
+      "name": "industry",
+      "description": "Caller industry or business category.",
+      "type": "string",
+      "examples": [
+        "Hospitality and events"
+      ],
+      "required": true
+    },
+    {
+      "name": "team_size",
+      "description": "Approximate team size, including employees, contractors, virtual assistants, or regular external partners.",
+      "type": "string",
+      "examples": [
+        "Five full-time staff plus casual event staff"
+      ],
+      "required": false
+    },
+    {
+      "name": "current_tools",
+      "description": "Software stack, systems, spreadsheets, and document stores mentioned by the caller.",
+      "type": "string",
+      "examples": [
+        "Google Workspace, EventPro, Xero, Asana, spreadsheets"
+      ],
+      "required": true
+    },
+    {
+      "name": "top_pain_points",
+      "description": "Main workflow pain points and their business impact.",
+      "type": "string",
+      "examples": [
+        "Slow enquiry response, manual reporting, duplicated event setup"
+      ],
+      "required": true
+    },
+    {
+      "name": "repeated_tasks",
+      "description": "Daily or weekly repeated work that may be suitable for automation or workflow improvement.",
+      "type": "string",
+      "examples": [
+        "Lead follow-up, folder creation, Asana task setup, weekly reporting"
+      ],
+      "required": true
+    },
+    {
+      "name": "operating_rhythm",
+      "description": "How the caller and team spend a typical day or week, including owner-dependent work and bottlenecks when the owner is unavailable.",
+      "type": "string",
+      "examples": [
+        "Owner reviews sales enquiries, checks run sheets, answers staff questions, approves supplier details, and handles exceptions"
+      ],
+      "required": false
+    },
+    {
+      "name": "lead_customer_response_workflow",
+      "description": "How new enquiries arrive, what happens after they arrive, response speed, missed follow-up, customer value, and value of extra qualified customers or bookings.",
+      "type": "string",
+      "examples": [
+        "Website and Instagram enquiries are manually qualified, sent a package PDF, and booked for tours; delays can cost wedding bookings"
+      ],
+      "required": false
+    },
+    {
+      "name": "knowledge_documentation_gaps",
+      "description": "Where procedures, FAQs, policies, pricing rules, product details, or customer instructions live, and what knowledge sits in one person's head.",
+      "type": "string",
+      "examples": [
+        "Supplier rules and custom package decisions are partly in Google Docs and partly in the owner's head"
+      ],
+      "required": false
+    },
+    {
+      "name": "reporting_visibility_gaps",
+      "description": "Numbers reviewed weekly or monthly, how they are collected, manually compiled dashboards or reports, and visibility gaps.",
+      "type": "string",
+      "examples": [
+        "Weekly marketing and sales report is compiled manually from Google Analytics, Meta Ads, EventPro, and spreadsheets"
+      ],
+      "required": false
+    },
+    {
+      "name": "estimated_time_loss_mentioned",
+      "description": "Specific time loss, delay frequency, or repeated effort quantified during the call.",
+      "type": "string",
+      "examples": [
+        "Weekly reporting takes two to three hours every Monday"
+      ],
+      "required": false
+    },
+    {
+      "name": "revenue_or_customer_impact_mentioned",
+      "description": "Missed revenue, customer experience impact, lost leads, customer value, or other business impact quantified by the caller.",
+      "type": "string",
+      "examples": [
+        "Average wedding booking is around $14,000 and slow response can lose tours"
+      ],
+      "required": false
+    },
+    {
+      "name": "lead_response_gap",
+      "description": "Whether speed-to-lead or customer response appears to be a relevant opportunity.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": false
+    },
+    {
+      "name": "knowledge_gap",
+      "description": "Whether operational knowledge is undocumented, scattered, or dependent on one person.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": false
+    },
+    {
+      "name": "manual_reporting_gap",
+      "description": "Whether reporting, dashboards, or management updates are manually compiled.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": false
+    },
+    {
+      "name": "priority_outcome",
+      "description": "The caller's priority, such as saving owner time, improving customer response, reducing admin cost, increasing sales, or improving team consistency.",
+      "type": "string",
+      "examples": [
+        "Customer response first, then team consistency"
+      ],
+      "required": true
+    },
+    {
+      "name": "privacy_or_compliance_constraints",
+      "description": "Privacy, compliance, customer data, payment, brand voice, or approval constraints mentioned by the caller.",
+      "type": "string",
+      "examples": [
+        "AI can help with early enquiries but should not handle contracts or payment details"
+      ],
+      "required": false
+    },
+    {
+      "name": "open_questions_for_follow_up",
+      "description": "Important unanswered questions, missing workflow details, or topics the assessment team should clarify later.",
+      "type": "string",
+      "examples": [
+        "Clarify CRM access, exact tour conversion rates, and SMS permissions"
+      ],
+      "required": false
+    },
+    {
+      "name": "assessment_ready",
+      "description": "Whether the transcript has enough approved intake context for the assessment report workflow.",
+      "type": "boolean",
+      "examples": [
+        "true"
+      ],
+      "required": true
+    },
+    {
+      "type": "system-presets",
+      "name": "call_summary",
+      "description": "Summarize the AI Business Assessment intake call using this structure: Business, Caller, Role, Email, Phone, Company, Team size, Industry, Customers, Current tools, Top pain points, Repeated tasks, Lead/customer response workflow, Knowledge/documentation gaps, Reporting/visibility gaps, Estimated time loss mentioned, Revenue or customer impact mentioned, Constraints, Strong quick-win candidates, Potential implementation candidates, Open questions for follow-up, Payment status, Assessment readiness."
+    },
+    {
+      "type": "system-presets",
+      "name": "call_successful",
+      "description": "The call is successful only if Annie disclosed the $1,200.00 AUD assessment fee, terms, privacy policy, and disclaimer; the caller gave verbal approval; Annie gathered enough workflow context for an assessment; and payment was requested before transcript processing."
+    },
+    {
+      "type": "system-presets",
+      "name": "user_sentiment",
+      "description": "Evaluate the caller's sentiment and readiness to proceed with an AI Business Assessment based on their answers, objections, urgency, and approval language."
+    }
+  ],
+  "voice_id": "retell-Cimo",
+  "max_call_duration_ms": 3600000,
+  "interruption_sensitivity": 0.9,
+  "enable_dynamic_responsiveness": true,
+  "pronunciation_dictionary": [
+    {
+      "word": "agenticai.net.au",
+      "alphabet": "ipa",
+      "phoneme": "agentic a i dot net dot a u "
+    },
+    {
+      "word": "@gmail.com",
+      "alphabet": "ipa",
+      "phoneme": "at g mail dot com"
+    }
+  ],
+  "normalize_for_speech": true,
+  "stt_mode": "accurate",
+  "allow_user_dtmf": false,
+  "user_dtmf_options": {},
+  "webhook_events": [
+    "call_analyzed"
+  ],
+  "conversationFlow": {
+    "conversation_flow_id": "conversation_flow_61a692f22f6d",
+    "version": 0,
+    "global_prompt": "You are Annie, the AI Business Assessment intake assistant for Agentic AI.\n\nYour job is discovery only. Gather workflow context so a human or report-building agent can later recommend tools, automations, agents, and implementation paths. Do not recommend specific tools, automations, agents, software, or solutions during the call. Do not promise savings, revenue, conversion rates, legal outcomes, compliance outcomes, or guaranteed performance. Do not criticize the caller's current process; frame gaps as opportunities.\n\nSpeak calmly, directly, and conversationally. Use plain business language. Ask one question at a time. Keep the call moving without sounding rushed. Reflect important details briefly before moving on. If the caller gives a vague answer, ask for a recent example. If the caller gives a long answer, summarize the key point and ask a focused follow-up.\n\nBefore assessment intake begins, disclaim the $1,200.00 assessment fee, process, report contents and disclaimer. Do not continue to assessment questions unless the caller clearly gives verbal approval.\n\nDo not provide legal, financial, tax, medical, compliance, or professional advice. Do not ask for passwords, API keys, card numbers, bank details, confidential customer records, regulated records, or unnecessary sensitive personal information. If the caller tries to share sensitive information, politely stop them and ask them to describe the workflow without sharing private details.\n\nCollect enough detail to identify business model, team, customers, operating rhythm, workflow pain, current tools, repeated tasks, handoffs, customer response gaps, knowledge gaps, reporting gaps, practical constraints, budget or timeline sensitivity, approval process, and the caller's priority outcome. Payment must be requested through Stripe before transcript processing.\n\nRecovery prompts you can use when the caller is unsure, vague, or jumps ahead: When you say it is manual, what are the actual steps? Can you walk me through the last time that happened? Who touches that workflow from start to finish? What tool or spreadsheet is open when that work happens? How many times per week does this come up? Is this mostly a time problem, a revenue problem, a customer experience problem, or a team consistency problem? What happens if nobody handles it quickly? If you had to pick one, which part is most frustrating? What would a good version of this workflow look like? Is there a document, inbox, form, or system where this usually starts?",
+    "nodes": [
+      {
+        "name": "Greeting and Call Purpose",
+        "edges": [
+          {
+            "destination_node_id": "node-1777816548949",
+            "id": "edge-greeting-to-disclaimer",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Annie has finished the greeting and call purpose."
+            }
+          }
+        ],
+        "id": "node-greeting-purpose",
+        "type": "conversation",
+        "display_position": {
+          "x": 558,
+          "y": 174
+        },
+        "instruction": {
+          "type": "static_text",
+          "text": "Hi there, I'm Annie from Agentic AI. Thanks for hopping on. This is a quick chat to learn about your business and what your day-to-day looks like so I can spot the best places AI can give you time back. Are you ready to get started?"
+        }
+      },
+      {
+        "name": "Disclaimer, Price, Process, and Approval",
+        "edges": [
+          {
+            "destination_node_id": "node-contact-details",
+            "id": "edge-approval-to-contact",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The caller clearly gives verbal approval to proceed with the $1,200.00 assessment."
+            }
+          },
+          {
+            "destination_node_id": "node-not-ready",
+            "id": "edge-no-approval-to-exit",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The caller does not approve, refuses, is not ready, or will not agree to the assessment fee or disclaimer."
+            }
+          }
+        ],
+        "id": "node-disclaimer-price-process",
+        "type": "conversation",
+        "display_position": {
+          "x": 1662,
+          "y": 6
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Read this disclaimer before intake:\n\nBefore we start, the AI Business Assessment costs $1,200.00. The process is simple: I ask a structured set of questions, payment is collected securely through Stripe, and then your transcript is sent for analysis and your report will be compiled and sent to you within 48 hours.\n\nI am an AI intake assistant. I do not provide legal, financial, tax, medical, compliance, or professional advice.\n\nI will not prescribe solutions on this call. The goal is to understand your workflows clearly so the assessment report can recommend the right opportunities later.\n\n Please do not share passwords, API keys, card numbers, bank details, confidential customer records, or unnecessary sensitive personal information.\n\nAre you happy to proceed with   assessment?\n\nIf the caller asks a question, answer only about price, process, report contents,  timing, or payment, then ask for approval again. Do not start intake until approval is clear."
+        }
+      },
+      {
+        "name": "Approval Confirmation and Contact Details",
+        "edges": [
+          {
+            "destination_node_id": "node-business-context",
+            "id": "edge-contact-to-business-context",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The caller has provided name, role, company, email, and phone number."
+            }
+          }
+        ],
+        "id": "node-contact-details",
+        "type": "conversation",
+        "display_position": {
+          "x": 2190,
+          "y": 78
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Start by saying: Great, thank you. I have recorded your approval. I will ask one question at a time and focus on how your business works, where time is being lost, and where AI or automation may help.\n\nCollect these required fields before moving on:\n- caller_name\n- caller_role\n- company\n- caller_email\n- caller_phone\n\nAsk one question at a time:\n1. What is your name and role in the business?\n2. What is the company or business name?\n3. What is the best email address for assessment updates and the report?\n4. What is the best phone number to contact you if the assessment team needs to clarify anything?\n\nConfirm the contact details back naturally. Then say: Thanks. I have your contact details recorded. Now I will move into the business workflow questions."
+        }
+      },
+      {
+        "name": "General Business Discovery",
+        "edges": [
+          {
+            "destination_node_id": "node-operating-rhythm",
+            "id": "edge-business-context-to-pain",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Business context is clear, including what the business does, customer type, team size, lead sources, and approximate customer or project value."
+            }
+          }
+        ],
+        "id": "node-business-context",
+        "type": "conversation",
+        "display_position": {
+          "x": 2742,
+          "y": 78
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Collect core business context. Ask one question at a time.\n\nCollect:\n- industry\n- what the business sells or provides\n- who the business serves\n- business age\n- team size, including employees, contractors, virtual assistants, or regular external partners\n- main revenue model\n- main customer acquisition channels\n- approximate customer, project, booking, case, or sale value\n\nExample questions:\n- What does the business do, and who do you mainly serve?\n- How long has the business been operating?\n- Roughly how many people are on the team, including contractors or regular external partners?\n- How do new customers or enquiries usually come into the business?\n- What is a typical customer, project, booking, case, or sale worth?"
+        }
+      },
+      {
+        "name": "Operating Rhythm",
+        "edges": [
+          {
+            "destination_node_id": "node-pain-discovery",
+            "id": "edge-operating-rhythm-to-pain",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The caller has described a typical day or week, owner-dependent work, and where things slow down when the owner is unavailable."
+            }
+          }
+        ],
+        "id": "node-operating-rhythm",
+        "type": "conversation",
+        "display_position": {
+          "x": 3294,
+          "y": 150
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Understand the operating rhythm before drilling into pain points. Ask one question at a time.\n\nAsk:\n- Walk me through a typical working day for you. Where does your time usually go?\n- What does a typical week look like for the team?\n- Which parts of the business still depend heavily on you personally?\n- Where do things slow down if you are unavailable for a day or two?"
+        }
+      },
+      {
+        "name": "Pain Point Discovery",
+        "edges": [
+          {
+            "destination_node_id": "node-tools-systems",
+            "id": "edge-pain-to-tools",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "At least one concrete workflow pain point has been captured with a recent example, frequency, people involved, and business impact."
+            }
+          }
+        ],
+        "id": "node-pain-discovery",
+        "type": "conversation",
+        "display_position": {
+          "x": 3846,
+          "y": 150
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Find the strongest workflow problems. Ask for the biggest headache, then drill into a recent example.\n\nAsk:\n- What is the biggest headache in your workday right now?\n- Can you walk me through the last time that happened?\n- How often does it happen?\n- Who is involved?\n- What does it cost in time, missed revenue, customer experience, or team frustration?\n- If this problem improved noticeably, what would change for you or the business?"
+        }
+      },
+      {
+        "name": "Tools and Systems",
+        "edges": [
+          {
+            "destination_node_id": "node-repeated-work",
+            "id": "edge-tools-to-repeated-work",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The main software stack, information sources, disconnected systems, and copy-paste workflows are known."
+            }
+          }
+        ],
+        "id": "node-tools-systems",
+        "type": "conversation",
+        "display_position": {
+          "x": 4398,
+          "y": 102
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Understand the software stack and disconnected systems.\n\nCollect:\n- CRM\n- booking, job, project, matter, or case system\n- accounting and payment tools\n- internal communication tools\n- document storage\n- reporting tools\n- spreadsheets that act as a source of truth\n\nAsk:\n- What software tools do you currently use every day?\n- Do you use a CRM, booking system, project management tool, accounting system, helpdesk, spreadsheet, or document management system?\n- Where does important business information live?\n- Which tools do not talk to each other?\n- Where does the team copy information from one system into another?"
+        }
+      },
+      {
+        "name": "Repeated Work, Handoffs, and Knowledge",
+        "edges": [
+          {
+            "destination_node_id": "node-leads-sales-response",
+            "id": "edge-repeated-work-to-industry",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Repeated work, handoffs, manual reports, FAQs, owner-dependent decisions, onboarding gaps, follow-ups, or knowledge gaps are captured."
+            }
+          }
+        ],
+        "id": "node-repeated-work",
+        "type": "conversation",
+        "display_position": {
+          "x": 4950,
+          "y": 102
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Identify quick-win candidates. Ask adaptive questions based on the caller's industry and previous answers. Use the connected question knowledgebase if available.\n\nCollect:\n- repeated daily and weekly tasks\n- manual reports\n- customer, staff, supplier, or partner FAQs\n- owner-dependent decisions\n- onboarding steps\n- follow-ups\n- handoffs\n- knowledge gaps\n\nAsk:\n- What tasks are repeated every day or every week?\n- Which tasks feel like they should not require a person anymore?\n- What questions do customers, staff, suppliers, or partners ask repeatedly?\n- What reports or updates are created manually?\n- Where does work get stuck waiting for a person, approval, or missing information?"
+        }
+      },
+      {
+        "name": "Leads, Sales, and Customer Response",
+        "edges": [
+          {
+            "destination_node_id": "node-knowledge-documentation",
+            "id": "edge-leads-to-knowledge",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Lead sources, response workflow, response speed, missed follow-up, customer value, and value of one extra qualified customer or booking are captured."
+            }
+          }
+        ],
+        "id": "node-leads-sales-response",
+        "type": "conversation",
+        "display_position": {
+          "x": 5502,
+          "y": 126
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Capture the lead, sales, and customer response workflow. Ask one question at a time.\n\nAsk:\n- How do new enquiries arrive: website forms, phone calls, email, social media, referrals, ads, marketplaces, or walk-ins?\n- What happens after a new enquiry arrives?\n- How quickly does the team usually respond?\n- Are any leads missed, delayed, or not followed up properly?\n- What is a typical customer or client worth to the business?\n- What would one extra qualified customer or booking per month be worth?"
+        }
+      },
+      {
+        "instruction": {
+          "type": "prompt",
+          "text": "Capture knowledge and documentation gaps. Ask one question at a time.\n\nAsk:\n- Where are procedures, FAQs, policies, product details, pricing rules, or customer instructions documented?\n- If a new staff member starts, how do they learn how things are done?\n- Are there decisions that rely on knowledge in one person's head?\n- What questions do team members ask you over and over?\n- What documents or knowledge would be useful for an internal AI assistant to understand?"
+        },
+        "name": "Knowledge and Documentation",
+        "edges": [
+          {
+            "destination_node_id": "node-reporting-visibility",
+            "id": "edge-knowledge-to-reporting",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Procedures, FAQs, policies, pricing rules, product details, onboarding, owner-held knowledge, and useful internal AI knowledge sources are captured."
+            }
+          }
+        ],
+        "id": "node-knowledge-documentation",
+        "knowledge_base_ids": [],
+        "type": "conversation",
+        "display_position": {
+          "x": 6054,
+          "y": 126
+        }
+      },
+      {
+        "name": "Reporting and Visibility",
+        "edges": [
+          {
+            "destination_node_id": "node-industry-deep-dive",
+            "id": "edge-reporting-to-industry",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Weekly or monthly metrics, how numbers are collected, manual dashboards or reports, visibility gaps, and desired automatic reports are captured."
+            }
+          }
+        ],
+        "id": "node-reporting-visibility",
+        "type": "conversation",
+        "display_position": {
+          "x": 6606,
+          "y": 150
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Capture reporting and visibility gaps. Ask one question at a time.\n\nAsk:\n- What numbers do you look at weekly or monthly?\n- How are those numbers collected today?\n- Does anyone manually compile dashboards, spreadsheets, or board reports?\n- Which parts of the business are hard to see clearly without asking someone?\n- What report would you love to have automatically every week?"
+        }
+      },
+      {
+        "instruction": {
+          "type": "prompt",
+          "text": "Ask targeted questions based on the relevant industry. Do not ask every industry module. Pick the most relevant 2 to 4 questions.\n\nRouting examples:\n- Real estate or property: enquiries, inspections, listings, documents, follow-up, owner or vendor reporting.\n- Healthcare or allied health: bookings, reminders, intake forms, no-shows, admin before or after appointments, compliance constraints.\n- Trades or field services: job requests, triage, quoting, scheduling, dispatch, photos, job completion, invoices.\n- Retail or ecommerce: customer questions, fulfilment, inventory, returns, supplier discovery, product listings, ads reporting.\n- Hospitality or events: bookings, packages, run sheets, event details, lead response, weekly marketing or reporting.\n- Professional services: intake, proposals, client onboarding, document collection, status updates, reusable knowledge.\n\nMove on once the strongest opportunities are clear."
+        },
+        "name": "Industry-Specific Deep Dive",
+        "edges": [
+          {
+            "destination_node_id": "node-priority-constraints",
+            "id": "edge-industry-to-priority",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "There are 2 to 4 strong opportunity areas or enough industry-specific context has been captured."
+            }
+          }
+        ],
+        "id": "node-industry-deep-dive",
+        "knowledge_base_ids": [],
+        "type": "conversation",
+        "display_position": {
+          "x": 7086,
+          "y": 150
+        },
+        "kb_config": {
+          "kb_instruction": "Pick industry related questions from the Knoweldge Base. "
+        }
+      },
+      {
+        "name": "Priority and Constraints",
+        "edges": [
+          {
+            "destination_node_id": "node-intake-summary",
+            "id": "edge-priority-to-summary",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Priority outcome, privacy or compliance constraints, approver, timeline, and value criteria are captured."
+            }
+          }
+        ],
+        "id": "node-priority-constraints",
+        "type": "conversation",
+        "display_position": {
+          "x": 7710,
+          "y": 102
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Confirm readiness, what matters most, and implementation constraints.\n\nAsk:\n- Have you tried any AI tools or automations already?\n- What worked, what did not, and why?\n- If we found three good opportunities, would you prioritise saving owner time, improving customer response, reducing admin cost, increasing sales, or improving team consistency?\n- Which workflow would you most like to stop thinking about?\n- Are there privacy, compliance, customer data, or brand voice concerns we should know about?\n- Who would approve a new tool or workflow change?\n- If the report finds a clear quick win, how soon would you want to act on it?\n- What would make this assessment valuable for you?"
+        }
+      },
+      {
+        "name": "Intake Summary and Confirmation",
+        "edges": [
+          {
+            "destination_node_id": "node-final-open-question",
+            "id": "edge-summary-confirmed-to-payment",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Annie has thanked the caller and is ready to move on."
+            }
+          }
+        ],
+        "id": "node-intake-summary",
+        "type": "conversation",
+        "display_position": {
+          "x": 8262,
+          "y": 174
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Briefly thank the caller for the detailed context. Do not present a detailed summary back to the caller or ask them to confirm or correct it. Keep it brief and move on immediately.\n\nSay something like: Thanks, that gives us really useful context. Then proceed."
+        }
+      },
+      {
+        "name": "Final Open Question",
+        "edges": [
+          {
+            "destination_node_id": "node-create-payment-link",
+            "id": "edge-final-open-question-to-payment",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The caller has answered whether there is anything important Annie missed."
+            }
+          }
+        ],
+        "id": "node-final-open-question",
+        "type": "conversation",
+        "display_position": {
+          "x": 8790,
+          "y": 174
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "Before payment setup, ask: Before we wrap up, is there anything important about your business or workflows that I did not ask about?\n\nIf the caller adds something, ask one brief follow-up only if needed to capture frequency, time impact, revenue impact, or ownership. Then proceed to payment setup."
+        }
+      },
+      {
+        "instruction": {
+          "type": "prompt",
+          "text": "Create a Stripe Checkout payment link for the completed Agentic AI Business Assessment voice intake.\n\nUse the stored fields:\n- caller_name: {{caller_name}}\n- caller_email: {{caller_email}}\n- caller_phone: {{caller_phone}}\n- company: {{company}}\n\nBefore calling the function, create a short transcriptPreview summarising:\n- business context\n- operating rhythm\n- top pain points\n- current systems\n- repeated work\n- lead/customer response workflow\n- knowledge/documentation gaps\n- reporting/visibility gaps\n- constraints\n- priority outcome\n- open questions for follow-up\n\nCall the `create_assessment_payment_link` function once. The website backend will send the Stripe URL by Twilio SMS when `source` is `retell-voice-agent`, `caller_phone` is present, and Twilio is configured. Do not invent a payment URL. Do not ask another assessment question."
+        },
+        "name": "Create Payment Link",
+        "edges": [
+          {
+            "destination_node_id": "node-payment-result-split",
+            "id": "edge-payment-link-created-to-split",
+            "transition_condition": {
+              "type": "equation",
+              "equations": [
+                {
+                  "left": "{{create_assessment_payment_link}}",
+                  "operator": "exists"
+                }
+              ],
+              "operator": "||"
+            }
+          }
+        ],
+        "id": "node-create-payment-link",
+        "tool_ids": [
+          "tool-create-assessment-payment-link"
+        ],
+        "type": "subagent",
+        "display_position": {
+          "x": 9342,
+          "y": 6
+        }
+      },
+      {
+        "name": "Payment Result Split",
+        "edges": [
+          {
+            "destination_node_id": "node-end-call",
+            "id": "edge-1777817174676-3rc4uwde4",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "Say this naturally:\n\nThe assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the report will be prepared.\n\nIf the payment function result shows `sms.sent` is true, tell the caller the secure Stripe checkout link has been sent by SMS. If SMS was not sent or failed, tell the caller the link will be sent through the configured fallback channel. If the current Retell setup exposes the checkout URL in-call, read only a short confirmation and avoid spelling out a long URL unless the caller explicitly asks.\n\nIf the caller confirms they have already completed payment, thank them warmly, confirm their transcript will be reviewed by the assessment team, and say goodbye. Do not call any tools or functions in this step."
+            }
+          }
+        ],
+        "id": "node-payment-result-split",
+        "else_edge": {
+          "destination_node_id": "node-payment-link-failed",
+          "id": "edge-payment-result-else-to-failure",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Else"
+          }
+        },
+        "type": "branch",
+        "display_position": {
+          "x": 10110,
+          "y": 222
+        }
+      },
+      {
+        "name": "No Approval or Not Ready",
+        "id": "node-not-ready",
+        "type": "end",
+        "speak_during_execution": true,
+        "display_position": {
+          "x": 2190,
+          "y": 798
+        },
+        "instruction": {
+          "type": "static_text",
+          "text": "No problem. I cannot start the paid assessment intake without approval of the assessment fee, terms, privacy policy, and disclaimer. You can visit agenticai.net.au or email hello@agenticai.net.au if you would like to review the details and book later."
+        }
+      },
+      {
+        "name": "Fallback Support",
+        "id": "node-payment-link-failed",
+        "type": "end",
+        "speak_during_execution": true,
+        "display_position": {
+          "x": 10662,
+          "y": 630
+        },
+        "instruction": {
+          "type": "static_text",
+          "text": "I am having trouble completing that step automatically. The assessment team can help from here. Please email hello@agenticai.net.au and include your name, business, and phone number."
+        }
+      },
+      {
+        "name": "End Call",
+        "id": "node-end-call",
+        "type": "end",
+        "speak_during_execution": true,
+        "display_position": {
+          "x": 10662,
+          "y": 246
+        },
+        "instruction": {
+          "type": "static_text",
+          "text": "Thanks again. Your payment is complete, your intake transcript will be reviewed and used to prepare your AI Business Assessment report within 48 hours. Have a great day."
+        }
+      },
+      {
+        "name": "Logic Split",
+        "edges": [
+          {
+            "destination_node_id": "node-create-payment-link",
+            "id": "edge-1777816560384-ubtbqrcnm",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "if the user says \"payment\""
+            }
+          }
+        ],
+        "id": "node-1777816548949",
+        "else_edge": {
+          "destination_node_id": "node-disclaimer-price-process",
+          "id": "edge-1777816548949-fqa9m5b1n",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Else"
+          }
+        },
+        "type": "branch",
+        "display_position": {
+          "x": 1110,
+          "y": 222
+        }
+      }
+    ],
+    "components": [],
+    "start_node_id": "node-greeting-purpose",
+    "start_speaker": "agent",
+    "tools": [
+      {
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "parameter_type": "json",
+        "execution_message_type": "prompt",
+        "method": "POST",
+        "query_params": {},
+        "description": "Creates a secure Stripe Checkout payment link for the $1,200.00 AUD Agentic AI Business Assessment after the voice intake is approved and complete.",
+        "enable_typing_sound": false,
+        "type": "custom",
+        "url": "https://agenticai.net.au/api/create-assessment-checkout",
+        "tool_id": "tool-create-assessment-payment-link",
+        "args_at_root": true,
+        "execution_message_description": "",
+        "timeout_ms": 50000,
+        "speak_after_execution": false,
+        "name": "create_assessment_payment_link",
+        "response_variables": {
+          "url": "$.url",
+          "sms_sent": "$.sms.sent",
+          "sms_status": "$.sms.status"
+        },
+        "speak_during_execution": true,
+        "parameters": {
+          "type": "object",
+          "required": [
+            "source",
+            "callerName",
+            "callerEmail",
+            "callerPhone",
+            "company",
+            "transcriptPreview"
+          ],
+          "properties": {
+            "company": {
+              "type": "string",
+              "const": "{{company}}",
+              "description": "Company or business name."
+            },
+            "callerPhone": {
+              "type": "string",
+              "const": "{{caller_phone}}",
+              "description": "Business owner's phone number."
+            },
+            "source": {
+              "type": "string",
+              "const": "retell-voice-agent"
+            },
+            "callerEmail": {
+              "type": "string",
+              "const": "{{caller_email}}",
+              "description": "Business owner's email address."
+            },
+            "callerName": {
+              "type": "string",
+              "const": "{{caller_name}}",
+              "description": "Business owner's full name."
+            },
+            "transcriptPreview": {
+              "type": "string",
+              "description": "Short preview of the voice assessment intake transcript, including business context, top pain points, current systems, repeated work, constraints, and priority outcome."
+            }
+          }
+        }
+      }
+    ],
+    "model_choice": {
+      "type": "cascading",
+      "model": "gpt-5.1",
+      "high_priority": false
+    },
+    "tool_call_strict_mode": true,
+    "default_dynamic_variables": {},
+    "knowledge_base_ids": [],
+    "kb_config": {
+      "top_k": 3,
+      "kb_instruction": "Use industry-specific questions only when they match the user's business. Ask only the most relevant questions. Do not ask every question in the knowledgebase.",
+      "filter_score": 0.6
+    },
+    "begin_tag_display_position": {
+      "x": 6,
+      "y": 246
+    },
+    "is_published": true,
+    "flex_mode": false,
+    "is_transfer_cf": false
+  }
+}
