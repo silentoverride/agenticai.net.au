@@ -147,6 +147,12 @@
         </a>
       </p>
     {/if}
+
+    <p class="portal-link">
+      <a href="/portal">
+        Set up your portal account →
+      </a>
+    </p>
   </section>
 
   <section class="section split-section">
@@ -184,5 +190,22 @@
   }
   .deck-link a:hover {
     opacity: 0.9;
+  }
+
+  .portal-link {
+    margin-top: 1.5rem;
+  }
+  .portal-link a {
+    display: inline-block;
+    border: 2px solid var(--color-accent, #0066cc);
+    color: var(--color-accent, #0066cc);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .portal-link a:hover {
+    background: var(--color-accent, #0066cc);
+    color: white;
   }
 </style>
