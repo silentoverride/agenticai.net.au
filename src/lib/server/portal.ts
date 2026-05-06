@@ -127,7 +127,7 @@ export async function findOrCreateUserFromStripe(email: string, _name?: string, 
  * @param userId - The Clerk user ID.
  * @param reportId - The report ID (matches the filesystem directory name).
  * @param stripeSessionId - Optional Stripe Checkout session that paid for this report.
- * @param deckUrl - Optional URL to the generated Presenton PPTX deck.
+ * @param deckUrl - Optional URL to the generated report download (R2 public URL or portal path).
  * @param title - Optional human-readable title for the report list.
  * @param company - Optional company name from the assessment job.
  * @returns The inserted {@link DbReport} row, or `null` if DB is unavailable.

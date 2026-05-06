@@ -1,6 +1,6 @@
 # Client Portal
 
-The Agentic AI client portal gives paying customers a password-protected area to view their AI Business Assessment reports as interactive slide decks, download their PPTX files, and access their Stripe receipts. Authentication is handled by Clerk.
+The Agentic AI client portal gives paying customers a password-protected area to view their AI Business Assessment reports as interactive slide decks and access their Stripe receipts. Authentication is handled by Clerk.
 
 ## What the Portal Does
 
@@ -19,9 +19,11 @@ The Agentic AI client portal gives paying customers a password-protected area to
         │                   │
         ▼                   ▼
 ┌─────────────┐     ┌─────────────┐
-│  SQLite DB  │     │  API routes │
-│  (users,    │     │  (/api/portal/*)│
-│   reports,  │     └─────────────┘
+│  Cloudflare │     │  API routes │
+│  D1 / local │     │  (/api/portal/*)│
+│  SQLite     │     └─────────────┘
+│  (users,    │
+│   reports,  │
 │   receipts) │
 └─────────────┘
 ```
@@ -83,7 +85,7 @@ Associates a generated assessment report with a portal user.
 | `userId` | `string` | Yes | Clerk user ID |
 | `reportId` | `string` | Yes | Report directory name |
 | `stripeSessionId` | `string` | No | Stripe Checkout session ID |
-| `deckUrl` | `string` | No | Presenton PPTX export URL |
+| `deckUrl` | `string` | No | Report download URL (R2 public URL or portal path) |
 | `title` | `string` | No | Human-readable title |
 | `company` | `string` | No | Company name |
 
@@ -92,7 +94,7 @@ const report = linkReportToUser(
   'user_123',
   'report-456',
   'cs_test_xxx',
-  'https://presenton.ai/exports/...',
+  null, // R2 public URL if available; portal link otherwise
   'Acme — AI Assessment',
   'Acme Inc'
 );

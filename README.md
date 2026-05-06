@@ -34,29 +34,91 @@ npm run build
 
 The website creates a Stripe Checkout session for the AI Business Assessment fee.
 
-Required server environment variables:
+Required server environment variables (see `docs/RETELL-DEPLOYMENT-GUIDE.md` Section 7 for the full list):
 
 ```sh
 STRIPE_SECRET_KEY=sk_live_or_test_key
-PUBLIC_SITE_URL=https://agenticai.net.au
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_API_KEY_SID=SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_API_KEY_SECRET=twilio_api_key_secret
-TWILIO_MESSAGING_SERVICE_SID=MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+RETELL_API_KEY=key_xxxxxxxxxxxxxxxxxxxxx
+RETELL_VOICE_AGENT_ID=agent_xxxxxxxxxxxxxxxxxxxxx
 RETELL_TWILIO_WEBHOOK_SECRET=replace_with_shared_secret
+PUBLIC_SITE_URL=https://agenticai.net.au
+# ...plus Twilio, Clerk, SendGrid, Perplexity, Ollama, internal auth, D1/R2/queue bindings
 ```
 
-The website uses Retell's hosted callback widget for Annie. The widget collects visitor contact details and triggers a phone call from the configured Retell phone number to Annie's voice agent. Configure Annie's voice agent, conversation flow, knowledge, and guardrails inside Retell. The assessment price is configured in `src/routes/api/create-assessment-checkout/+server.ts` as `$1,200.00 AUD`.
+### Call flow
 
-Twilio sends assessment SMS messages from the backend. When Annie creates a Stripe Checkout link from the Retell voice agent, the website sends the payment link by SMS if Twilio is configured. See `docs/twilio-retell-setup.md`.
+Visitors click **"Start AI Business Assessment"** (`CallAssessmentButton.svelte`) on the website. The browser calls `/api/create-retell-web-call` which:
+1. Creates a Retell browser call via `POST /v2/create-web-call` with the `Annie` agent
+2. Returns an `access_token` and `call_id`
+3. The frontend loads `RetellWebClient` SDK and establishes a WebRTC audio connection
+4. Annie conducts the assessment intake voice interview in real time
 
-Retell posts voice call webhooks to `src/routes/api/retell-webhook/+server.ts`. When the `call_analyzed` event arrives, the website packages the transcript, Retell call analysis, caller details, and dynamic variables, then runs the report pipeline inline (Perplexity tool lookup → LLM analysis → R2 storage → SendGrid email delivery).
+If the caller approves the fee, Annie creates a Stripe Checkout link. The payment link is sent by SMS (Twilio) to the caller's phone.
 
-After checkout, the success page posts the locally stored transcript to `src/routes/api/assessment-transcript/+server.ts`. The endpoint verifies the Stripe payment, retrieves the stored transcript, and enqueues the report pipeline for processing.
+### Report pipeline (async)
+
+After payment + transcript are received, the report is generated **asynchronously** via Cloudflare Queue to avoid the 30-second Pages limit:
+
+1. **Retell webhook** (`/api/retell-webhook`) stores the transcript and enqueues the job
+2. **Cloudflare Queue** (`assessment-jobs`) holds pending jobs
+3. **Queue consumer worker** (`workers/queue-consumer.ts`) picks up jobs and POSTs to `SELF_URL/api/internal/run-pipeline`
+4. **Pipeline** (`/api/internal/run-pipeline`) processes:
+   - **Perplexity tool lookup** — Finds relevant AI tools via web search (Sonar Pro)
+   - **LLM analysis** — Kimi K2.6 via Ollama Cloud structures findings into JSON
+   - **R2 storage** — Saves analysis and transcript to Cloudflare R2 (`assessment-blobs`)
+   - **SendGrid email** — Notifies the customer with a portal link
+5. **Client portal** (`/portal`) — Clerk-authenticated users view their reports as interactive RevealDeck presentations
+
+If the queue is unavailable, the webhook falls back to **inline processing** (not recommended for production).
+
+After checkout, the success page posts the locally stored transcript to `/api/assessment-transcript`, verifies Stripe payment, retrieves the stored transcript, and enqueues the pipeline the same way.
 
 ## Direction
 
-Agentic AI presents an AI Business Assessment for small businesses. The offer starts with a structured intake, then produces a practical opportunity report covering quick wins, effort versus impact, specific tool recommendations, ROI estimates, and implementation options.
+Agentic AI presents an AI Business Assessment for small businesses. The offer starts with a structured voice intake with Annie, then produces a practical opportunity report covering quick wins, effort versus impact, specific tool recommendations, ROI estimates, and implementation options.
+
+## Architecture
+
+| Component | Technology |
+|-----------|-----------|
+| Frontend | SvelteKit + Cloudflare Pages |
+| Auth | Clerk (Google OAuth + email OTP) |
+| Voice Agent | Retell Conversation Flow (Annie) |
+| Transcript Storage | Cloudflare D1 + local SQLite fallback |
+| Report Storage | Cloudflare R2 + local filesystem fallback |
+| Queue | Cloudflare Queue (`assessment-jobs`) |
+| Pipeline Worker | Cloudflare Worker (`workers/queue-consumer.ts`) |
+| Payments | Stripe Checkout |
+| SMS | Twilio |
+| Email | SendGrid |
+| Tool Research | Perplexity (Sonar Pro) |
+| Report LLM | Kimi K2.6 via Ollama Cloud |
+| Scheduling | Calendly (embedded in report) |
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/routes/api/create-retell-web-call/+server.ts` | Browser call creation |
+| `src/routes/api/retell-webhook/+server.ts` | Webhook receiver, signature verify, queue job |
+| `src/routes/api/stripe/webhook/+server.ts` | Stripe payment confirmation, queue job |
+| `src/routes/api/assessment-transcript/+server.ts` | Post-checkout transcript submission, queue job |
+| `src/routes/api/internal/run-pipeline/+server.ts` | Pipeline execution (LLM analysis, R2 save, email) |
+| `src/lib/server/assessment/pipeline.ts` | Orchestrates Perplexity → LLM → R2 → SendGrid |
+| `workers/queue-consumer.ts` | Queue consumer worker |
+| `src/lib/server/portal.ts` | Client portal DB logic |
+
+## Documentation
+
+- `docs/RETELL-DEPLOYMENT-GUIDE.md` — Complete setup guide (Retell, Stripe, Twilio, Cloudflare Queue, env vars)
+- `docs/retell-annie-voice-agent-workflow.md` — Retell Conversation Flow node-by-node mapping
+- `docs/stripe-setup.md` — Stripe webhook and checkout configuration
+- `docs/twilio-retell-setup.md` — Twilio phone number and SMS configuration
+- `docs/client-portal.md` — Client portal architecture and API reference
+- `docs/voice-agent-script.md` — Annie's call script and recovery prompts
+- `docs/voice-agent-disclaimer.md` — Disclaimer language
+- `docs/retell-report-agent-handoff.md` — How the voice call flows into the report pipeline
+- `docs/retell-voice-agent-user-test-script.md` — End-to-end test script
 
 ## Initial Site Map
 
@@ -65,4 +127,5 @@ Agentic AI presents an AI Business Assessment for small businesses. The offer st
 - Use Cases
 - About
 - Contact
+- Portal (`/portal` — Clerk-authenticated)
 # agenticai.net.au
