@@ -42,6 +42,13 @@ export const POST: RequestHandler = async ({ request, url }) => {
     );
   }
 
+  if (env.RETELL_TWILIO_WEBHOOK_SECRET) {
+    const providedSecret = request.headers.get('x-agenticai-webhook-secret');
+    if (providedSecret !== env.RETELL_TWILIO_WEBHOOK_SECRET) {
+      return json({ message: 'Unauthorized' }, { status: 401 });
+    }
+  }
+
   const requestBody = (await request.json().catch(() => ({}))) as CheckoutRequestBody;
   const body = requestBody.args || requestBody;
   const customerName = firstString(body.customerName, body.callerName, body.caller_name);
