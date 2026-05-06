@@ -23,8 +23,7 @@
     <div class="section-heading">
       <p class="eyebrow">How the assessment works</p>
       <h2>From intake call to action plan</h2>
-      <!-- TODO: Add illustration here: unDraw "conversation" or "phone call" concept -->
-      <img src="/illustrations/undraw-conversation.svg" alt="Intake call illustration" class="section-illustration" loading="lazy" width="400" height="300" />
+
     </div>
     <div class="process-grid">
       {#each processSteps as step, index}
@@ -44,16 +43,14 @@
         <p>{service.text}</p>
       </article>
     {/each}
-    <!-- TODO: Add illustration here: unDraw "services" or "tools" concept -->
-    <img src="/illustrations/undraw-services.svg" alt="Services illustration" class="section-illustration" loading="lazy" width="400" height="300" />
+
   </section>
 
   <section class="section">
     <div class="section-heading">
       <p class="eyebrow">How the report is built</p>
       <h2>AI processes the findings. RevealDeck formats the report.</h2>
-      <!-- TODO: Add illustration here: unDraw "analytics" or "data processing" concept -->
-      <img src="/illustrations/undraw-analytics.svg" alt="AI processing illustration" class="section-illustration" loading="lazy" width="400" height="300" />
+
       <p>
         When Annie's call ends, the transcript is automatically handed off to a report-building pipeline.
         No manual formatting. No waiting for a consultant to write it up. The report is ready in 48 hours.
@@ -164,8 +161,7 @@
       </ul>
     </div>
     <div class="report-stack" aria-label="Report deliverables preview">
-      <!-- TODO: Add illustration here: unDraw "report" or "document" concept -->
-      <img src="/illustrations/undraw-report.svg" alt="Report deliverables illustration" class="section-illustration" loading="lazy" width="400" height="300" />
+
       <article>
         <span>01</span>
         <strong>Opportunity map</strong>
@@ -188,8 +184,7 @@
     <div class="section-heading">
       <p class="eyebrow">Done-for-you options</p>
       <h2>Common builds that follow the report</h2>
-      <!-- TODO: Add illustration here: unDraw "building" or "construction" concept -->
-      <img src="/illustrations/undraw-building.svg" alt="Implementation builds illustration" class="section-illustration" loading="lazy" width="400" height="300" />
+
     </div>
     <div class="grid offer-grid">
       {#each upsells as offer}
@@ -228,8 +223,7 @@
   <section class="section cta-section">
     <div class="cta-box">
       <h2>Ready to see where AI can save your business time?</h2>
-      <!-- TODO: Add illustration here: unDraw "rocket" or "launch" concept -->
-      <img src="/illustrations/undraw-launch.svg" alt="Get started illustration" class="section-illustration" loading="lazy" width="400" height="300" />
+
       <p>Book a free AI Business Assessment call with Annie and get a practical report within 48 hours.</p>
       <CallAssessmentButton label="Start AI Business Assessment" source="services-cta" />
     </div>
@@ -237,6 +231,10 @@
 </main>
 
 <style>
+  .page-hero h1 {
+    max-width: 17ch;
+  }
+
   .faq-section {
     padding: 3rem 0;
   }
@@ -336,12 +334,4 @@
     margin-bottom: 1.5rem;
   }
 
-  .section-illustration {
-    display: block;
-    max-width: 400px;
-    width: 100%;
-    height: auto;
-    margin: 1.5rem auto;
-    opacity: 0.9;
-  }
 </style>
