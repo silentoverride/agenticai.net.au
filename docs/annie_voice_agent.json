@@ -249,7 +249,7 @@
     "call_analyzed"
   ],
   "conversationFlow": {
-    "conversation_flow_id": "",
+    "conversation_flow_id": "conversation_flow_61a692f22f6d",
     "version": 4,
     "global_prompt": "You are Annie, the AI Business Assessment intake assistant for Agentic AI.\n\nYour job is discovery only. Gather workflow context so a human or report-building agent can later recommend tools, automations, agents, and implementation paths. Do not recommend specific tools, automations, agents, software, or solutions during the call. Do not promise savings, revenue, conversion rates, legal outcomes, compliance outcomes, or guaranteed performance. Do not criticize the caller's current process; frame gaps as opportunities.\n\nSpeak calmly, directly, and conversationally. Use plain business language. Ask one question at a time. Keep the call moving without sounding rushed. Reflect important details briefly before moving on. If the caller gives a vague answer, ask for a recent example. If the caller gives a long answer, summarize the key point and ask a focused follow-up.\n\nBefore assessment intake begins, disclaim the $1,200.00 assessment fee, process, report contents and disclaimer. Do not continue to assessment questions unless the caller clearly gives verbal approval.\n\nDo not provide legal, financial, tax, medical, compliance, or professional advice. Do not ask for passwords, API keys, card numbers, bank details, confidential customer records, regulated records, or unnecessary sensitive personal information. If the caller tries to share sensitive information, politely stop them and ask them to describe the workflow without sharing private details.\n\nCollect enough detail to identify business model, team, customers, operating rhythm, workflow pain, current tools, repeated tasks, handoffs, customer response gaps, knowledge gaps, reporting gaps, practical constraints, budget or timeline sensitivity, approval process, and the caller's priority outcome. Payment must be requested through Stripe before transcript processing.\n\nRecovery prompts you can use when the caller is unsure, vague, or jumps ahead: When you say it is manual, what are the actual steps? Can you walk me through the last time that happened? Who touches that workflow from start to finish? What tool or spreadsheet is open when that work happens? How many times per week does this come up? Is this mostly a time problem, a revenue problem, a customer experience problem, or a team consistency problem? What happens if nobody handles it quickly? If you had to pick one, which part is most frustrating? What would a good version of this workflow look like? Is there a document, inbox, form, or system where this usually starts?",
     "nodes": [
@@ -536,7 +536,7 @@
         "type": "conversation",
         "display_position": {
           "x": 6606,
-          "y": 30
+          "y": 6
         },
         "kb_config": {
           "kb_instruction": "Pick industry related questions from the Knoweldge Base. "
@@ -581,7 +581,7 @@
         "type": "conversation",
         "display_position": {
           "x": 7710,
-          "y": 174
+          "y": 150
         },
         "instruction": {
           "type": "prompt",
@@ -592,7 +592,7 @@
         "name": "Final Open Question",
         "edges": [
           {
-            "destination_node_id": "node-create-payment-link",
+            "destination_node_id": "node-1778092095114",
             "id": "edge-final-open-question-to-payment",
             "transition_condition": {
               "type": "prompt",
@@ -604,43 +604,12 @@
         "type": "conversation",
         "display_position": {
           "x": 8262,
-          "y": 174
+          "y": 150
         },
         "instruction": {
           "type": "prompt",
           "text": "Before payment setup, ask: Before we wrap up, is there anything important about your business or workflows that I did not ask about?\n\nIf the caller adds something, ask one brief follow-up only if needed to capture frequency, time impact, revenue impact, or ownership. Then proceed to payment setup."
         }
-      },
-      {
-        "name": "Payment Result Split",
-        "type": "conversation",
-        "id": "node-payment-result-split",
-        "display_position": {
-          "x": 9558,
-          "y": 222
-        },
-        "instruction": {
-          "type": "prompt",
-          "text": "The assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 AUD assessment fee. Once payment is confirmed, your transcript will be sent for analysis and the report will be prepared.\n\nIf the payment function result shows the checkout URL was created successfully, tell the caller the secure Stripe checkout link has been sent by SMS.\n\nIf there was an error creating the payment link, tell the caller the assessment team will follow up to complete payment.\n\nIf the current Retell setup exposes the checkout URL in-call, read only a short confirmation and avoid spelling out a long URL unless the caller explicitly asks.\n\nDo not call any tools or functions in this step."
-        },
-        "edges": [
-          {
-            "destination_node_id": "node-end-call",
-            "id": "edge-payment-success-to-end",
-            "transition_condition": {
-              "type": "prompt",
-              "prompt": "The payment link was created successfully or the caller is ready to end the call."
-            }
-          },
-          {
-            "destination_node_id": "node-payment-link-failed",
-            "id": "edge-payment-failed-to-fallback",
-            "transition_condition": {
-              "type": "prompt",
-              "prompt": "The payment link creation failed or there was an error."
-            }
-          }
-        ]
       },
       {
         "name": "No Approval or Not Ready",
@@ -657,56 +626,71 @@
         }
       },
       {
-        "name": "Fallback Support",
-        "id": "node-payment-link-failed",
-        "type": "end",
-        "speak_during_execution": true,
-        "display_position": {
-          "x": 10110,
-          "y": 630
-        },
-        "instruction": {
-          "type": "static_text",
-          "text": "I am having trouble completing that step automatically. The assessment team can help from here. Please email hello@agenticai.net.au and include your name, business, and phone number."
-        }
-      },
-      {
         "name": "End Call",
         "id": "node-end-call",
         "type": "end",
         "speak_during_execution": true,
         "display_position": {
-          "x": 10110,
-          "y": 222
+          "x": 10014,
+          "y": 198
         },
         "instruction": {
           "type": "static_text",
-          "text": "Thanks again. Once payment is complete, your intake transcript will be reviewed and used to prepare your AI Business Assessment report within forty-eight hours. Have a great day."
+          "text": "Thanks again. Once payment is confirmed, your intake transcript will be reviewed and used to prepare your AI Business Assessment report within forty-eight hours. Have a great day."
         }
       },
       {
-        "id": "node-create-payment-link",
-        "name": "Create Assessment Payment Link",
-        "type": "subagent",
-        "tool_ids": [
-          "tool-create-assessment-payment-link"
-        ],
-        "instruction": {
-          "type": "prompt",
-          "text": "Create a Stripe Checkout payment link for the completed Agentic AI Business Assessment voice intake.\n\nUse the stored fields:\n- caller_name: {{caller_name}}\n- caller_email: {{caller_email}}\n- caller_phone: {{caller_phone}}\n- company: {{company}}\n- retell_call_id: {{call_id}}\n\nBefore calling the function, create a short transcriptPreview summarising the business context, operating rhythm, top pain points, current systems, repeated work, lead/customer response workflow, knowledge/documentation gaps, reporting/visibility gaps, constraints, priority outcome, and open questions for follow-up.\n\nCall the create_assessment_payment_link function once. The website backend will send the Stripe URL by Twilio SMS when source is retell-voice-agent and caller_phone is present. Do not invent a payment URL. Do not ask another assessment question."
+        "tool_id": "tool-create-assessment-payment-link",
+        "else_edge": {
+          "destination_node_id": "node-1778096221072",
+          "id": "node-1778092095114-else-edge",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Else"
+          }
         },
+        "name": "Create Assessment Payment Link",
+        "edges": [],
+        "enable_typing_sound": false,
+        "id": "node-1778092095114",
+        "type": "function",
+        "tool_type": "local",
+        "speak_during_execution": false,
+        "display_position": {
+          "x": 8790,
+          "y": 246
+        },
+        "wait_for_result": true
+      },
+      {
+        "name": "Payment Result Split",
         "edges": [
           {
-            "id": "edge-payment-link-created-to-split",
-            "destination_node_id": "node-payment-result-split",
+            "destination_node_id": "node-end-call",
+            "id": "edge-1778096221072-suh278yrj",
             "transition_condition": {
-              "type": "default"
+              "type": "prompt",
+              "prompt": "The payment link was created successfully or the caller is ready to end the call."
+            }
+          },
+          {
+            "destination_node_id": "node-end-call",
+            "id": "edge-1778096486072-7kkmgin6i",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The payment link creation failed or there was an error."
             }
           }
         ],
+        "id": "node-1778096221072",
+        "type": "conversation",
         "display_position": {
-          "x": 8862,
-          "y": -258
+          "x": 9270,
+          "y": 102
+        },
+        "instruction": {
+          "type": "prompt",
+          "text": "The assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 assessment fee. \n\nOnce payment is confirmed, your transcript will be sent for analysis and the report will be prepared.\n\nIf the payment function result shouws the checkout URL was created successfully, tell the caller the secure Stripe checkout link has been sent by SMS.\n\nIf there was an error, tell the caller the assessment team will follow up."
         }
       }
     ],
@@ -747,8 +731,8 @@
             "callerEmail",
             "callerPhone",
             "company",
-            "retellCallId",
-            "transcriptPreview"
+            "transcriptPreview",
+            "retellCallId"
           ],
           "properties": {
             "company": {
@@ -775,14 +759,14 @@
               "const": "{{caller_name}}",
               "description": "Business owner's full name."
             },
-            "retellCallId": {
-              "type": "string",
-              "const": "{{call_id}}",
-              "description": "Retell call ID for tracing and Stripe session metadata."
-            },
             "transcriptPreview": {
               "type": "string",
               "description": "Short preview of the voice assessment intake transcript, including business context, top pain points, current systems, repeated work, constraints, and priority outcome."
+            },
+            "retellCallId": {
+              "type": "string",
+              "const": "{{call_id}}",
+              "description": "The Retell call ID for tracing the payment back to this voice call."
             }
           }
         }
@@ -813,17 +797,5 @@
     "is_published": false,
     "flex_mode": false,
     "is_transfer_cf": false
-  },
-  "pronunciation_dictionary": [
-    {
-      "word": "agenticai.net.au",
-      "alphabet": "ipa",
-      "phoneme": "agentic a i dot net dot a u "
-    },
-    {
-      "word": "@gmail.com",
-      "alphabet": "ipa",
-      "phoneme": "at g mail dot com"
-    }
-  ]
+  }
 }
