@@ -24,11 +24,11 @@ Compiled pages by topic. One-line summary + last updated.
 ## operations
 
 - [Client Portal](operations/client-portal.md) — Clerk-authenticated client area for viewing reveal.js assessment reports and downloading receipts. Updated: 2026-05-02
-- [Report Pipeline](operations/report-pipeline.md) — Transcript-to-report flow: Retell webhooks, payment correlation, Perplexity tool lookup, Kimi K2.6 analysis, Presenton deck generation. Updated: 2026-05-02
+- [Report Pipeline](operations/report-pipeline.md) — Self-contained transcript-to-report flow: Retell webhooks, payment correlation, Perplexity tool lookup, Kimi K2.6 analysis, R2 storage, SendGrid email delivery. Updated: 2026-05-02
 
 ## reports
 
-- [Presenton Report Generator](reports/presenton.md) — Open-source AI presentation generator for formatting assessment reports into PPTX/PDF. Updated: 2026-05-02
+- [RevealDeck Report Renderer](reports/revealdeck.md) — Interactive reveal.js slide deck for portal report viewing. Updated: 2026-05-02
 
 ## Sources
 

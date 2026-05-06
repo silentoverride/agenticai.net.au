@@ -10,7 +10,6 @@ see_also:
   - "../agents/annie-voice-agent.md"
   - "../integrations/retell.md"
   - "../integrations/stripe.md"
-  - "../reports/presenton.md"
 ---
 
 # Report Pipeline
@@ -137,7 +136,7 @@ Match pain points to AI tool categories:
 | --------------------- | --------------- | ------------- |
 | **Slow lead response** | "lead response AI", "AI sales assistant", "speed to lead" | Lindy, Copy.ai, Instantly |
 | **Manual reporting / data entry** | "AI data extraction", "document parsing", "report automation" | Nanonets, Parser AI, Bardeen |
-| **Content creation bottleneck** | "AI content generation", "marketing automation" | Jasper, Copy.ai, Claude |
+| **Content creation bottleneck** | "AI content generation", "marketing automation" | Jasper, Copy.ai, Kimi K2.6 |
 | **Customer support overload** | "AI customer support", "chatbot", "ticket automation" | Intercom Fin, Tidio, Botpress |
 | **Meeting scheduling friction** | "AI scheduling assistant", "calendar automation" | Reclaim.ai, Motion, Calendly |
 | **Spreadsheet dependency** | "AI spreadsheet", "no-code database", "Airtable alternative" | Rows, Equals, Coda |

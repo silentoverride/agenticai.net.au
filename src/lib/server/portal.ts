@@ -136,7 +136,7 @@ export async function findOrCreateUserFromStripe(email: string, _name?: string, 
  *   'user_abc123',
  *   'report-456',
  *   'cs_test_xxx',
- *   'https://presenton.ai/exports/...',
+ *   null, // R2 public URL if available; portal link otherwise
  *   'Acme — AI Assessment',
  *   'Acme Inc'
  * );

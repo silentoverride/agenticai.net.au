@@ -2,7 +2,7 @@ To make notes or copy this to your own Google Drive, click FILE then either MAKE
 
 # AI BUSINESS ASSESSMENT BUSINESS PLAN
 
-99 Out of 100 Small Businesses Need This Service · \(1,000 per Audit \cdot Claude Builds the Report \cdot Voice Agent Runs the Interview \cdot\)3,000–\(10,000 Upsell Menu · 7 Ways to Find Clients With Zero Following
+99 Out of 100 Small Businesses Need This Service · \(1,000 per Audit \cdot Kimi K2.6 via Ollama Cloud Builds the Report \cdot Voice Agent Runs the Interview \cdot\)3,000–\(10,000 Upsell Menu · 7 Ways to Find Clients With Zero Following
 
 Based on an exclusive interview with Corey Ganim Founder of Return My Time | AI Assessment Agency | Build With AI Podcast | audittemplate.ai
 
@@ -79,14 +79,14 @@ Several forces have aligned in 2026 to create an ideal moment for AI assessment 
 - AI tools have proliferated to the point where there are thousands of off-the-shelf solutions for every business problem — but business owners cannot evaluate them   
 - Companies expect to double AI spending in 2026 (BCG AI Radar 2026) — budgets exist; willingness to spend exists   
 - Worker access to AI rose $50\%$ in 2025 (Deloitte) — business owners are hearing about AI constantly and want help applying it   
-- The tools that make delivering this service possible — Claude, voice AI platforms, Presenton for report design — are now accessible to non-technical operators   
+- The tools that make delivering this service possible — Kimi K2.6 via Ollama Cloud, voice AI platforms, RevealDeck for interactive reporting — are now accessible to non-technical operators   
 - Competition in the small business segment is minimal; most AI consultants are chasing enterprise clients
 
 # PART 02
 
 # How the AI Assessment Works: The Full Process End to End
 
-From $0 to$ 200 to $500 to $1,000. Voice agent → transcript → Claude → Presenton report → follow-up call → upsell.
+From $0 to$ 200 to $500 to $1,000. Voice agent → transcript → Kimi K2.6 → RevealDeck report → follow-up call → upsell.
 
 Opportunity: One assessment = $1,000. 48-hour turnaround. Near 100% profit margin on the assessment itself.
 
@@ -110,7 +110,7 @@ The current version of the assessment is fully automated at the data-gathering s
 
 On Camera Demo: Kerner called Annie live during the interview. She greeted him, asked what he does (e-commerce on Amazon), how long he had been doing it (9 years), whether he ran it solo or had a team (2 warehouse employees, 4 VAs), what tools he used (Google Workspace, Smart Scout), and what his biggest bottleneck was (finding new suppliers). The interaction was smooth, natural, and indistinguishable from a human interviewer. Corey's assessment: 'I feel like I'm talking to a human.' She would have continued for another 10-15 minutes identifying more pain points.
 
-# Building the Report: Claude + Presenton
+# Building the Report: Kimi K2.6 + RevealDeck
 
 After the transcript is generated, the report-building process is automated in two steps:
 
@@ -125,12 +125,11 @@ A series of Al agent 'skills' (Corey's term for specialized sub-agents, each wit
 - Skill 5: Calculate the financial impact of recommended changes (hours saved x hourly rate)   
 - Output: a structured .docx file containing all assessment content, ready to be formatted
 
-For someone starting out: you do not need this multi-agent architecture. You can take the voice call transcript, paste it into Claude, and say: 'I attached the transcript of a conversation with a local business owner. Your job is to find AI tools or software tools they can implement that are off-the-shelf and can fix the pain points you identified from the transcript.' Claude will do this reliably. Then ask it to explain how to implement each tool.
+For someone starting out: you do not need this multi-agent architecture. You can take the voice call transcript, paste it into Kimi K2.6, and say: 'I attached the transcript of a conversation with a local business owner. Your job is to find AI tools or software tools they can implement that are off-the-shelf and can fix the pain points you identified from the transcript.' Kimi K2.6 will do this reliably. Then ask Kimi to explain how to implement each tool.
 
-# Step 2: Report Formatting in Presenton
+# Step 2: Report Rendering in RevealDeck
 
-Once the .docx output is ready, it is uploaded to Presenton (presenton.ai) — an open-source AI presentation generator. Presenton uses the uploaded content to auto-generate a
-professionally designed visual report based on a template. The report can be exported as PPTX or PDF. Corey's free template is available at audittemplate.ai.
+Once the analysis JSON output is ready, it is rendered as an interactive RevealDeck presentation in the client portal — a browser-based slide deck viewer built on reveal.js. The pipeline structures the content into 12 slides covering pain points, quick wins, effort-impact analysis, tool recommendations, financial impact, and next steps. Reports are stored durably in Cloudflare R2 and displayed in the portal for permanent customer access. The report can be viewed on any device and shared via the portal link.
 
 # What the Report Looks Like: Section by Section
 
@@ -275,10 +274,10 @@ The most common objection to starting this business: 'I'm not an AI expert.' Cor
 
 DashThis, or any AI tools. They do not know what a custom GPT is. They have never heard of Zapier.
 
-- You only need to be one step ahead — and one step ahead means: you have spent 7 days learning AI tools, you know how to prompt Claude effectively, and you have tested a few tools yourself   
-- The assessment process itself does not require expertise — it requires curiosity. Annie (or you, in early iterations) asks questions. Claude identifies tools. You deliver the report.   
+- You only need to be one step ahead — and one step ahead means: you have spent 7 days learning AI tools, you know how to prompt Kimi K2.6 effectively, and you have tested a few tools yourself   
+- The assessment process itself does not require expertise — it requires curiosity. Annie (or you, in early iterations) asks questions. Kimi K2.6 identifies tools. You deliver the report.   
 - The upsells require more knowledge — but you can start with the simplest upsell (the custom GPT or a basic Zapier automation) and build from there   
-- Corey's admission: when the report prescribes a tool he has never heard of, he asks Claude to explain it and how to implement it before the follow-up call. This is normal. The tool does the research.
+- Corey's admission: when the report prescribes a tool he has never heard of, he asks Kimi K2.6 to explain it and how to implement it before the follow-up call. This is normal. The tool does the research.
 
 # 5 Adjacent Business Opportunities
 
@@ -338,17 +337,17 @@ This plan is designed for someone who is starting today with no AI consulting ex
 
 # Week 1: Build Your Foundation (Days 1-7)
 
-8. Day 1-2: Learn the essential tools. Spend 4-6 hours with Claude. Learn to prompt it effectively. Practice: paste a fake business description and ask it to identify AI opportunities and recommend specific tools. Get comfortable with the output.   
+8. Day 1-2: Learn the essential tools. Spend 4-6 hours with Kimi K2.6. Learn to prompt it effectively. Practice: paste a fake business description and ask it to identify AI opportunities and recommend specific tools. Get comfortable with the output.   
 9. Day 3: Study the AI tool landscape. Spend 2 hours on Futurepedia.io and Theresanaiforthat.com. Identify 20-30 tools across categories: meeting notetakers (Fathom, Fireflies), analytics (DashThis), CRM (GoHighLevel), automation (Zapier, Make.com), knowledge systems (custom GPTs), voice agents (Retell.ai).   
-10. Day 4: Watch Corey's Build with AI podcast on YouTube. Study his assessment process and upsell examples. Download the free template at audititemplate.ai and understand how the Presenton report works.   
-11. Day 5: Build your first practice assessment. Choose a fictional business (or a real one you know). Write out 10 questions you would ask. Paste them into Claude along with hypothetical answers. Ask Claude to generate an assessment report. Review and refine.   
-12. Day 6-7: Set up your tools. Create accounts on Presenton (presenton.ai), Zapier (free tier), and optionally Retell.ai for a voice agent. Set up a simple booking link (Calendly) for assessment discovery calls.
+10. Day 4: Watch Corey's Build with AI podcast on YouTube. Study his assessment process and upsell examples. Download the free template at audititemplate.ai and understand how the RevealDeck report works.   
+11. Day 5: Build your first practice assessment. Choose a fictional business (or a real one you know). Write out 10 questions you would ask. Paste them into Kimi K2.6 along with hypothetical answers. Ask Kimi K2.6 to generate an assessment report. Review and refine.   
+12. Day 6-7: Set up your tools. Set up R2 storage for report persistence, Zapier (free tier), and optionally Retell.ai for a voice agent. Set up a simple booking link (Calendly) for assessment discovery calls.
 
 # Week 2: First Outreach and Free Assessments (Days 8-14)
 
 13. Day 8: Identify 3 people in your existing professional network who run businesses. These are your first free assessment targets. Business owners with 5-50 employees and complex day-to-day operations are ideal.   
 14. Day 9: Reach out to all three. Message or call. Say: 'I have been spending time learning AI tools and how they apply to small businesses. I would love to do a free 45-minute AI assessment for your business — I'll send you a professional report showing exactly where AI can save you time and money. Zero cost, zero obligation. Want to try it?'   
-15. Day 10–12: Conduct your first free assessments over Zoom. Interview each owner using the question framework. Record the call. Take notes on their biggest pain points. After each call, paste the notes or transcript into Claude and generate the report draft. Format in Gamma.   
+15. Day 10–12: Conduct your first free assessments over Zoom. Interview each owner using the question framework. Record the call. Take notes on their biggest pain points. After each call, paste the notes or transcript into Kimi K2.6 and generate the report draft. Format in Gamma.   
 16. Day 13: Deliver the first report to your first free client. Schedule a 30-minute follow-up call to walk through it. Pay close attention to their reaction to each recommendation — this tells you what resonates.   
 17. Day 14: Follow-up calls for all three free assessments. At the end of each: 'I noticed [specific pain point] could benefit from a more involved solution. I can build [specific
 
@@ -377,7 +376,7 @@ automation/custom GPT/agent] for you for $\$ 1$ price]. Want to explore that?' E
 
 The AI adoption gap in small business is not a temporary condition. It is a structural reality: AI capabilities are advancing faster than most business owners can track or implement them. The consultant who sits between the AI tools and the business owner — translating capabilities into practical solutions for specific pain points — is one of the most valuable people a small business can work with in 2026.
 
-Corey built his entire business on a single lunch conversation. His friend's willingness to pay $1,000 for someone to follow him around and identify AI opportunities was the signal. The product that emerged — the structured AI assessment — is repeatable, scalable, and now almost fully automated. A voice agent conducts the interview. Claude builds the report. Gamma formats the document. Corey shows up for the follow-up call and the upsell conversation.
+Corey built his entire business on a single lunch conversation. His friend's willingness to pay $1,000 for someone to follow him around and identify AI opportunities was the signal. The product that emerged — the structured AI assessment — is repeatable, scalable, and now almost fully automated. A voice agent conducts the interview. Kimi K2.6 builds the report. RevealDeck renders the interactive slides. Corey shows up for the follow-up call and the upsell conversation.
 
 The service sells because it solves a real, universal problem. Every business owner knows they should be using AI better. Almost none of them know how to start. The assessment gives them
 

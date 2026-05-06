@@ -31,7 +31,7 @@ Source material from an interview with Corey Ganim (Return My Time / Build With 
 
 - Service model and pricing psychology
 - Voice agent interview process (Annie on Retell)
-- Report generation pipeline (Kimi K2.6 via Ollama Cloud + Presenton)
+- Report generation pipeline (Kimi K2.6 via Ollama Cloud)
 - Upsell menu and specialization strategy
 - Client acquisition playbook
 - 30-day launch plan for new consultants

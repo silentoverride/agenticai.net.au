@@ -47,7 +47,7 @@
   <section class="section">
     <div class="section-heading">
       <p class="eyebrow">How the report is built</p>
-      <h2>Kimi K2.6 processes. Presenton formats.</h2>
+      <h2>Kimi K2.6 processes the findings. RevealDeck formats the report.</h2>
       <p>
         When Annie's call ends, the transcript is automatically handed off to a report-building pipeline.
         No manual formatting. No waiting for a consultant to write it up. The report is ready in 48 hours.
@@ -107,36 +107,37 @@
         </div>
       </article>
 
-      <article class="report-build-step presenton-step">
+      <article class="report-build-step revealdeck-step">
         <div class="report-build-header">
           <span class="step-tag">Step 02</span>
-          <h3>Presenton formats the report</h3>
+          <h3>RevealDeck renders the interactive report</h3>
           <p>
-            The structured document is uploaded to Presenton — an open-source AI presentation generator —
-            which auto-generates a professionally designed visual report from a template and exports PPTX or PDF.
+            The structured analysis is rendered as an interactive slide deck in the client portal — a browser-based
+            RevealDeck presentation with 12 slides covering pain points, quick wins, impact-effort analysis, tool
+            recommendations, financial estimates, and a Calendly booking CTA.
           </p>
         </div>
-        <ul class="presenton-features">
+        <ul class="revealdeck-features">
           <li>
-            <strong>Professional design</strong>
-            <span>The assessment output becomes a polished, client-ready report without manual formatting work.</span>
+            <strong>Interactive slides</strong>
+            <span>Navigate the report slide by slide with transitions and speaker notes — no download required.</span>
           </li>
           <li>
-            <strong>Template consistency</strong>
-            <span>Every client receives the same professional structure, section order, and visual treatment.</span>
+            <strong>Consistent structure</strong>
+            <span>Every client receives the same professional 12-slide structure: title, executive summary, opportunity matrix, recommendations, roadmap, financial impact, and next steps.</span>
           </li>
           <li>
-            <strong>Shareable link</strong>
-            <span>The report is delivered as a PPTX or PDF link — accessible on any device before the follow-up call.</span>
+            <strong>Portal access</strong>
+            <span>The report lives permanently in the client portal at agenticai.net.au/portal — accessible on any device with Clerk authentication.</span>
           </li>
           <li>
             <strong>Screen-share ready</strong>
             <span>The follow-up call walks through the report slide by slide, making recommendations easy to discuss.</span>
           </li>
         </ul>
-        <div class="presenton-note">
+        <div class="revealdeck-note">
           <div class="note-mark" aria-hidden="true">AI</div>
-          <p>Corey Ganim's free template is available at <strong>audittemplate.ai</strong> — adapted for Presenton and used for every assessment.</p>
+          <p>Reports are stored durably in Cloudflare R2 and displayed via RevealDeck in the client portal. No PPTX or PDF generation — native web format.</p>
         </div>
       </article>
     </div>

@@ -9,7 +9,6 @@ see_also:
   - "../agents/annie-chat-agent.md"
   - "../agents/annie-voice-agent.md"
   - "../operations/report-pipeline.md"
-  - "../reports/presenton.md"
 ---
 
 # Service Model and Pricing
@@ -47,7 +46,7 @@ The $1,000 fee is not about the assessment revenue — it is a **psychological a
 3. Client pays $1,200 AUD via Stripe Checkout
 4. Transcript + analysis forwarded to report pipeline
 5. Report agent (Kimi K2.6 via Ollama Cloud) analyzes and builds assessment report
-6. Report formatted in Presenton (professional visual report)
+6. Report rendered as RevealDeck (interactive slide deck in client portal)
 7. Delivered within 48 hours
 8. 30-minute follow-up call to walk through report
 9. Upsell conversation on the follow-up call

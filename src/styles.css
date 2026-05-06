@@ -1326,7 +1326,7 @@ h3 {
   font-size: 0.9rem;
 }
 
-.presenton-features {
+.revealdeck-features {
   display: grid;
   gap: 0;
   list-style: none;
@@ -1334,34 +1334,34 @@ h3 {
   padding: 0;
 }
 
-.presenton-features li {
+.revealdeck-features li {
   border-top: 1px solid var(--color-line);
   display: grid;
   gap: 0.25rem;
   padding: 0.9rem 0;
 }
 
-.presenton-features li:first-child {
+.revealdeck-features li:first-child {
   border-top: 0;
   padding-top: 0;
 }
 
-.presenton-features li:last-child {
+.revealdeck-features li:last-child {
   padding-bottom: 0;
 }
 
-.presenton-features strong {
+.revealdeck-features strong {
   color: var(--color-ink);
   font-size: 0.92rem;
 }
 
-.presenton-features span {
+.revealdeck-features span {
   color: var(--color-muted);
   font-size: 0.87rem;
   line-height: 1.5;
 }
 
-.presenton-note {
+.revealdeck-note {
   align-items: center;
   background: var(--color-panel-soft);
   border: 1px solid var(--color-line);
@@ -1372,13 +1372,13 @@ h3 {
   padding: 0.9rem 1rem;
 }
 
-.presenton-note p {
+.revealdeck-note p {
   font-size: 0.87rem;
   line-height: 1.5;
 }
 
-.presenton-step .report-build-header h3,
-.presenton-step .report-build-header p {
+.revealdeck-step .report-build-header h3,
+.revealdeck-step .report-build-header p {
   max-width: none;
 }
 

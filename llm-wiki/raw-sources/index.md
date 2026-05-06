@@ -5,7 +5,6 @@ Registry of every source. In-project paths are relative to project root.
 ## docs
 
 - **Cloudflare Documentation** — `https://developers.cloudflare.com/` — collected 2026-05-02 → [Cloudflare infrastructure](../integrations/cloudflare.md)
-- **Presenton Documentation** — `https://docs.presenton.ai/` — collected 2026-05-02 → [Presenton report generator](../reports/presenton.md)
 - **Stripe Documentation** — `https://docs.stripe.com/` — collected 2026-05-02 → [Stripe platform docs](../integrations/stripe-platform.md)
 - **Retell AI — Introduction** — `https://docs.retellai.com/general/introduction` — collected 2026-05-02 → [Retell platform overview](../integrations/retell.md)
 - **AI Business Assessment Business Plan** — `docs/AI Business Assessment Business Plan.md` — collected 2026-05-02 → [Service model](../business/service-model.md), [Question knowledgebase](../agents/question-knowledgebase.md)
