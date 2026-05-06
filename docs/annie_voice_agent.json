@@ -685,27 +685,29 @@
         }
       },
       {
-        "tool_id": "tool-create-assessment-payment-link",
+        "id": "node-create-payment-link",
         "name": "Create Assessment Payment Link",
+        "type": "subagent",
+        "tool_ids": [
+          "tool-create-assessment-payment-link"
+        ],
+        "instruction": {
+          "type": "prompt",
+          "text": "Create a Stripe Checkout payment link for the completed Agentic AI Business Assessment voice intake.\n\nUse the stored fields:\n- caller_name: {{caller_name}}\n- caller_email: {{caller_email}}\n- caller_phone: {{caller_phone}}\n- company: {{company}}\n- retell_call_id: {{call_id}}\n\nBefore calling the function, create a short transcriptPreview summarising the business context, operating rhythm, top pain points, current systems, repeated work, lead/customer response workflow, knowledge/documentation gaps, reporting/visibility gaps, constraints, priority outcome, and open questions for follow-up.\n\nCall the create_assessment_payment_link function once. The website backend will send the Stripe URL by Twilio SMS when source is retell-voice-agent and caller_phone is present. Do not invent a payment URL. Do not ask another assessment question."
+        },
         "edges": [
           {
+            "id": "edge-payment-link-created-to-split",
             "destination_node_id": "node-payment-result-split",
-            "id": "edge-function-to-split",
             "transition_condition": {
               "type": "default"
             }
           }
         ],
-        "enable_typing_sound": false,
-        "id": "node-create-payment-link",
-        "type": "function",
-        "tool_type": "local",
-        "speak_during_execution": false,
         "display_position": {
           "x": 8862,
           "y": -258
-        },
-        "wait_for_result": true
+        }
       }
     ],
     "components": [],
@@ -811,5 +813,17 @@
     "is_published": false,
     "flex_mode": false,
     "is_transfer_cf": false
-  }
+  },
+  "pronunciation_dictionary": [
+    {
+      "word": "agenticai.net.au",
+      "alphabet": "ipa",
+      "phoneme": "agentic a i dot net dot a u "
+    },
+    {
+      "word": "@gmail.com",
+      "alphabet": "ipa",
+      "phoneme": "at g mail dot com"
+    }
+  ]
 }
