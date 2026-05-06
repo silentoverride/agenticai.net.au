@@ -783,6 +783,7 @@
             "callerEmail",
             "callerPhone",
             "company",
+            "retellCallId",
             "transcriptPreview"
           ],
           "properties": {
@@ -809,6 +810,11 @@
               "type": "string",
               "const": "{{caller_name}}",
               "description": "Business owner's full name."
+            },
+            "retellCallId": {
+              "type": "string",
+              "const": "{{call_id}}",
+              "description": "Retell call ID for tracing and Stripe session metadata."
             },
             "transcriptPreview": {
               "type": "string",
