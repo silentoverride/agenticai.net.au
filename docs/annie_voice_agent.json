@@ -631,12 +631,12 @@
         "type": "end",
         "speak_during_execution": true,
         "display_position": {
-          "x": 10014,
-          "y": 198
+          "x": 9894,
+          "y": 222
         },
         "instruction": {
           "type": "static_text",
-          "text": "Thanks again. Once payment is confirmed, your intake transcript will be reviewed and used to prepare your AI Business Assessment report within forty-eight hours. Have a great day."
+          "text": "Thanks again. Your payment is complete, your intake transcript will be reviewed and used to prepare your AI Business Assessment report within 48 hours. Have a great day."
         }
       },
       {
@@ -685,7 +685,7 @@
         "id": "node-1778096221072",
         "type": "conversation",
         "display_position": {
-          "x": 9270,
+          "x": 9342,
           "y": 102
         },
         "instruction": {
@@ -694,7 +694,45 @@
         }
       }
     ],
-    "components": [],
+    "components": [
+      {
+        "name": "Component L1",
+        "start_node_id": "conversation-1778035918619",
+        "conversation_flow_component_id": "cf-component-1778035918617",
+        "nodes": [
+          {
+            "name": "Conversation",
+            "edges": [],
+            "id": "conversation-1778035918619",
+            "type": "conversation",
+            "display_position": {
+              "x": 200,
+              "y": 100
+            },
+            "instruction": {
+              "type": "prompt",
+              "text": "Describe what the AI should say or do"
+            }
+          },
+          {
+            "name": "Exit Component",
+            "id": "component-end-1778035918619",
+            "type": "end",
+            "speak_during_execution": false,
+            "display_position": {
+              "x": 600,
+              "y": 100
+            },
+            "instruction": {
+              "type": "static_text",
+              "text": "Component completed"
+            }
+          }
+        ],
+        "user_modified_timestamp": 1778035918619,
+        "tools": []
+      }
+    ],
     "start_node_id": "node-greeting-purpose",
     "start_speaker": "agent",
     "tools": [
