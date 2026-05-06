@@ -642,7 +642,6 @@
       {
         "tool_id": "tool-create-assessment-payment-link",
         "else_edge": {
-          "destination_node_id": "node-1778096221072",
           "id": "node-1778092095114-else-edge",
           "transition_condition": {
             "type": "prompt",
@@ -650,7 +649,35 @@
           }
         },
         "name": "Create Assessment Payment Link",
-        "edges": [],
+        "edges": [
+          {
+            "destination_node_id": "node-1778096221072",
+            "id": "edge-1778099086970-viesxtx0k",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The tool returned a result successfully"
+            }
+          },
+          {
+            "id": "edge-1778099677815-qv0fvsd96",
+            "transition_condition": {
+              "type": "equation",
+              "equations": [
+                {
+                  "left": "{{url}}",
+                  "operator": "exists"
+                },
+                {
+                  "left": "{{url}}",
+                  "operator": "contains",
+                  "right": "checkout.stripe.com"
+                }
+              ],
+              "operator": "||"
+            },
+            "destination_node_id": "node-1778096221072"
+          }
+        ],
         "enable_typing_sound": false,
         "id": "node-1778092095114",
         "type": "function",
@@ -739,7 +766,7 @@
       {
         "headers": {
           "Content-Type": "application/json",
-          "x-agenticai-webhook-secret": ""
+          "x-agenticai-webhook-secret": "Az2qKCztMxLnjA56YxsqZDgzAFKWfIivpzqnlQTFD1c="
         },
         "parameter_type": "json",
         "execution_message_type": "prompt",
@@ -773,6 +800,10 @@
             "retellCallId"
           ],
           "properties": {
+            "retellCallId": {
+              "type": "string",
+              "description": "Retell Call Id"
+            },
             "company": {
               "type": "string",
               "const": "{{company}}",
@@ -800,11 +831,6 @@
             "transcriptPreview": {
               "type": "string",
               "description": "Short preview of the voice assessment intake transcript, including business context, top pain points, current systems, repeated work, constraints, and priority outcome."
-            },
-            "retellCallId": {
-              "type": "string",
-              "const": "{{call_id}}",
-              "description": "The Retell call ID for tracing the payment back to this voice call."
             }
           }
         }
