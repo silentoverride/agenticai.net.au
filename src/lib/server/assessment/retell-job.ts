@@ -1,4 +1,5 @@
 import type { AssessmentReportJob } from './types';
+import { sanitizeSpokenPhoneNumber, sanitizeVoiceEmail } from '$lib/server/twilio';
 
 function firstString(...values: unknown[]) {
   return values.find((value): value is string => typeof value === 'string' && value.trim().length > 0);
@@ -102,22 +103,32 @@ export function createAssessmentReportJob(payload: { event?: string; call?: Reco
       metadata.caller_name,
       metadata.customer_name
     ),
-    customerEmail: firstString(
-      customAnalysis.caller_email,
-      customAnalysis.customer_email,
-      dynamicVariables.caller_email,
-      dynamicVariables.customer_email,
-      metadata.caller_email,
-      metadata.customer_email
-    ),
-    customerPhone: firstString(
-      customAnalysis.caller_phone,
-      customAnalysis.customer_phone,
-      dynamicVariables.caller_phone,
-      dynamicVariables.customer_phone,
-      metadata.caller_phone,
-      metadata.customer_phone,
-      call.from_number
+    customerEmail: (() => {
+      const raw = firstString(
+        customAnalysis.caller_email,
+        customAnalysis.customer_email,
+        dynamicVariables.caller_email,
+        dynamicVariables.customer_email,
+        metadata.caller_email,
+        metadata.customer_email
+      );
+      if (!raw) return undefined;
+      const sanitized = sanitizeVoiceEmail(raw);
+      if (!sanitized) {
+        console.warn('[retell-job] Voice email sanitization failed, discarding raw value', { raw: raw.slice(0, 60) });
+      }
+      return sanitized ?? undefined;
+    })(),
+    customerPhone: sanitizeSpokenPhoneNumber(
+      firstString(
+        customAnalysis.caller_phone,
+        customAnalysis.customer_phone,
+        dynamicVariables.caller_phone,
+        dynamicVariables.customer_phone,
+        metadata.caller_phone,
+        metadata.customer_phone,
+        call.from_number
+      ) || ''
     ),
     company: firstString(customAnalysis.company, dynamicVariables.company, metadata.company),
     paymentStatus: firstString(customAnalysis.payment_status, dynamicVariables.payment_status, metadata.payment_status),

@@ -1,6 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
-import { isTwilioConfigured, sendTwilioSms } from '$lib/server/twilio';
+import { isTwilioConfigured, sanitizeSpokenPhoneNumber, sendTwilioSms } from '$lib/server/twilio';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -32,7 +32,8 @@ export const POST: RequestHandler = async ({ request }) => {
     message?: string;
   };
 
-  const toPhone = body.customerPhone || body.callerPhone;
+  const rawTo = body.customerPhone || body.callerPhone || '';
+  const toPhone = sanitizeSpokenPhoneNumber(rawTo);
   const customerName = body.customerName || body.callerName;
 
   if (!toPhone) {

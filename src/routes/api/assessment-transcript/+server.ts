@@ -3,6 +3,7 @@ import { getCheckoutSession } from '$lib/server/stripe';
 import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
 import { getPipelineStatus, setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
+import { sanitizeSpokenPhoneNumber, sanitizeVoiceEmail } from '$lib/server/twilio';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, platform }) => {
@@ -38,9 +39,14 @@ export const POST: RequestHandler = async ({ request, platform }) => {
   let transcript: string = payload.transcript || '';
   const source = payload.source || stripeSession.metadata?.source;
   let customerName: string = payload.customerName || stripeSession.metadata?.customer_name || stripeSession.customer_details?.name || '';
-  let customerEmail: string = payload.customerEmail || stripeSession.metadata?.customer_email || stripeSession.customer_details?.email || '';
-  let customerPhone: string = payload.customerPhone || stripeSession.metadata?.customer_phone || '';
+  let customerEmailRaw = payload.customerEmail || stripeSession.metadata?.customer_email || stripeSession.customer_details?.email || '';
+  let customerEmail: string = sanitizeVoiceEmail(customerEmailRaw) || '';
+  let customerPhone: string = sanitizeSpokenPhoneNumber(payload.customerPhone || stripeSession.metadata?.customer_phone || '');
   let company: string = payload.company || stripeSession.metadata?.company || '';
+
+  if (customerEmailRaw && !customerEmail) {
+    console.warn('[assessment-transcript] Voice email sanitization failed, discarding raw value', { raw: customerEmailRaw.slice(0, 60) });
+  }
 
   // For voice-agent flows: retrieve transcript stored by Retell webhook
   if (!hasTranscript && retellCallId) {
@@ -48,8 +54,13 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     if (stored?.transcript) {
       transcript = stored.transcript;
       customerName = customerName || (stored.metadata.customer_name as string) || '';
-      customerEmail = customerEmail || (stored.metadata.customer_email as string) || '';
-      customerPhone = customerPhone || (stored.metadata.customer_phone as string) || '';
+      const storedEmailRaw = (stored.metadata.customer_email as string) || '';
+      const sanitizedStoredEmail = sanitizeVoiceEmail(storedEmailRaw) || '';
+      customerEmail = customerEmail || sanitizedStoredEmail;
+      if (storedEmailRaw && !sanitizedStoredEmail) {
+        console.warn('[assessment-transcript] Stored voice email sanitization failed, discarding raw value', { raw: storedEmailRaw.slice(0, 60) });
+      }
+      customerPhone = customerPhone || sanitizeSpokenPhoneNumber((stored.metadata.customer_phone as string) || '');
       company = company || (stored.metadata.company as string) || '';
       await deleteTranscript(retellCallId);
     }

@@ -1,6 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
-import { isTwilioConfigured, sendTwilioSms } from '$lib/server/twilio';
+import { isTwilioConfigured, sanitizeSpokenPhoneNumber, sanitizeVoiceEmail, sendTwilioSms } from '$lib/server/twilio';
 import type { RequestHandler } from './$types';
 
 const amountAudCents = 120000;
@@ -31,24 +31,6 @@ function firstString(...values: unknown[]) {
   return values.find((value): value is string => typeof value === 'string' && value.trim().length > 0)?.trim() || '';
 }
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function sanitizeVoiceEmail(raw: string): string | null {
-  let cleaned = raw.trim().toLowerCase();
-  cleaned = cleaned.replace(/\s+at\s+/g, '@');
-  cleaned = cleaned.replace(/\s+dot\s+/g, '.');
-  cleaned = cleaned.replace(/\bat\s+/g, '@');
-  cleaned = cleaned.replace(/\bdot\s+/g, '.');
-  cleaned = cleaned.replace(/\s+@\s+/g, '@');
-  cleaned = cleaned.replace(/\s+\.\s+/g, '.');
-  cleaned = cleaned.replace(/\s+/g, '');
-  cleaned = cleaned.replace(/\.{2,}/g, '.');
-  if (EMAIL_REGEX.test(cleaned)) {
-    return cleaned;
-  }
-  return null;
-}
-
 export const POST: RequestHandler = async ({ request, url }) => {
   if (!env.STRIPE_SECRET_KEY) {
     return json(
@@ -63,9 +45,18 @@ export const POST: RequestHandler = async ({ request, url }) => {
   const requestBody = (await request.json().catch(() => ({}))) as CheckoutRequestBody;
   const body = requestBody.args || requestBody;
   const customerName = firstString(body.customerName, body.callerName, body.caller_name);
-  const customerEmail = firstString(body.customerEmail, body.callerEmail, body.caller_email);
-  const customerPhone = firstString(body.customerPhone, body.customer_phone, body.callerPhone, body.caller_phone);
+  const rawEmail = firstString(body.customerEmail, body.callerEmail, body.caller_email);
+  const rawPhone = firstString(body.customerPhone, body.customer_phone, body.callerPhone, body.caller_phone);
+  const customerEmail = rawEmail ? (sanitizeVoiceEmail(rawEmail) || '') : '';
+  const customerPhone = sanitizeSpokenPhoneNumber(rawPhone);
   const retellCallId = firstString(body.retellCallId, body.retell_call_id);
+
+  if (rawEmail && !customerEmail) {
+    console.warn('[create-checkout] Voice email sanitization failed, discarding raw value', { raw: rawEmail.slice(0, 60) });
+  }
+  if (rawPhone && !customerPhone) {
+    console.warn('[create-checkout] Voice phone sanitization failed, discarding raw value', { raw: rawPhone.slice(0, 60) });
+  }
 
   const siteUrl = env.PUBLIC_SITE_URL || `${url.protocol}//${url.host}`;
   const params = new URLSearchParams();
