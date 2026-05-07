@@ -48,16 +48,25 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     try {
       await deleteTranscript(job.sessionId);
     } catch (e) {
-      console.warn('Failed to delete transcript after pipeline completion', { sessionId: job.sessionId, error: String(e) });
+      console.warn(`[run-pipeline:${job.sessionId}] Failed to delete transcript after pipeline completion`, { error: String(e) });
     }
 
     return json({ ok: true, result });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    await setPipelineStatus(job.sessionId, {
-      status: 'error',
-      error: message
-    });
+    const details = err instanceof Error ? { message: err.message, stack: err.stack, name: err.name } : err;
+    console.error(`[run-pipeline:${job.sessionId}] Pipeline failed:`, details);
+
+    try {
+      await setPipelineStatus(job.sessionId, {
+        status: 'error',
+        error: message
+      });
+    } catch (dbErr) {
+      const dbDetails = dbErr instanceof Error ? { message: dbErr.message, stack: dbErr.stack } : dbErr;
+      console.error(`[run-pipeline:${job.sessionId}] CRITICAL: Failed to write error status to DB:`, dbDetails);
+    }
+
     throw error(500, message);
   }
 };

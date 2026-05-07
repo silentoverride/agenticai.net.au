@@ -11,58 +11,71 @@ import type { PipelineStatus } from './types';
 class D1PipelineStatusStore {
   async set(sessionId: string, status: PipelineStatus) {
     if (!isDatabaseAvailable()) {
-      console.warn('D1PipelineStatusStore.set skipped: database unavailable');
+      console.warn(`[pipeline-status-db] D1 set skipped: database unavailable (sessionId=${sessionId})`);
       return;
     }
     const db = getDb();
 
-    // Fetch existing attempts
-    const existing = await db.queryOne<{ attempts: number }>(
-      'SELECT attempts FROM pipeline_status WHERE session_id = ?',
-      sessionId
-    );
-    const attempts = existing ? existing.attempts : 0;
+    try {
+      // Fetch existing attempts
+      const existing = await db.queryOne<{ attempts: number }>(
+        'SELECT attempts FROM pipeline_status WHERE session_id = ?',
+        sessionId
+      );
+      const attempts = existing ? existing.attempts : 0;
 
-    await db.exec(
-      `INSERT INTO pipeline_status (session_id, status, deck_url, report_id, error, attempts)
-       VALUES (?, ?, ?, ?, ?, ?)
-       ON CONFLICT(session_id) DO UPDATE SET
-         status = excluded.status,
-         deck_url = COALESCE(excluded.deck_url, pipeline_status.deck_url),
-         report_id = COALESCE(excluded.report_id, pipeline_status.report_id),
-         error = excluded.error,
-         attempts = excluded.attempts,
-         updated_at = datetime('now')`,
-      sessionId,
-      status.status,
-      status.deckUrl || null,
-      status.reportId || null,
-      status.error || null,
-      status.status === 'error' ? attempts + 1 : attempts
-    );
+      await db.exec(
+        `INSERT INTO pipeline_status (session_id, status, deck_url, report_id, error, attempts)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON CONFLICT(session_id) DO UPDATE SET
+           status = excluded.status,
+           deck_url = COALESCE(excluded.deck_url, pipeline_status.deck_url),
+           report_id = COALESCE(excluded.report_id, pipeline_status.report_id),
+           error = excluded.error,
+           attempts = excluded.attempts,
+           updated_at = datetime('now')`,
+        sessionId,
+        status.status,
+        status.deckUrl || null,
+        status.reportId || null,
+        status.error || null,
+        status.status === 'error' ? attempts + 1 : attempts
+      );
+      console.info(`[pipeline-status-db] D1 set OK (sessionId=${sessionId}, status=${status.status})`);
+    } catch (err) {
+      const details = err instanceof Error ? { message: err.message, stack: err.stack } : err;
+      console.error(`[pipeline-status-db] D1 set FAILED (sessionId=${sessionId}):`, details);
+      throw err;
+    }
   }
 
   async get(sessionId: string): Promise<(PipelineStatus & { attempts?: number }) | undefined> {
     if (!isDatabaseAvailable()) return undefined;
     const db = getDb();
-    const row = await db.queryOne<{
-      status: string;
-      deck_url: string | null;
-      report_id: string | null;
-      error: string | null;
-      attempts: number;
-    }>(
-      'SELECT status, deck_url, report_id, error, attempts FROM pipeline_status WHERE session_id = ?',
-      sessionId
-    );
-    if (!row) return undefined;
-    return {
-      status: row.status as PipelineStatus['status'],
-      deckUrl: row.deck_url || undefined,
-      reportId: row.report_id || undefined,
-      error: row.error || undefined,
-      attempts: row.attempts
-    };
+    try {
+      const row = await db.queryOne<{
+        status: string;
+        deck_url: string | null;
+        report_id: string | null;
+        error: string | null;
+        attempts: number;
+      }>(
+        'SELECT status, deck_url, report_id, error, attempts FROM pipeline_status WHERE session_id = ?',
+        sessionId
+      );
+      if (!row) return undefined;
+      return {
+        status: row.status as PipelineStatus['status'],
+        deckUrl: row.deck_url || undefined,
+        reportId: row.report_id || undefined,
+        error: row.error || undefined,
+        attempts: row.attempts
+      };
+    } catch (err) {
+      const details = err instanceof Error ? { message: err.message, stack: err.stack } : err;
+      console.error(`[pipeline-status-db] D1 get FAILED (sessionId=${sessionId}):`, details);
+      return undefined;
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 import type { AssessmentReportJob, PipelineResult, SavedReport } from './types';
 import { analyzeTranscript } from './llm-analysis';
 import { lookupToolsForTranscript, enrichAnalysisWithTools } from './tool-lookup';
-import { saveReportUnified } from './report-store-r2';
+import { saveReportUnified, isR2Available } from './report-store-r2';
 import { sendReportReadyEmail } from './emails';
 import { findOrCreateUserFromStripe, linkReportToUser } from '$lib/server/portal';
 
@@ -9,28 +9,35 @@ export async function runReportPipeline(
   job: AssessmentReportJob,
   opts?: { r2Bucket?: R2Bucket | null }
 ): Promise<PipelineResult> {
-  console.info('Starting report pipeline for', job.callId || job.sessionId, JSON.stringify({
+  const sessionId = job.callId || job.sessionId;
+  const logPrefix = `[pipeline:${sessionId}]`;
+
+  console.info(`${logPrefix} Starting report pipeline`, {
     customer: job.customerName,
     company: job.company,
-    transcriptLength: job.transcript.length
-  }));
+    transcriptLength: job.transcript.length,
+    hasTools: true,
+    r2Available: isR2Available(opts?.r2Bucket ?? null)
+  });
 
   // Step 0: Look up real AI tools from Futurepedia / TAAFT via Perplexity
   let tools: import('./tool-lookup').AITool[] = [];
   try {
     tools = await lookupToolsForTranscript(job.transcript);
-    console.info('Tool lookup complete', { callId: job.callId, toolsFound: tools.length });
+    console.info(`${logPrefix} Tool lookup complete`, { toolsFound: tools.length });
   } catch (error) {
-    console.error('Tool lookup failed (continuing without tools):', error);
+    const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+    console.error(`${logPrefix} Tool lookup failed (continuing without tools):`, details);
   }
 
   // Step 1: LLM Analysis (with tool data if available)
   let analysis: string;
   try {
     analysis = await analyzeTranscript(job, tools);
-    console.info('LLM analysis complete', { callId: job.callId, length: analysis.length });
+    console.info(`${logPrefix} LLM analysis complete`, { length: analysis.length });
   } catch (error) {
-    console.error('LLM analysis failed:', error);
+    const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+    console.error(`${logPrefix} LLM analysis failed:`, details);
     throw new Error('LLM analysis failed: ' + (error instanceof Error ? error.message : String(error)));
   }
 
@@ -38,9 +45,10 @@ export async function runReportPipeline(
   if (tools.length > 0) {
     try {
       analysis = enrichAnalysisWithTools(analysis, tools);
-      console.info('Analysis enriched with tool data', { callId: job.callId });
+      console.info(`${logPrefix} Analysis enriched with tool data`);
     } catch (error) {
-      console.error('Tool enrichment failed (analysis kept as-is):', error);
+      const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+      console.error(`${logPrefix} Tool enrichment failed (analysis kept as-is):`, details);
     }
   }
 
@@ -48,8 +56,10 @@ export async function runReportPipeline(
   let saved: SavedReport;
   try {
     saved = await saveReportUnified(opts?.r2Bucket ?? null, job, analysis);
+    console.info(`${logPrefix} Report saved`, { reportId: saved.id, destination: isR2Available(opts?.r2Bucket ?? null) ? 'r2' : 'local' });
   } catch (error) {
-    console.error('Report save failed:', error);
+    const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+    console.error(`${logPrefix} Report save failed:`, details);
     throw new Error('Report save failed: ' + (error instanceof Error ? error.message : String(error)));
   }
 
@@ -65,10 +75,11 @@ export async function runReportPipeline(
           `${job.company || job.customerName || 'Business'} — AI Assessment`,
           job.company
         );
-        console.info('Report linked to portal user', { reportId: saved.id, userId: user.clerk_id });
+        console.info(`${logPrefix} Report linked to portal user`, { reportId: saved.id, userId: user.clerk_id });
       }
     } catch (error) {
-      console.error('Failed to link report to portal user:', error);
+      const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+      console.error(`${logPrefix} Failed to link report to portal user:`, details);
     }
   }
 
@@ -83,12 +94,13 @@ export async function runReportPipeline(
         reportId: saved.id
       });
       if (emailResult.sent) {
-        console.info('Report delivered by email', { to: job.customerEmail, id: emailResult.id });
+        console.info(`${logPrefix} Report delivered by email`, { to: job.customerEmail, id: emailResult.id });
       } else {
-        console.warn('Email delivery skipped or failed', emailResult.message);
+        console.warn(`${logPrefix} Email delivery skipped or failed`, emailResult.message);
       }
     } catch (err) {
-      console.error('Email delivery failed:', err);
+      const details = err instanceof Error ? { message: err.message, stack: err.stack } : err;
+      console.error(`${logPrefix} Email delivery failed:`, details);
     }
   }
 

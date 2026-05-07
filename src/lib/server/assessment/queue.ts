@@ -19,7 +19,7 @@ export async function enqueueReportJob(
   job: AssessmentReportJob
 ): Promise<{ queued: boolean; inline?: boolean }> {
   if (!queue) {
-    // No queue available — run inline (local dev fallback)
+    console.warn(`[queue] No queue binding available, running inline for sessionId=${job.sessionId}`);
     runPipelineInline(job);
     return { queued: false, inline: true };
   }
@@ -30,10 +30,11 @@ export async function enqueueReportJob(
       payload: job,
       sentAt: new Date().toISOString()
     });
-    console.info('Pipeline job queued', { sessionId: job.sessionId, callId: job.callId });
+    console.info(`[queue] Pipeline job queued (sessionId=${job.sessionId})`);
     return { queued: true };
   } catch (err) {
-    console.error('Failed to enqueue pipeline job, falling back to inline:', err);
+    const details = err instanceof Error ? { message: err.message, stack: err.stack } : err;
+    console.error(`[queue] Failed to enqueue pipeline job for sessionId=${job.sessionId}, falling back to inline:`, details);
     runPipelineInline(job);
     return { queued: false, inline: true };
   }
@@ -49,10 +50,17 @@ export async function runPipelineInline(job: AssessmentReportJob): Promise<void>
       status: 'completed',
       reportId: result.savedReport?.id
     });
-    console.info('Pipeline completed inline', { sessionId, reportId: result.savedReport?.id });
+    console.info(`[queue:inline] Pipeline completed (sessionId=${sessionId}, reportId=${result.savedReport?.id})`);
   } catch (error) {
-    await setPipelineStatus(sessionId, { status: 'error', error: String(error) });
-    console.error('Pipeline failed inline', { sessionId, error: String(error) });
+    const errMsg = error instanceof Error ? error.message : String(error);
+    const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+    console.error(`[queue:inline] Pipeline failed (sessionId=${sessionId}):`, details);
+    try {
+      await setPipelineStatus(sessionId, { status: 'error', error: errMsg });
+    } catch (dbErr) {
+      const dbDetails = dbErr instanceof Error ? { message: dbErr.message, stack: dbErr.stack } : dbErr;
+      console.error(`[queue:inline] CRITICAL: Could not write error status to DB for ${sessionId}:`, dbDetails);
+    }
   }
 }
 
@@ -61,16 +69,18 @@ export async function consumeQueueBatch(batch: MessageBatch<unknown>): Promise<v
   for (const msg of batch.messages) {
     const body = msg.body as { type?: string; payload?: AssessmentReportJob; sentAt?: string };
     if (body.type === 'pipeline:run' && body.payload) {
-      console.info('Queue consumer: processing job', { id: msg.id, sentAt: body.sentAt });
+      const sessionId = body.payload.sessionId || body.payload.callId || 'unknown';
+      console.info(`[queue:consumer] Processing job (id=${msg.id}, sessionId=${sessionId}, sentAt=${body.sentAt})`);
       try {
         await runPipelineInline(body.payload);
         msg.ack();
       } catch (err) {
-        console.error('Queue consumer: job failed, will retry', { id: msg.id, error: String(err) });
+        const details = err instanceof Error ? { message: err.message, stack: err.stack } : err;
+        console.error(`[queue:consumer] Job failed (id=${msg.id}, sessionId=${sessionId}):`, details);
         msg.retry();
       }
     } else {
-      console.warn('Queue consumer: unknown message type', { id: msg.id, body });
+      console.warn(`[queue:consumer] Unknown message type (id=${msg.id}):`, body);
       msg.ack();
     }
   }

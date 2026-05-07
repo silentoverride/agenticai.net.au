@@ -62,7 +62,7 @@ TRANSCRIPT END`,
 
 export async function analyzeTranscript(job: AssessmentReportJob, tools?: AITool[]): Promise<string> {
   const messages = buildAnalysisMessages(job.transcript, job, tools);
-  const response = await llmChat(messages, { temperature: 0.5, maxTokens: 8192 });
+  const response = await llmChat(messages, { temperature: 0.5, maxTokens: 4096, timeoutMs: 120000 });
 
   try {
     JSON.parse(response.content);
@@ -77,6 +77,7 @@ export async function analyzeTranscript(job: AssessmentReportJob, tools?: AITool
         // Fall through
       }
     }
+    console.error('LLM returned invalid JSON for assessment analysis. Raw response (first 2000 chars):', response.content.slice(0, 2000));
     throw new Error('LLM returned invalid JSON for assessment analysis');
   }
 
