@@ -58,11 +58,15 @@ export function sanitizeSpokenPhoneNumber(raw: string): string {
   }
 
   // Strip everything except digits
-  const digits = text.replace(/\D/g, '');
+  let digits = text.replace(/\D/g, '');
   if (!digits) return '';
 
+  // Fix malformed AU numbers that kept the leading 0 after +61 (e.g. +610412... → +61412...)
+  if (digits.startsWith('610') && digits.length >= 12) {
+    digits = '61' + digits.slice(3);
+  }
+
   // Normalise to E.164 (assume AU mobile unless already international)
-  if (digits.startsWith('+')) return digits; // already handled by \D stripping; won't happen
   if (digits.startsWith('61') && digits.length >= 11) return `+${digits}`;
   if (digits.startsWith('0') && digits.length >= 9) return `+61${digits.slice(1)}`;
   if (digits.length >= 9) return `+61${digits}`; // no prefix → assume AU
@@ -97,9 +101,21 @@ export function sanitizeVoiceEmail(raw: string): string | null {
 export function normalizePhoneNumber(phoneNumber: string) {
   const trimmed = phoneNumber.trim();
   if (!trimmed) return '';
-  if (trimmed.startsWith('+')) return trimmed.replace(/[^\d+]/g, '');
+  if (trimmed.startsWith('+')) {
+    let cleaned = trimmed.replace(/[^\d+]/g, '');
+    // Fix malformed AU numbers that kept the leading 0 after +61
+    if (cleaned.startsWith('+610')) {
+      cleaned = cleaned.replace(/^\+610/, '+61');
+    }
+    return cleaned;
+  }
 
   const digits = trimmed.replace(/\D/g, '');
+
+  // Fix malformed AU numbers that kept the leading 0 after +61
+  if (digits.startsWith('610') && digits.length >= 12) {
+    return `+61${digits.slice(3)}`;
+  }
 
   if (digits.startsWith('61')) return `+${digits}`;
   if (digits.startsWith('0')) return `+61${digits.slice(1)}`;

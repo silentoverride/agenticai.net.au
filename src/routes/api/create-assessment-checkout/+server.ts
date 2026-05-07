@@ -135,9 +135,17 @@ export const POST: RequestHandler = async ({ request, url }) => {
     try {
       const sms = await sendTwilioSms(customerPhone, message);
       responseBody.sms = { sent: true, sid: sms.sid, status: sms.status };
+      console.info('[create-checkout] Twilio SMS sent', { to: sms.to, sid: sms.sid, status: sms.status });
     } catch (error: any) {
+      console.error('[create-checkout] Twilio SMS failed:', error);
       responseBody.sms = { sent: false, status: 'failed', message: error instanceof Error ? error.message : 'SMS failed' };
     }
+  } else {
+    console.info('[create-checkout] SMS skipped — not a Retell voice agent, phone missing, or Twilio not configured', {
+      source: body.source,
+      hasPhone: !!customerPhone,
+      twilioReady: isTwilioConfigured()
+    });
   }
 
   return json(responseBody);

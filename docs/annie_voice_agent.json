@@ -311,11 +311,11 @@
         "name": "Approval Confirmation and Contact Details",
         "edges": [
           {
-            "destination_node_id": "node-extract-contact-details",
+            "destination_node_id": "node-1778132487500",
             "id": "edge-contact-to-business-context",
             "transition_condition": {
               "type": "prompt",
-              "prompt": "The caller has provided name, role, company, email, and phone number."
+              "prompt": "After collecting the caller's contact details (name, email, phone, company), call this tool to save them as dynamic variables for later use in the assessment process."
             }
           }
         ],
@@ -327,76 +327,7 @@
         },
         "instruction": {
           "type": "prompt",
-          "text": "Start by saying: Great, thank you. I have recorded your approval. I will ask one question at a time and focus on how your business works, where time is being lost, and where AI or automation may help.\n\nCollect these required fields before moving on:\n- caller_name\n- caller_role\n- company\n- caller_email\n- caller_phone\n\nAsk one question at a time:\n1. What is your name and role in the business?\n2. What is the company or business name?\n3. What is the best email address for assessment updates and the report?\n4. What is the best phone number to contact you if the assessment team needs to clarify anything?\n\nConfirm the contact details back naturally. Then call the save_contact_details tool to save them. After saving, say: Thanks. I have your contact details recorded. Now I will move into the business workflow questions."
-        }
-      },
-      {
-        "id": "node-extract-contact-details",
-        "type": "extract_dynamic_variables",
-        "name": "Extract Contact Details",
-        "display_position": {
-          "x": 1926,
-          "y": 66
-        },
-        "variables": [
-          {
-            "name": "caller_name",
-            "type": "string",
-            "description": "The caller's full name as provided during the contact details collection.",
-            "required": true,
-            "examples": [
-              "John Smith",
-              "Sarah Johnson"
-            ]
-          },
-          {
-            "name": "caller_email",
-            "type": "string",
-            "description": "The caller's email address for assessment updates and the report.",
-            "required": true,
-            "examples": [
-              "john@example.com",
-              "sarah@business.com.au"
-            ]
-          },
-          {
-            "name": "caller_phone",
-            "type": "string",
-            "description": "The caller's phone number. Format by dropping the first 0 and replacing it with +61. E.g. 0468312233 becomes +61468312233.",
-            "required": true,
-            "examples": [
-              "+61468312233",
-              "+61291234567"
-            ]
-          },
-          {
-            "name": "company",
-            "type": "string",
-            "description": "The company or business name mentioned by the caller.",
-            "required": true,
-            "examples": [
-              "Acme Pty Ltd",
-              "Smith Consulting"
-            ]
-          }
-        ],
-        "edges": [
-          {
-            "id": "edge-extract-to-business-context",
-            "destination_node_id": "node-business-context",
-            "transition_condition": {
-              "type": "prompt",
-              "prompt": "The contact details have been successfully extracted."
-            }
-          }
-        ],
-        "else_edge": {
-          "id": "edge-extract-fallback",
-          "destination_node_id": "node-business-context",
-          "transition_condition": {
-            "type": "prompt",
-            "prompt": "Else"
-          }
+          "text": "Start by saying: Great, thank you. I have recorded your approval. I will ask one question at a time and focus on how your business works, where time is being lost, and where AI or automation may help.\n\nCollect these required fields before moving on:\n- caller_name\n- caller_role\n- company\n- caller_email\n- caller_phone\n\nAsk one question at a time:\n1. What is your name and role in the business?\n2. What is the company or business name?\n3. What is the best email address for assessment updates and the report?\n4. What is the best phone number to contact you if the assessment team needs to clarify anything?\n\nConfirm the contact details back naturally. Then call the\u00a0 save_contact_details tool to save them. After saving say: Thanks. I have your contact details recorded. Now I will move into the business workflow questions."
         }
       },
       {
@@ -414,7 +345,7 @@
         "id": "node-business-context",
         "type": "conversation",
         "display_position": {
-          "x": 2190,
+          "x": 2742,
           "y": 78
         },
         "instruction": {
@@ -437,7 +368,7 @@
         "id": "node-operating-rhythm",
         "type": "conversation",
         "display_position": {
-          "x": 2742,
+          "x": 3294,
           "y": 150
         },
         "instruction": {
@@ -460,7 +391,7 @@
         "id": "node-pain-discovery",
         "type": "conversation",
         "display_position": {
-          "x": 3294,
+          "x": 3846,
           "y": 126
         },
         "instruction": {
@@ -483,7 +414,7 @@
         "id": "node-tools-systems",
         "type": "conversation",
         "display_position": {
-          "x": 3846,
+          "x": 4398,
           "y": 78
         },
         "instruction": {
@@ -506,7 +437,7 @@
         "id": "node-repeated-work",
         "type": "conversation",
         "display_position": {
-          "x": 4398,
+          "x": 4950,
           "y": 54
         },
         "instruction": {
@@ -529,7 +460,7 @@
         "id": "node-leads-sales-response",
         "type": "conversation",
         "display_position": {
-          "x": 4950,
+          "x": 5502,
           "y": 126
         },
         "instruction": {
@@ -557,7 +488,7 @@
         "knowledge_base_ids": [],
         "type": "conversation",
         "display_position": {
-          "x": 5502,
+          "x": 6054,
           "y": 126
         }
       },
@@ -576,7 +507,7 @@
         "id": "node-reporting-visibility",
         "type": "conversation",
         "display_position": {
-          "x": 6054,
+          "x": 6606,
           "y": 150
         },
         "instruction": {
@@ -604,7 +535,7 @@
         "knowledge_base_ids": [],
         "type": "conversation",
         "display_position": {
-          "x": 6606,
+          "x": 7158,
           "y": 6
         },
         "kb_config": {
@@ -626,7 +557,7 @@
         "id": "node-priority-constraints",
         "type": "conversation",
         "display_position": {
-          "x": 7158,
+          "x": 7710,
           "y": 78
         },
         "instruction": {
@@ -649,7 +580,7 @@
         "id": "node-intake-summary",
         "type": "conversation",
         "display_position": {
-          "x": 7710,
+          "x": 8262,
           "y": 150
         },
         "instruction": {
@@ -672,7 +603,7 @@
         "id": "node-final-open-question",
         "type": "conversation",
         "display_position": {
-          "x": 8262,
+          "x": 8790,
           "y": 150
         },
         "instruction": {
@@ -700,7 +631,7 @@
         "type": "end",
         "speak_during_execution": true,
         "display_position": {
-          "x": 9894,
+          "x": 10446,
           "y": 222
         },
         "instruction": {
@@ -743,8 +674,7 @@
                 }
               ],
               "operator": "||"
-            },
-            "destination_node_id": "node-1778096221072"
+            }
           }
         ],
         "enable_typing_sound": false,
@@ -753,8 +683,8 @@
         "tool_type": "local",
         "speak_during_execution": false,
         "display_position": {
-          "x": 8790,
-          "y": 246
+          "x": 9342,
+          "y": 198
         },
         "wait_for_result": true
       },
@@ -781,12 +711,60 @@
         "id": "node-1778096221072",
         "type": "conversation",
         "display_position": {
-          "x": 9342,
+          "x": 9894,
           "y": 102
         },
         "instruction": {
           "type": "prompt",
           "text": "The assessment intake is complete. The next step is secure payment through Stripe for the $1,200.00 assessment fee. \n\nOnce payment is confirmed, your transcript will be sent for analysis and the report will be prepared.\n\nIf the payment function result shouws the checkout URL was created successfully, tell the caller the secure Stripe checkout link has been sent by SMS.\n\nIf there was an error, tell the caller the assessment team will follow up."
+        }
+      },
+      {
+        "variables": [
+          {
+            "name": "caller_name",
+            "type": "string",
+            "description": "The caller's full name.\n\nExample: John Doe"
+          },
+          {
+            "name": "caller_email",
+            "type": "string",
+            "description": "The caller's email address for assessment updates and the report.\n\nExample: john@example.com"
+          },
+          {
+            "name": "caller_phone",
+            "type": "string",
+            "description": "The caller's phone number. Format by dropping the first 0 and replacing it with +61 E.g. 0468312233 become +61468312233\n\nExample: +61468123456"
+          },
+          {
+            "name": "company",
+            "type": "string",
+            "description": "The company or business mentioned by the caller.\n\nExample: Acme Pty Ltd"
+          }
+        ],
+        "else_edge": {
+          "id": "node-1778132487500-else-edge",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Else"
+          }
+        },
+        "name": "Extract Contact Details",
+        "edges": [
+          {
+            "destination_node_id": "node-business-context",
+            "id": "edge-1778132939828-ysiab0w81",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The contact details have been successfully extracted."
+            }
+          }
+        ],
+        "id": "node-1778132487500",
+        "type": "extract_dynamic_variables",
+        "display_position": {
+          "x": 2190,
+          "y": 150
         }
       }
     ],
@@ -834,6 +812,7 @@
     "tools": [
       {
         "headers": {
+          "User-Agent": "Retell-AI/1.0",
           "Content-Type": "application/json",
           "x-agenticai-webhook-secret": "Az2qKCztMxLnjA56YxsqZDgzAFKWfIivpzqnlQTFD1c="
         },
@@ -871,8 +850,8 @@
           "properties": {
             "retellCallId": {
               "type": "string",
-              "description": "Retell Call Id",
-              "const": "{{call_id}}"
+              "const": "{{call_id}}",
+              "description": "Retell Call Id"
             },
             "company": {
               "type": "string",
@@ -904,49 +883,6 @@
             }
           }
         }
-      },
-      {
-        "name": "save_contact_details",
-        "type": "extract_dynamic_variable",
-        "description": "After collecting the caller's contact details (name, email, phone, company), call this tool to save them as dynamic variables for later use in the assessment process.",
-        "variables": [
-          {
-            "name": "caller_name",
-            "type": "string",
-            "description": "The caller's full name.",
-            "required": true,
-            "examples": [
-              "John Smith"
-            ]
-          },
-          {
-            "name": "caller_email",
-            "type": "string",
-            "description": "The caller's email address for assessment updates and the report.",
-            "required": true,
-            "examples": [
-              "john@example.com"
-            ]
-          },
-          {
-            "name": "caller_phone",
-            "type": "string",
-            "description": "The caller's phone number. Format by dropping the first 0 and replacing it with +61. E.g. 0468312233 becomes +61468312233.",
-            "required": true,
-            "examples": [
-              "+61468312233"
-            ]
-          },
-          {
-            "name": "company",
-            "type": "string",
-            "description": "The company or business name mentioned by the caller.",
-            "required": true,
-            "examples": [
-              "Acme Pty Ltd"
-            ]
-          }
-        ]
       }
     ],
     "model_choice": {
