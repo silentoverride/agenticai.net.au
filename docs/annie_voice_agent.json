@@ -311,7 +311,7 @@
         "name": "Approval Confirmation and Contact Details",
         "edges": [
           {
-            "destination_node_id": "node-business-context",
+            "destination_node_id": "node-extract-contact-details",
             "id": "edge-contact-to-business-context",
             "transition_condition": {
               "type": "prompt",
@@ -327,7 +327,76 @@
         },
         "instruction": {
           "type": "prompt",
-          "text": "Start by saying: Great, thank you. I have recorded your approval. I will ask one question at a time and focus on how your business works, where time is being lost, and where AI or automation may help.\n\nCollect these required fields before moving on:\n- caller_name\n- caller_role\n- company\n- caller_email\n- caller_phone\n\nAsk one question at a time:\n1. What is your name and role in the business?\n2. What is the company or business name?\n3. What is the best email address for assessment updates and the report?\n4. What is the best phone number to contact you if the assessment team needs to clarify anything?\n\nConfirm the contact details back naturally. Then say: Thanks. I have your contact details recorded. Now I will move into the business workflow questions."
+          "text": "Start by saying: Great, thank you. I have recorded your approval. I will ask one question at a time and focus on how your business works, where time is being lost, and where AI or automation may help.\n\nCollect these required fields before moving on:\n- caller_name\n- caller_role\n- company\n- caller_email\n- caller_phone\n\nAsk one question at a time:\n1. What is your name and role in the business?\n2. What is the company or business name?\n3. What is the best email address for assessment updates and the report?\n4. What is the best phone number to contact you if the assessment team needs to clarify anything?\n\nConfirm the contact details back naturally. Then call the save_contact_details tool to save them. After saving, say: Thanks. I have your contact details recorded. Now I will move into the business workflow questions."
+        }
+      },
+      {
+        "id": "node-extract-contact-details",
+        "type": "extract_dynamic_variables",
+        "name": "Extract Contact Details",
+        "display_position": {
+          "x": 1926,
+          "y": 66
+        },
+        "variables": [
+          {
+            "name": "caller_name",
+            "type": "string",
+            "description": "The caller's full name as provided during the contact details collection.",
+            "required": true,
+            "examples": [
+              "John Smith",
+              "Sarah Johnson"
+            ]
+          },
+          {
+            "name": "caller_email",
+            "type": "string",
+            "description": "The caller's email address for assessment updates and the report.",
+            "required": true,
+            "examples": [
+              "john@example.com",
+              "sarah@business.com.au"
+            ]
+          },
+          {
+            "name": "caller_phone",
+            "type": "string",
+            "description": "The caller's phone number. Format by dropping the first 0 and replacing it with +61. E.g. 0468312233 becomes +61468312233.",
+            "required": true,
+            "examples": [
+              "+61468312233",
+              "+61291234567"
+            ]
+          },
+          {
+            "name": "company",
+            "type": "string",
+            "description": "The company or business name mentioned by the caller.",
+            "required": true,
+            "examples": [
+              "Acme Pty Ltd",
+              "Smith Consulting"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "id": "edge-extract-to-business-context",
+            "destination_node_id": "node-business-context",
+            "transition_condition": {
+              "type": "prompt",
+              "prompt": "The contact details have been successfully extracted."
+            }
+          }
+        ],
+        "else_edge": {
+          "id": "edge-extract-fallback",
+          "destination_node_id": "node-business-context",
+          "transition_condition": {
+            "type": "prompt",
+            "prompt": "Else"
+          }
         }
       },
       {
@@ -835,6 +904,49 @@
             }
           }
         }
+      },
+      {
+        "name": "save_contact_details",
+        "type": "extract_dynamic_variable",
+        "description": "After collecting the caller's contact details (name, email, phone, company), call this tool to save them as dynamic variables for later use in the assessment process.",
+        "variables": [
+          {
+            "name": "caller_name",
+            "type": "string",
+            "description": "The caller's full name.",
+            "required": true,
+            "examples": [
+              "John Smith"
+            ]
+          },
+          {
+            "name": "caller_email",
+            "type": "string",
+            "description": "The caller's email address for assessment updates and the report.",
+            "required": true,
+            "examples": [
+              "john@example.com"
+            ]
+          },
+          {
+            "name": "caller_phone",
+            "type": "string",
+            "description": "The caller's phone number. Format by dropping the first 0 and replacing it with +61. E.g. 0468312233 becomes +61468312233.",
+            "required": true,
+            "examples": [
+              "+61468312233"
+            ]
+          },
+          {
+            "name": "company",
+            "type": "string",
+            "description": "The company or business name mentioned by the caller.",
+            "required": true,
+            "examples": [
+              "Acme Pty Ltd"
+            ]
+          }
+        ]
       }
     ],
     "model_choice": {
