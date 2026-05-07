@@ -48,22 +48,36 @@ Return ONLY a JSON array of pain points. No markdown, no explanations.
 TRANSCRIPT:
 ${transcript.slice(0, 8000)}${transcript.length > 8000 ? '...[truncated]' : ''}`;
 
-  const response = await fetch('https://api.perplexity.ai/chat/completions', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${perplexityKey}`
-    },
-    body: JSON.stringify({
-      model: env.PERPLEXITY_MODEL || 'sonar-pro',
-      messages: [
-        { role: 'system', content: 'You extract business pain points and generate search queries for AI tool discovery. Always return valid JSON arrays.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.3,
-      max_tokens: 2048
-    })
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+  let response: Response;
+  try {
+    response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${perplexityKey}`
+      },
+      body: JSON.stringify({
+        model: env.PERPLEXITY_MODEL || 'sonar-pro',
+        messages: [
+          { role: 'system', content: 'You extract business pain points and generate search queries for AI tool discovery. Always return valid JSON arrays.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 2048
+      }),
+      signal: controller.signal
+    });
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error('Perplexity pain-point extraction timed out after 20000ms');
+    }
+    throw err;
+  }
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const error = await response.text().catch(() => '');
@@ -124,22 +138,36 @@ For each tool found, provide:
 
 Return ONLY a JSON array of tools. No markdown, no explanations. Limit to 8 tools total, prioritising tools with clear pricing and free tiers.`;
 
-  const response = await fetch('https://api.perplexity.ai/chat/completions', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${perplexityKey}`
-    },
-    body: JSON.stringify({
-      model: env.PERPLEXITY_MODEL || 'sonar-pro',
-      messages: [
-        { role: 'system', content: 'You are an AI tool researcher specialising in finding real, current software tools from futurepedia.io and theresanaiforthat.com. Always return valid JSON arrays with accurate URLs.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.2,
-      max_tokens: 4096
-    })
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+  let response: Response;
+  try {
+    response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${perplexityKey}`
+      },
+      body: JSON.stringify({
+        model: env.PERPLEXITY_MODEL || 'sonar-pro',
+        messages: [
+          { role: 'system', content: 'You are an AI tool researcher specialising in finding real, current software tools from futurepedia.io and theresanaiforthat.com. Always return valid JSON arrays with accurate URLs.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.2,
+        max_tokens: 4096
+      }),
+      signal: controller.signal
+    });
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error('Perplexity tool lookup timed out after 25000ms');
+    }
+    throw err;
+  }
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const error = await response.text().catch(() => '');

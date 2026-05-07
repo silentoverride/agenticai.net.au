@@ -34,3 +34,6 @@ Thumbs.db
 
 # Wrangler local state
 .wrangler/
+
+# Local dev databases
+app_data/*.db

@@ -19,6 +19,7 @@ Compiled pages by topic. One-line summary + last updated.
 - [Retell Platform Overview](integrations/retell.md) — Retell AI platform capabilities, agent types, telephony, monitoring, and webhook events. Updated: 2026-05-02
 - [Stripe Platform Documentation](integrations/stripe-platform.md) — Official Stripe docs reference for Checkout, webhooks, testing, and security. Updated: 2026-05-02
 - [Stripe Payment Integration](integrations/stripe.md) — Stripe Checkout setup for $1,200 AUD assessment fee, webhook handling, and security rules. Updated: 2026-05-02
+- [SendGrid Dynamic Templates](integrations/sendgrid-dynamic-templates.md) — Handlebars-powered transactional email templates via SendGrid API and UI. Updated: 2026-05-07
 - [Twilio Integration](integrations/twilio.md) — Twilio SIP trunking for voice calls and SMS payment link delivery. Updated: 2026-05-02
 
 ## operations

@@ -10,6 +10,7 @@ export interface LlmOptions {
   temperature?: number;
   maxTokens?: number;
   format?: 'json' | 'text';
+  timeoutMs?: number;
 }
 
 export interface LlmResponse {
@@ -63,11 +64,26 @@ export async function llmChat(messages: LlmMessage[], options: LlmOptions = {}):
     ...options.format && { response_format: { type: 'json_object' } }
   });
 
-  const response = await fetch(`${config.baseUrl}/v1/chat/completions`, {
-    method: 'POST',
-    headers,
-    body
-  });
+  const timeoutMs = options.timeoutMs ?? 45000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response: Response;
+  try {
+    response = await fetch(`${config.baseUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers,
+      body,
+      signal: controller.signal
+    });
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error(`LLM request timed out after ${timeoutMs}ms`);
+    }
+    throw err;
+  }
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const error = await response.text().catch(() => '');

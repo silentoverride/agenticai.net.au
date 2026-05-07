@@ -7,6 +7,7 @@ Registry of every source. In-project paths are relative to project root.
 - **Cloudflare Documentation** — `https://developers.cloudflare.com/` — collected 2026-05-02 → [Cloudflare infrastructure](../integrations/cloudflare.md)
 - **Stripe Documentation** — `https://docs.stripe.com/` — collected 2026-05-02 → [Stripe platform docs](../integrations/stripe-platform.md)
 - **Retell AI — Introduction** — `https://docs.retellai.com/general/introduction` — collected 2026-05-02 → [Retell platform overview](../integrations/retell.md)
+- **SendGrid Dynamic Templates** — `https://www.twilio.com/docs/sendgrid/ui/sending-email/how-to-send-an-email-with-dynamic-templates` — collected 2026-05-07 → [SendGrid dynamic templates](../integrations/sendgrid-dynamic-templates.md)
 - **AI Business Assessment Business Plan** — `docs/AI Business Assessment Business Plan.md` — collected 2026-05-02 → [Service model](../business/service-model.md), [Question knowledgebase](../agents/question-knowledgebase.md)
 - **Question Knowledgebase** — `docs/question-knowledgebase.md` — collected 2026-05-02 → [Question knowledgebase](../agents/question-knowledgebase.md)
 - **Retell Chat Agent Workflow** — `docs/retell-annie-chat-agent-workflow.md` — collected 2026-05-02 → [Annie chat agent](../agents/annie-chat-agent.md)

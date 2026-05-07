@@ -2,7 +2,16 @@
 
 Operational log of ingests, queries, lints, and schema changes.
 
-## [2026-05-02] docs | Client Portal API documentation and JSDoc
+## [2026-05-07] ingest | SendGrid Dynamic Templates Documentation
+- **Source registered:** `SendGrid Dynamic Templates` — `https://www.twilio.com/docs/sendgrid/ui/sending-email/how-to-send-an-email-with-dynamic-templates` — web reference under `docs` bucket
+- **Page created:** `integrations/sendgrid-dynamic-templates.md` — Handlebars template system for transactional email via SendGrid API:
+  - Template creation workflow (UI + API)
+  - Handlebars substitution syntax and personalization data
+  - Mail Send API request format with `dynamic_template_data`
+  - Comparison with current inline-HTML approach in `src/lib/server/email.ts`
+  - Migration path to Dynamic Templates (designer-friendly, versioned, conditional logic)
+- **Updated:** `raw-sources/index.md` (registered source), `index.md` (added to integrations topic)
+
 - **Created:** `docs/client-portal.md` — comprehensive markdown documentation covering:
   - Overview and architecture
   - Full API reference for `db.ts`, `portal.ts`, and all `/api/portal/*` routes
