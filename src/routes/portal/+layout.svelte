@@ -1,19 +1,26 @@
 <script lang="ts">
   import { useClerkContext } from 'svelte-clerk';
-  import { SignIn } from 'svelte-clerk';
+  import { SignIn, SignUp } from 'svelte-clerk';
+  import { page } from '$app/state';
 
   let { children } = $props();
 
   const clerk = useClerkContext();
+
+  const isSignUp = page.url.pathname === '/portal/sign-up';
 </script>
 
 <div class="portal-layout">
   {#if clerk.auth.userId == null}
     <div class="portal-auth-gate">
       <h1>Client Portal</h1>
-      <p>Sign in to view your AI Business Assessment reports and receipts.</p>
+      <p>Sign {isSignUp ? 'up' : 'in'} to view your AI Business Assessment reports and receipts.</p>
       <div class="portal-signin">
-        <SignIn />
+        {#if isSignUp}
+          <SignUp />
+        {:else}
+          <SignIn />
+        {/if}
       </div>
     </div>
   {:else}

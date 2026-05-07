@@ -135,7 +135,7 @@
   <meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
-<main>
+<main class="light-theme">
   <section class="page-hero">
     <p class="eyebrow">Assessment payment</p>
     <h1>Thank you</h1>
@@ -147,12 +147,6 @@
         </a>
       </p>
     {/if}
-
-    <p class="portal-link">
-      <a href="/portal">
-        Set up your portal account →
-      </a>
-    </p>
   </section>
 
   <section class="section split-section">
@@ -161,6 +155,11 @@
       <p>
         Your intake is reviewed and turned into an AI Business Assessment report covering workflow pain
         points, quick wins, effort versus impact, estimated value, and implementation options.
+      </p>
+      <p class="portal-link">
+        <a href="/portal/sign-up">
+          Set up your portal account →
+        </a>
       </p>
     </div>
     <div class="statement-panel">
@@ -172,13 +171,48 @@
 </main>
 
 <style>
-  .status-message {
-    white-space: pre-line;
+  .light-theme {
+    background: #fff;
+    color: #1a1a2e;
+    min-height: 100vh;
+    padding: 2rem;
   }
 
-  .deck-link {
-    margin-top: 1.5rem;
+  .light-theme .page-hero {
+    background: #fff;
+    color: #1a1a2e;
   }
+
+  .light-theme .status-message {
+    white-space: pre-line;
+    color: #333;
+  }
+
+  .light-theme h1,
+  .light-theme h2,
+  .light-theme h3 {
+    color: #1a1a2e;
+  }
+
+  .light-theme .eyebrow {
+    color: #666;
+  }
+
+  .light-theme .statement-panel {
+    background: #f5f7fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .light-theme .statement-panel p,
+  .light-theme .statement-panel a {
+    color: #333;
+  }
+
+  .light-theme .split-section p {
+    color: #333;
+  }
+
   .deck-link a {
     display: inline-block;
     background: var(--color-accent, #0066cc);
@@ -192,9 +226,6 @@
     opacity: 0.9;
   }
 
-  .portal-link {
-    margin-top: 1.5rem;
-  }
   .portal-link a {
     display: inline-block;
     border: 2px solid var(--color-accent, #0066cc);
