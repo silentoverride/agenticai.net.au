@@ -802,7 +802,8 @@
           "properties": {
             "retellCallId": {
               "type": "string",
-              "description": "Retell Call Id"
+              "description": "Retell Call Id",
+              "const": "{{call_id}}"
             },
             "company": {
               "type": "string",
