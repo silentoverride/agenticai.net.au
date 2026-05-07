@@ -137,7 +137,7 @@
     gap: 0.75rem;
     flex-wrap: wrap;
   }
-  .btn-primary, .btn-secondary {
+  .btn-primary {
     padding: 0.5rem 1rem;
     border-radius: 8px;
     text-decoration: none;
@@ -145,13 +145,7 @@
     font-weight: 500;
     display: inline-block;
     cursor: pointer;
-  }
-  .btn-primary {
     background: #0066ff;
     color: white;
-  }
-  .btn-secondary {
-    background: #f0f0f0;
-    color: #1a1a2e;
   }
 </style>
