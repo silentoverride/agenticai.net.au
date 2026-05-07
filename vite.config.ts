@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [sveltekit()],
   ssr: {
-    noExternal: [/^@clerk\//, 'cookie', 'devalue', 'set-cookie-parser', 'clsx']
+    noExternal: [/^@clerk\//, 'cookie', 'devalue', 'set-cookie-parser', 'clsx', '@sveltejs/kit', '@sveltejs/kit/internal', '@sveltejs/kit/internal/server']
   }
 });
 
