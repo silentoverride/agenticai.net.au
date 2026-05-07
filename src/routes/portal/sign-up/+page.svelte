@@ -1,15 +1,8 @@
 <script lang="ts">
   import { useClerkContext } from 'svelte-clerk';
-  import { goto } from '$app/navigation';
 
   const clerk = useClerkContext();
   const user = $derived(clerk.user);
-
-  $effect(() => {
-    if (clerk.auth.userId) {
-      goto('/portal');
-    }
-  });
 </script>
 
 {#if user}
