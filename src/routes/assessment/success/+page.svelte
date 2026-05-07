@@ -9,7 +9,7 @@
   interface TranscriptResponse {
     status?:
       | 'queued'
-      | 'pending_transcript'
+      | 'pending_payment'
       | 'running_llm'
       | 'running_tools'
       | 'running_deck'
@@ -24,7 +24,7 @@
 
   const statusMessages: Record<string, string> = {
     queued: 'Assessment received. Your report is now in the queue for processing.',
-    pending_transcript: 'Payment received. Waiting for the voice interview to finish — your report will be generated automatically.',
+    pending_payment: 'Payment received. Waiting for the voice interview to finish — your report will be generated automatically.',
     running_llm: 'Transcript received. Our AI is analysing your workflow and identifying opportunities...',
     running_tools: 'Analysis nearly complete. Matching the best AI tools to your pain points...',
     running_deck: 'Finalising your report — assembling the presentation with recommendations...',
@@ -73,8 +73,8 @@
       if (data.status === 'queued' || response.status === 202) {
         status = statusMessages.queued || statusMessages.queued;
         startPolling(sessionId);
-      } else if (data.status === 'pending_transcript') {
-        status = statusMessages.pending_transcript;
+      } else if (data.status === 'pending_payment') {
+        status = statusMessages.pending_payment;
         startPolling(sessionId);
       } else if (data.status === 'completed') {
         status = statusMessages.completed;

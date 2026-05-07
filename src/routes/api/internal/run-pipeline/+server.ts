@@ -12,7 +12,6 @@ import { json, error, text } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { runReportPipeline } from '$lib/server/assessment/pipeline';
 import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
-import { deleteTranscript } from '$lib/server/assessment/transcript-store';
 import type { RequestHandler } from './$types';
 import type { AssessmentReportJob } from '$lib/server/assessment/types';
 
@@ -44,12 +43,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
       reportId: result.savedReport?.id
     });
 
-    // Clean up transcript from D1 store once pipeline completes
-    try {
-      await deleteTranscript(job.sessionId);
-    } catch (e) {
-      console.warn(`[run-pipeline:${job.sessionId}] Failed to delete transcript after pipeline completion`, { error: String(e) });
-    }
+    // Transcript is kept in D1 for retry resilience — do NOT delete it
 
     return json({ ok: true, result });
   } catch (err) {

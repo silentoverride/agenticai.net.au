@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { getCheckoutSession } from '$lib/server/stripe';
-import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
+import { getTranscript } from '$lib/server/assessment/transcript-store';
 import { getPipelineStatus, setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
 import { sanitizeSpokenPhoneNumber, sanitizeVoiceEmail } from '$lib/server/twilio';
@@ -62,15 +62,15 @@ export const POST: RequestHandler = async ({ request, platform }) => {
       }
       customerPhone = customerPhone || sanitizeSpokenPhoneNumber((stored.metadata.customer_phone as string) || '');
       company = company || (stored.metadata.company as string) || '';
-      await deleteTranscript(retellCallId);
+      // Transcript intentionally kept in D1 for retry resilience — do NOT delete it
     }
   }
 
   if (!transcript) {
-    await setPipelineStatus(payload.sessionId, { status: 'pending_transcript' });
+    await setPipelineStatus(payload.sessionId, { status: 'pending_payment' });
     return json({
-      message: 'Payment verified, but transcript not available yet. It will be processed when the interview completes.',
-      status: 'pending_transcript',
+      message: 'Payment verified. Your transcript will be analyzed once it is available.',
+      status: 'pending_payment',
       sessionId: payload.sessionId
     }, { status: 202 });
   }

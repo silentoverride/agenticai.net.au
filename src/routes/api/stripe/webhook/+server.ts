@@ -2,8 +2,8 @@ import { env } from '$env/dynamic/private';
 import { text } from '@sveltejs/kit';
 import { verifyStripeSignature } from '$lib/server/stripe';
 import { sendReceiptEmail, sendPortalInvitationEmail } from '$lib/server/assessment/emails';
-import { getTranscript, deleteTranscript } from '$lib/server/assessment/transcript-store';
-import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
+import { getTranscript } from '$lib/server/assessment/transcript-store';
+import { getPipelineStatus, setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
 import { saveReceipt, savePendingReceipt, findOrCreateUserFromStripe } from '$lib/server/portal';
 import { isEventProcessed, markEventProcessed } from '$lib/server/stripe/processed-events';
@@ -194,9 +194,9 @@ export const POST: RequestHandler = async ({ request, platform }) => {
           transcript
         });
 
-        await deleteTranscript(retellCallId);
+        // Transcript is intentionally kept in D1 for retry resilience — do NOT delete it
       } else {
-        await setPipelineStatus(session.id, { status: 'pending_transcript' });
+        await setPipelineStatus(session.id, { status: 'pending_payment' });
         console.info('Payment confirmed for retell call, but transcript not yet available', { callId: retellCallId });
       }
     }

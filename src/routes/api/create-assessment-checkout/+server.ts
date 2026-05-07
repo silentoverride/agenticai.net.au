@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
+import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { isTwilioConfigured, sanitizeSpokenPhoneNumber, sanitizeVoiceEmail, sendTwilioSms } from '$lib/server/twilio';
 import type { RequestHandler } from './$types';
 
@@ -117,6 +118,16 @@ export const POST: RequestHandler = async ({ request, url }) => {
       },
       { status: stripeResponse.status }
     );
+  }
+
+  // Store early pipeline_status row with call_id mapping for resilient transcript lookup
+  if (retellCallId) {
+    const sessionIdMatch = stripeBody.url.match(/cs_test_[a-zA-Z0-9]+/);
+    const sessionId = sessionIdMatch ? sessionIdMatch[0] : '';
+    if (sessionId) {
+      await setPipelineStatus(sessionId, { status: 'pending_payment', callId: retellCallId });
+      console.info('[create-checkout] Pipeline status stored with call_id', { sessionId, callId: retellCallId });
+    }
   }
 
   const responseBody: {
