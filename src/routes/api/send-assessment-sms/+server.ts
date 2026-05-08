@@ -1,16 +1,14 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
+import { apiError } from '$lib/server/api-error';
 import { isTwilioConfigured, sanitizeSpokenPhoneNumber, sendTwilioSms } from '$lib/server/twilio';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
   if (!isTwilioConfigured()) {
-    return json(
-      {
-        message:
-          'Twilio SMS is not configured. Set TWILIO_ACCOUNT_SID, Twilio API credentials, and a sender.'
-      },
-      { status: 501 }
+    throw apiError(
+      501,
+      'Twilio SMS is not configured. Set TWILIO_ACCOUNT_SID, Twilio API credentials, and a sender.'
     );
   }
 
@@ -18,7 +16,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const providedSecret = request.headers.get('x-agenticai-webhook-secret');
 
     if (providedSecret !== env.RETELL_TWILIO_WEBHOOK_SECRET) {
-      return json({ message: 'Unauthorized.' }, { status: 401 });
+      throw apiError(401, 'Unauthorized.');
     }
   }
 
@@ -37,7 +35,7 @@ export const POST: RequestHandler = async ({ request }) => {
   const customerName = body.customerName || body.callerName;
 
   if (!toPhone) {
-    return json({ message: 'customerPhone or callerPhone is required.' }, { status: 400 });
+    throw apiError(400, 'customerPhone or callerPhone is required.');
   }
 
   const smsBody =
@@ -45,7 +43,7 @@ export const POST: RequestHandler = async ({ request }) => {
     `Hi${customerName ? ` ${customerName}` : ''}, your secure Agentic AI Business Assessment payment link is ${body.checkoutUrl || '[payment link pending]'}. Once payment is complete, your transcript will be queued for analysis.`;
 
   if (!body.checkoutUrl && !body.message) {
-    return json({ message: 'checkoutUrl or message is required.' }, { status: 400 });
+    throw apiError(400, 'checkoutUrl or message is required.');
   }
 
   try {
@@ -60,11 +58,9 @@ export const POST: RequestHandler = async ({ request }) => {
   } catch (error) {
     console.error('Twilio assessment SMS failed:', error);
 
-    return json(
-      {
-        message: error instanceof Error ? error.message : 'Unable to send assessment SMS.'
-      },
-      { status: 502 }
+    throw apiError(
+      502,
+      error instanceof Error ? error.message : 'Unable to send assessment SMS.'
     );
   }
 };

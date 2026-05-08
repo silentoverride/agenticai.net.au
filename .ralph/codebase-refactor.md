@@ -53,7 +53,6 @@ Four parallel scouts investigated: `assessment/pipeline`, `database discrepancy`
 ### Remaining Architectural Issues (updated)
 2. Portal pages repeat similar fetch patterns with dev_user_id plumbing
 3. Database layer: dead Drizzle schema, raw SQL everywhere, schema drift between `db.ts`/`schema.ts`/migrations
-5. Error handling inconsistencies (5 different auth patterns, 3+ error response shapes)
 6. No centralized validation/schemas
 7. Report generation pipeline: no retries, no DLQ, swallowed errors, tight coupling
 8. Zero automated tests, no CI/CD pipeline
@@ -76,6 +75,28 @@ Four parallel scouts investigated: `assessment/pipeline`, `database discrepancy`
    - Net result: 17 `any` instances removed, all analysis data is now statically typed
    - `npm run check`: clean except pre-existing `call.ts` error (unrelated)
 
+### Architectural Fixes Applied (Iteration 6 — Issue #5: Error Handling)
+5. **Error handling standardised across all 14 API routes**
+   - Created `$lib/server/api-error.ts` with `apiError(status, message)` helper — thin wrapper around SvelteKit's `error()`
+   - Refactored 5 routes from `return json({message}, {status})` to `throw error()`:
+     - `assessment-transcript/+server.ts` (4 occurrences)
+     - `create-assessment-checkout/+server.ts` (3 occurrences)
+     - `create-retell-web-call/+server.ts` (2 occurrences)
+     - `retell-webhook/+server.ts` (3 occurrences)
+     - `send-assessment-sms/+server.ts` (4 occurrences)
+   - All 14 API routes now use the same error pattern: `throw error()` for errors, `json()` for success
+   - Routes already using `error()` correctly left unchanged: `end-call`, `internal/run-pipeline`, `pipeline-status`, `portal/user`, all portal routes
+   - Stripe webhook intentionally keeps `text()` responses (Stripe requires specific HTTP responses)
+   - Fixed pre-existing type error in `call.ts` (Retell client `on('error')` callback widening)
+   - `npm run check`: 0 errors, 0 warnings
+
+## Remaining Issues (post-Iteration 6)
+- Issue #2: Portal pages repeat similar fetch patterns (low priority — portal-client.ts already centralises fetch)
+- Issue #3: Dead Drizzle schema + schema drift (low priority — all queries are raw SQL via working wrapper)
+- Issue #6: No centralized input validation (Zod)
+- Issue #7: Pipeline retry/DLQ/reliability (highest risk/reward remaining)
+- Issue #8: Zero automated tests, no CI/CD
+
 ## Principles to Apply
 - **DRY**: Extract common auth patterns, API wrappers, UI components
 - **SOLID**: Separate concerns (auth, DB, business logic, presentation)
@@ -85,13 +106,13 @@ Four parallel scouts investigated: `assessment/pipeline`, `database discrepancy`
 - **Testability**: Dependency injection over direct imports
 
 ## Focus Areas
-1. Create shared auth middleware/hooks
-2. Create shared API client for portal pages
-3. Extract common UI components (cards, buttons, modals)
+1. Create shared auth middleware/hooks ✅
+2. Create shared API client for portal pages (done — portal-client.ts)
+3. Extract common UI components
 4. Type the database schema properly
 5. Add input validation schemas (Zod)
 6. Refactor pipeline for testability
-7. Standardize error handling
+7. Standardize error handling ✅
 
 ## Verification
 - npm run check passes

@@ -47,7 +47,8 @@ export async function startCall(source: string): Promise<void> {
       callStatus.set('idle');
     });
 
-    retellClient.on('error', (error: Error | string) => {
+    retellClient.on('error', (...args: unknown[]) => {
+      const error = args[0];
       console.error('Retell call error:', error);
       retellClient?.stopCall();
       retellClient = null;

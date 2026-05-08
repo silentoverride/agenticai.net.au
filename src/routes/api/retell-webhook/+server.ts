@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json, text } from '@sveltejs/kit';
+import { apiError } from '$lib/server/api-error';
 import { createAssessmentReportJob } from '$lib/server/assessment/retell-job';
 import { storeTranscript } from '$lib/server/assessment/transcript-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
@@ -27,11 +28,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
   try {
     payload = JSON.parse(rawBody || '{}');
   } catch {
-    return json({ message: 'Invalid Retell webhook JSON.' }, { status: 400 });
+    throw apiError(400, 'Invalid Retell webhook JSON.');
   }
 
   if (!payload.event) {
-    return json({ message: 'Missing Retell webhook event.' }, { status: 400 });
+    throw apiError(400, 'Missing Retell webhook event.');
   }
 
   const shouldProcess =
@@ -95,7 +96,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     const queue = platform?.env?.assessment_queue;
     const { queued, inline } = await enqueueReportJob(queue, job);
     if (!queued && !inline) {
-      return json({ message: 'Failed to queue pipeline job.' }, { status: 502 });
+      throw apiError(502, 'Failed to queue pipeline job.');
     }
   } else {
     const pendingStatus = await getPipelineStatusByCallId(job.callId!);
@@ -108,7 +109,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
       const enrichedJob = { ...job, sessionId: pendingStatus.sessionId };
       const { queued, inline } = await enqueueReportJob(queue, enrichedJob);
       if (!queued && !inline) {
-        return json({ message: 'Failed to queue pipeline job.' }, { status: 502 });
+        throw apiError(502, 'Failed to queue pipeline job.');
       }
     } else {
       console.info('Transcript stored for later processing upon payment', { callId: job.callId });

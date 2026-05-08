@@ -1,4 +1,5 @@
 import { json } from '@sveltejs/kit';
+import { apiError } from '$lib/server/api-error';
 import { getCheckoutSession } from '$lib/server/stripe';
 import { getTranscript } from '$lib/server/assessment/transcript-store';
 import { getPipelineStatus, setPipelineStatus } from '$lib/server/assessment/pipeline-store';
@@ -19,17 +20,17 @@ export const POST: RequestHandler = async ({ request, platform }) => {
   const payload = (await request.json().catch(() => null)) as Payload | null;
 
   if (!payload?.sessionId) {
-    return json({ message: 'Missing Stripe session id.' }, { status: 400 });
+    throw apiError(400, 'Missing Stripe session id.');
   }
 
   // Step 1: Verify payment via Stripe
   const stripeSession = await getCheckoutSession(payload.sessionId);
   if (!stripeSession) {
-    return json({ message: 'Could not retrieve Stripe session.' }, { status: 502 });
+    throw apiError(502, 'Could not retrieve Stripe session.');
   }
 
   if (stripeSession.payment_status !== 'paid' && stripeSession.status !== 'complete') {
-    return json({ message: 'Payment not yet completed.' }, { status: 400 });
+    throw apiError(400, 'Payment not yet completed.');
   }
 
   // Step 2: Collect transcript (client-side or from Retell server store)
@@ -109,7 +110,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 export const GET: RequestHandler = async ({ url }) => {
   const sessionId = url.searchParams.get('sessionId');
-  if (!sessionId) return json({ message: 'Missing sessionId' }, { status: 400 });
+  if (!sessionId) throw apiError(400, 'Missing sessionId');
 
   const result = await getPipelineStatus(sessionId);
   if (!result) return json({ status: 'unknown' });

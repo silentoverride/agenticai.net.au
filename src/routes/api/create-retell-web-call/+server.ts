@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
+import { apiError } from '$lib/server/api-error';
 import type { RequestHandler } from './$types';
 
 interface RetellWebCallResponse {
@@ -13,12 +14,9 @@ interface RetellWebCallResponse {
 
 export const POST: RequestHandler = async ({ request }) => {
   if (!env.RETELL_API_KEY || !env.RETELL_VOICE_AGENT_ID) {
-    return json(
-      {
-        message:
-          'Retell voice calls are not configured. Set RETELL_API_KEY and RETELL_VOICE_AGENT_ID in the server environment.'
-      },
-      { status: 501 }
+    throw apiError(
+      501,
+      'Retell voice calls are not configured. Set RETELL_API_KEY and RETELL_VOICE_AGENT_ID in the server environment.'
     );
   }
 
@@ -65,13 +63,12 @@ export const POST: RequestHandler = async ({ request }) => {
   const retellBody = (await retellResponse.json()) as RetellWebCallResponse;
 
   if (!retellResponse.ok) {
-    return json(
-      {
-        message: retellBody.message || retellBody.error || 'Unable to start Annie voice call.'
-      },
-      { status: retellResponse.status }
+    throw apiError(
+      retellResponse.status,
+      retellBody.message || retellBody.error || 'Unable to start Annie voice call.'
     );
   }
+
 
   return json({
     accessToken: retellBody.access_token,

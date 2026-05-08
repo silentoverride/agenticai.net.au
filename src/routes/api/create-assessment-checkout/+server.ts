@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
+import { apiError } from '$lib/server/api-error';
 import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { isTwilioConfigured, sanitizeSpokenPhoneNumber, sanitizeVoiceEmail, sendTwilioSms } from '$lib/server/twilio';
 import type { RequestHandler } from './$types';
@@ -34,19 +35,16 @@ function firstString(...values: unknown[]) {
 
 export const POST: RequestHandler = async ({ request, url }) => {
   if (!env.STRIPE_SECRET_KEY) {
-    return json(
-      {
-        message:
-          'Stripe checkout is not configured. Set STRIPE_SECRET_KEY in the server environment.'
-      },
-      { status: 501 }
+    throw apiError(
+      501,
+      'Stripe checkout is not configured. Set STRIPE_SECRET_KEY in the server environment.'
     );
   }
 
   if (env.RETELL_TWILIO_WEBHOOK_SECRET) {
     const providedSecret = request.headers.get('x-agenticai-webhook-secret');
     if (providedSecret !== env.RETELL_TWILIO_WEBHOOK_SECRET) {
-      return json({ message: 'Unauthorized' }, { status: 401 });
+      throw apiError(401, 'Unauthorized');
     }
   }
 
@@ -112,11 +110,9 @@ export const POST: RequestHandler = async ({ request, url }) => {
   const stripeBody = (await stripeResponse.json()) as { url: string; error?: { message?: string } };
 
   if (!stripeResponse.ok) {
-    return json(
-      {
-        message: stripeBody.error?.message || 'Unable to create Stripe Checkout session.'
-      },
-      { status: stripeResponse.status }
+    throw apiError(
+      stripeResponse.status,
+      stripeBody.error?.message || 'Unable to create Stripe Checkout session.'
     );
   }
 
