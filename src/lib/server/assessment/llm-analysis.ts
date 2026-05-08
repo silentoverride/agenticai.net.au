@@ -76,22 +76,23 @@ export async function analyzeTranscript(job: AssessmentReportJob, tools?: AITool
 
   const response = await attempt(3);
 
-  try {
-    JSON.parse(response.content);
-  } catch {
-    console.warn('LLM response was not valid JSON, attempting to extract JSON block');
-    const match = response.content.match(/\{[\s\S]*\}/);
-    if (match) {
-      try {
-        JSON.parse(match[0]);
-        return match[0];
-      } catch {
-        // Fall through
-      }
-    }
-    console.error('LLM returned invalid JSON for assessment analysis. Raw response (first 2000 chars):', response.content.slice(0, 2000));
-    throw new Error('LLM returned invalid JSON for assessment analysis');
+  const trimmed = response.content.trim();
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    // Clean JSON object — skip full parse for validation, pass through
+    return response.content;
   }
 
-  return response.content;
+  // Extraction path: response may have prefix/suffix text around JSON
+  console.warn('LLM response was not clean JSON, attempting to extract JSON block');
+  const match = response.content.match(/\{[\s\S]*\}/);
+  if (match) {
+    try {
+      JSON.parse(match[0]);
+      return match[0];
+    } catch {
+      // Fall through
+    }
+  }
+  console.error('LLM returned invalid JSON for assessment analysis. Raw response (first 2000 chars):', response.content.slice(0, 2000));
+  throw new Error('LLM returned invalid JSON for assessment analysis');
 }
