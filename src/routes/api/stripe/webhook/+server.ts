@@ -8,6 +8,7 @@ import { enqueueReportJob } from '$lib/server/assessment/queue';
 import { saveReceipt, savePendingReceipt, findOrCreateUserFromStripe } from '$lib/server/portal';
 import { isEventProcessed, markEventProcessed } from '$lib/server/stripe/processed-events';
 import { saveTranscriptToDisk } from '$lib/server/assessment/transcript-file-store';
+import { StripeWebhookSchema } from '$lib/server/validation';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, platform }) => {
@@ -15,7 +16,13 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     return text('Webhook secret not configured', { status: 501 });
   }
 
-  const rawBody = await request.text();
+  let rawBody: string;
+  try {
+    rawBody = await request.text();
+  } catch {
+    return text('Could not read request body', { status: 400 });
+  }
+
   const signature = request.headers.get('stripe-signature') || '';
 
   const isValid = await verifyStripeSignature(rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
@@ -24,15 +31,20 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     return text('Invalid signature', { status: 401 });
   }
 
-  let event: Record<string, any>;
-
+  let parsedBody: unknown;
   try {
-    event = JSON.parse(rawBody || '{}');
+    parsedBody = JSON.parse(rawBody || '{}');
   } catch {
     return text('Invalid JSON payload', { status: 400 });
   }
 
-  const eventId = event.id as string;
+  const parsed = StripeWebhookSchema.safeParse(parsedBody);
+  if (!parsed.success) {
+    return text('Invalid webhook payload: ' + parsed.error.issues[0]?.message, { status: 400 });
+  }
+
+  const event = parsed.data;
+  const eventId = event.id || '';
   if (eventId && await isEventProcessed(eventId)) {
     console.info('Stripe webhook: event already processed, skipping', { eventId, type: event.type });
     return new Response(null, { status: 200 });
