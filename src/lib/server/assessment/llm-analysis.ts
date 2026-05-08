@@ -3,8 +3,23 @@ import type { AssessmentReportJob } from './types';
 import type { AITool } from './tool-lookup';
 import { formatToolsForPrompt } from './tool-lookup';
 
+/**
+ * Filter transcript to keep only user/business-owner utterances
+ * by removing lines spoken by the AI agent.
+ */
+function filterUserUtterances(transcript: string): string {
+  return transcript
+    .split('\n')
+    .filter(line => !/^\s*Agent:/i.test(line))
+    .join('\n')
+    .trim();
+}
+
 function buildAnalysisMessages(transcript: string, job: AssessmentReportJob, tools?: AITool[]) {
   const toolsSection = tools?.length ? formatToolsForPrompt(tools) : '';
+
+  // Filter to user utterances only, removing scripted agent voice
+  const userTranscript = filterUserUtterances(transcript);
 
   return [
     {
@@ -35,7 +50,7 @@ ${job.company ? `Company: ${job.company}` : ''}
 ${job.customerName ? `Owner: ${job.customerName}` : ''}
 
 TRANSCRIPT START:
-${transcript.length > 30000 ? transcript.slice(0, 30000) + '\n...[truncated]' : transcript}
+${userTranscript.length > 30000 ? userTranscript.slice(0, 30000) + '\n...[truncated]' : userTranscript}
 TRANSCRIPT END`,
     }
   ];
