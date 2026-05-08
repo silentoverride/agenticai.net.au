@@ -26,19 +26,17 @@ import { listReportsFromR2, getReportMetaFromR2 } from '$lib/server/assessment/r
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ locals, platform, url }) => {
-  const { userId, email, isDevBypass } = await requirePortalAuth(locals, url);
+  const { userId, email } = await requirePortalAuth(locals, url);
 
-  if (!isDevBypass) {
-    const linkedReports = await scanAndLinkReportsByEmail(userId, email);
-    const linkedReceipts = await linkPendingReceiptsByEmail(userId, email);
-    if (linkedReports > 0 || linkedReceipts > 0) {
-      console.info('Auto-linked records on portal login', { userId, linkedReports, linkedReceipts });
-    }
+  const linkedReports = await scanAndLinkReportsByEmail(userId, email);
+  const linkedReceipts = await linkPendingReceiptsByEmail(userId, email);
+  if (linkedReports > 0 || linkedReceipts > 0) {
+    console.info('Auto-linked records on portal login', { userId, linkedReports, linkedReceipts });
   }
 
   // Scan R2 for orphan reports matching this user's email
   const bucket = platform?.env?.assessment_blobs;
-  if (bucket && email && !isDevBypass) {
+  if (bucket && email) {
     try {
       const r2ReportIds = await listReportsFromR2(bucket);
       let r2Linked = 0;

@@ -15,13 +15,11 @@ import { getUserReceipts, linkPendingReceiptsByEmail } from '$lib/server/portal'
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ locals, url }) => {
-  const { userId, email, isDevBypass } = await requirePortalAuth(locals, url);
+  const { userId, email } = await requirePortalAuth(locals, url);
 
-  if (!isDevBypass) {
-    const linked = await linkPendingReceiptsByEmail(userId, email);
-    if (linked > 0) {
-      console.info('Auto-linked receipts on portal load', { userId, linked });
-    }
+  const linked = await linkPendingReceiptsByEmail(userId, email);
+  if (linked > 0) {
+    console.info('Auto-linked receipts on portal load', { userId, linked });
   }
 
   const receipts = await getUserReceipts(userId);

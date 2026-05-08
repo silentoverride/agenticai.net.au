@@ -9,6 +9,7 @@
 
   let receipts = $state<PortalReceipt[]>([]);
   let loading = $state(true);
+  let errorMsg = $state('');
   let selectedReceipt = $state<PortalReceipt | null>(null);
   let modalOpen = $state(false);
 
@@ -17,10 +18,17 @@
   });
 
   async function loadReceipts() {
+    errorMsg = '';
     try {
       const res = await portalGet('/api/portal/receipts');
-      if (res.ok) receipts = await res.json();
+      if (res.ok) {
+        receipts = await res.json();
+      } else {
+        errorMsg = `Failed to load receipts (${res.status}). Please try refreshing the page.`;
+        console.error('Receipts API error', res.status, await res.text().catch(() => ''));
+      }
     } catch (e) {
+      errorMsg = 'Network error. Please check your connection and try again.';
       console.error('Failed to load receipts', e);
     } finally {
       loading = false;
@@ -55,6 +63,11 @@
 
   {#if loading}
     <p>Loading receipts...</p>
+  {:else if errorMsg}
+    <div class="error-state">
+      <p>{errorMsg}</p>
+      <button class="btn-retry" onclick={loadReceipts}>Retry</button>
+    </div>
   {:else if receipts.length === 0}
     <div class="empty-state">
       <p>No receipts yet.</p>
@@ -449,5 +462,28 @@
   }
   .btn-secondary:hover {
     background: #e0e0e8;
+  }
+
+  .error-state {
+    text-align: center;
+    padding: 2rem;
+    background: #fff0f0;
+    border-radius: 12px;
+    color: #c00;
+  }
+  .error-state p {
+    margin-bottom: 1rem;
+  }
+  .btn-retry {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background: #0066ff;
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-retry:hover {
+    background: #0052cc;
   }
 </style>

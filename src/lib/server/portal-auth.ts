@@ -9,7 +9,7 @@
 import { error } from '@sveltejs/kit';
 import { resolveUser } from './auth';
 import { assertSchema, getDb, isDatabaseAvailable } from './db';
-import { upsertUser } from './portal';
+import { getUser, upsertUser } from './portal';
 import type { ResolvedUser } from './auth';
 
 export type PortalAuthContext = ResolvedUser;
@@ -24,17 +24,26 @@ export async function requirePortalAuth(
 
   const user = resolveUser(locals, url);
 
-  if (!user.isDevBypass) {
-    try {
-      const db = getDb();
-      await assertSchema(db);
-      await upsertUser(user.userId, user.email, user.name || undefined);
-    } catch (err) {
-      if (err instanceof Error && err.message.includes('Database schema missing')) {
-        throw error(503, err.message);
+  try {
+    const db = getDb();
+    await assertSchema(db);
+
+    if (user.isDevBypass) {
+      // In dev bypass, enrich the user with their real email/name from the DB
+      // so that receipt/report linking by email works during local testing.
+      const dbUser = await getUser(user.userId);
+      if (dbUser) {
+        user.email = dbUser.email || user.email;
+        user.name = dbUser.name || user.name;
       }
-      throw err;
+    } else {
+      await upsertUser(user.userId, user.email, user.name || undefined);
     }
+  } catch (err) {
+    if (err instanceof Error && err.message.includes('Database schema missing')) {
+      throw error(503, err.message);
+    }
+    throw err;
   }
 
   return user;
