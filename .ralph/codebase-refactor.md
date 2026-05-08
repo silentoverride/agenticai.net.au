@@ -92,6 +92,16 @@ Four parallel scouts investigated: `assessment/pipeline`, `database discrepancy`
 
 ## Remaining Issues (post-Iteration 6)
 - Issue #2: Portal pages repeat similar fetch patterns (low priority — portal-client.ts already centralises fetch)
+### Architectural Fixes Applied (Iteration 7 — Issue #2: Portal Fetch Patterns)
+2. **Portal auth context centralised — eliminated 5× copy-pasted devUserId boilerplate**
+   - Created `$lib/portal-context.svelte.ts` with `usePortalAuth()` / `setPortalAuth()`
+   - Portal layout sets reactive auth context once; 6 child pages consume it
+   - Added `portalNavUrl(path)` helper to `portal-client.ts` for dev-mode URL construction
+   - Layout nav links simplified — `portalNavUrl()` handles `?dev_user_id=` appending
+   - Fixed profile page using `onMount` without auth guard → now uses `$effect` guard matching all other pages
+   - `npm run check`: 0 errors, 0 warnings
+
+## Remaining Issues (post-Iteration 7)
 - Issue #3: Dead Drizzle schema + schema drift (low priority — all queries are raw SQL via working wrapper)
 - Issue #6: No centralized input validation (Zod)
 - Issue #7: Pipeline retry/DLQ/reliability (highest risk/reward remaining)
@@ -107,7 +117,7 @@ Four parallel scouts investigated: `assessment/pipeline`, `database discrepancy`
 
 ## Focus Areas
 1. Create shared auth middleware/hooks ✅
-2. Create shared API client for portal pages (done — portal-client.ts)
+2. Create shared API client for portal pages ✅
 3. Extract common UI components
 4. Type the database schema properly
 5. Add input validation schemas (Zod)
