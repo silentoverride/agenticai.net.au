@@ -9,11 +9,7 @@ import { formatToolsForPrompt } from './tool-lookup';
  * by removing lines spoken by the AI agent.
  */
 function filterUserUtterances(transcript: string): string {
-  return transcript
-    .split('\n')
-    .filter(line => !/^\s*Agent:/i.test(line))
-    .join('\n')
-    .trim();
+  return transcript.replace(/^[ \t]*Agent:.*\n?/gmi, '').trim();
 }
 
 function buildAnalysisMessages(transcript: string, job: AssessmentReportJob, tools?: AITool[]) {
