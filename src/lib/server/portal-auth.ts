@@ -8,7 +8,7 @@
 
 import { error } from '@sveltejs/kit';
 import { resolveUser } from './auth';
-import { isDatabaseAvailable } from './db';
+import { assertSchema, getDb, isDatabaseAvailable } from './db';
 import { upsertUser } from './portal';
 import type { ResolvedUser } from './auth';
 
@@ -25,7 +25,16 @@ export async function requirePortalAuth(
   const user = resolveUser(locals, url);
 
   if (!user.isDevBypass) {
-    await upsertUser(user.userId, user.email, user.name || undefined);
+    try {
+      const db = getDb();
+      await assertSchema(db);
+      await upsertUser(user.userId, user.email, user.name || undefined);
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('Database schema missing')) {
+        throw error(503, err.message);
+      }
+      throw err;
+    }
   }
 
   return user;

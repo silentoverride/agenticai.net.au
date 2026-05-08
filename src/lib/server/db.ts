@@ -165,6 +165,7 @@ export interface AsyncDb {
 
 let cachedDb: AsyncDb | null = null;
 let d1Binding: D1Database | undefined;
+let schemaChecked = false;
 
 function createD1Db(d1: D1Database): AsyncDb {
   return {
@@ -222,6 +223,27 @@ export function setD1Binding(db: D1Database | undefined) {
     cachedDb = null;
     console.info('DB: D1 binding registered');
   }
+}
+
+/** Verify required tables exist. Only checks once per process. */
+export async function assertSchema(db: AsyncDb): Promise<void> {
+  if (schemaChecked) return;
+  const required = ['users', 'reports', 'receipts', 'pipeline_status', 'transcripts', 'processed_events'];
+  for (const table of required) {
+    const row = await db.queryOne<{ name: string }>(
+      `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
+      table
+    );
+    if (!row) {
+      throw new Error(
+        `Database schema missing: table "${table}" does not exist.\n` +
+        `Migrations have not been applied. Run one of:\n` +
+        `  npx wrangler d1 migrations apply assessment-db --local   (local dev)\n` +
+        `  npx wrangler d1 migrations apply assessment-db             (production)`
+      );
+    }
+  }
+  schemaChecked = true;
 }
 
 /** Get the unified async database client. */

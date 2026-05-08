@@ -6,6 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 binding = "assessment_db"
 database_name = "assessment-db"
 database_id = "e497e4c9-7dd2-4fbf-a4ff-2c24899a4d83"
+migrations_dir = "migrations"
 [[r2_buckets]]
 bucket_name = "assessment-blobs"
 binding = "assessment_blobs"
