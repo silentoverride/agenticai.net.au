@@ -3,6 +3,7 @@ import { json, text } from '@sveltejs/kit';
 import { createAssessmentReportJob } from '$lib/server/assessment/retell-job';
 import { storeTranscript } from '$lib/server/assessment/transcript-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
+import { getPipelineStatusByCallId } from '$lib/server/assessment/pipeline-store';
 import { verifyRetellSignature } from '$lib/server/retell';
 import type { RequestHandler } from './$types';
 
@@ -87,8 +88,9 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     payment_status: job.paymentStatus
   });
 
-  // Run the pipeline if payment already marked complete
-  // Otherwise transcript stays stored until payment triggers analysis
+  // If payment already marked complete, run pipeline immediately.
+  // If not paid, check if a payment webhook already fired (transcript was missing at that time).
+  // If so, the pipeline_status will be 'pending_payment' — catch it up now.
   if (job.paymentStatus === 'paid' || job.paymentStatus === 'complete') {
     const queue = platform?.env?.assessment_queue;
     const { queued, inline } = await enqueueReportJob(queue, job);
@@ -96,7 +98,21 @@ export const POST: RequestHandler = async ({ request, platform }) => {
       return json({ message: 'Failed to queue pipeline job.' }, { status: 502 });
     }
   } else {
-    console.info('Transcript stored for later processing upon payment', { callId: job.callId });
+    const pendingStatus = await getPipelineStatusByCallId(job.callId!);
+    if (pendingStatus?.status === 'pending_payment' && pendingStatus.sessionId) {
+      console.info('Transcript caught up for already-paid session, enqueuing pipeline', {
+        callId: job.callId,
+        sessionId: pendingStatus.sessionId
+      });
+      const queue = platform?.env?.assessment_queue;
+      const enrichedJob = { ...job, sessionId: pendingStatus.sessionId };
+      const { queued, inline } = await enqueueReportJob(queue, enrichedJob);
+      if (!queued && !inline) {
+        return json({ message: 'Failed to queue pipeline job.' }, { status: 502 });
+      }
+    } else {
+      console.info('Transcript stored for later processing upon payment', { callId: job.callId });
+    }
   }
 
   return new Response(null, { status: 204 });

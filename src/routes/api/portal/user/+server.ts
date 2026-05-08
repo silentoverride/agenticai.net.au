@@ -1,19 +1,21 @@
+/**
+ * GET /api/portal/user
+ * PUT /api/portal/user
+ *
+ * Returns or updates the portal user record.
+ *
+ * @returns JSON with user profile.
+ * @throws 404 — If the user is not found.
+ */
+
 import { json, error } from '@sveltejs/kit';
+import { requirePortalAuth } from '$lib/server/portal-auth';
 import { getUser, upsertUser } from '$lib/server/portal';
-import { isDatabaseAvailable } from '$lib/server/db';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ locals }) => {
-  if (!isDatabaseAvailable()) {
-    throw error(503, 'Portal database not available');
-  }
-
-  const auth = await locals.auth();
-  if (!auth.userId) {
-    throw error(401, 'Not authenticated');
-  }
-
-  const user = await getUser(auth.userId);
+export const GET: RequestHandler = async ({ locals, url }) => {
+  const { userId } = await requirePortalAuth(locals, url);
+  const user = await getUser(userId);
   if (!user) {
     throw error(404, 'User not found');
   }
@@ -24,34 +26,23 @@ export const GET: RequestHandler = async ({ locals }) => {
     name: user.name,
     phone: user.phone,
     role: user.role,
-    created_at: user.created_at
+    created_at: user.created_at,
   });
 };
 
-export const PUT: RequestHandler = async ({ request, locals }) => {
-  if (!isDatabaseAvailable()) {
-    throw error(503, 'Portal database not available');
-  }
+export const PUT: RequestHandler = async ({ request, locals, url }) => {
+  const { userId, email, isDevBypass } = await requirePortalAuth(locals, url);
 
-  const auth = await locals.auth();
-  if (!auth.userId) {
-    throw error(401, 'Not authenticated');
-  }
+  const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
 
-  const body = await request.json().catch(() => ({})) as {
-    name?: string;
-    phone?: string;
-    company?: string;
-  };
+  // During dev bypass, don't try to sync Clerk user details
+  const clerkEmail = isDevBypass ? email : (locals.user?.email || '');
 
-  const clerkUser = locals.user;
-
-  // We store company in the user name field for now, or we could add a company column later
   const user = await upsertUser(
-    auth.userId,
-    clerkUser?.email || '',
-    body.name,
-    body.phone
+    userId,
+    clerkEmail,
+    typeof body.name === 'string' ? body.name : undefined,
+    typeof body.phone === 'string' ? body.phone : undefined,
   );
 
   if (!user) {
@@ -64,6 +55,6 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
     name: user.name,
     phone: user.phone,
     role: user.role,
-    created_at: user.created_at
+    created_at: user.created_at,
   });
 };

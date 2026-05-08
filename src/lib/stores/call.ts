@@ -5,7 +5,13 @@ export type CallStatus = 'idle' | 'connecting' | 'active' | 'error';
 export const callStatus = writable<CallStatus>('idle');
 export const callError = writable<string>('');
 
-let retellClient: any = null;
+interface RetellWebClientLike {
+  on(event: string, callback: (...args: unknown[]) => void): void;
+  startCall(opts: { accessToken: string; sampleRate: number }): Promise<void>;
+  stopCall(): void;
+}
+
+let retellClient: RetellWebClientLike | null = null;
 
 interface RetellCallResponse {
   accessToken?: string;

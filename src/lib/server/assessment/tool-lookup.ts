@@ -244,6 +244,8 @@ export function formatToolsForPrompt(tools: AITool[]): string {
  * Merge discovered tools into an existing analysis JSON string.
  * Adds a "researched_tools" section and enriches quick_wins with URLs.
  */
+import type { AnalysisQuickWin } from './types';
+
 export function enrichAnalysisWithTools(analysisJson: string, tools: AITool[]): string {
   if (!tools.length) return analysisJson;
 
@@ -262,7 +264,7 @@ export function enrichAnalysisWithTools(analysisJson: string, tools: AITool[]): 
 
     // Try to enrich quick_wins with matching tool URLs
     if (Array.isArray(analysis.quick_wins)) {
-      analysis.quick_wins = analysis.quick_wins.map((win: any) => {
+      analysis.quick_wins = analysis.quick_wins.map((win: AnalysisQuickWin) => {
         if (!win.recommended_tools || !Array.isArray(win.recommended_tools)) return win;
         
         win.recommended_tools = win.recommended_tools.map((toolName: string) => {

@@ -28,3 +28,10 @@ export async function getPipelineStatus(sessionId: string): Promise<PipelineStat
 
   return memoryPipelineStore.get(sessionId);
 }
+
+export async function getPipelineStatusByCallId(callId: string): Promise<(PipelineStatus & { sessionId?: string }) | undefined> {
+  if (isDatabaseAvailable()) {
+    return d1PipelineStatusStore.getByCallId(callId);
+  }
+  return undefined;
+}

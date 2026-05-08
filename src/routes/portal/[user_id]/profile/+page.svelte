@@ -1,9 +1,11 @@
 <script lang="ts">
   import { useClerkContext } from 'svelte-clerk';
   import { onMount } from 'svelte';
+  import { portalGet, portalPut } from '$lib/portal-client';
 
   const clerk = useClerkContext();
-  const userId = $derived(clerk.auth.userId ?? '');
+  const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
+  const userId = $derived(clerk.auth.userId || devUserId || '');
 
   let name = $state('');
   let phone = $state('');
@@ -14,7 +16,7 @@
 
   onMount(async () => {
     try {
-      const res = await fetch('/api/portal/user');
+      const res = await portalGet('/api/portal/user');
       if (res.ok) {
         const data = await res.json() as {
           name?: string;
@@ -38,11 +40,7 @@
     message = '';
     errorMsg = '';
     try {
-      const res = await fetch('/api/portal/user', {
-        method: 'PUT',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name, phone })
-      });
+      const res = await portalPut('/api/portal/user', { name, phone });
       if (res.ok) {
         message = 'Profile saved successfully.';
       } else {

@@ -89,7 +89,10 @@ export function createAssessmentReportJob(payload: { event?: string; call?: Reco
   const verbalApprovalGiven = firstBoolean(customAnalysis.verbal_approval_given, dynamicVariables.verbal_approval_given, metadata.verbal_approval_given);
   const paymentLinkSent = firstBoolean(customAnalysis.payment_link_sent, dynamicVariables.payment_link_sent, metadata.payment_link_sent);
 
+  const stripeSessionId = firstString(customAnalysis.stripe_session_id, dynamicVariables.stripe_session_id, metadata.stripe_session_id);
+
   return {
+    sessionId: stripeSessionId,
     receivedAt: new Date().toISOString(),
     source: 'retell-voice-agent',
     event: payload.event,

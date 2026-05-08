@@ -1,16 +1,21 @@
 <script lang="ts">
   import { useClerkContext } from 'svelte-clerk';
+  import { portalGet } from '$lib/portal-client';
+  import type { PortalReport, PortalReceipt } from '$lib/types';
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
 
   const clerk = useClerkContext();
   const userId = $derived(clerk.auth.userId ?? '');
 
-  let reports = $state<any[]>([]);
-  let receipts = $state<any[]>([]);
+  let reports = $state<PortalReport[]>([]);
+  let receipts = $state<PortalReceipt[]>([]);
   let loading = $state(true);
 
+  const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
+  const isDevBypass = $derived(!import.meta.env.PROD && devUserId != null);
+
   $effect(() => {
-    if (clerk.auth.userId != null) {
+    if (clerk.auth.userId != null || isDevBypass) {
       loadData();
     }
   });
@@ -18,8 +23,8 @@
   async function loadData() {
     try {
       const [reportsRes, receiptsRes] = await Promise.all([
-        fetch('/api/portal/reports'),
-        fetch('/api/portal/receipts')
+        portalGet('/api/portal/reports'),
+        portalGet('/api/portal/receipts')
       ]);
       if (reportsRes.ok) reports = await reportsRes.json();
       if (receiptsRes.ok) receipts = await receiptsRes.json();
@@ -73,7 +78,7 @@
                 <a href={`/portal/${userId}/receipts`}>
                   Assessment Fee
                   <span class="meta">
-                    ${(receipt.amount_cents / 100).toFixed(2)} {receipt.currency?.toUpperCase()}
+                    ${receipt.amount_cents != null ? (receipt.amount_cents / 100).toFixed(2) : '—'} {receipt.currency?.toUpperCase()}
                   </span>
                 </a>
               </li>

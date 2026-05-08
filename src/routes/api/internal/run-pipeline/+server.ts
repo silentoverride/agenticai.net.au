@@ -38,9 +38,13 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     await setPipelineStatus(job.sessionId, { status: 'running_llm' });
     const result = await runReportPipeline(job, { r2Bucket: r2Bucket as unknown as R2Bucket | null });
 
+    if (!result.savedReport?.id) {
+      throw new Error('Pipeline succeeded but no report was saved');
+    }
+
     await setPipelineStatus(job.sessionId, {
       status: 'completed',
-      reportId: result.savedReport?.id
+      reportId: result.savedReport.id
     });
 
     // Transcript is kept in D1 for retry resilience — do NOT delete it

@@ -7,37 +7,23 @@
  *
  * @returns JSON array of {@link DbReceipt} rows.
  * @throws 401 — If the user is not authenticated.
- * @example
- * // Frontend
- * const res = await fetch('/api/portal/receipts');
- * const receipts = await res.json();
- * console.log(receipts[0].amount_cents);
  */
 
-import { json, error } from '@sveltejs/kit';
-import { getUserReceipts, upsertUser, linkPendingReceiptsByEmail } from '$lib/server/portal';
-import { isDatabaseAvailable } from '$lib/server/db';
+import { json } from '@sveltejs/kit';
+import { requirePortalAuth } from '$lib/server/portal-auth';
+import { getUserReceipts, linkPendingReceiptsByEmail } from '$lib/server/portal';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ locals }) => {
-  if (!isDatabaseAvailable()) {
-    throw error(503, 'Portal database not available in this environment');
-  }
+export const GET: RequestHandler = async ({ locals, url }) => {
+  const { userId, email, isDevBypass } = await requirePortalAuth(locals, url);
 
-  const auth = locals.auth();
-  if (!auth.userId) {
-    throw error(401, 'Not authenticated');
-  }
-
-  const user = locals.user;
-  if (user) {
-    await upsertUser(auth.userId, user.email || '', user.name || undefined);
-    const linked = await linkPendingReceiptsByEmail(auth.userId, user.email || '');
+  if (!isDevBypass) {
+    const linked = await linkPendingReceiptsByEmail(userId, email);
     if (linked > 0) {
-      console.info('Auto-linked receipts on portal load', { userId: auth.userId, linked });
+      console.info('Auto-linked receipts on portal load', { userId, linked });
     }
   }
 
-  const receipts = await getUserReceipts(auth.userId);
+  const receipts = await getUserReceipts(userId);
   return json(receipts);
 };

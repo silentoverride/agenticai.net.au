@@ -1,6 +1,8 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { useClerkContext } from 'svelte-clerk';
+  import { portalGet } from '$lib/portal-client';
+  import type { PortalReportDetail } from '$lib/types';
   import RevealDeck from '$lib/components/RevealDeck.svelte';
   import CalendlyButton from '$lib/components/CalendlyButton.svelte';
 
@@ -8,21 +10,24 @@
   const reportId = page.params.report_id;
   const userId = $derived(clerk.auth.userId ?? '');
 
-  let report = $state<any>(null);
+  let report = $state<PortalReportDetail | null>(null);
   let analysis = $state<any>(null);
   let loading = $state(true);
   let error = $state('');
 
+  const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
+  const isDevBypass = $derived(!import.meta.env.PROD && devUserId != null);
+
   $effect(() => {
-    if (clerk.auth.userId != null) loadReport();
+    if (clerk.auth.userId != null || isDevBypass) loadReport();
   });
 
   async function loadReport() {
     try {
-      const res = await fetch(`/api/portal/reports/${reportId}`);
+      const res = await portalGet(`/api/portal/reports/${reportId}`);
       if (!res.ok) throw new Error('Report not found');
       report = await res.json();
-      if (report.analysis) {
+      if (report?.analysis) {
         analysis = report.analysis;
       }
     } catch (e) {
@@ -46,7 +51,7 @@
         <a href={`/portal/${userId}/reports/${reportId}?print-pdf`} target="_blank" class="btn-download">Download PDF</a>
       </div>
     </div>
-    <RevealDeck {analysis} company={report?.company} />
+    <RevealDeck {analysis} company={report?.company ?? undefined} />
 
     <div class="consultation-cta">
       <h3>Ready to talk implementation?</h3>

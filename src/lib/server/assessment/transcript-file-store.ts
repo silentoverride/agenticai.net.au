@@ -54,8 +54,9 @@ export function saveTranscriptToDisk(opts: {
     fs.writeFileSync(filePath, header + opts.transcript, 'utf-8');
     console.info('Transcript saved to disk', { path: filePath });
     return { saved: true, path: filePath };
-  } catch (err: any) {
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
     console.error('Failed to save transcript to disk:', err);
-    return { saved: false, error: err.message };
+    return { saved: false, error: msg };
   }
 }

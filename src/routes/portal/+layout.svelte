@@ -8,10 +8,13 @@
   const clerk = useClerkContext();
 
   const isSignUp = page.url.pathname === '/portal/sign-up';
+  const devUserId = page.url.searchParams.get('dev_user_id');
+  const isDevBypass = !import.meta.env.PROD && devUserId != null;
+  const activeUserId = $derived(clerk.auth.userId || devUserId || '');
 </script>
 
 <div class="portal-layout">
-  {#if clerk.auth.userId == null}
+  {#if clerk.auth.userId == null && !isDevBypass}
     <div class="portal-auth-gate">
       <h1>Client Portal</h1>
       <p>Sign {isSignUp ? 'up' : 'in'} to view your AI Business Assessment reports and receipts.</p>
@@ -25,14 +28,16 @@
     </div>
   {:else}
     <nav class="portal-nav">
-      <a href={`/portal/${clerk.auth.userId}`}>Dashboard</a>
-      <a href={`/portal/${clerk.auth.userId}/reports`}>Reports</a>
-      <a href={`/portal/${clerk.auth.userId}/receipts`}>Receipts</a>
-      <a href={`/portal/${clerk.auth.userId}/profile`}>Profile</a>
+      <a href={`/portal/${activeUserId}${isDevBypass ? `?dev_user_id=${devUserId}` : ''}`}>Dashboard</a>
+      <a href={`/portal/${activeUserId}/reports${isDevBypass ? `?dev_user_id=${devUserId}` : ''}`}>Reports</a>
+      <a href={`/portal/${activeUserId}/receipts${isDevBypass ? `?dev_user_id=${devUserId}` : ''}`}>Receipts</a>
+      <a href={`/portal/${activeUserId}/profile${isDevBypass ? `?dev_user_id=${devUserId}` : ''}`}>Profile</a>
       <a href="/services" class="nav-cta">Start Assessment</a>
       <div class="portal-nav-right">
-        <span>{clerk.user?.firstName || clerk.user?.emailAddresses?.[0]?.emailAddress}</span>
-        <button onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })} class="portal-signout">Sign Out</button>
+        <span>{isDevBypass ? 'Dev User' : (clerk.user?.firstName || clerk.user?.emailAddresses?.[0]?.emailAddress)}</span>
+        {#if !isDevBypass}
+          <button onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })} class="portal-signout">Sign Out</button>
+        {/if}
       </div>
     </nav>
     <div class="portal-content">

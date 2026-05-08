@@ -1,22 +1,27 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { useClerkContext } from 'svelte-clerk';
+  import { portalGet } from '$lib/portal-client';
+  import type { PortalReceipt } from '$lib/types';
 
   const clerk = useClerkContext();
   const receiptId = $derived(page.params.receipt_id);
   const userId = $derived(page.params.user_id);
 
-  let receipt = $state<any>(null);
+  let receipt = $state<PortalReceipt | null>(null);
   let loading = $state(true);
   let errorMsg = $state('');
 
+  const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
+  const isDevBypass = $derived(!import.meta.env.PROD && devUserId != null);
+
   $effect(() => {
-    if (clerk.auth.userId != null) loadReceipt();
+    if (clerk.auth.userId != null || isDevBypass) loadReceipt();
   });
 
   async function loadReceipt() {
     try {
-      const res = await fetch(`/api/portal/receipts/${receiptId}`);
+      const res = await portalGet(`/api/portal/receipts/${receiptId}`);
       if (!res.ok) throw new Error('Receipt not found');
       receipt = await res.json();
     } catch (e) {
@@ -26,8 +31,9 @@
     }
   }
 
-  function money(cents: number, currency = 'AUD') {
-    return `$${(cents / 100).toFixed(2)} ${currency.toUpperCase()}`;
+  function money(cents: number | null, currency: string | null = 'AUD') {
+    if (cents == null) return '—';
+    return `$${(cents / 100).toFixed(2)} ${(currency || 'AUD').toUpperCase()}`;
   }
 </script>
 

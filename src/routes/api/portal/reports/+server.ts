@@ -14,35 +14,31 @@
  * const reports = await res.json();
  */
 
-import { json, error } from '@sveltejs/kit';
-import { getUserReports, upsertUser, scanAndLinkReportsByEmail, linkPendingReceiptsByEmail, linkReportToUser } from '$lib/server/portal';
-import { isDatabaseAvailable } from '$lib/server/db';
+import { json } from '@sveltejs/kit';
+import { requirePortalAuth } from '$lib/server/portal-auth';
+import {
+  getUserReports,
+  scanAndLinkReportsByEmail,
+  linkPendingReceiptsByEmail,
+  linkReportToUser
+} from '$lib/server/portal';
 import { listReportsFromR2, getReportMetaFromR2 } from '$lib/server/assessment/report-store-r2';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ locals, platform }) => {
-  if (!isDatabaseAvailable()) {
-    throw error(503, 'Portal database not available in this environment');
-  }
+export const GET: RequestHandler = async ({ locals, platform, url }) => {
+  const { userId, email, isDevBypass } = await requirePortalAuth(locals, url);
 
-  const auth = locals.auth();
-  if (!auth.userId) {
-    throw error(401, 'Not authenticated');
-  }
-
-  const user = locals.user;
-  if (user) {
-    await upsertUser(auth.userId, user.email || '', user.name || undefined);
-    const linkedReports = await scanAndLinkReportsByEmail(auth.userId, user.email || '');
-    const linkedReceipts = await linkPendingReceiptsByEmail(auth.userId, user.email || '');
+  if (!isDevBypass) {
+    const linkedReports = await scanAndLinkReportsByEmail(userId, email);
+    const linkedReceipts = await linkPendingReceiptsByEmail(userId, email);
     if (linkedReports > 0 || linkedReceipts > 0) {
-      console.info('Auto-linked records on portal login', { userId: auth.userId, linkedReports, linkedReceipts });
+      console.info('Auto-linked records on portal login', { userId, linkedReports, linkedReceipts });
     }
   }
 
-  // Also scan R2 for orphan reports matching this user's email
+  // Scan R2 for orphan reports matching this user's email
   const bucket = platform?.env?.assessment_blobs;
-  if (bucket && user?.email) {
+  if (bucket && email && !isDevBypass) {
     try {
       const r2ReportIds = await listReportsFromR2(bucket);
       let r2Linked = 0;
@@ -51,14 +47,13 @@ export const GET: RequestHandler = async ({ locals, platform }) => {
           const meta = await getReportMetaFromR2(bucket, reportId);
           const jobData = (meta as Record<string, unknown> | null)?.job as Record<string, unknown> | undefined;
           const reportEmail = jobData?.customerEmail as string | undefined;
-          if (!reportEmail || reportEmail.toLowerCase() !== user.email.toLowerCase()) continue;
+          if (!reportEmail || reportEmail.toLowerCase() !== email.toLowerCase()) continue;
 
-          // Check if already linked
-          const existing = await getUserReports(auth.userId);
+          const existing = await getUserReports(userId);
           if (existing.some(r => r.id === reportId)) continue;
 
           await linkReportToUser(
-            auth.userId,
+            userId,
             reportId,
             jobData?.sessionId as string | undefined,
             `${jobData?.company || jobData?.customerName || 'Business'} — AI Assessment`,
@@ -72,17 +67,18 @@ export const GET: RequestHandler = async ({ locals, platform }) => {
           );
           r2Linked++;
         } catch (err) {
-          console.warn('[portal:r2-scan] Failed to inspect/link R2 report', { reportId, userId: auth.userId, error: String(err) });
+          console.warn('[portal:r2-scan] Failed to inspect/link R2 report', { reportId, userId, error: String(err) });
         }
       }
       if (r2Linked > 0) {
-        console.info('[portal:r2-scan] Auto-linked R2 reports', { userId: auth.userId, r2Linked });
+        console.info('[portal:r2-scan] Auto-linked R2 reports', { userId, r2Linked });
       }
     } catch (err) {
-      console.warn('[portal:r2-scan] R2 scan failed', { userId: auth.userId, error: String(err) });
+      console.warn('[portal:r2-scan] R2 scan failed', { userId, error: String(err) });
     }
   }
 
-  const reports = await getUserReports(auth.userId);
+  const reports = await getUserReports(userId);
+  console.info('[portal:reports] Returning reports', { userId, count: reports.length });
   return json(reports);
 };

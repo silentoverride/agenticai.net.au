@@ -4,14 +4,16 @@
   import CalendlyButton from './CalendlyButton.svelte';
   import 'reveal.js/reveal.css';
 
+  import type { AnalysisData, AnalysisQuickWin, AnalysisResearchedTool, AnalysisDeeperOpportunity, AnalysisPainPoint, AnalysisFinancialImpact } from '$lib/server/assessment/types';
+
   interface Props {
-    analysis: Record<string, any>;
+    analysis: AnalysisData;
     company?: string;
   }
 
   let { analysis, company }: Props = $props();
   let container: HTMLDivElement;
-  let deck: any = null;
+  let deck: import('reveal.js').RevealApi | null = null;
 
   onMount(() => {
     if (!container) return;
@@ -59,13 +61,13 @@
 
   function getTotalHoursSaved(): number {
     return getFinancialImpact().hours_saved_per_week ||
-      getQuickWins().reduce((sum: number, w: any) => sum + (w.estimated_hours_saved_per_week || 0), 0);
+      getQuickWins().reduce((sum: number, w: AnalysisQuickWin) => sum + (w.estimated_hours_saved_per_week || 0), 0);
   }
 
   function getMonthlyToolCost(): number {
     const fi = getFinancialImpact();
     if (fi.estimated_tool_costs_monthly_aud != null) return fi.estimated_tool_costs_monthly_aud;
-    return getResearchedTools().reduce((sum: number, t: any) => {
+    return getResearchedTools().reduce((sum: number, t: AnalysisResearchedTool) => {
       const match = String(t.pricing || '').match(/\$?([\d]+)/);
       return sum + (match ? parseInt(match[1]) : 0);
     }, 0);
@@ -83,18 +85,18 @@
     return getFinancialImpact().annual_value_aud || getFinancialImpact().net_annual_value_aud || 0;
   }
 
-  function matchToolForWin(win: any) {
+  function matchToolForWin(win: AnalysisQuickWin) {
     const tools = getResearchedTools();
     const name = win.recommended_tools?.[0];
     if (!name) return null;
     return (
-      tools.find((t: any) => t.name?.toLowerCase().includes(name.toLowerCase())) ||
-      tools.find((t: any) => name.toLowerCase().includes(t.name?.toLowerCase())) ||
+      tools.find((t: AnalysisResearchedTool) => t.name?.toLowerCase().includes(name.toLowerCase())) ||
+      tools.find((t: AnalysisResearchedTool) => name.toLowerCase().includes(t.name?.toLowerCase())) ||
       null
     );
   }
 
-  function complexityLabel(tool: any): string {
+  function complexityLabel(tool: AnalysisResearchedTool | null | undefined): string {
     const sc = tool?.setup_complexity || '';
     if (/plug.?and.?play|low|easy|simple/i.test(sc)) return 'plug-and-play';
     if (/medium|moderate|some/i.test(sc)) return 'some-setup';
@@ -109,11 +111,11 @@
     return '🔧';
   }
 
-  function setupTime(tool: any): string {
+  function setupTime(tool: AnalysisResearchedTool | null | undefined): string {
     return tool?.setup_time_estimate || tool?.setup_time || '';
   }
 
-  function toolTimeSaved(tool: any, win: any): string {
+  function toolTimeSaved(tool: AnalysisResearchedTool | null | undefined, win: AnalysisQuickWin): string {
     const hrs = win?.estimated_hours_saved_per_week || tool?.estimated_hours_saved_per_week || '';
     return hrs ? `${hrs} hours/week` : '';
   }
@@ -140,7 +142,7 @@
     </svg>`;
   }
 
-  function renderQuickWinsBars(wins: any[]): string {
+  function renderQuickWinsBars(wins: AnalysisQuickWin[]): string {
     if (!wins.length) return '';
     const max = Math.max(...wins.map((w) => w.estimated_hours_saved_per_week || 0), 1);
     const barH = 22, gap = 12, w = 280;
@@ -321,7 +323,7 @@
               </div>
             {/each}
           </div>
-          {#if getQuickWins().some((w: any) => w.estimated_hours_saved_per_week)}
+          {#if getQuickWins().some((w: AnalysisQuickWin) => w.estimated_hours_saved_per_week)}
             <div class="qw-chart fragment">
               {@html renderQuickWinsBars(getQuickWins())}
             </div>

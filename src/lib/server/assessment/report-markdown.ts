@@ -1,7 +1,7 @@
-import type { AssessmentReportJob } from './types';
+import type { AssessmentReportJob, AnalysisData } from './types';
 
 export function toMarkdown(job: AssessmentReportJob, analysis: string): string {
-  let data: Record<string, any>;
+  let data: AnalysisData;
   try {
     data = JSON.parse(analysis);
   } catch {

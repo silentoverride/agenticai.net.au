@@ -266,6 +266,31 @@ export function getDatabaseError(): Error | null {
   return localDbError;
 }
 
+/**
+ * Execute a database operation with automatic unavailability fallback.
+ *
+ * Centralises the `if (!isDatabaseAvailable()) { … } const db = getDb()`
+ * boilerplate used by every business-logic function. All unavailability
+ * warnings share a canonical `[db] <label> skipped: database unavailable`
+ * format so they are grep‑able and uniform.
+ *
+ * @param label   Human‑readable operation name used in log output.
+ * @param fallback Value returned when the DB is unavailable.
+ * @param fn      The actual database operation (receives `db`).
+ * @returns The result of `fn` or `fallback`.
+ */
+export async function withDb<T>(
+  label: string,
+  fallback: T,
+  fn: (db: AsyncDb) => Promise<T>
+): Promise<T> {
+  if (!isDatabaseAvailable()) {
+    console.warn(`[db] ${label} skipped: database unavailable`);
+    return fallback;
+  }
+  return fn(getDb());
+}
+
 // ---------------------------------------------------------------------------
 // Type definitions (kept for backward compat)
 // ---------------------------------------------------------------------------

@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ request }) => {
     return text('Unauthorized', { status: 401 });
   }
 
-  const body = await request.json().catch(() => ({}));
+  const body = await request.json().catch(() => ({})) as Record<string, any>;
   const transcript = typeof body.transcript === 'string' ? body.transcript : '';
   if (!transcript || transcript.length < 100) {
     return text('Missing or too-short transcript', { status: 400 });

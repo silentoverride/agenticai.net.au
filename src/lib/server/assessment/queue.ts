@@ -20,8 +20,13 @@ export async function enqueueReportJob(
 ): Promise<{ queued: boolean; inline?: boolean }> {
   if (!queue) {
     console.warn(`[queue] No queue binding available, running inline for sessionId=${job.sessionId}`);
-    runPipelineInline(job);
-    return { queued: false, inline: true };
+    try {
+      await runPipelineInline(job);
+      return { queued: false, inline: true };
+    } catch (err) {
+      console.error(`[queue] Inline execution failed for sessionId=${job.sessionId}:`, err);
+      return { queued: false, inline: false };
+    }
   }
 
   try {
@@ -35,8 +40,13 @@ export async function enqueueReportJob(
   } catch (err) {
     const details = err instanceof Error ? { message: err.message, stack: err.stack } : err;
     console.error(`[queue] Failed to enqueue pipeline job for sessionId=${job.sessionId}, falling back to inline:`, details);
-    runPipelineInline(job);
-    return { queued: false, inline: true };
+    try {
+      await runPipelineInline(job);
+      return { queued: false, inline: true };
+    } catch (inlineErr) {
+      console.error(`[queue] Inline fallback also failed:`, inlineErr);
+      return { queued: false, inline: false };
+    }
   }
 }
 
@@ -61,6 +71,7 @@ export async function runPipelineInline(job: AssessmentReportJob): Promise<void>
       const dbDetails = dbErr instanceof Error ? { message: dbErr.message, stack: dbErr.stack } : dbErr;
       console.error(`[queue:inline] CRITICAL: Could not write error status to DB for ${sessionId}:`, dbDetails);
     }
+    throw error;
   }
 }
 

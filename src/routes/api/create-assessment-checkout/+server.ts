@@ -147,7 +147,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
       const sms = await sendTwilioSms(customerPhone, message);
       responseBody.sms = { sent: true, sid: sms.sid, status: sms.status };
       console.info('[create-checkout] Twilio SMS sent', { to: sms.to, sid: sms.sid, status: sms.status });
-    } catch (error: any) {
+    } catch (error) {
       console.error('[create-checkout] Twilio SMS failed:', error);
       responseBody.sms = { sent: false, status: 'failed', message: error instanceof Error ? error.message : 'SMS failed' };
     }

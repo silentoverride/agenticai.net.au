@@ -1,21 +1,26 @@
 <script lang="ts">
   import { useClerkContext } from 'svelte-clerk';
+  import { portalGet } from '$lib/portal-client';
+  import type { PortalReceipt } from '$lib/types';
 
   const clerk = useClerkContext();
   const userId = $derived(clerk.auth.userId ?? '');
 
-  let receipts = $state<any[]>([]);
+  let receipts = $state<PortalReceipt[]>([]);
   let loading = $state(true);
-  let selectedReceipt = $state<any | null>(null);
+  let selectedReceipt = $state<PortalReceipt | null>(null);
   let modalOpen = $state(false);
 
+  const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
+  const isDevBypass = $derived(!import.meta.env.PROD && devUserId != null);
+
   $effect(() => {
-    if (clerk.auth.userId != null) loadReceipts();
+    if (clerk.auth.userId != null || isDevBypass) loadReceipts();
   });
 
   async function loadReceipts() {
     try {
-      const res = await fetch('/api/portal/receipts');
+      const res = await portalGet('/api/portal/receipts');
       if (res.ok) receipts = await res.json();
     } catch (e) {
       console.error('Failed to load receipts', e);
@@ -24,7 +29,7 @@
     }
   }
 
-  function openModal(receipt: any) {
+  function openModal(receipt: PortalReceipt) {
     selectedReceipt = receipt;
     modalOpen = true;
     document.body.style.overflow = 'hidden';
@@ -75,7 +80,7 @@
               day: 'numeric'
             })}</span>
             <span class="receipt-amount">
-              ${(receipt.amount_cents / 100).toFixed(2)}
+              ${receipt.amount_cents != null ? (receipt.amount_cents / 100).toFixed(2) : '—'}
               <span class="receipt-currency">{receipt.currency?.toUpperCase()}</span>
             </span>
           </div>
@@ -142,7 +147,7 @@
           <div class="detail-row total">
             <span class="detail-label">Total Paid</span>
             <span class="detail-value total-amount">
-              ${(selectedReceipt.amount_cents / 100).toFixed(2)}
+              ${selectedReceipt.amount_cents != null ? (selectedReceipt.amount_cents / 100).toFixed(2) : '—'}
               <span class="detail-currency">{selectedReceipt.currency?.toUpperCase()}</span>
             </span>
           </div>

@@ -1,27 +1,26 @@
 <script lang="ts">
 	import { useClerkContext } from 'svelte-clerk';
+	import { portalGet } from '$lib/portal-client';
+	import type { PortalReport } from '$lib/types';
 	import CalendlyButton from '$lib/components/CalendlyButton.svelte';
 	import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
 
 	const clerk = useClerkContext();
-	const userId = $derived(clerk.auth.userId ?? '');
 
-  let reports = $state<any[]>([]);
-  let loading = $state(true);
+	let reports = $state<PortalReport[]>([]);
+	let loading = $state(true);
 
-  const sampleReports = [
-    { company: 'Acme Consulting', date: '15 January 2025', desc: 'Marketing automation, CRM integration, and reporting workflow assessment with projected 12 hrs/week savings.' },
-    { company: 'Brightspire Dental', date: '3 February 2025', desc: 'Patient scheduling, reminder bots, and practice management tool stack review with AI scheduling recommendations.' },
-    { company: 'Coastal Logistics', date: '22 February 2025', desc: 'Supply-chain dashboarding, route optimisation, and automated invoicing assessment with ROI projections.' }
-  ];
+	const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
+	const isDevBypass = $derived(!import.meta.env.PROD && devUserId != null);
+	const userId = $derived(clerk.auth.userId || devUserId || '');
 
   $effect(() => {
-    if (clerk.auth.userId != null) loadReports();
+    if (clerk.auth.userId != null || isDevBypass) loadReports();
   });
 
   async function loadReports() {
     try {
-      const res = await fetch('/api/portal/reports');
+      const res = await portalGet('/api/portal/reports');
       if (res.ok) reports = await res.json();
     } catch (e) {
       console.error('Failed to load reports', e);
@@ -46,46 +45,44 @@
       {/each}
     </div>
   {:else if reports.length === 0}
+    <div class="empty-state">
+      <p>No reports yet.</p>
+      <div class="empty-cta">
+        <CallAssessmentButton label="Start Your AI Business Assessment" source="portal-empty-state" />
+      </div>
+    </div>
+  {:else}
     <div class="reports-grid">
-      <!-- Permanent sample / placeholder cards -->
-      {#each sampleReports as sample}
-        <div class="report-card placeholder">
-          <span class="placeholder-badge">Sample</span>
-          <h3>{sample.company}</h3>
-          <p class="report-date">{sample.date}</p>
-          <p class="placeholder-desc">{sample.desc}</p>
+      {#each reports as report}
+        <div
+          class="report-card"
+          role="link"
+          tabindex="0"
+          onclick={() => window.location.href = `/portal/${userId}/reports/${report.id}`}
+          onkeydown={(e) => { if (e.key === 'Enter') window.location.href = `/portal/${userId}/reports/${report.id}`; }}
+        >
+          <h3>{report.title || report.company || 'Business Assessment'}</h3>
+          <p class="report-date">{new Date(report.created_at).toLocaleDateString('en-AU', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}</p>
           <div class="report-actions">
-            <span class="btn-primary placeholder-btn">Preview →</span>
+            <span class="btn-primary">View Report →</span>
+            <a
+              href={`/deck/${report.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-deck"
+              onclick={(e) => e.stopPropagation()}
+            >
+              View Deck →
+            </a>
           </div>
         </div>
       {/each}
     </div>
-    <div class="empty-cta">
-      <CallAssessmentButton label="Start Your AI Business Assessment" source="portal-empty-state" />
-    </div>
-	{:else}
-  		<div class="reports-grid">
-			{#each reports as report}
-				<div
-					class="report-card"
-					role="link"
-					tabindex="0"
-					onclick={() => window.location.href = `/portal/${userId}/reports/${report.id}`}
-					onkeydown={(e) => { if (e.key === 'Enter') window.location.href = `/portal/${userId}/reports/${report.id}`; }}
-				>
-					<h3>{report.company || 'Business Assessment'}</h3>
-					<p class="report-date">{new Date(report.created_at).toLocaleDateString('en-AU', {
-						weekday: 'long',
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric'
-					})}</p>
-					<div class="report-actions">
-						<span class="btn-primary">View Report →</span>
-					</div>
-				</div>
-			{/each}
-		</div>
 
     <div class="portal-cta">
       <div class="calendly-wrap" style="margin-top:2rem">
@@ -205,41 +202,22 @@
     border-radius: 8px;
     animation: shimmer 1.4s infinite;
   }
-  /* Placeholder / sample cards */
-  .report-card.placeholder {
-    background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
-    border: 2px dashed #c7d2fe;
-    cursor: default;
-  }
-  .report-card.placeholder:hover,
-  .report-card.placeholder:focus {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(99,102,241,0.1);
-    outline: 2px dashed #a5b4fc;
-    outline-offset: 2px;
-  }
-  .placeholder-badge {
+  .btn-deck {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
     display: inline-block;
-    font-size: 0.625rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    background: #e0e7ff;
-    color: #4f46e5;
-    margin-bottom: 0.5rem;
+    cursor: pointer;
+    background: transparent;
+    color: #0066ff;
+    border: 1.5px solid #0066ff;
+    transition: background 0.2s ease, color 0.2s ease;
   }
-  .placeholder-desc {
-    font-size: 0.8125rem;
-    color: #666;
-    line-height: 1.45;
-    margin: 0 0 1rem 0;
-  }
-  .btn-primary.placeholder-btn {
-    background: #818cf8;
-    cursor: default;
-    opacity: 0.7;
+  .btn-deck:hover {
+    background: #0066ff;
+    color: white;
   }
   .empty-cta {
     text-align: center;

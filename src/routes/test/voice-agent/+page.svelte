@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
 
+  import { RetellWebClient } from 'retell-client-js-sdk';
+
   // Test scenario steps
   const TEST_SCENARIO = [
     { delay: 3000,  text: "Hi, I'm interested in an AI assessment for my business." },
@@ -17,7 +19,7 @@
   let transcript = '';
   let agentTranscript = '';
   let logs: string[] = [];
-  let retellClient: any = null;
+  let retellClient: RetellWebClient | null = null;
   let scenarioTimer: ReturnType<typeof setTimeout> | null = null;
   let stepIndex = 0;
   let autoMode = true;
@@ -54,9 +56,9 @@
       callId = data.callId || '';
       log(`Call created: ${callId}`);
       await connectWebRTC(data.accessToken);
-    } catch (err: any) {
+    } catch (err) {
       callStatus = 'error';
-      log(`ERROR: ${err.message}`);
+      log(`ERROR: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -76,19 +78,19 @@
       cleanup();
     });
 
-    retellClient.on('error', (err: any) => {
-      log(`Retell error: ${err?.message || err}`);
+    retellClient.on('error', (err: Error | string) => {
+      log(`Retell error: ${err instanceof Error ? err.message : err}`);
     });
 
     // Listen for agent transcript updates
-    retellClient.on('transcript_update', (update: any) => {
+    retellClient.on('transcript_update', (update: { transcript?: string }) => {
       if (update?.transcript) {
         agentTranscript = update.transcript;
         log(`AGENT: ${update.transcript.slice(-120)}`);
       }
     });
 
-    retellClient.on('audio', (audio: any) => {
+    retellClient.on('audio', (_audio: ArrayBuffer) => {
       // Audio received from agent — we can analyse levels
       analyseAgentAudio();
     });
@@ -243,8 +245,8 @@
       });
       const data = await res.json();
       log(`Pipeline response: ${JSON.stringify(data)}`);
-    } catch (err: any) {
-      log(`Pipeline error: ${err.message}`);
+    } catch (err) {
+      log(`Pipeline error: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 </script>
