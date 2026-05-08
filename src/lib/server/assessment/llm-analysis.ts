@@ -1,4 +1,5 @@
 import { llmChat } from '../llm';
+import type { LlmResponse } from '../llm';
 import type { AssessmentReportJob } from './types';
 import type { AITool } from './tool-lookup';
 import { formatToolsForPrompt } from './tool-lookup';
@@ -58,7 +59,26 @@ TRANSCRIPT END`,
 
 export async function analyzeTranscript(job: AssessmentReportJob, tools?: AITool[]): Promise<string> {
   const messages = buildAnalysisMessages(job.transcript, job, tools);
-  const response = await llmChat(messages, { temperature: 0.5, maxTokens: 4096, timeoutMs: 180000 });
+
+  async function attempt(retries: number): Promise<LlmResponse> {
+    try {
+      return await llmChat(messages, { temperature: 0.5, maxTokens: 4096, timeoutMs: 180000 });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const isRetryable = msg.includes('503') || msg.includes('overloaded') ||
+        msg.includes('timed out') || msg.includes('AbortError') ||
+        msg.includes('502') || msg.includes('5');
+      if (isRetryable && retries > 0) {
+        const delay = 5000 * Math.pow(3, 3 - retries); // 5s, 15s, 45s
+        console.warn(`LLM call failed (${msg}), retrying in ${delay}ms (${retries} retries left)`);
+        await new Promise(r => setTimeout(r, delay));
+        return attempt(retries - 1);
+      }
+      throw err;
+    }
+  }
+
+  const response = await attempt(3);
 
   try {
     JSON.parse(response.content);
