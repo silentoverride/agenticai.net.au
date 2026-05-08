@@ -50,7 +50,7 @@ ${job.company ? `Company: ${job.company}` : ''}
 ${job.customerName ? `Owner: ${job.customerName}` : ''}
 
 TRANSCRIPT START:
-${userTranscript.length > 30000 ? userTranscript.slice(0, 30000) + '\n...[truncated]' : userTranscript}
+${userTranscript.length > 5000 ? userTranscript.slice(0, 5000) + '\n...[truncated]' : userTranscript}
 TRANSCRIPT END`,
     }
   ];
