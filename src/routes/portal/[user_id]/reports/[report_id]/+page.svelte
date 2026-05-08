@@ -2,21 +2,19 @@
   import { page } from '$app/state';
   import { useClerkContext } from 'svelte-clerk';
   import { portalGet } from '$lib/portal-client';
+  import { usePortalAuth } from '$lib/portal-context.svelte';
   import type { PortalReportDetail } from '$lib/types';
   import RevealDeck from '$lib/components/RevealDeck.svelte';
   import CalendlyButton from '$lib/components/CalendlyButton.svelte';
 
   const clerk = useClerkContext();
+  const { userId, isDevBypass } = usePortalAuth();
   const reportId = page.params.report_id;
-  const userId = $derived(clerk.auth.userId ?? '');
 
   let report = $state<PortalReportDetail | null>(null);
   let analysis = $state<any>(null);
   let loading = $state(true);
   let error = $state('');
-
-  const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
-  const isDevBypass = $derived(!import.meta.env.PROD && devUserId != null);
 
   $effect(() => {
     if (clerk.auth.userId != null || isDevBypass) loadReport();

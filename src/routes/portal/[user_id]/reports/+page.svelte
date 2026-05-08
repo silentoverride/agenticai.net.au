@@ -1,18 +1,16 @@
 <script lang="ts">
-	import { useClerkContext } from 'svelte-clerk';
-	import { portalGet } from '$lib/portal-client';
-	import type { PortalReport } from '$lib/types';
-	import CalendlyButton from '$lib/components/CalendlyButton.svelte';
-	import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
+  import { useClerkContext } from 'svelte-clerk';
+  import { portalGet } from '$lib/portal-client';
+  import { usePortalAuth } from '$lib/portal-context.svelte';
+  import type { PortalReport } from '$lib/types';
+  import CalendlyButton from '$lib/components/CalendlyButton.svelte';
+  import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
 
-	const clerk = useClerkContext();
+  const clerk = useClerkContext();
+  const { userId, isDevBypass } = usePortalAuth();
 
-	let reports = $state<PortalReport[]>([]);
-	let loading = $state(true);
-
-	const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
-	const isDevBypass = $derived(!import.meta.env.PROD && devUserId != null);
-	const userId = $derived(clerk.auth.userId || devUserId || '');
+  let reports = $state<PortalReport[]>([]);
+  let loading = $state(true);
 
   $effect(() => {
     if (clerk.auth.userId != null || isDevBypass) loadReports();

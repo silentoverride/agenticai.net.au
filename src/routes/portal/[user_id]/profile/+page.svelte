@@ -1,11 +1,10 @@
 <script lang="ts">
   import { useClerkContext } from 'svelte-clerk';
-  import { onMount } from 'svelte';
+  import { usePortalAuth } from '$lib/portal-context.svelte';
   import { portalGet, portalPut } from '$lib/portal-client';
 
   const clerk = useClerkContext();
-  const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
-  const userId = $derived(clerk.auth.userId || devUserId || '');
+  const { userId, isDevBypass } = usePortalAuth();
 
   let name = $state('');
   let phone = $state('');
@@ -14,7 +13,11 @@
   let message = $state('');
   let errorMsg = $state('');
 
-  onMount(async () => {
+  $effect(() => {
+    if (clerk.auth.userId != null || isDevBypass) loadProfile();
+  });
+
+  async function loadProfile() {
     try {
       const res = await portalGet('/api/portal/user');
       if (res.ok) {
@@ -33,7 +36,7 @@
     } finally {
       loading = false;
     }
-  });
+  }
 
   async function saveProfile() {
     saving = true;

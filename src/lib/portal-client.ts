@@ -48,3 +48,19 @@ export async function portalPut(
 export async function portalDelete(path: string): Promise<Response> {
   return fetch(buildUrl(path), { method: 'DELETE' });
 }
+
+/**
+ * Build a portal navigation URL with ?dev_user_id appended in dev bypass mode.
+ * Use in Svelte components for `<a href={...}>` links.
+ *
+ * @example
+ * ```svelte
+ * <a href={portalNavUrl(`/portal/${userId}/reports`)}>Reports</a>
+ * ```
+ */
+export function portalNavUrl(path: string): string {
+  const id = devUserId();
+  if (!id) return path;
+  const sep = path.includes('?') ? '&' : '?';
+  return `${path}${sep}dev_user_id=${encodeURIComponent(id)}`;
+}

@@ -2,6 +2,8 @@
   import { useClerkContext } from 'svelte-clerk';
   import { SignIn, SignUp } from 'svelte-clerk';
   import { page } from '$app/state';
+  import { setPortalAuth } from '$lib/portal-context.svelte';
+  import { portalNavUrl } from '$lib/portal-client';
 
   let { children } = $props();
 
@@ -10,7 +12,15 @@
   const isSignUp = page.url.pathname === '/portal/sign-up';
   const devUserId = page.url.searchParams.get('dev_user_id');
   const isDevBypass = !import.meta.env.PROD && devUserId != null;
-  const activeUserId = $derived(clerk.auth.userId || devUserId || '');
+
+  // Reactive auth context shared with child pages
+  let portalAuth = $state({ userId: '', isDevBypass: false, devUserId: '' });
+  $effect(() => {
+    portalAuth.userId = clerk.auth.userId || devUserId || '';
+    portalAuth.isDevBypass = isDevBypass;
+    portalAuth.devUserId = devUserId || '';
+  });
+  setPortalAuth(portalAuth);
 </script>
 
 <div class="portal-layout">
@@ -28,10 +38,10 @@
     </div>
   {:else}
     <nav class="portal-nav">
-      <a href={`/portal/${activeUserId}${isDevBypass ? `?dev_user_id=${devUserId}` : ''}`}>Dashboard</a>
-      <a href={`/portal/${activeUserId}/reports${isDevBypass ? `?dev_user_id=${devUserId}` : ''}`}>Reports</a>
-      <a href={`/portal/${activeUserId}/receipts${isDevBypass ? `?dev_user_id=${devUserId}` : ''}`}>Receipts</a>
-      <a href={`/portal/${activeUserId}/profile${isDevBypass ? `?dev_user_id=${devUserId}` : ''}`}>Profile</a>
+      <a href={portalNavUrl(`/portal/${portalAuth.userId}`)}>Dashboard</a>
+      <a href={portalNavUrl(`/portal/${portalAuth.userId}/reports`)}>Reports</a>
+      <a href={portalNavUrl(`/portal/${portalAuth.userId}/receipts`)}>Receipts</a>
+      <a href={portalNavUrl(`/portal/${portalAuth.userId}/profile`)}>Profile</a>
       <a href="/services" class="nav-cta">Start Assessment</a>
       <div class="portal-nav-right">
         <span>{isDevBypass ? 'Dev User' : (clerk.user?.firstName || clerk.user?.emailAddresses?.[0]?.emailAddress)}</span>

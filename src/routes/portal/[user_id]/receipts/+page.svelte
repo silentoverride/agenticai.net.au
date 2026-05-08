@@ -1,18 +1,16 @@
 <script lang="ts">
   import { useClerkContext } from 'svelte-clerk';
   import { portalGet } from '$lib/portal-client';
+  import { usePortalAuth } from '$lib/portal-context.svelte';
   import type { PortalReceipt } from '$lib/types';
 
   const clerk = useClerkContext();
-  const userId = $derived(clerk.auth.userId ?? '');
+  const { userId, isDevBypass } = usePortalAuth();
 
   let receipts = $state<PortalReceipt[]>([]);
   let loading = $state(true);
   let selectedReceipt = $state<PortalReceipt | null>(null);
   let modalOpen = $state(false);
-
-  const devUserId = $derived(new URLSearchParams(window.location.search).get('dev_user_id'));
-  const isDevBypass = $derived(!import.meta.env.PROD && devUserId != null);
 
   $effect(() => {
     if (clerk.auth.userId != null || isDevBypass) loadReceipts();
