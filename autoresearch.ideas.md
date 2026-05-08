@@ -37,3 +37,16 @@
     isolate prompt-processing vs generation phases.
 
 -   **Run 3-trial median** for every experiment to account for API variance.
+
+## Variance Measurement (Run 9)
+
+3-trial witness baseline on commit dd924d4 (no code changes):
+- Trial 1: 43,516 ms
+- Trial 2: 61,892 ms
+- Trial 3: 63,505 ms
+- Median: 61,892 ms
+- Range: 43.5s – 63.5s (±45%)
+
+Conclusion: The Ollama shared endpoint exhibits extreme run-to-run variance.
+Single-run comparisons are unreliable. All future experiments must use the
+3-trial median script (`scripts/bench-pipeline-3x.mjs`) for trustworthy results.
