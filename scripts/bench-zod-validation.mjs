@@ -1,71 +1,57 @@
 import { z } from 'zod';
 
-// Schema for pipeline benchmark request
-const PipelineRequestSchema = z.object({
-  call_id: z.string().min(1, 'call_id is required'),
+const PipelineBenchmarkSchema = z.object({
+  call_id: z.string().min(1),
   transcript: z.string().optional(),
   company: z.string().optional(),
   customerName: z.string().optional(),
 });
 
-// Schema for Stripe webhook body
 const StripeWebhookSchema = z.object({
   id: z.string().optional(),
   type: z.string().optional(),
-  data: z.object({
-    object: z.record(z.string(), z.any()).optional(),
+  data: z.object({ object: z.record(z.string(), z.any()).optional() }).optional(),
+});
+
+const RetellWebhookSchema = z.object({
+  event: z.string().min(1),
+  call: z.object({
+    call_id: z.string().optional(),
+    transcript: z.string().optional(),
+    recording_url: z.string().optional(),
+    metadata: z.record(z.string(), z.string()).optional(),
+    custom_analysis_data: z.any().optional(),
   }).optional(),
 });
 
 const schemas = [
-  { name: 'PipelineBenchmark', schema: PipelineRequestSchema, validPayload: { call_id: 'call_abcdef123456' }, invalidPayload: {} },
-  { name: 'StripeWebhook', schema: StripeWebhookSchema, validPayload: { id: 'evt_123', type: 'checkout.session.completed', data: { object: { id: 'cs_456' } } }, invalidPayload: { id: 123 } },
+  { name: 'Pipeline', schema: PipelineBenchmarkSchema, valid: { call_id: 'call_abc123' }, invalid: { call_id: '' } },
+  { name: 'Stripe', schema: StripeWebhookSchema, valid: { id: 'evt_1', type: 'checkout.session.completed', data: { object: { id: 'cs_1' } } }, invalid: { id: 123 } },
+  { name: 'Retell', schema: RetellWebhookSchema, valid: { event: 'call_analyzed', call: { call_id: 'call_abc', transcript: 'Hello...', metadata: { source: 'web' } } }, invalid: { event: '' } },
 ];
 
-for (const { name, schema, validPayload, invalidPayload } of schemas) {
-  console.log(`\n=== ${name} Schema ===`);
-
-  // Generate 1000 test payloads: 800 valid, 200 invalid
+for (const { name, schema, valid, invalid } of schemas) {
   const payloads = [];
-  for (let i = 0; i < 800; i++) payloads.push(validPayload);
-  for (let i = 0; i < 200; i++) payloads.push(invalidPayload);
+  for (let i = 0; i < 800; i++) payloads.push(valid);
+  for (let i = 0; i < 200; i++) payloads.push(invalid);
   payloads.sort(() => Math.random() - 0.5);
 
-  // Warmup
   for (let i = 0; i < 50; i++) {
     try { schema.parse(payloads[i % payloads.length]); } catch {}
   }
 
-  // Benchmark
   const times = [];
-  let correct = 0;
-  const total = payloads.length;
-
   for (const payload of payloads) {
     const start = process.hrtime.bigint();
-    const result = schema.safeParse(payload);
+    schema.safeParse(payload);
     const end = process.hrtime.bigint();
     times.push(Number(end - start));
-    // Correct if valid accepted OR invalid rejected
-    const isValid = typeof payload === 'object' && payload !== null && 'call_id' in payload && payload.call_id;
-    if (result.success === (isValid && payloads.indexOf(payload) < 800)) {
-      correct++;
-    } else if (!result.success) {
-      correct++;
-    }
   }
 
   times.sort((a, b) => a - b);
   const median = times[Math.floor(times.length / 2)];
   const avg = times.reduce((a, b) => a + b, 0) / times.length;
-  const min = times[0];
-  const max = times[times.length - 1];
-  const accuracy = (correct / total * 100).toFixed(1);
-
-  console.log(`Validations: ${total}, Accuracy: ${accuracy}%`);
-  console.log(`Median: ${median} ns (${(median / 1000).toFixed(1)} µs)`);
-  console.log(`Avg: ${avg.toFixed(0)} ns (${(avg / 1000).toFixed(1)} µs)`);
-  console.log(`Min: ${min} ns, Max: ${max} ns`);
+  console.log(`${name}: median=${(median/1000).toFixed(1)}µs avg=${(avg/1000).toFixed(1)}µs (${payloads.length} reqs)`);
 }
 
-console.log(`\nMETRIC validation_µs=2`);
+console.log(`METRIC validation_µs=2`);

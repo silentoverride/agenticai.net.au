@@ -30,3 +30,19 @@ export const StripeWebhookSchema = z.object({
 });
 
 export type StripeWebhookPayload = z.infer<typeof StripeWebhookSchema>;
+
+/**
+ * Schema for the Retell webhook request body.
+ */
+export const RetellWebhookSchema = z.object({
+  event: z.string().min(1, 'event is required'),
+  call: z.object({
+    call_id: z.string().optional(),
+    transcript: z.string().optional(),
+    recording_url: z.string().optional(),
+    metadata: z.record(z.string(), z.string()).optional(),
+    custom_analysis_data: z.any().optional(),
+  }).optional(),
+});
+
+export type RetellWebhookPayload = z.infer<typeof RetellWebhookSchema>;

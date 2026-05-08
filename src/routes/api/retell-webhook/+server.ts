@@ -6,6 +6,7 @@ import { storeTranscript } from '$lib/server/assessment/transcript-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
 import { getPipelineStatusByCallId } from '$lib/server/assessment/pipeline-store';
 import { verifyRetellSignature } from '$lib/server/retell';
+import { RetellWebhookSchema } from '$lib/server/validation';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, platform }) => {
@@ -20,16 +21,19 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     }
   }
 
-  let payload: {
-    event?: string;
-    call?: Record<string, any>;
-  };
-
+  let parsedBody: unknown;
   try {
-    payload = JSON.parse(rawBody || '{}');
+    parsedBody = JSON.parse(rawBody || '{}');
   } catch {
     throw apiError(400, 'Invalid Retell webhook JSON.');
   }
+
+  const parsed = RetellWebhookSchema.safeParse(parsedBody);
+  if (!parsed.success) {
+    throw apiError(400, 'Invalid Retell webhook payload: ' + parsed.error.issues[0]?.message);
+  }
+
+  const payload = parsed.data;
 
   if (!payload.event) {
     throw apiError(400, 'Missing Retell webhook event.');
