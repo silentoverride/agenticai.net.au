@@ -58,7 +58,7 @@ export async function analyzeTranscript(job: AssessmentReportJob, tools?: AITool
 
   async function attempt(retries: number): Promise<LlmResponse> {
     try {
-      return await llmChat(messages, { temperature: 0.5, maxTokens: 4096, timeoutMs: 180000 });
+      return await llmChat(messages, { temperature: 0.5, maxTokens: 4096, timeoutMs: 120000 });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       const isRetryable = msg.includes('503') || msg.includes('overloaded') ||
