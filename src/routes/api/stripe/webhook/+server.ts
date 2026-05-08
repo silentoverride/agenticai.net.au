@@ -158,9 +158,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     }
 
     // For voice-agent flow: if retell_call_id is in metadata, enqueue report pipeline
+    let pipelineEnqueued = false;
     const retellCallId = metadata.retell_call_id;
+    let stored: { transcript: string } | null | undefined = null;
     if (retellCallId) {
-      const stored = await getTranscript(retellCallId);
+      stored = await getTranscript(retellCallId);
       if (stored?.transcript) {
         const transcript = stored.transcript;
         const customerName = metadata.customer_name || session.customer_details?.name || '';
@@ -185,17 +187,23 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
         await setPipelineStatus(session.id, { status: 'queued', callId: retellCallId });
         const queue = platform?.env?.assessment_queue;
-        await enqueueReportJob(queue, {
-          receivedAt: record.receivedAt,
-          source: 'retell-voice-agent',
-          callId: retellCallId,
-          sessionId: session.id,
-          customerName,
-          customerEmail,
-          customerPhone,
-          company,
-          transcript
-        });
+        try {
+          await enqueueReportJob(queue, {
+            receivedAt: record.receivedAt,
+            source: 'retell-voice-agent',
+            callId: retellCallId,
+            sessionId: session.id,
+            customerName,
+            customerEmail,
+            customerPhone,
+            company,
+            transcript
+          });
+          pipelineEnqueued = true;
+        } catch (err) {
+          console.error('Failed to enqueue report job — event will NOT be marked processed', { error: err, sessionId: session.id });
+          return text('Pipeline enqueue failed', { status: 500 });
+        }
 
         // Transcript is intentionally kept in D1 for retry resilience — do NOT delete it
       } else {
@@ -204,8 +212,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
       }
     }
 
-    // Mark event as processed after all side effects
-    if (eventId) {
+    // Only mark event as processed after critical work succeeded (or there was no pipeline work)
+    if (eventId && (pipelineEnqueued || !retellCallId || (retellCallId && !stored?.transcript))) {
       await markEventProcessed(eventId, event.type);
     }
   }

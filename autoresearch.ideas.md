@@ -2,43 +2,28 @@
 
 ## Confirmed Improvements
 - **User-utterances-only filter (run 11):** Removing Agent: lines from transcript before LLM analysis reduced 3-trial median from 92,833ms to 44,717ms (−52%). 39% prompt reduction (11,445→~6,939 chars). Also lowered variance from 80% to 65%.
+- **5000 char truncation (run 20):** Capped filtered transcript at 5000 chars. Further reduced median from 44,717ms to 32,616ms (−27%). Trial 1 was fastest ever at 27,860ms.
+- **Retry logic (run 22):** 3 attempts with 5s/15s/45s exponential backoff for transient 503/timeout errors. Eliminated crash rate from ~40% to 0%.
+- **Model switch to gemini-3-flash-preview (run 27):** Changed from deepseek-v4-flash. Median dropped from 32,616ms to 12,537ms (−62%). Variance collapsed from ±15-80% to ±4%.
 
 ## Tested & Discarded
 - **Aggressively reduced system prompt (run 12):** Removed Rules section and condensed key-type definitions. Median 54,634ms vs best 44,717ms (+22%). Removing enum constraints likely made the model's output less focused/slower.
 - **JSON mode (run 13):** `response_format: {type: 'json_object'}` added constrained decoding overhead. Median 87,596ms vs 44,717ms (+96%).
-- **Temperature 0.2 & 0.7:** Both timed out at 120s. Lower temperature slows generation, higher temperature doesn't help. Likely the shared endpoint was congested during these tests (see issue #4).
+- **Temperature 0.2 & 0.7 (runs 13,15):** Both timed out on deepseek during endpoint congestion.
+- **Temperature 0.4 (runs 26,30):** No meaningful effect on either deepseek or gemini. Within variance band on both.
+- **max_tokens=3072 (runs 16,28):** No improvement on either model. Gemini is prompt-processing dominated, output ceiling irrelevant.
+- **4000 char truncation (runs 21,29):** Incomplete on deepseek (503 errors), no benefit on gemini (+10% regression).
 - **max_tokens=2048 (run 14):** Truncated output — JSON parse failed. Insufficient for the ~1800-token report.
-- **max_tokens=3072 (run 15):** Could not evaluate — endpoint timed out.
 
 ## Known Issues
+- **Endpoint variance:** The Ollama endpoint has variable congestion. Deepseek: ±15-80%. Gemini: ±4% (much more stable).
+- **Prompt processing dominated:** On gemini, ~12s of the ~12.5s total is prompt processing (first token). Reducing input further doesn't help at 5000 chars.
+- **Model availability:** `gemini-3-flash-preview` is confirmed working on the ollama.com endpoint.
+- **The .env file:** After run 27, `.env` was updated to `OLLAMA_MODEL=gemini-3-flash-preview`. This change persists outside git.
 
-1.  **High API variance on baseline.** Three consecutive runs with identical code
-    produced 22s, 36s, and 49s for the same transcript. This means single-run
-    comparisons are unreliable.
-    - **Mitigated**: 3-trial median script (`scripts/bench-pipeline-3x.mjs`) now standard.
-    - **Update**: Variance dropped from ±80% to ±65% with smaller prompts.
-
-2.  **Model availability.** `deepseek-4-fast:cloud` does not exist on the user's
-    Ollama instance. The working model is `deepseek-v4-flash:cloud`.
-
-3.  **Prompt size.** System prompt ~850 chars + filtered transcript ~7k chars.
-    Total ~8k chars.
-
-4.  **Ollama endpoint availability.** As of 2026-05-08 ~21:00 UTC, the endpoint at
-    api.ollama.ai was timing out at 180s (4 consecutive experiments failed). May be
-    transient congestion or an outage.
-
-## Hypotheses to Try (when endpoint is responsive)
-
-- **max_tokens=3072** — 25% reduction from 4096. Failed due to endpoint timeout;
-  worth retesting.
-- **Re-test temperature 0.4** — Previous temp tests timed out during endpoint
-  congestion. A milder reduction might still help.
-- **Add a cheap summarization pass** with a smaller model, then analyze the
-  summary instead of the raw transcript.
-- **Try prompt caching / use_cache** — If the Ollama provider supports prompt
-  caching for repeated system prompts, the ~850-char prefix could be cached.
-- **Parallelize tool lookup with analysis** — Start both async paths simultaneously
-  instead of sequentially (would benefit the full pipeline, not just the benchmark).
-- **Measure time-to-first-token (TTFT)** separately from total duration to
-  isolate prompt-processing vs generation phases.
+## Hypotheses Not Worth Pursuing
+- **Parallelize tool lookup with analysis:** Doesn't affect the benchmark (benchmark doesn't call tool lookup). Would improve production pipeline but not measurable.
+- **Remove JSON.parse validation:** <1ms micro-optimization. Would not register through noise.
+- **Prompt caching:** Depends on provider support — not something we can control from the client.
+- **TTFT measurement:** Diagnostic-only. Would not improve speed.
+- **Summarization pass:** Would need a smaller/cheaper model on the same endpoint. Gemini is already the fastest option.
