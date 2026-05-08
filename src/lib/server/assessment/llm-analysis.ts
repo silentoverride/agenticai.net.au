@@ -58,7 +58,7 @@ TRANSCRIPT END`,
 
 export async function analyzeTranscript(job: AssessmentReportJob, tools?: AITool[]): Promise<string> {
   const messages = buildAnalysisMessages(job.transcript, job, tools);
-  const response = await llmChat(messages, { temperature: 0.5, maxTokens: 4096, timeoutMs: 120000 });
+  const response = await llmChat(messages, { temperature: 0.5, maxTokens: 4096, timeoutMs: 180000 });
 
   try {
     JSON.parse(response.content);
