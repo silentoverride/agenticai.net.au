@@ -84,11 +84,12 @@ export const POST: RequestHandler = async ({ request, platform }) => {
   }));
 
   // Step 3: Enqueue the report pipeline (async — don't block client)
-  await setPipelineStatus(payload.sessionId, { status: 'queued' });
+  await setPipelineStatus(payload.sessionId, { status: 'queued', callId: retellCallId });
   const queue = platform?.env?.assessment_queue;
   await enqueueReportJob(queue, {
     receivedAt: new Date().toISOString(),
     source,
+    callId: retellCallId,
     sessionId: payload.sessionId,
     customerName,
     customerEmail,

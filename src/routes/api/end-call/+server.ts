@@ -4,7 +4,7 @@ import { env } from '$env/dynamic/private';
 import { stopRetellCall } from '$lib/server/retell';
 
 export const POST: RequestHandler = async ({ request }) => {
-	const body = await request.json().catch(() => ({}));
+	const body = await request.json().catch(() => ({})) as Record<string, unknown>;
 	const callId = body.callId ?? body.call_id;
 
 	if (!callId || typeof callId !== 'string') {

@@ -25,10 +25,10 @@
     </div>
   {:else}
     <nav class="portal-nav">
-      <a href="/portal">Dashboard</a>
-      <a href="/portal/reports">Reports</a>
-      <a href="/portal/receipts">Receipts</a>
-      <a href="/portal/profile">Profile</a>
+      <a href={`/portal/${clerk.auth.userId}`}>Dashboard</a>
+      <a href={`/portal/${clerk.auth.userId}/reports`}>Reports</a>
+      <a href={`/portal/${clerk.auth.userId}/receipts`}>Receipts</a>
+      <a href={`/portal/${clerk.auth.userId}/profile`}>Profile</a>
       <a href="/services" class="nav-cta">Start Assessment</a>
       <div class="portal-nav-right">
         <span>{clerk.user?.firstName || clerk.user?.emailAddresses?.[0]?.emailAddress}</span>

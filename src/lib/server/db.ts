@@ -37,6 +37,7 @@ function getLocalDb(): Database.Database {
   try {
     ensureDir(DB_DIR);
     localDb = new Database(DB_PATH);
+    localDb.pragma('foreign_keys = ON');
     localDb.pragma('journal_mode = WAL');
     initSchema(localDb);
     return localDb;
@@ -56,22 +57,16 @@ function initSchema(db: Database.Database) {
       name TEXT,
       phone TEXT,
       role TEXT DEFAULT 'client',
-      created_at TEXT DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS user_reports (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL REFERENCES users(clerk_id) ON DELETE CASCADE,
-      report_id TEXT NOT NULL,
-      stripe_session_id TEXT,
-      deck_url TEXT,
-      title TEXT,
       company TEXT,
+      address TEXT,
+      avatar TEXT,
+      abn TEXT,
+      acn TEXT,
+      website TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
 
-    CREATE INDEX IF NOT EXISTS idx_user_reports_user_id ON user_reports(user_id);
-    CREATE INDEX IF NOT EXISTS idx_user_reports_report_id ON user_reports(report_id);
+    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
     CREATE TABLE IF NOT EXISTS receipts (
       id TEXT PRIMARY KEY,
@@ -86,8 +81,10 @@ function initSchema(db: Database.Database) {
       created_at TEXT DEFAULT (datetime('now'))
     );
 
-    CREATE INDEX IF NOT EXISTS idx_receipts_user_id ON receipts(user_id);
-    CREATE INDEX IF NOT EXISTS idx_receipts_session ON receipts(stripe_session_id);
+    CREATE INDEX IF NOT EXISTS idx_receipts_user_created ON receipts(user_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_receipts_pending_customer_email_lower
+      ON receipts(LOWER(customer_email))
+      WHERE user_id IS NULL AND customer_email IS NOT NULL;
 
     CREATE TABLE IF NOT EXISTS transcripts (
       call_id TEXT PRIMARY KEY,
@@ -99,30 +96,11 @@ function initSchema(db: Database.Database) {
 
     CREATE INDEX IF NOT EXISTS idx_transcripts_created_at ON transcripts(created_at);
 
-    CREATE TABLE IF NOT EXISTS pipeline_status (
-      session_id TEXT PRIMARY KEY,
-      status TEXT NOT NULL,
-      deck_url TEXT,
-      report_id TEXT,
-      error TEXT,
-      attempts INTEGER DEFAULT 0,
-      created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_pipeline_status ON pipeline_status(status, updated_at);
-
-    CREATE TABLE IF NOT EXISTS processed_events (
-      event_id TEXT PRIMARY KEY,
-      event_type TEXT NOT NULL,
-      processed_at TEXT DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_processed_events_type ON processed_events(event_type, processed_at);
-
     CREATE TABLE IF NOT EXISTS reports (
       id TEXT PRIMARY KEY,
-      call_id TEXT,
+      user_id TEXT REFERENCES users(clerk_id) ON DELETE SET NULL,
+      receipt_id TEXT REFERENCES receipts(id) ON DELETE SET NULL,
+      call_id TEXT REFERENCES transcripts(call_id) ON DELETE SET NULL,
       session_id TEXT,
       customer_email TEXT,
       customer_name TEXT,
@@ -133,9 +111,39 @@ function initSchema(db: Database.Database) {
       created_at TEXT DEFAULT (datetime('now'))
     );
 
-    CREATE INDEX IF NOT EXISTS idx_reports_session ON reports(session_id);
+    CREATE INDEX IF NOT EXISTS idx_reports_session_receipt ON reports(session_id, receipt_id);
+    CREATE INDEX IF NOT EXISTS idx_reports_user_created ON reports(user_id, created_at DESC);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_reports_receipt_id ON reports(receipt_id);
     CREATE INDEX IF NOT EXISTS idx_reports_email ON reports(customer_email);
-    CREATE INDEX IF NOT EXISTS idx_reports_call_id ON reports(call_id);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_reports_call_id_unique
+      ON reports(call_id)
+      WHERE call_id IS NOT NULL;
+
+    CREATE TABLE IF NOT EXISTS pipeline_status (
+      session_id TEXT PRIMARY KEY,
+      status TEXT NOT NULL CHECK (status IN ('pending', 'queued', 'pending_payment', 'running_llm', 'running_tools', 'running_deck', 'completed', 'error', 'retry')),
+      deck_url TEXT,
+      report_id TEXT REFERENCES reports(id) ON DELETE SET NULL,
+      error TEXT,
+      attempts INTEGER DEFAULT 0,
+      call_id TEXT REFERENCES transcripts(call_id) ON DELETE SET NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_pipeline_status ON pipeline_status(status, updated_at);
+    CREATE INDEX IF NOT EXISTS idx_pipeline_status_call_id ON pipeline_status(call_id);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_pipeline_status_report_id_unique
+      ON pipeline_status(report_id)
+      WHERE report_id IS NOT NULL;
+
+    CREATE TABLE IF NOT EXISTS processed_events (
+      event_id TEXT PRIMARY KEY,
+      event_type TEXT NOT NULL,
+      processed_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_processed_events_type ON processed_events(event_type, processed_at);
   `);
 }
 
@@ -268,14 +276,24 @@ export type DbUser = {
   name: string | null;
   phone: string | null;
   role: string | null;
+  company: string | null;
+  address: string | null;
+  avatar: string | null;
+  abn: string | null;
+  acn: string | null;
+  website: string | null;
   created_at: string;
 };
 
 export type DbReport = {
   id: string;
-  user_id: string;
-  report_id: string;
-  stripe_session_id: string | null;
+  user_id: string | null;
+  receipt_id: string | null;
+  call_id: string | null;
+  session_id: string | null;
+  customer_email: string | null;
+  customer_name: string | null;
+  r2_key: string | null;
   deck_url: string | null;
   title: string | null;
   company: string | null;

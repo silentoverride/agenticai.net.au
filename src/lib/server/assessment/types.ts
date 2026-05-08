@@ -70,6 +70,7 @@ export interface SavedReport {
   dir: string;
   jsonPath: string;
   mdPath: string;
+  r2Key?: string;
 }
 
 export interface PipelineResult {

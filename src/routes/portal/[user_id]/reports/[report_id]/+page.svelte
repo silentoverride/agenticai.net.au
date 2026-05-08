@@ -5,7 +5,8 @@
   import CalendlyButton from '$lib/components/CalendlyButton.svelte';
 
   const clerk = useClerkContext();
-  const reportId = page.params.id;
+  const reportId = page.params.report_id;
+  const userId = $derived(clerk.auth.userId ?? '');
 
   let report = $state<any>(null);
   let analysis = $state<any>(null);
@@ -37,12 +38,12 @@
     <p>Loading your assessment report...</p>
   {:else if error}
     <p class="error">{error}</p>
-    <a href="/portal/reports">← Back to reports</a>
+    <a href={`/portal/${userId}/reports`}>← Back to reports</a>
   {:else if analysis}
     <div class="viewer-header">
       <h1>{report?.company || 'AI Business Assessment'}</h1>
       <div class="viewer-actions">
-        <a href="/portal/reports/{reportId}?print-pdf" target="_blank" class="btn-download">Download PDF</a>
+        <a href={`/portal/${userId}/reports/${reportId}?print-pdf`} target="_blank" class="btn-download">Download PDF</a>
       </div>
     </div>
     <RevealDeck {analysis} company={report?.company} />

@@ -16,7 +16,7 @@
  */
 
 import { json, error } from '@sveltejs/kit';
-import { getUserReport, upsertUser, scanAndLinkReportsByEmail } from '$lib/server/portal';
+import { getUserReport, upsertUser, scanAndLinkReportsByEmail, linkReportToUser } from '$lib/server/portal';
 import { isDatabaseAvailable } from '$lib/server/db';
 import { getReport } from '$lib/server/assessment/report-store';
 import { getReportAnalysisFromR2, getReportMetaFromR2 } from '$lib/server/assessment/report-store-r2';
@@ -40,7 +40,41 @@ export const GET: RequestHandler = async ({ params, locals, platform }) => {
   }
 
   const reportId = params.id;
-  const dbReport = await getUserReport(auth.userId, reportId);
+  let dbReport = await getUserReport(auth.userId, reportId);
+
+  // Lazy auto-link: if report isn't linked in reports.user_id, try to discover
+  // it in R2 and verify ownership by matching customerEmail.
+  if (!dbReport && user?.email) {
+    const bucket = platform?.env?.assessment_blobs;
+    if (bucket) {
+      try {
+        const meta = await getReportMetaFromR2(bucket, reportId);
+        const jobData = (meta as Record<string, unknown> | null)?.job as Record<string, unknown> | undefined;
+        const reportEmail = jobData?.customerEmail as string | undefined;
+        if (reportEmail && reportEmail.toLowerCase() === user.email.toLowerCase()) {
+          // Ownership verified via email match — auto-link the report
+          await linkReportToUser(
+            auth.userId,
+            reportId,
+            jobData?.sessionId as string | undefined,
+            `${jobData?.company || jobData?.customerName || 'Business'} — AI Assessment`,
+            jobData?.company as string | undefined,
+            {
+              callId: jobData?.callId as string | undefined,
+              customerEmail: reportEmail,
+              customerName: jobData?.customerName as string | undefined,
+              r2Key: `reports/${reportId}`
+            }
+          );
+          dbReport = await getUserReport(auth.userId, reportId);
+          console.info('[portal:lazy-link] Auto-linked R2 report', { reportId, userId: auth.userId, email: user.email });
+        }
+      } catch (err) {
+        console.warn('[portal:lazy-link] R2 fallback discovery failed', { reportId, error: String(err) });
+      }
+    }
+  }
+
   if (!dbReport) {
     throw error(404, 'Report not found');
   }

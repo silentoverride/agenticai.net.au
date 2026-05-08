@@ -3,13 +3,14 @@
 
   const clerk = useClerkContext();
   const user = $derived(clerk.user);
+  const userId = $derived(clerk.auth.userId ?? '');
 </script>
 
 {#if user}
   <div class="welcome">
     <h1>Welcome, {user.firstName || 'to Agentic AI'}!</h1>
     <p>Your portal account is ready. Redirecting you to the dashboard...</p>
-    <a href="/portal" class="cta">Go to your Dashboard →</a>
+    <a href={`/portal/${userId}`} class="cta">Go to your Dashboard →</a>
   </div>
 {/if}
 

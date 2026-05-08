@@ -1,0 +1,14 @@
+{
+  "id": "1778171621313-cs_test_a187TmNny30dpn4Wc4V69pi0DCsniVxxqXHXzW3pVf5Cym1BhJRw6UJ5vI",
+  "job": {
+    "sessionId": "cs_test_a187TmNny30dpn4Wc4V69pi0DCsniVxxqXHXzW3pVf5Cym1BhJRw6UJ5vI",
+    "source": "retell-voice-agent",
+    "customerName": "John Example",
+    "customerEmail": "johnexample@sharklasers.com",
+    "customerPhone": "+61468312233",
+    "company": "Affinity Skin Cancer Clinics",
+    "receivedAt": "2026-05-07T16:32:12.561Z"
+  },
+  "deckUrl": null,
+  "createdAt": "2026-05-07T16:33:41.313Z"
+}

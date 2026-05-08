@@ -24,7 +24,13 @@
   {/if}
 </svelte:head>
 
-<ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
+<ClerkProvider
+  publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}
+  signInFallbackRedirectUrl="/portal"
+  signInForceRedirectUrl="/portal"
+  signUpFallbackRedirectUrl="/portal"
+  signUpForceRedirectUrl="/portal"
+>
   <Navigation />
   {@render children()}
   <Footer />

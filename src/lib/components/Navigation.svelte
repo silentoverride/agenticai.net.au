@@ -64,10 +64,18 @@
     </button>
     <CallAssessmentButton label="Call Annie" className="nav-cta" showError={false} />
     {#if clerk.auth.userId != null}
-      <a href="/portal" class="portal-link">Portal</a>
+      <a href={`/portal/${clerk.auth.userId}`} class="portal-link">Portal</a>
       <button class="nav-signout" onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })}>Sign Out</button>
     {:else}
-      <button class="nav-signin" onclick={() => clerk.clerk?.openSignIn()}>Sign In</button>
+      <button
+        class="nav-signin"
+        onclick={() => clerk.clerk?.openSignIn({
+          fallbackRedirectUrl: '/portal',
+          forceRedirectUrl: '/portal'
+        })}
+      >
+        Sign In
+      </button>
     {/if}
   </div>
 </header>

@@ -3,7 +3,7 @@ import { analyzeTranscript } from './llm-analysis';
 import { lookupToolsForTranscript, enrichAnalysisWithTools } from './tool-lookup';
 import { saveReportUnified, isR2Available } from './report-store-r2';
 import { sendReportReadyEmail } from './emails';
-import { findOrCreateUserFromStripe, linkReportToUser } from '$lib/server/portal';
+import { findOrCreateUserFromStripe, linkReportToUser, upsertReportMetadata } from '$lib/server/portal';
 
 export async function runReportPipeline(
   job: AssessmentReportJob,
@@ -64,6 +64,24 @@ export async function runReportPipeline(
   }
 
   // Step 2b: Link report to user in portal if email matches an existing user
+  try {
+    await upsertReportMetadata(
+      saved.id,
+      job.sessionId,
+      `${job.company || job.customerName || 'Business'} — AI Assessment`,
+      job.company,
+      {
+        callId: job.callId,
+        customerEmail: job.customerEmail,
+        customerName: job.customerName,
+        r2Key: saved.r2Key
+      }
+    );
+  } catch (error) {
+    const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+    console.error(`${logPrefix} Failed to save report metadata:`, details);
+  }
+
   if (job.customerEmail) {
     try {
       const user = await findOrCreateUserFromStripe(job.customerEmail, job.customerName);
@@ -73,7 +91,13 @@ export async function runReportPipeline(
           saved.id,
           job.sessionId,
           `${job.company || job.customerName || 'Business'} — AI Assessment`,
-          job.company
+          job.company,
+          {
+            callId: job.callId,
+            customerEmail: job.customerEmail,
+            customerName: job.customerName,
+            r2Key: saved.r2Key
+          }
         );
         console.info(`${logPrefix} Report linked to portal user`, { reportId: saved.id, userId: user.clerk_id });
       }

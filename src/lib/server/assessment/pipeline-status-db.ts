@@ -17,6 +17,17 @@ class D1PipelineStatusStore {
     const db = getDb();
 
     try {
+      let callId = status.callId || null;
+      if (callId) {
+        const transcript = await db.queryOne<{ call_id: string }>('SELECT call_id FROM transcripts WHERE call_id = ?', callId);
+        callId = transcript ? callId : null;
+      }
+      let reportId = status.reportId || null;
+      if (reportId) {
+        const report = await db.queryOne<{ id: string }>('SELECT id FROM reports WHERE id = ?', reportId);
+        reportId = report ? reportId : null;
+      }
+
       // Fetch existing attempts
       const existing = await db.queryOne<{ attempts: number }>(
         'SELECT attempts FROM pipeline_status WHERE session_id = ?',
@@ -38,10 +49,10 @@ class D1PipelineStatusStore {
         sessionId,
         status.status,
         status.deckUrl || null,
-        status.reportId || null,
+        reportId,
         status.error || null,
         status.status === 'error' ? attempts + 1 : attempts,
-        status.callId || null
+        callId
       );
       console.info(`[pipeline-status-db] D1 set OK (sessionId=${sessionId}, status=${status.status})`);
     } catch (err) {

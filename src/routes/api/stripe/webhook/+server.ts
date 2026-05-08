@@ -73,7 +73,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
             record.currency || 'aud',
             record.customerEmail,
             record.customerName,
-            record.company
+            record.company,
+            session.receipt_url || null
           );
           if (receipt) {
             console.info('Receipt saved to portal', { receiptId: receipt.id, userId: user.clerk_id });
@@ -88,7 +89,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
             record.currency || 'aud',
             record.customerEmail,
             record.customerName,
-            record.company
+            record.company,
+            session.receipt_url || null
           );
           if (pending) {
             console.info('Pending receipt saved', { receiptId: pending.id, email: record.customerEmail });
@@ -181,11 +183,12 @@ export const POST: RequestHandler = async ({ request, platform }) => {
           console.error('Failed to persist transcript to disk', { error: saved.error, callId: retellCallId });
         }
 
-        await setPipelineStatus(session.id, { status: 'queued' });
+        await setPipelineStatus(session.id, { status: 'queued', callId: retellCallId });
         const queue = platform?.env?.assessment_queue;
         await enqueueReportJob(queue, {
           receivedAt: record.receivedAt,
           source: 'retell-voice-agent',
+          callId: retellCallId,
           sessionId: session.id,
           customerName,
           customerEmail,

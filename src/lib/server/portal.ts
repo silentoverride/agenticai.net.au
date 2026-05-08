@@ -20,7 +20,7 @@
  *
  * const user = upsertUser('user_123', 'alice@example.com', 'Alice');
  * if (user) {
- *   const report = linkReportToUser(user.clerk_id, 'report-456', deckUrl);
+ *   const report = linkReportToUser(user.clerk_id, 'report-456', sessionId);
  *   const allReports = getUserReports(user.clerk_id);
  * }
  */
@@ -119,15 +119,12 @@ export async function findOrCreateUserFromStripe(email: string, _name?: string, 
 /**
  * Link a generated assessment report to a portal user.
  *
- * Creates a new `user_reports` row. Safe to call multiple times for the same
- * report — the unique constraint is on the local `id`, not `report_id`, so
- * duplicates are prevented at the application layer by checking
- * `getUserReport()` first.
+ * Creates or updates the canonical `reports` row. A report belongs to at most
+ * one user, so ownership is stored directly on `reports.user_id`.
  *
  * @param userId - The Clerk user ID.
  * @param reportId - The report ID (matches the filesystem directory name).
- * @param stripeSessionId - Optional Stripe Checkout session that paid for this report.
- * @param deckUrl - Optional URL to the generated report download (R2 public URL or portal path).
+ * @param sessionId - Optional assessment or Stripe Checkout session that produced this report.
  * @param title - Optional human-readable title for the report list.
  * @param company - Optional company name from the assessment job.
  * @returns The inserted {@link DbReport} row, or `null` if DB is unavailable.
@@ -136,7 +133,6 @@ export async function findOrCreateUserFromStripe(email: string, _name?: string, 
  *   'user_abc123',
  *   'report-456',
  *   'cs_test_xxx',
- *   null, // R2 public URL if available; portal link otherwise
  *   'Acme — AI Assessment',
  *   'Acme Inc'
  * );
@@ -144,22 +140,165 @@ export async function findOrCreateUserFromStripe(email: string, _name?: string, 
 export async function linkReportToUser(
   userId: string,
   reportId: string,
-  stripeSessionId?: string,
+  sessionId?: string,
   title?: string,
-  company?: string
+  company?: string,
+  metadata?: {
+    callId?: string;
+    customerEmail?: string;
+    customerName?: string;
+    deckUrl?: string;
+    r2Key?: string;
+  }
 ): Promise<DbReport | null> {
   if (!isDatabaseAvailable()) {
     console.warn('linkReportToUser skipped: database unavailable');
     return null;
   }
+  return upsertReportRecord({
+    reportId,
+    userId,
+    sessionId,
+    title,
+    company,
+    metadata
+  });
+}
+
+export async function upsertReportMetadata(
+  reportId: string,
+  sessionId?: string,
+  title?: string,
+  company?: string,
+  metadata?: {
+    callId?: string;
+    customerEmail?: string;
+    customerName?: string;
+    deckUrl?: string;
+    r2Key?: string;
+  }
+): Promise<DbReport | null> {
+  if (!isDatabaseAvailable()) {
+    console.warn('upsertReportMetadata skipped: database unavailable');
+    return null;
+  }
+  return upsertReportRecord({ reportId, sessionId, title, company, metadata });
+}
+
+async function upsertReportRecord(opts: {
+  reportId: string;
+  userId?: string;
+  sessionId?: string;
+  title?: string;
+  company?: string;
+  metadata?: {
+    callId?: string;
+    customerEmail?: string;
+    customerName?: string;
+    deckUrl?: string;
+    r2Key?: string;
+  };
+}): Promise<DbReport | null> {
   const db = getDb();
-  const id = `${Date.now()}-${reportId.slice(0, 8)}`;
+  const callId = await getLinkableReportCallId(opts.reportId, opts.metadata?.callId);
   const row = await db.queryOne<DbReport>(`
-    INSERT INTO user_reports (id, user_id, report_id, stripe_session_id, title, company)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO reports (id, user_id, call_id, session_id, customer_email, customer_name, company, r2_key, deck_url, title)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET
+      user_id = COALESCE(excluded.user_id, reports.user_id),
+      call_id = COALESCE(excluded.call_id, reports.call_id),
+      session_id = COALESCE(excluded.session_id, reports.session_id),
+      customer_email = COALESCE(excluded.customer_email, reports.customer_email),
+      customer_name = COALESCE(excluded.customer_name, reports.customer_name),
+      company = COALESCE(excluded.company, reports.company),
+      r2_key = COALESCE(excluded.r2_key, reports.r2_key),
+      deck_url = COALESCE(excluded.deck_url, reports.deck_url),
+      title = COALESCE(excluded.title, reports.title)
     RETURNING *
-  `, id, userId, reportId, stripeSessionId || null, title || null, company || null);
+  `, opts.reportId, opts.userId || null, callId, opts.sessionId || null, opts.metadata?.customerEmail || null,
+    opts.metadata?.customerName || null, opts.company || null, opts.metadata?.r2Key || null, opts.metadata?.deckUrl || null, opts.title || null);
+
+  if (row?.session_id) {
+    await linkReportToReceiptBySession(row.id, row.session_id);
+    await linkReportToPipelineBySession(row.id, row.session_id);
+  }
+
   return row;
+}
+
+async function getLinkableReportCallId(reportId: string, callId?: string): Promise<string | null> {
+  if (!callId) return null;
+  const db = getDb();
+  const transcript = await db.queryOne<{ call_id: string }>('SELECT call_id FROM transcripts WHERE call_id = ?', callId);
+  if (!transcript) return null;
+
+  const existing = await db.queryOne<{ id: string }>('SELECT id FROM reports WHERE call_id = ? AND id <> ?', callId, reportId);
+  return existing ? null : callId;
+}
+
+async function linkReportToPipelineBySession(reportId: string, sessionId: string): Promise<void> {
+  const db = getDb();
+  await db.exec(`
+    UPDATE pipeline_status
+    SET report_id = ?
+    WHERE session_id = ?
+      AND report_id IS NULL
+      AND NOT EXISTS (
+        SELECT 1
+        FROM pipeline_status linked
+        WHERE linked.report_id = ?
+      )
+  `, reportId, sessionId, reportId);
+}
+
+async function linkReportToReceiptBySession(reportId: string, sessionId: string): Promise<void> {
+  const db = getDb();
+  await db.exec(`
+    UPDATE reports
+    SET receipt_id = (
+      SELECT receipts.id
+      FROM receipts
+      WHERE receipts.stripe_session_id = ?
+      LIMIT 1
+    )
+    WHERE id = ?
+      AND receipt_id IS NULL
+      AND EXISTS (
+        SELECT 1
+        FROM receipts
+        WHERE receipts.stripe_session_id = ?
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM reports linked
+        JOIN receipts ON receipts.id = linked.receipt_id
+        WHERE receipts.stripe_session_id = ?
+          AND linked.id <> reports.id
+      )
+  `, sessionId, reportId, sessionId, sessionId);
+}
+
+async function linkReceiptToReportBySession(receiptId: string, stripeSessionId: string): Promise<void> {
+  const db = getDb();
+  await db.exec(`
+    UPDATE reports
+    SET receipt_id = ?
+    WHERE receipt_id IS NULL
+      AND session_id = ?
+      AND id = (
+        SELECT r2.id
+        FROM reports r2
+        WHERE r2.session_id = ?
+          AND r2.receipt_id IS NULL
+        ORDER BY r2.created_at, r2.id
+        LIMIT 1
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM reports linked
+        WHERE linked.receipt_id = ?
+      )
+  `, receiptId, stripeSessionId, stripeSessionId, receiptId);
 }
 
 /**
@@ -174,7 +313,7 @@ export async function linkReportToUser(
 export async function getUserReports(userId: string): Promise<DbReport[]> {
   if (!isDatabaseAvailable()) return [];
   const db = getDb();
-  const rows = await db.queryAll<DbReport>('SELECT * FROM user_reports WHERE user_id = ? ORDER BY created_at DESC', userId);
+  const rows = await db.queryAll<DbReport>('SELECT * FROM reports WHERE user_id = ? ORDER BY created_at DESC', userId);
   return rows;
 }
 
@@ -191,7 +330,7 @@ export async function getUserReports(userId: string): Promise<DbReport[]> {
 export async function getUserReport(userId: string, reportId: string): Promise<DbReport | null> {
   if (!isDatabaseAvailable()) return null;
   const db = getDb();
-  const row = await db.queryOne<DbReport>('SELECT * FROM user_reports WHERE user_id = ? AND report_id = ?', userId, reportId);
+  const row = await db.queryOne<DbReport>('SELECT * FROM reports WHERE user_id = ? AND id = ?', userId, reportId);
   return row;
 }
 
@@ -252,6 +391,9 @@ export async function saveReceipt(
     RETURNING *
   `, id, userId, stripeSessionId, amountCents, currency,
     customerEmail || null, customerName || null, company || null, receiptUrl || null);
+  if (row?.id && row.stripe_session_id) {
+    await linkReceiptToReportBySession(row.id, row.stripe_session_id);
+  }
   return row;
 }
 
@@ -303,6 +445,9 @@ export async function savePendingReceipt(
     RETURNING *
   `, id, stripeSessionId, amountCents, currency,
     customerEmail || null, customerName || null, company || null, receiptUrl || null);
+  if (row?.id && row.stripe_session_id) {
+    await linkReceiptToReportBySession(row.id, row.stripe_session_id);
+  }
   return row;
 }
 
@@ -384,7 +529,7 @@ export async function scanAndLinkReportsByEmail(userId: string, email: string): 
         if (!reportEmail || reportEmail.toLowerCase() !== email.toLowerCase()) continue;
 
         const reportId = meta.id || name;
-        const existing = await db.queryOne<{ 1: number }>('SELECT 1 FROM user_reports WHERE report_id = ? AND user_id = ?', reportId, userId);
+        const existing = await db.queryOne<{ 1: number }>('SELECT 1 FROM reports WHERE id = ? AND user_id = ?', reportId, userId);
         if (existing) continue;
 
         await linkReportToUser(
@@ -392,7 +537,12 @@ export async function scanAndLinkReportsByEmail(userId: string, email: string): 
           reportId,
           meta.job?.sessionId,
           `${meta.job?.company || meta.job?.customerName || 'Business'} — AI Assessment`,
-          meta.job?.company
+          meta.job?.company,
+          {
+            callId: meta.job?.callId,
+            customerEmail: meta.job?.customerEmail,
+            customerName: meta.job?.customerName
+          }
         );
         linked++;
       } catch {
