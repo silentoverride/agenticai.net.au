@@ -11,6 +11,7 @@
 import { json, text } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { analyzeTranscript } from '$lib/server/assessment/llm-analysis';
+import { PipelineBenchmarkSchema } from '$lib/server/validation';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -19,21 +20,29 @@ export const POST: RequestHandler = async ({ request }) => {
     return text('Unauthorized', { status: 401 });
   }
 
-  const body = await request.json().catch(() => ({})) as Record<string, any>;
-  const transcript = typeof body.transcript === 'string' ? body.transcript : '';
-  if (!transcript || transcript.length < 100) {
-    return text('Missing or too-short transcript', { status: 400 });
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return text('Invalid JSON', { status: 400 });
   }
 
+  const parsed = PipelineBenchmarkSchema.safeParse(body);
+  if (!parsed.success) {
+    return text(parsed.error.issues[0]?.message || 'Invalid request', { status: 400 });
+  }
+
+  const { transcript, callId, sessionId, customerName, customerEmail, customerPhone, company, source } = parsed.data;
+
   const job = {
-    callId: body.callId || `bench-${Date.now()}`,
-    sessionId: body.sessionId || `bench-${Date.now()}`,
+    callId: callId || `bench-${Date.now()}`,
+    sessionId: sessionId || `bench-${Date.now()}`,
     transcript,
-    customerName: body.customerName || 'Bench User',
-    customerEmail: body.customerEmail || 'bench@example.com',
-    customerPhone: body.customerPhone || '+61400000000',
-    company: body.company || 'Bench Corp',
-    source: body.source || 'benchmark',
+    customerName: customerName || 'Bench User',
+    customerEmail: customerEmail || 'bench@example.com',
+    customerPhone: customerPhone || '+61400000000',
+    company: company || 'Bench Corp',
+    source: source || 'benchmark',
     receivedAt: new Date().toISOString()
   };
 
