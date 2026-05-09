@@ -13,8 +13,9 @@
 import { json, error } from '@sveltejs/kit';
 import { requirePortalAuth } from '$lib/server/portal-auth';
 import { getUserReport, scanAndLinkReportsByEmail, linkReportToUser } from '$lib/server/portal';
-import { getReportMetaFromR2, getReportUnified } from '$lib/server/assessment/report-store-r2';
+import { getReportMetaFromR2, getReportUnified, getReportAnalysisFromR2 } from '$lib/server/assessment/report-store-r2';
 import type { RequestHandler } from './$types';
+import fs from 'fs';
 
 export const GET: RequestHandler = async ({ params, locals, platform, url }) => {
   const { userId, email, isDevBypass } = await requirePortalAuth(locals, url);
@@ -67,5 +68,25 @@ export const GET: RequestHandler = async ({ params, locals, platform, url }) => 
     throw error(404, 'Report content not available');
   }
 
-  return json(response);
+  // Fetch analysis content from R2 or local filesystem
+  let analysis: unknown = null;
+  const bucket = platform?.env?.assessment_blobs;
+  if (bucket && response.r2Key) {
+    const analysisText = await getReportAnalysisFromR2(bucket, reportId);
+    if (analysisText) {
+      try {
+        analysis = JSON.parse(analysisText);
+      } catch {
+        analysis = analysisText;
+      }
+    }
+  } else if (response.jsonPath && fs.existsSync(response.jsonPath)) {
+    try {
+      analysis = JSON.parse(fs.readFileSync(response.jsonPath, 'utf-8'));
+    } catch {
+      // leave analysis null
+    }
+  }
+
+  return json({ ...response, analysis });
 };
