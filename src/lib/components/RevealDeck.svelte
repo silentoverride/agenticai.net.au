@@ -155,14 +155,18 @@
     const pct = Math.min(100, Math.round((hours / baseline) * 100));
     const cx = 250, cy = 60, r = 45, stroke = 8;
     const circ = 2 * Math.PI * r;
-    const dash = (pct / 100) * circ;
-    return `<svg viewBox="0 0 500 120" class="chart-gauge">
+    const targetOffset = Math.round(circ - (pct / 100) * circ);
+    return `<svg viewBox="0 0 500 110" class="chart-gauge"
+      style="--gauge-circ: ${Math.round(circ)}; --gauge-target: ${targetOffset};"
+    >
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="${stroke}"/>
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--color-accent)" stroke-width="${stroke}"
-        stroke-dasharray="${dash} ${circ}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>
+        stroke-dasharray="${Math.round(circ)}"
+        stroke-dashoffset="${Math.round(circ)}"
+        stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"
+        class="gauge-arc"/>
       <text x="${cx}" y="${cy + 6}" text-anchor="middle" fill="var(--color-accent)" font-size="26" font-weight="800">${hours}h</text>
       <text x="${cx}" y="${cy + 24}" text-anchor="middle" fill="var(--color-ink)" font-size="11" opacity="0.6">of ${baseline}h week</text>
-      <text x="${cx}" y="${cy + 40}" text-anchor="middle" fill="var(--color-ink)" font-size="12" font-weight="700">${pct}% reclaimable</text>
     </svg>`;
   }
 
@@ -275,6 +279,7 @@
           <div class="glance-chart fragment">
             {#if getTotalHoursSaved() > 0}
               {@html renderHoursGauge(getTotalHoursSaved())}
+              <div class="glance-reclaim">{Math.round((getTotalHoursSaved() / 40) * 100)}% reclaimable</div>
             {/if}
           </div>
         </section>
@@ -1015,6 +1020,19 @@
   .glance-chart {
     margin-top: 0.5rem;
     text-align: center;
+  }
+  .glance-reclaim {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-top: 0.25rem;
+  }
+  :global(.gauge-arc) {
+    animation: gaugeDraw 1.2s ease-out forwards;
+  }
+  @keyframes gaugeDraw {
+    from { stroke-dashoffset: var(--gauge-circ); }
+    to   { stroke-dashoffset: var(--gauge-target); }
   }
   .qw-chart {
     margin-top: 0.5rem;
