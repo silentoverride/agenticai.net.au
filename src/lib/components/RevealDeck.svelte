@@ -202,7 +202,7 @@
     const cx = 250, cy = 60, r = 45, stroke = 8;
     const circ = 2 * Math.PI * r;
     const targetOffset = Math.round(circ - (pct / 100) * circ);
-    return `<svg viewBox="0 0 500 90" class="chart-gauge"
+    return `<svg viewBox="0 0 500 120" class="chart-gauge"
       style="--gauge-circ: ${Math.round(circ)}; --gauge-target: ${targetOffset};"
     >
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="${stroke}"/>
