@@ -1136,8 +1136,8 @@
     color: var(--color-ink);
     margin-top: 0.25rem;
   }
-  :global(.gauge-arc) {
-    animation: gaugeDraw 1.2s ease-out forwards;
+  :global(.fragment.visible .gauge-arc) {
+    animation: gaugeDraw 3.5s ease-out forwards;
   }
   @keyframes gaugeDraw {
     from { stroke-dashoffset: var(--gauge-circ); }
@@ -1256,6 +1256,11 @@
       opacity: 1 !important;
       visibility: visible !important;
       transform: none !important;
+    }
+    :global(.fragment.visible .gauge-arc),
+    :global(.gauge-arc) {
+      animation: none !important;
+      stroke-dashoffset: var(--gauge-target) !important;
     }
     .qw-bar-fill,
     .fin-bar-fill,
