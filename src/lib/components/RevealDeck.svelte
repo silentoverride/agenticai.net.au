@@ -51,7 +51,7 @@
           const prefix = (el as HTMLElement).dataset.countPrefix || '';
           const suffix = (el as HTMLElement).dataset.countSuffix || '';
           const decimals = parseInt((el as HTMLElement).dataset.countDecimals || '0', 10);
-          const duration = 1000;
+          const duration = 3500;
           const start = performance.now();
           function tick(now: number) {
             const progress = Math.min((now - start) / duration, 1);
@@ -76,7 +76,7 @@
         const prefix = (el as HTMLElement).dataset.countPrefix || '';
         const suffix = (el as HTMLElement).dataset.countSuffix || '';
         const decimals = parseInt((el as HTMLElement).dataset.countDecimals || '0', 10);
-        const duration = 1000;
+        const duration = 3500;
         const start = performance.now();
         function tick(now: number) {
           const progress = Math.min((now - start) / duration, 1);
@@ -211,6 +211,9 @@
         stroke-dashoffset="${Math.round(circ)}"
         stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"
         class="gauge-arc"/>
+      <text x="${cx}" y="${cy - 2}" text-anchor="middle" dominant-baseline="middle"
+        fill="var(--color-accent)" font-size="32" font-weight="800"
+        class="count-up" data-count-target="${hours}" data-count-suffix="h">0h</text>
       <text x="${cx}" y="${cy + 24}" text-anchor="middle" fill="var(--color-ink)" font-size="11" opacity="0.6">of ${baseline}h week</text>
     </svg>`;
   }
@@ -314,7 +317,6 @@
             {#if getTotalHoursSaved() > 0}
               {@const hours = getTotalHoursSaved()}
               {@html renderHoursGauge(hours)}
-              <div class="gauge-hours count-up" data-count-target={hours} data-count-suffix="h">0h</div>
               <div class="glance-reclaim count-up" data-count-target={Math.round((hours / 40) * 100)} data-count-suffix="% reclaimable">0% reclaimable</div>
             {/if}
           </div>
@@ -1133,13 +1135,6 @@
     font-weight: 700;
     color: var(--color-ink);
     margin-top: 0.25rem;
-  }
-  .gauge-hours {
-    font-size: 1.625rem;
-    font-weight: 800;
-    color: var(--color-accent);
-    margin-top: -0.75rem;
-    line-height: 1;
   }
   :global(.gauge-arc) {
     animation: gaugeDraw 1.2s ease-out forwards;
