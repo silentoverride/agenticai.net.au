@@ -4,6 +4,7 @@
   import { usePortalAuth } from '$lib/portal-context.svelte';
   import type { PortalReport, PortalReceipt } from '$lib/types';
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
+  import CalendlyButton from '$lib/components/CalendlyButton.svelte';
 
   const clerk = useClerkContext();
   const portalAuth = usePortalAuth();
@@ -97,9 +98,9 @@
         <CallAssessmentButton label="Start AI Business Assessment" source="portal-dashboard" />
       </div>
       <div class="portal-help-card">
-        <h3>📧 Need help?</h3>
-        <p>Questions about your report, payments, or next steps?</p>
-        <a href="mailto:hello@agenticai.net.au" class="btn-secondary">Contact us</a>
+        <h3>📅 Need help?</h3>
+        <p>Questions about your report, payments, or next steps? Book a complimentary 30-minute session.</p>
+        <CalendlyButton />
       </div>
     </div>
   {/if}</div>
