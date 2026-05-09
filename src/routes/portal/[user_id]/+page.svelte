@@ -6,14 +6,15 @@
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
 
   const clerk = useClerkContext();
-  const { userId, isDevBypass } = usePortalAuth();
+  const portalAuth = usePortalAuth();
+  const { userId } = portalAuth;
 
   let reports = $state<PortalReport[]>([]);
   let receipts = $state<PortalReceipt[]>([]);
   let loading = $state(true);
 
   $effect(() => {
-    if (clerk.auth.userId != null || isDevBypass) {
+    if (clerk.auth.userId != null || portalAuth.isDevBypass) {
       loadData();
     }
   });
@@ -53,7 +54,7 @@
           <ul class="dashboard-list">
             {#each reports.slice(0, 3) as report}
               <li>
-                <a href={`/portal/${userId}/reports/${report.id}`}>
+                <a href={`/portal/${portalAuth.userId}/reports/${report.id}`}>
                   {report.company || 'Business Assessment'}
                   <span class="meta">{new Date(report.created_at).toLocaleDateString()}</span>
                 </a>
@@ -63,7 +64,7 @@
         {:else}
           <p class="empty">No reports yet. Complete your AI Business Assessment to get started.</p>
         {/if}
-        <a href={`/portal/${userId}/reports`} class="dashboard-link">View all reports →</a>
+        <a href={`/portal/${portalAuth.userId}/reports`} class="dashboard-link">View all reports →</a>
       </div>
 
       <div class="dashboard-card">
@@ -73,7 +74,7 @@
           <ul class="dashboard-list">
             {#each receipts.slice(0, 3) as receipt}
               <li>
-                <a href={`/portal/${userId}/receipts`}>
+                <a href={`/portal/${portalAuth.userId}/receipts`}>
                   Assessment Fee
                   <span class="meta">
                     ${receipt.amount_cents != null ? (receipt.amount_cents / 100).toFixed(2) : '—'} {receipt.currency?.toUpperCase()}
@@ -85,7 +86,7 @@
         {:else}
           <p class="empty">No receipts yet.</p>
         {/if}
-        <a href={`/portal/${userId}/receipts`} class="dashboard-link">View all receipts →</a>
+        <a href={`/portal/${portalAuth.userId}/receipts`} class="dashboard-link">View all receipts →</a>
       </div>
     </div>
 

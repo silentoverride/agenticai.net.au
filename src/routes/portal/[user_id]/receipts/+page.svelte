@@ -5,7 +5,8 @@
   import type { PortalReceipt } from '$lib/types';
 
   const clerk = useClerkContext();
-  const { userId, isDevBypass } = usePortalAuth();
+  const portalAuth = usePortalAuth();
+  const { userId } = portalAuth;
 
   let receipts = $state<PortalReceipt[]>([]);
   let loading = $state(true);
@@ -14,7 +15,7 @@
   let modalOpen = $state(false);
 
   $effect(() => {
-    if (clerk.auth.userId != null || isDevBypass) loadReceipts();
+    if (clerk.auth.userId != null || portalAuth.isDevBypass) loadReceipts();
   });
 
   async function loadReceipts() {
@@ -180,7 +181,7 @@
           </a>
           <a
             class="btn-secondary"
-            href={`/portal/${userId}/receipts/${selectedReceipt.id}`}
+            href={`/portal/${portalAuth.userId}/receipts/${selectedReceipt.id}`}
           >
             View Full Page
           </a>

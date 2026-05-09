@@ -8,7 +8,8 @@
   import CalendlyButton from '$lib/components/CalendlyButton.svelte';
 
   const clerk = useClerkContext();
-  const { userId, isDevBypass } = usePortalAuth();
+  const portalAuth = usePortalAuth();
+  const { userId } = portalAuth;
   const reportId = page.params.report_id;
 
   let report = $state<PortalReportDetail | null>(null);
@@ -17,7 +18,7 @@
   let error = $state('');
 
   $effect(() => {
-    if (clerk.auth.userId != null || isDevBypass) loadReport();
+    if (clerk.auth.userId != null || portalAuth.isDevBypass) loadReport();
   });
 
   async function loadReport() {
@@ -41,12 +42,12 @@
     <p>Loading your assessment report...</p>
   {:else if error}
     <p class="error">{error}</p>
-    <a href={`/portal/${userId}/reports`}>← Back to reports</a>
+    <a href={`/portal/${portalAuth.userId}/reports`}>← Back to reports</a>
   {:else if analysis}
     <div class="viewer-header">
       <h1>{report?.company || 'AI Business Assessment'}</h1>
       <div class="viewer-actions">
-        <a href={`/portal/${userId}/reports/${reportId}?print-pdf`} target="_blank" class="btn-download">Download PDF</a>
+        <a href={`/portal/${portalAuth.userId}/reports/${reportId}?print-pdf`} target="_blank" class="btn-download">Download PDF</a>
       </div>
     </div>
     <RevealDeck {analysis} company={report?.company ?? undefined} />

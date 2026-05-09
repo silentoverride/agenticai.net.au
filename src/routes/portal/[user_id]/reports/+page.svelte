@@ -7,13 +7,14 @@
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
 
   const clerk = useClerkContext();
-  const { userId, isDevBypass } = usePortalAuth();
+  const portalAuth = usePortalAuth();
+  const { userId } = portalAuth;
 
   let reports = $state<PortalReport[]>([]);
   let loading = $state(true);
 
   $effect(() => {
-    if (clerk.auth.userId != null || isDevBypass) loadReports();
+    if (clerk.auth.userId != null || portalAuth.isDevBypass) loadReports();
   });
 
   async function loadReports() {
@@ -56,8 +57,8 @@
           class="report-card"
           role="link"
           tabindex="0"
-          onclick={() => window.location.href = `/portal/${userId}/reports/${report.id}`}
-          onkeydown={(e) => { if (e.key === 'Enter') window.location.href = `/portal/${userId}/reports/${report.id}`; }}
+          onclick={() => window.location.href = `/portal/${portalAuth.userId}/reports/${report.id}`}
+          onkeydown={(e) => { if (e.key === 'Enter') window.location.href = `/portal/${portalAuth.userId}/reports/${report.id}`; }}
         >
           <h3>{report.title || report.company || 'Business Assessment'}</h3>
           <p class="report-date">{new Date(report.created_at).toLocaleDateString('en-AU', {
@@ -69,9 +70,7 @@
           <div class="report-actions">
             <span class="btn-primary">View Report →</span>
             <a
-              href={`/deck/${report.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/portal/${portalAuth.userId}/reports/${report.id}`}
               class="btn-deck"
               onclick={(e) => e.stopPropagation()}
             >

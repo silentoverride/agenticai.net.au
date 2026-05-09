@@ -6,7 +6,8 @@
   import type { PortalReceipt } from '$lib/types';
 
   const clerk = useClerkContext();
-  const { userId, isDevBypass } = usePortalAuth();
+  const portalAuth = usePortalAuth();
+  const { userId } = portalAuth;
   const receiptId = $derived(page.params.receipt_id);
 
   let receipt = $state<PortalReceipt | null>(null);
@@ -14,7 +15,7 @@
   let errorMsg = $state('');
 
   $effect(() => {
-    if (clerk.auth.userId != null || isDevBypass) loadReceipt();
+    if (clerk.auth.userId != null || portalAuth.isDevBypass) loadReceipt();
   });
 
   async function loadReceipt() {
@@ -41,7 +42,7 @@
 </svelte:head>
 
 <div class="portal-page">
-  <a href={`/portal/${userId}/receipts`} class="back-link">← Back to receipts</a>
+  <a href={`/portal/${portalAuth.userId}/receipts`} class="back-link">← Back to receipts</a>
 
   {#if loading}
     <p>Loading receipt…</p>

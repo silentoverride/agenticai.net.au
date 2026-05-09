@@ -4,7 +4,8 @@
   import { portalGet, portalPut } from '$lib/portal-client';
 
   const clerk = useClerkContext();
-  const { userId, isDevBypass } = usePortalAuth();
+  const portalAuth = usePortalAuth();
+  const { userId } = portalAuth;
 
   let name = $state('');
   let phone = $state('');
@@ -14,7 +15,7 @@
   let errorMsg = $state('');
 
   $effect(() => {
-    if (clerk.auth.userId != null || isDevBypass) loadProfile();
+    if (clerk.auth.userId != null || portalAuth.isDevBypass) loadProfile();
   });
 
   async function loadProfile() {
@@ -113,7 +114,7 @@
     </form>
 
     <div class="profile-links">
-      <a href={`/portal/${userId}`} class="btn-secondary">← Back to dashboard</a>
+      <a href={`/portal/${portalAuth.userId}`} class="btn-secondary">← Back to dashboard</a>
     </div>
   {/if}
 </div>
