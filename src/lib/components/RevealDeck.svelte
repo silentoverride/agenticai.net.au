@@ -42,8 +42,8 @@
       setTimeout(step, 400);
     };
 
-    deck.on('slidechanged', ({ currentSlide }) => {
-      autoAnimateFragments(currentSlide as HTMLElement);
+    deck.on('slidechanged', (event: any) => {
+      autoAnimateFragments(event.currentSlide as HTMLElement);
     });
 
     deck.initialize();
@@ -189,29 +189,18 @@
     return svg;
   }
 
-  function renderFinancialChart(): string {
+  function getFinancialBars(): { annualVal: number; annualCost: number; max: number; savPct: number; costPct: number } {
     const fi = getFinancialImpact();
     const hours = fi.hours_saved_per_week || getTotalHoursSaved() || 0;
     const rate = fi.hourly_rate_assumed_aud || 150;
     const weeklyVal = fi.weekly_value_aud || hours * rate;
-    const monthlyVal = weeklyVal * 4.33;
-    const annualVal = fi.annual_value_aud || fi.net_annual_value_aud || monthlyVal * 12;
+    const annualVal = fi.annual_value_aud || fi.net_annual_value_aud || weeklyVal * 4.33 * 12;
     const toolCost = fi.estimated_tool_costs_monthly_aud || getMonthlyToolCost() || 0;
     const annualCost = toolCost * 12;
     const max = Math.max(annualVal, annualCost, 1);
-    const barH = 26, gap = 14, w = 220;
-    const totalH = 2 * (barH + gap) + gap;
-    const savW = chartBarWidth(annualVal, max, w);
-    const costW = chartBarWidth(annualCost, max, w);
-    return `<svg viewBox="0 0 520 ${totalH}" class="chart-bars">
-      <rect x="180" y="${gap}" width="${savW}" height="${barH}" rx="4" fill="#2ea44f" opacity="0.9"/>
-      <text x="175" y="${gap + 18}" text-anchor="end" fill="var(--color-ink)" font-size="13" font-weight="600">Annual Value</text>
-      <text x="${180 + savW + 6}" y="${gap + 18}" fill="var(--color-ink)" font-size="13" font-weight="700">$${Math.round(annualVal).toLocaleString('en-AU')}</text>
-
-      <rect x="180" y="${gap + barH + gap}" width="${costW}" height="${barH}" rx="4" fill="#e11d48" opacity="0.9"/>
-      <text x="175" y="${gap + barH + gap + 18}" text-anchor="end" fill="var(--color-ink)" font-size="13" font-weight="600">Annual Tool Cost</text>
-      <text x="${180 + costW + 6}" y="${gap + barH + gap + 18}" fill="var(--color-ink)" font-size="13" font-weight="700">$${Math.round(annualCost).toLocaleString('en-AU')}</text>
-    </svg>`;
+    const savPct = Math.round((annualVal / max) * 100);
+    const costPct = Math.round((annualCost / max) * 100);
+    return { annualVal, annualCost, max, savPct, costPct };
   }
 
   const assessmentDate = new Date().toLocaleDateString('en-AU', {
@@ -477,9 +466,25 @@
               {/if}
             </p>
           {/if}
-          <div class="fin-chart fragment">
-            {@html renderFinancialChart()}
-          </div>
+          {#if true}
+            {@const bars = getFinancialBars()}
+            <div class="fin-chart fragment">
+              <div class="fin-bar-row">
+                <div class="fin-bar-label">Annual Value</div>
+                <div class="fin-bar-track">
+                  <div class="fin-bar-fill fin-bar-fill--green" style="--target-width: {bars.savPct}%; --bar-delay: 0s"></div>
+                </div>
+                <div class="fin-bar-value">${Math.round(bars.annualVal).toLocaleString('en-AU')}</div>
+              </div>
+              <div class="fin-bar-row">
+                <div class="fin-bar-label">Annual Tool Cost</div>
+                <div class="fin-bar-track">
+                  <div class="fin-bar-fill fin-bar-fill--red" style="--target-width: {bars.costPct}%; --bar-delay: 0.2s"></div>
+                </div>
+                <div class="fin-bar-value">${Math.round(bars.annualCost).toLocaleString('en-AU')}</div>
+              </div>
+            </div>
+          {/if}
         </section>
 
         <!-- ==================== SLIDE 10: NEXT STEPS + CALENDLY ==================== -->
@@ -1093,7 +1098,50 @@
   }
   .fin-chart {
     margin-top: 0.5rem;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .fin-bar-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 90px;
+    gap: 0.5rem;
+    align-items: center;
+    text-align: left;
+  }
+  .fin-bar-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-ink, #1a1a2e);
+    line-height: 1.3;
+  }
+  .fin-bar-track {
+    background: rgba(0,0,0,0.06);
+    border-radius: 4px;
+    height: 22px;
+    overflow: hidden;
+  }
+  .fin-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    width: 0%;
+    animation: barGrow 0.8s ease-out forwards;
+    animation-delay: var(--bar-delay, 0s);
+  }
+  .fin-bar-fill--green {
+    background: #2ea44f;
+  }
+  .fin-bar-fill--red {
+    background: #e11d48;
+  }
+  .fin-bar-value {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-ink, #1a1a2e);
+    text-align: right;
   }
 
   /* ====== Print overrides ====== */
@@ -1107,7 +1155,8 @@
       visibility: visible !important;
       transform: none !important;
     }
-    .qw-bar-fill {
+    .qw-bar-fill,
+    .fin-bar-fill {
       animation: none !important;
       width: var(--target-width) !important;
     }
