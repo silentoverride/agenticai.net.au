@@ -548,8 +548,13 @@
                 <strong>Schedule a 30-minute Review Call</strong> — We'll review results, validate wins, and decide if deeper automation is warranted.
               </li>
             </ol>
-            <div class="next-cta fragment">
-              <CalendlyButton />
+            <div class="need-help fragment">
+              <div class="need-help-icon">❓</div>
+              <h3 class="need-help-title">Need Help Getting Started?</h3>
+              <p class="need-help-text">Book a complimentary 30-minute session and we'll walk you through implementation.</p>
+              <div class="need-help-cta">
+                <CalendlyButton />
+              </div>
             </div>
           </div>
         </section>
@@ -1111,6 +1116,39 @@
   }
   .next-cta {
     margin-top: 1rem;
+  }
+
+  /* ====== Need Help Callout ====== */
+  .need-help {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    max-width: 600px;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .need-help-icon {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .need-help-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.5rem;
+  }
+  .need-help-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #e0e0e0;
+    margin: 0 0 1rem;
+  }
+  .need-help-cta {
+    display: flex;
+    justify-content: center;
   }
 
   /* ====== SVG Charts ====== */
