@@ -1230,7 +1230,7 @@
     transform-origin: left center;
   }
   :global(.fragment.visible) .fin-bar-fill {
-    animation: barGrowDramatic 2.0s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    animation: barGrowDramatic 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     animation-delay: var(--bar-delay, 0s);
   }
   .fin-bar-fill--green {
