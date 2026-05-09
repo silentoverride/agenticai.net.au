@@ -1199,38 +1199,39 @@
     text-align: right;
   }
   .fin-chart {
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    max-width: 600px;
+    gap: 0.75rem;
+    max-width: 950px;
     margin-left: auto;
     margin-right: auto;
   }
   .fin-bar-row {
     display: grid;
-    grid-template-columns: 110px 1fr 90px;
-    gap: 0.5rem;
+    grid-template-columns: 140px 1fr 110px;
+    gap: 0.75rem;
     align-items: center;
     text-align: left;
   }
   .fin-bar-label {
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     color: var(--color-ink, #1a1a2e);
     line-height: 1.3;
   }
   .fin-bar-track {
     background: rgba(0,0,0,0.06);
-    border-radius: 4px;
-    height: 22px;
+    border-radius: 6px;
+    height: 28px;
     overflow: hidden;
   }
   .fin-bar-fill {
     height: 100%;
-    border-radius: 4px;
+    border-radius: 6px;
     width: 0%;
-    animation: barGrow 0.8s ease-out forwards;
+    transform-origin: left center;
+    animation: barGrowDramatic 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     animation-delay: var(--bar-delay, 0s);
   }
   .fin-bar-fill--green {
@@ -1240,7 +1241,7 @@
     background: #e11d48;
   }
   .fin-bar-value {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: var(--color-ink, #1a1a2e);
     text-align: right;
