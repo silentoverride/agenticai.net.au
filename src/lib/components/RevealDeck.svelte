@@ -738,19 +738,19 @@
 
   /* ====== Slide 4: Matrix ====== */
   .matrix-desc {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     color: #444;
-    max-width: 750px;
-    margin: 0 auto 1.25rem;
+    max-width: 900px;
+    margin: 0 auto 1.5rem;
     line-height: 1.5;
   }
   .matrix-wrapper {
     position: relative;
-    max-width: 600px;
+    max-width: 900px;
     margin: 0 auto;
   }
   .matrix-axis {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: #888;
     text-transform: uppercase;
@@ -758,23 +758,23 @@
   }
   .matrix-axis-y {
     position: absolute;
-    left: -3.5rem;
+    left: -4.5rem;
     top: 50%;
     transform: rotate(-90deg) translateX(50%);
     transform-origin: center;
   }
   .matrix-axis-x {
     text-align: center;
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
   }
   .matrix-grid {
     position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    padding: 0.5rem;
+    gap: 0.75rem;
+    padding: 0.75rem;
     border: 1px solid rgba(0,0,0,0.08);
-    border-radius: 8px;
+    border-radius: 10px;
   }
   .matrix-grid::before,
   .matrix-grid::after {
@@ -786,16 +786,16 @@
   }
   .matrix-grid::before {
     /* Vertical axis line */
-    top: 0.5rem;
-    bottom: 0.5rem;
+    top: 0.75rem;
+    bottom: 0.75rem;
     left: 50%;
     width: 1px;
     transform: translateX(-50%);
   }
   .matrix-grid::after {
     /* Horizontal axis line */
-    left: 0.5rem;
-    right: 0.5rem;
+    left: 0.75rem;
+    right: 0.75rem;
     top: 50%;
     height: 1px;
     transform: translateY(-50%);
@@ -803,10 +803,10 @@
   .matrix-cell {
     position: relative;
     z-index: 2;
-    padding: 0.75rem;
-    border-radius: 6px;
+    padding: 1.25rem;
+    border-radius: 8px;
     text-align: left;
-    min-height: 90px;
+    min-height: 140px;
     opacity: 0;
     transform: translateY(12px);
     animation: matrixPop 0.5s ease-out forwards;
@@ -816,18 +816,18 @@
     from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .matrix-cell.quick-wins  { --cell-delay: 0s;   background: #e8f5e9; border-left: 3px solid #4caf50; }
-  .matrix-cell.major       { --cell-delay: 0.15s; background: #fff3e0; border-left: 3px solid #ff9800; }
-  .matrix-cell.filler      { --cell-delay: 0.3s;  background: #e3f2fd; border-left: 3px solid #2196f3; }
-  .matrix-cell.ignore      { --cell-delay: 0.45s; background: #ffebee; border-left: 3px solid #f44336; }
+  .matrix-cell.quick-wins  { --cell-delay: 0s;   background: #e8f5e9; border-left: 4px solid #4caf50; }
+  .matrix-cell.major       { --cell-delay: 0.15s; background: #fff3e0; border-left: 4px solid #ff9800; }
+  .matrix-cell.filler      { --cell-delay: 0.3s;  background: #e3f2fd; border-left: 4px solid #2196f3; }
+  .matrix-cell.ignore      { --cell-delay: 0.45s; background: #ffebee; border-left: 4px solid #f44336; }
   .cell-title {
     font-weight: 600;
-    font-size: 0.9375rem;
+    font-size: 1.125rem;
     color: #1a1a2e;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.375rem;
   }
   .cell-sub {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     color: #666;
   }
   @media print {
