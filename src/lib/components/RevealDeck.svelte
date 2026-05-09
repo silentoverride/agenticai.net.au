@@ -28,7 +28,31 @@
       margin: 0.04
     });
 
+    // Auto-animate fragments when landing on a new slide
+    const autoAnimateFragments = (slide: HTMLElement) => {
+      const fragments = slide.querySelectorAll('.fragment:not(.visible)');
+      if (fragments.length === 0) return;
+      let i = 0;
+      const step = () => {
+        if (i >= fragments.length) return;
+        deck?.nextFragment();
+        i++;
+        setTimeout(step, 550);
+      };
+      setTimeout(step, 400);
+    };
+
+    deck.on('slidechanged', ({ currentSlide }) => {
+      autoAnimateFragments(currentSlide as HTMLElement);
+    });
+
     deck.initialize();
+
+    // Trigger on the initial slide after reveal finishes layout
+    setTimeout(() => {
+      const current = container.querySelector('.slides section.present');
+      if (current) autoAnimateFragments(current as HTMLElement);
+    }, 800);
 
     if (typeof window !== 'undefined' && window.location.search.includes('print-pdf')) {
       setTimeout(() => window.print(), 1200);
