@@ -93,28 +93,28 @@
       "name": "Superhuman",
       "category": "Email",
       "purpose": "AI-powered email management with automatic categorization, follow-up reminders, and response drafting.",
-      "estimated_monthly_cost_aud": 45,
+      "estimated_monthly_cost_aud": 4.65,
       "setup_complexity": "low"
     },
     {
       "name": "Calendly",
       "category": "Scheduling",
       "purpose": "Eliminate scheduling back-and-forth with shareable booking links and automated reminders.",
-      "estimated_monthly_cost_aud": 15,
+      "estimated_monthly_cost_aud": 0,
       "setup_complexity": "low"
     },
     {
       "name": "Notion",
       "category": "Workspace",
       "purpose": "Centralized workspace with reusable templates for documents, proposals, and knowledge management.",
-      "estimated_monthly_cost_aud": 15,
+      "estimated_monthly_cost_aud": 0,
       "setup_complexity": "low"
     },
     {
       "name": "Make",
       "category": "Automation",
       "purpose": "Connect apps and automate workflows between email, calendar, documents, and databases.",
-      "estimated_monthly_cost_aud": 15,
+      "estimated_monthly_cost_aud": 0,
       "setup_complexity": "low"
     }
   ],
@@ -162,15 +162,15 @@
     "weekly_value_aud": 1120,
     "annual_value_aud": 58240,
     "estimated_tool_costs_monthly_aud": 4.65,
-    "estimated_tool_costs_annual_aud": 55.80,
-    "net_annual_value_aud": 58184.20
+    "estimated_tool_costs_annual_aud": 55.8,
+    "net_annual_value_aud": 58184.2
   },
   "researched_tools": [
     {
       "name": "Superhuman",
       "url": "https://superhuman.com",
       "description": "AI-powered email client that automatically categorizes emails, drafts responses, and surfaces what matters most.",
-      "pricing": "$30/month",
+      "pricing": "$2.99/month",
       "category": "Email",
       "source": "official"
     },
@@ -178,7 +178,7 @@
       "name": "Calendly",
       "url": "https://calendly.com",
       "description": "Scheduling automation that eliminates back-and-forth emails with shareable booking links and automated reminders.",
-      "pricing": "$10/month",
+      "pricing": "$0/month (free tier)",
       "category": "Scheduling",
       "source": "official"
     },
@@ -186,7 +186,7 @@
       "name": "Notion",
       "url": "https://notion.so",
       "description": "All-in-one workspace for notes, documents, wikis, and databases with powerful templating and collaboration.",
-      "pricing": "$8/month",
+      "pricing": "$0/month (free tier)",
       "category": "Workspace",
       "source": "official"
     },
@@ -194,7 +194,7 @@
       "name": "Make",
       "url": "https://make.com",
       "description": "Visual automation platform connecting apps and services with drag-and-drop workflow builder.",
-      "pricing": "$9/month",
+      "pricing": "$0/month (free tier)",
       "category": "Automation",
       "source": "official"
     }

@@ -71,7 +71,14 @@ export const GET: RequestHandler = async ({ params, locals, platform, url }) => 
   // Fetch analysis content from R2 or local filesystem
   let analysis: unknown = null;
   const bucket = platform?.env?.assessment_blobs;
-  if (bucket && response.r2Key) {
+  if (response.jsonPath && fs.existsSync(response.jsonPath)) {
+    try {
+      analysis = JSON.parse(fs.readFileSync(response.jsonPath, 'utf8'));
+    } catch {
+      // leave analysis null
+    }
+  }
+  if (!analysis && bucket && response.r2Key) {
     const analysisText = await getReportAnalysisFromR2(bucket, reportId);
     if (analysisText) {
       try {
@@ -79,12 +86,6 @@ export const GET: RequestHandler = async ({ params, locals, platform, url }) => 
       } catch {
         analysis = analysisText;
       }
-    }
-  } else if (response.jsonPath && fs.existsSync(response.jsonPath)) {
-    try {
-      analysis = JSON.parse(fs.readFileSync(response.jsonPath, 'utf-8'));
-    } catch {
-      // leave analysis null
     }
   }
 
