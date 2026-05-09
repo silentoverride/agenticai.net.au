@@ -15,7 +15,10 @@
   <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
 </svelte:head>
 
-<button class="calendly-btn" onclick={openCalendly}>
+<button class="calendly-btn"
+  onmousedown={(e) => { e.stopPropagation(); openCalendly(); }}
+  ontouchend={(e) => { e.stopPropagation(); e.preventDefault(); openCalendly(); }}
+  onclick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
   <span class="icon">📅</span>
   <span>Book Your Complimentary 30-Min Session</span>
 </button>
