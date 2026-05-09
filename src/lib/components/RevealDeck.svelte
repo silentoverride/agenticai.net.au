@@ -353,8 +353,18 @@
             {/each}
           </div>
           {#if getQuickWins().some((w: AnalysisQuickWin) => w.estimated_hours_saved_per_week)}
+            {@const qwMax = Math.max(...getQuickWins().map((w) => w.estimated_hours_saved_per_week || 0), 1)}
             <div class="qw-chart fragment">
-              {@html renderQuickWinsBars(getQuickWins())}
+              {#each getQuickWins() as win, i}
+                {@const pct = Math.round(((win.estimated_hours_saved_per_week || 0) / qwMax) * 100)}
+                <div class="qw-bar-row">
+                  <div class="qw-bar-label">{win.title}</div>
+                  <div class="qw-bar-track">
+                    <div class="qw-bar-fill" style="--target-width: {pct}%; --bar-color: {CHART_COLORS[i % CHART_COLORS.length]}; --bar-delay: {i * 0.15}s"></div>
+                  </div>
+                  <div class="qw-bar-value">{win.estimated_hours_saved_per_week || 0} hrs/wk</div>
+                </div>
+              {/each}
             </div>
           {/if}
         </section>
@@ -1036,7 +1046,50 @@
   }
   .qw-chart {
     margin-top: 0.5rem;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .qw-bar-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 80px;
+    gap: 0.5rem;
+    align-items: center;
+    text-align: left;
+  }
+  .qw-bar-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-ink, #1a1a2e);
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+  .qw-bar-track {
+    background: rgba(0,0,0,0.06);
+    border-radius: 4px;
+    height: 18px;
+    overflow: hidden;
+  }
+  .qw-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--bar-color, #0066ff);
+    width: 0%;
+    animation: barGrow 0.8s ease-out forwards;
+    animation-delay: var(--bar-delay, 0s);
+  }
+  @keyframes barGrow {
+    from { width: 0%; }
+    to   { width: var(--target-width); }
+  }
+  .qw-bar-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-ink, #1a1a2e);
+    text-align: right;
   }
   .fin-chart {
     margin-top: 0.5rem;
@@ -1053,6 +1106,10 @@
       opacity: 1 !important;
       visibility: visible !important;
       transform: none !important;
+    }
+    .qw-bar-fill {
+      animation: none !important;
+      width: var(--target-width) !important;
     }
   }
 </style>
