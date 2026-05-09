@@ -1183,6 +1183,8 @@
     background: var(--bar-color, #0066ff);
     width: 0%;
     transform-origin: left center;
+  }
+  :global(.fragment.visible) .qw-bar-fill {
     animation: barGrowDramatic 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     animation-delay: var(--bar-delay, 0s);
   }
@@ -1231,6 +1233,8 @@
     border-radius: 6px;
     width: 0%;
     transform-origin: left center;
+  }
+  :global(.fragment.visible) .fin-bar-fill {
     animation: barGrowDramatic 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     animation-delay: var(--bar-delay, 0s);
   }
@@ -1259,7 +1263,9 @@
       transform: none !important;
     }
     .qw-bar-fill,
-    .fin-bar-fill {
+    .fin-bar-fill,
+    :global(.fragment.visible) .qw-bar-fill,
+    :global(.fragment.visible) .fin-bar-fill {
       animation: none !important;
       width: var(--target-width) !important;
       transform: scaleY(1) !important;
