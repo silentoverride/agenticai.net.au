@@ -44,6 +44,52 @@
 
     deck.on('slidechanged', (event: any) => {
       autoAnimateFragments(event.currentSlide as HTMLElement);
+      // Animate numbers in already-visible fragments on the new slide
+      setTimeout(() => {
+        (event.currentSlide as HTMLElement).querySelectorAll('.fragment.visible .count-up').forEach((el) => {
+          const target = parseFloat((el as HTMLElement).dataset.countTarget || '0');
+          const prefix = (el as HTMLElement).dataset.countPrefix || '';
+          const suffix = (el as HTMLElement).dataset.countSuffix || '';
+          const decimals = parseInt((el as HTMLElement).dataset.countDecimals || '0', 10);
+          const duration = 1000;
+          const start = performance.now();
+          function tick(now: number) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = target * eased;
+            const formatted = decimals > 0
+              ? current.toFixed(decimals)
+              : Math.round(current).toLocaleString('en-AU');
+            (el as HTMLElement).textContent = prefix + formatted + suffix;
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        });
+      }, 600);
+    });
+
+    deck.on('fragmentshown', (event: any) => {
+      const frag = event.fragment as HTMLElement;
+      if (!frag) return;
+      frag.querySelectorAll('.count-up').forEach((el) => {
+        const target = parseFloat((el as HTMLElement).dataset.countTarget || '0');
+        const prefix = (el as HTMLElement).dataset.countPrefix || '';
+        const suffix = (el as HTMLElement).dataset.countSuffix || '';
+        const decimals = parseInt((el as HTMLElement).dataset.countDecimals || '0', 10);
+        const duration = 1000;
+        const start = performance.now();
+        function tick(now: number) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = target * eased;
+          const formatted = decimals > 0
+            ? current.toFixed(decimals)
+            : Math.round(current).toLocaleString('en-AU');
+          (el as HTMLElement).textContent = prefix + formatted + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
     });
 
     deck.initialize();
@@ -156,7 +202,7 @@
     const cx = 250, cy = 60, r = 45, stroke = 8;
     const circ = 2 * Math.PI * r;
     const targetOffset = Math.round(circ - (pct / 100) * circ);
-    return `<svg viewBox="0 0 500 110" class="chart-gauge"
+    return `<svg viewBox="0 0 500 90" class="chart-gauge"
       style="--gauge-circ: ${Math.round(circ)}; --gauge-target: ${targetOffset};"
     >
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="${stroke}"/>
@@ -165,7 +211,6 @@
         stroke-dashoffset="${Math.round(circ)}"
         stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"
         class="gauge-arc"/>
-      <text x="${cx}" y="${cy + 6}" text-anchor="middle" fill="var(--color-accent)" font-size="26" font-weight="800">${hours}h</text>
       <text x="${cx}" y="${cy + 24}" text-anchor="middle" fill="var(--color-ink)" font-size="11" opacity="0.6">of ${baseline}h week</text>
     </svg>`;
   }
@@ -267,8 +312,10 @@
           </div>
           <div class="glance-chart fragment">
             {#if getTotalHoursSaved() > 0}
-              {@html renderHoursGauge(getTotalHoursSaved())}
-              <div class="glance-reclaim">{Math.round((getTotalHoursSaved() / 40) * 100)}% reclaimable</div>
+              {@const hours = getTotalHoursSaved()}
+              {@html renderHoursGauge(hours)}
+              <div class="gauge-hours count-up" data-count-target={hours} data-count-suffix="h">0h</div>
+              <div class="glance-reclaim count-up" data-count-target={Math.round((hours / 40) * 100)} data-count-suffix="% reclaimable">0% reclaimable</div>
             {/if}
           </div>
         </section>
@@ -351,7 +398,7 @@
                   <div class="qw-bar-track">
                     <div class="qw-bar-fill" style="--target-width: {pct}%; --bar-color: {CHART_COLORS[i % CHART_COLORS.length]}; --bar-delay: {i * 0.15}s"></div>
                   </div>
-                  <div class="qw-bar-value">{win.estimated_hours_saved_per_week || 0} hrs/wk</div>
+                  <div class="qw-bar-value count-up" data-count-target={win.estimated_hours_saved_per_week || 0} data-count-suffix=" hrs/wk">0 hrs/wk</div>
                 </div>
               {/each}
             </div>
@@ -474,14 +521,14 @@
                 <div class="fin-bar-track">
                   <div class="fin-bar-fill fin-bar-fill--green" style="--target-width: {bars.savPct}%; --bar-delay: 0s"></div>
                 </div>
-                <div class="fin-bar-value">${Math.round(bars.annualVal).toLocaleString('en-AU')}</div>
+                <div class="fin-bar-value count-up" data-count-target={Math.round(bars.annualVal)} data-count-prefix="$">$0</div>
               </div>
               <div class="fin-bar-row">
                 <div class="fin-bar-label">Annual Tool Cost</div>
                 <div class="fin-bar-track">
                   <div class="fin-bar-fill fin-bar-fill--red" style="--target-width: {bars.costPct}%; --bar-delay: 0.2s"></div>
                 </div>
-                <div class="fin-bar-value">${Math.round(bars.annualCost).toLocaleString('en-AU')}</div>
+                <div class="fin-bar-value count-up" data-count-target={Math.round(bars.annualCost)} data-count-prefix="$">$0</div>
               </div>
             </div>
           {/if}
@@ -1086,6 +1133,13 @@
     font-weight: 700;
     color: var(--color-ink);
     margin-top: 0.25rem;
+  }
+  .gauge-hours {
+    font-size: 1.625rem;
+    font-weight: 800;
+    color: var(--color-accent);
+    margin-top: -0.75rem;
+    line-height: 1;
   }
   :global(.gauge-arc) {
     animation: gaugeDraw 1.2s ease-out forwards;
