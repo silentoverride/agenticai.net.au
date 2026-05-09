@@ -1,0 +1,202 @@
+{
+  "executive_summary": "Dan spends approximately 15 hours per week on repetitive administrative tasks that could be largely automated. Implementing the identified quick wins will reclaim 7 hours weekly, freeing up strategic time worth $160 per hour.",
+  "pain_points": [
+    {
+      "title": "Manual Data Entry & Spreadsheet Management",
+      "description": "Copying data between systems, updating spreadsheets, and reconciling records consumes 4-5 hours weekly.",
+      "severity": "high",
+      "frequency": "daily"
+    },
+    {
+      "title": "Email Overload & Manual Sorting",
+      "description": "Sifting through 100+ emails daily to find action items, respond to routine queries, and manage inbox organization takes 2-3 hours.",
+      "severity": "high",
+      "frequency": "daily"
+    },
+    {
+      "title": "Manual Scheduling & Calendar Coordination",
+      "description": "Back-and-forth emails to schedule meetings, update calendars, and send reminders consumes 1-2 hours weekly.",
+      "severity": "medium",
+      "frequency": "weekly"
+    },
+    {
+      "title": "Document Creation & Templating",
+      "description": "Building proposals, reports, and documents from scratch rather than using templates takes 2-3 hours weekly.",
+      "severity": "medium",
+      "frequency": "weekly"
+    },
+    {
+      "title": "Follow-up & Reminder Management",
+      "description": "Manually tracking and sending follow-ups to clients, suppliers, and team members takes 1-2 hours weekly.",
+      "severity": "medium",
+      "frequency": "weekly"
+    }
+  ],
+  "quick_wins": [
+    {
+      "title": "AI Email Management & Auto-Response",
+      "description": "Deploy an AI assistant to categorize emails, draft responses to routine queries, and flag only items requiring personal attention.",
+      "effort": "low",
+      "impact": "high",
+      "estimated_hours_saved_per_week": 3,
+      "recommended_tools": [
+        "Superhuman (Email)"
+      ]
+    },
+    {
+      "title": "Smart Scheduling Automation",
+      "description": "Implement calendar scheduling links and automated reminder sequences to eliminate back-and-forth coordination.",
+      "effort": "low",
+      "impact": "medium",
+      "estimated_hours_saved_per_week": 2,
+      "recommended_tools": [
+        "Calendly (Scheduling)"
+      ]
+    },
+    {
+      "title": "Document Templates & Auto-Generation",
+      "description": "Create reusable templates for common documents and use merge fields to auto-populate data, cutting proposal and report creation time by 70%.",
+      "effort": "low",
+      "impact": "medium",
+      "estimated_hours_saved_per_week": 2,
+      "recommended_tools": [
+        "Notion (Templates)",
+        "Make (Automation)"
+      ]
+    }
+  ],
+  "deeper_opportunities": [
+    {
+      "title": "AI Data Entry Agent",
+      "description": "Automatically extract and enter data from emails, forms, and documents into your CRM or database, eliminating manual copying entirely.",
+      "category": "ai_agent",
+      "estimated_setup_cost_aud": 3000,
+      "estimated_monthly_value_aud": 2000
+    },
+    {
+      "title": "Intelligent Workflow Orchestration",
+      "description": "Connect all business systems with smart automation that triggers actions across platforms based on events and schedules.",
+      "category": "process_optimisation",
+      "estimated_setup_cost_aud": 2000,
+      "estimated_monthly_value_aud": 1500
+    },
+    {
+      "title": "AI-Powered Client Communication Hub",
+      "description": "Centralize all client touchpoints with an AI that maintains context, drafts personalized communications, and tracks relationship health.",
+      "category": "ai_agent",
+      "estimated_setup_cost_aud": 4000,
+      "estimated_monthly_value_aud": 2500
+    }
+  ],
+  "tool_recommendations": [
+    {
+      "name": "Superhuman",
+      "category": "Email",
+      "purpose": "AI-powered email management with automatic categorization, follow-up reminders, and response drafting.",
+      "estimated_monthly_cost_aud": 45,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Calendly",
+      "category": "Scheduling",
+      "purpose": "Eliminate scheduling back-and-forth with shareable booking links and automated reminders.",
+      "estimated_monthly_cost_aud": 15,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Notion",
+      "category": "Workspace",
+      "purpose": "Centralized workspace with reusable templates for documents, proposals, and knowledge management.",
+      "estimated_monthly_cost_aud": 15,
+      "setup_complexity": "low"
+    },
+    {
+      "name": "Make",
+      "category": "Automation",
+      "purpose": "Connect apps and automate workflows between email, calendar, documents, and databases.",
+      "estimated_monthly_cost_aud": 15,
+      "setup_complexity": "low"
+    }
+  ],
+  "implementation_roadmap": [
+    {
+      "phase": "Foundation",
+      "week": "1-2",
+      "actions": [
+        "Set up Superhuman with AI categorization rules",
+        "Create calendar scheduling links in Calendly",
+        "Build document templates in Notion for common outputs"
+      ]
+    },
+    {
+      "phase": "Integration",
+      "week": "3-4",
+      "actions": [
+        "Connect email, calendar, and document tools via Make",
+        "Set up automated follow-up sequences",
+        "Configure data flow between systems"
+      ]
+    },
+    {
+      "phase": "Optimization",
+      "week": "5-6",
+      "actions": [
+        "Review time savings and refine automation rules",
+        "Add deeper integrations for CRM or database",
+        "Train team on new workflows and templates"
+      ]
+    },
+    {
+      "phase": "Expansion",
+      "week": "7-8",
+      "actions": [
+        "Evaluate AI agents for advanced use cases",
+        "Explore workflow orchestration across all business functions",
+        "Plan next phase of AI integration"
+      ]
+    }
+  ],
+  "financial_impact": {
+    "hours_saved_per_week": 7,
+    "hourly_rate_assumed_aud": 160,
+    "weekly_value_aud": 1120,
+    "annual_value_aud": 58240,
+    "estimated_tool_costs_monthly_aud": 4.65,
+    "estimated_tool_costs_annual_aud": 55.80,
+    "net_annual_value_aud": 58184.20
+  },
+  "researched_tools": [
+    {
+      "name": "Superhuman",
+      "url": "https://superhuman.com",
+      "description": "AI-powered email client that automatically categorizes emails, drafts responses, and surfaces what matters most.",
+      "pricing": "$30/month",
+      "category": "Email",
+      "source": "official"
+    },
+    {
+      "name": "Calendly",
+      "url": "https://calendly.com",
+      "description": "Scheduling automation that eliminates back-and-forth emails with shareable booking links and automated reminders.",
+      "pricing": "$10/month",
+      "category": "Scheduling",
+      "source": "official"
+    },
+    {
+      "name": "Notion",
+      "url": "https://notion.so",
+      "description": "All-in-one workspace for notes, documents, wikis, and databases with powerful templating and collaboration.",
+      "pricing": "$8/month",
+      "category": "Workspace",
+      "source": "official"
+    },
+    {
+      "name": "Make",
+      "url": "https://make.com",
+      "description": "Visual automation platform connecting apps and services with drag-and-drop workflow builder.",
+      "pricing": "$9/month",
+      "category": "Automation",
+      "source": "official"
+    }
+  ]
+}

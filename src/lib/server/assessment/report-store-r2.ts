@@ -135,14 +135,15 @@ export async function getReportUnified(
 ): Promise<R2SavedReport | null> {
   if (isR2Available(bucket)) {
     const meta = await getReportMetaFromR2(bucket, reportId);
-    if (!meta) return null;
-    return {
-      id: reportId,
-      dir: '',
-      jsonPath: `reports/${reportId}/analysis.json`,
-      mdPath: '',
-      r2Key: `reports/${reportId}`
-    };
+    if (meta) {
+      return {
+        id: reportId,
+        dir: '',
+        jsonPath: `reports/${reportId}/analysis.json`,
+        mdPath: '',
+        r2Key: `reports/${reportId}`
+      };
+    }
   }
 
   const { getReport } = await import('./report-store');

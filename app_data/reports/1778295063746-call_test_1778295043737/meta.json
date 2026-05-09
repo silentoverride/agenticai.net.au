@@ -1,0 +1,14 @@
+{
+  "id": "1778295063746-call_test_1778295043737",
+  "job": {
+    "sessionId": "call_test_1778295043737",
+    "source": "test-assessment",
+    "customerName": "Dan",
+    "customerEmail": "johnexample@sharklasers.com",
+    "customerPhone": "",
+    "company": "Dan's Business",
+    "receivedAt": "2026-05-09T02:51:00.000Z"
+  },
+  "deckUrl": null,
+  "createdAt": "2026-05-09T02:51:03.000Z"
+}
