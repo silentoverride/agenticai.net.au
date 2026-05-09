@@ -721,20 +721,58 @@
     margin-top: 0.5rem;
   }
   .matrix-grid {
+    position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+  }
+  .matrix-grid::before,
+  .matrix-grid::after {
+    content: '';
+    position: absolute;
+    background: rgba(0,0,0,0.12);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .matrix-grid::before {
+    /* Vertical axis line */
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 50%;
+    width: 1px;
+    transform: translateX(-50%);
+  }
+  .matrix-grid::after {
+    /* Horizontal axis line */
+    left: 0.5rem;
+    right: 0.5rem;
+    top: 50%;
+    height: 1px;
+    transform: translateY(-50%);
   }
   .matrix-cell {
+    position: relative;
+    z-index: 2;
     padding: 0.75rem;
     border-radius: 6px;
     text-align: left;
     min-height: 90px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: matrixPop 0.5s ease-out forwards;
+    animation-delay: var(--cell-delay, 0s);
   }
-  .quick-wins { background: #e8f5e9; border-left: 3px solid #4caf50; }
-  .major { background: #fff3e0; border-left: 3px solid #ff9800; }
-  .filler { background: #e3f2fd; border-left: 3px solid #2196f3; }
-  .ignore { background: #ffebee; border-left: 3px solid #f44336; }
+  @keyframes matrixPop {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .matrix-cell.quick-wins  { --cell-delay: 0s;   background: #e8f5e9; border-left: 3px solid #4caf50; }
+  .matrix-cell.major       { --cell-delay: 0.15s; background: #fff3e0; border-left: 3px solid #ff9800; }
+  .matrix-cell.filler      { --cell-delay: 0.3s;  background: #e3f2fd; border-left: 3px solid #2196f3; }
+  .matrix-cell.ignore      { --cell-delay: 0.45s; background: #ffebee; border-left: 3px solid #f44336; }
   .cell-title {
     font-weight: 600;
     font-size: 0.9375rem;
@@ -744,6 +782,13 @@
   .cell-sub {
     font-size: 0.75rem;
     color: #666;
+  }
+  @media print {
+    .matrix-cell {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
   }
 
   /* ====== Slide 5: Quick Wins ====== */
