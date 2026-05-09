@@ -1149,23 +1149,23 @@
     to   { stroke-dashoffset: var(--gauge-target); }
   }
   .qw-chart {
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    max-width: 700px;
+    gap: 0.75rem;
+    max-width: 950px;
     margin-left: auto;
     margin-right: auto;
   }
   .qw-bar-row {
     display: grid;
-    grid-template-columns: 1fr 140px 80px;
-    gap: 0.5rem;
+    grid-template-columns: 1fr 220px 100px;
+    gap: 0.75rem;
     align-items: center;
     text-align: left;
   }
   .qw-bar-label {
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     color: var(--color-ink, #1a1a2e);
     line-height: 1.3;
@@ -1173,24 +1173,27 @@
   }
   .qw-bar-track {
     background: rgba(0,0,0,0.06);
-    border-radius: 4px;
-    height: 18px;
+    border-radius: 6px;
+    height: 28px;
     overflow: hidden;
   }
   .qw-bar-fill {
     height: 100%;
-    border-radius: 4px;
+    border-radius: 6px;
     background: var(--bar-color, #0066ff);
     width: 0%;
-    animation: barGrow 0.8s ease-out forwards;
+    transform-origin: left center;
+    animation: barGrowDramatic 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     animation-delay: var(--bar-delay, 0s);
   }
-  @keyframes barGrow {
-    from { width: 0%; }
-    to   { width: var(--target-width); }
+  @keyframes barGrowDramatic {
+    0%   { width: 0%;   transform: scaleY(0.6); opacity: 0.4; }
+    40%  { width: calc(var(--target-width) + 6%); transform: scaleY(1.15); opacity: 1; }
+    70%  { width: calc(var(--target-width) - 2%); transform: scaleY(0.95); }
+    100% { width: var(--target-width); transform: scaleY(1); opacity: 1; }
   }
   .qw-bar-value {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: var(--color-ink, #1a1a2e);
     text-align: right;
@@ -1258,6 +1261,8 @@
     .fin-bar-fill {
       animation: none !important;
       width: var(--target-width) !important;
+      transform: scaleY(1) !important;
+      opacity: 1 !important;
     }
   }
 </style>
