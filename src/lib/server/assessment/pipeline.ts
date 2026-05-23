@@ -1,5 +1,7 @@
 import type { AssessmentReportJob, PipelineResult, SavedReport } from './types';
 import { analyzeTranscript } from './llm-analysis';
+import { parseAndValidateAnalysis, createDefaultAnalysis } from './analysis-types';
+import type { StructuredAnalysis } from './analysis-types';
 import { lookupToolsForTranscript, enrichAnalysisWithTools } from './tool-lookup';
 import { saveReportUnified, isR2Available } from './report-store-r2';
 import { sendReportReadyEmail } from './emails';
@@ -32,15 +34,41 @@ export async function stageToolResearch(
 export async function stageLlmAnalysis(
   job: AssessmentReportJob,
   tools: import('./tool-lookup').AITool[]
-): Promise<string> {
+): Promise<{ analysis: string; structured: StructuredAnalysis }> {
+  const ANALYSIS_TIMEOUT_MS = 600_000; // 10 minutes (NFR7)
   let analysis: string;
+
   try {
-    analysis = await analyzeTranscript(job, tools);
-    console.info(`[pipeline:stage:llm-analysis] Complete`, { length: analysis.length });
+    // Run analysis with timeout
+    const startTime = Date.now();
+    analysis = await runWithTimeout(
+      () => analyzeTranscript(job, tools),
+      ANALYSIS_TIMEOUT_MS,
+      'LLM analysis exceeded 10-minute timeout'
+    );
+    const elapsed = Date.now() - startTime;
+    console.info(`[pipeline:stage:llm-analysis] Complete`, {
+      length: analysis.length,
+      elapsedMs: elapsed,
+      withinTimeout: elapsed < ANALYSIS_TIMEOUT_MS
+    });
   } catch (error) {
     const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
     console.error(`[pipeline:stage:llm-analysis] Failed:`, details);
     throw new Error('LLM analysis failed: ' + (error instanceof Error ? error.message : String(error)));
+  }
+
+  // Validate structured analysis
+  let structured: StructuredAnalysis;
+  try {
+    structured = parseAndValidateAnalysis(analysis);
+  } catch (validationError) {
+    console.warn('[pipeline:stage:llm-analysis] Analysis validation failed, using default', {
+      error: validationError instanceof Error ? validationError.message : String(validationError)
+    });
+    // NFR10: continue with default analysis rather than failing completely
+    structured = createDefaultAnalysis('Analysis output did not meet quality standards. Using default structure.');
+    analysis = JSON.stringify(structured, null, 2);
   }
 
   if (tools.length > 0) {
@@ -53,7 +81,26 @@ export async function stageLlmAnalysis(
     }
   }
 
-  return analysis;
+  return { analysis, structured };
+}
+
+/**
+ * Run an async function with a timeout.
+ * Throws if the function does not complete within the specified ms.
+ */
+async function runWithTimeout<T>(fn: () => Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(timeoutMessage));
+    }, timeoutMs);
+  });
+
+  try {
+    return await Promise.race([fn(), timeoutPromise]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 /** Stage 2: Save Report — persist analysis to R2 (production) or filesystem (dev). */
@@ -252,7 +299,10 @@ export async function runReportPipeline(
   });
 
   // Stage 1: LLM Analysis + enrichment
-  const analysis = await stageLlmAnalysis(job, tools);
+  const { analysis, structured } = await stageLlmAnalysis(job, tools);
+
+  // Note: structured analysis persisted to R2 via stageSaveReport below.
+  // D1 persistence via user_reports table is handled in stageLinkReport.
 
   // Gate Checkpoint: major-project-verification (placeholder)
   await runGateCheckpoint({
