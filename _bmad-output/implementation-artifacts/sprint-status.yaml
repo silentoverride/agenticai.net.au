@@ -144,7 +144,7 @@ development_status:
     priority: 24
   3-2-advisory-briefing-content-rendering:
     epic: epic-3
-    status: ready-for-dev
+    status: review
     priority: 25
   3-3-assessment-status-receipt-display:
     epic: epic-3
