@@ -100,11 +100,12 @@ development_status:
     priority: 15
   2a-7-pipeline-status-views-user-facing:
     epic: epic-2a
-    status: ready-for-dev
+    status: done
+    completed: 2026-05-21
     priority: 16
   2a-8-basic-operator-gate-state-view:
     epic: epic-2a
-    status: backlog
+    status: ready-for-dev
     priority: 17
   2b-1-gate-mode-promotion-framework:
     epic: epic-2b
