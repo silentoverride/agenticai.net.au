@@ -31,11 +31,12 @@ export async function enqueueReportJob(
 
   try {
     await queue.send({
-      type: 'pipeline:run',
+      type: 'pipeline:stage',
+      stage: 'run-pipeline',
       payload: job,
       sentAt: new Date().toISOString()
     });
-    console.info(`[queue] Pipeline job queued (sessionId=${job.sessionId})`);
+    console.info(`[queue] Pipeline job queued for stage routing (sessionId=${job.sessionId})`);
     return { queued: true };
   } catch (err) {
     const details = err instanceof Error ? { message: err.message, stack: err.stack } : err;
