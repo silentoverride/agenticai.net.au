@@ -1,6 +1,7 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import OrientationPanel from '$lib/components/OrientationPanel.svelte';
+  import AnnieChat from '$lib/components/AnnieChat.svelte';
   import ServiceGrid from '$lib/components/ServiceGrid.svelte';
   import { metrics, reportSections, useCases, upsells, testimonials, faqItems } from '$lib/content';
 
@@ -10,6 +11,11 @@
   function startIntake() {
     intakeStarted = true;
     showOrientation = false;
+  }
+
+  function onChatComplete(summary: Array<{ question: string; answer: string }>) {
+    console.log('[Intake] Complete', { sessionId: crypto.randomUUID(), summary });
+    // Future: redirect to payment or assessment queued page (Story 1.5)
   }
 </script>
 
@@ -23,6 +29,20 @@
   <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
+{#if intakeStarted}
+  <div class="intake-container">
+    <div class="intake-header">
+      <div class="intake-header-content">
+        <span class="eyebrow">AI Business Assessment</span>
+        <h2>Chat with Annie</h2>
+        <p>Answer a few questions about your business. This takes about 15 minutes.</p>
+      </div>
+    </div>
+    <div class="intake-chat-wrap">
+      <AnnieChat onComplete={onChatComplete} />
+    </div>
+  </div>
+{:else}
 <main>
   <section class="hero">
     <div class="hero-copy">
@@ -255,6 +275,7 @@
     <p class="trust-note">No credit card required. Your data is private and never shared. <a href="/privacy">Privacy policy</a></p>
   </section>
 </main>
+{/if}
 
 <OrientationPanel bind:open={showOrientation} onacknowledge={startIntake} />
 
@@ -386,5 +407,49 @@
     .faq-list {
       max-width: 100%;
     }
+  }
+
+  /* ── Intake Chat Container ──────────────────────────────── */
+  .intake-container {
+    display: grid;
+    gap: 0;
+    grid-template-rows: auto 1fr;
+    min-height: calc(100vh - 3.5rem);
+  }
+
+  .intake-header {
+    background: var(--color-panel);
+    border-bottom: 1px solid var(--color-line);
+    padding: 1.5rem var(--pad-h);
+    text-align: center;
+  }
+
+  .intake-header-content {
+    margin: 0 auto;
+    max-width: 600px;
+  }
+
+  .intake-header-content h2 {
+    font-size: 1.5rem;
+    margin-top: 0.5rem;
+    max-width: none;
+  }
+
+  .intake-header-content p {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+  }
+
+  .intake-chat-wrap {
+    align-items: start;
+    display: grid;
+    justify-content: center;
+    padding: 2rem var(--pad-h);
+  }
+
+  .intake-chat-wrap :global(.annie-chat) {
+    max-width: 640px;
+    width: 100%;
   }
 </style>
