@@ -3,22 +3,97 @@
   import OrientationPanel from '$lib/components/OrientationPanel.svelte';
   import AnnieChat from '$lib/components/AnnieChat.svelte';
   import SummaryReview from '$lib/components/SummaryReview.svelte';
+  import ResumePrompt from '$lib/components/ResumePrompt.svelte';
   import ServiceGrid from '$lib/components/ServiceGrid.svelte';
   import { metrics, reportSections, useCases, upsells, testimonials, faqItems } from '$lib/content';
 
-  type IntakePhase = 'idle' | 'orientation' | 'chat' | 'review' | 'queued';
+  type IntakePhase = 'idle' | 'orientation' | 'chat' | 'review' | 'queued' | 'resume';
 
   let phase = $state<IntakePhase>('idle');
   let sessionId = $state('');
   let chatSummary = $state<Array<{ question: string; answer: string; followUpAnswer?: string }>>([]);
+  let chatSavedState = $state<AnnieChatSavedState | null>(null);
+  let resumeSessionId = $state('');
+  let resumeInfo = $state({ lastQuestionIndex: 0, expiresInSeconds: 86400 });
+
+  interface AnnieChatSavedState {
+    messages: Array<{ role: string; text: string; timestamp: string }>;
+    currentQuestionIndex: number;
+    answers: Array<{ questionId: string; question: string; answer: string; followUpAnswer?: string }>;
+    followUpAsked: boolean;
+    currentFollowUp: string | undefined;
+    lastQuestionId: string;
+  }
+
+  // Check for existing incomplete session on page load
+  $effect(() => {
+    try {
+      const savedSid = localStorage.getItem('annie-session-id');
+      if (savedSid) {
+        checkResumeSession(savedSid);
+      }
+    } catch {
+      // localStorage unavailable, skip resume check
+    }
+  });
+
+  async function checkResumeSession(sid: string) {
+    try {
+      const res = await fetch(`/api/chat/intake?sessionId=${encodeURIComponent(sid)}`);
+      const data = await res.json();
+      if (data.found && data.session) {
+        resumeSessionId = sid;
+        resumeInfo = {
+          lastQuestionIndex: data.session.currentIndex,
+          expiresInSeconds: data.session.expiresIn
+        };
+        phase = 'resume';
+      } else {
+        // Session expired or not found — clear localStorage
+        clearSavedSession();
+      }
+    } catch {
+      // Server unreachable, ignore resume
+    }
+  }
+
+  function clearSavedSession() {
+    try {
+      localStorage.removeItem('annie-session-id');
+      localStorage.removeItem('annie-session-state');
+    } catch {}
+  }
+
+  function resumeIntake() {
+    // Load saved state from localStorage
+    try {
+      const saved = localStorage.getItem('annie-session-state');
+      if (saved) {
+        chatSavedState = JSON.parse(saved) as AnnieChatSavedState;
+      }
+    } catch {}
+    sessionId = resumeSessionId;
+    phase = 'chat';
+  }
+
+  function startFresh() {
+    clearSavedSession();
+    sessionId = crypto.randomUUID();
+    chatSavedState = null;
+    phase = 'orientation';
+  }
 
   function startIntake() {
-    sessionId = crypto.randomUUID();
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+    }
     phase = 'chat';
   }
 
   function onChatComplete(summary: Array<{ question: string; answer: string; followUpAnswer?: string }>) {
     chatSummary = summary;
+    chatSavedState = null;
+    clearSavedSession();
     phase = 'review';
   }
 
@@ -27,6 +102,7 @@
   }
 
   function onConfirmComplete() {
+    clearSavedSession();
     phase = 'queued';
   }
 </script>
@@ -41,7 +117,19 @@
   <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
-{#if phase === 'chat'}
+{#if phase === 'resume'}
+  <div class="intake-container">
+    <div class="intake-chat-wrap">
+      <ResumePrompt
+        sessionId={resumeSessionId}
+        lastQuestionIndex={resumeInfo.lastQuestionIndex}
+        expiresInSeconds={resumeInfo.expiresInSeconds}
+        onResume={resumeIntake}
+        onStartFresh={startFresh}
+      />
+    </div>
+  </div>
+{:else if phase === 'chat'}
   <div class="intake-container">
     <div class="intake-header">
       <div class="intake-header-content">
@@ -51,7 +139,7 @@
       </div>
     </div>
     <div class="intake-chat-wrap">
-      <AnnieChat {sessionId} onComplete={onChatComplete} />
+      <AnnieChat {sessionId} savedState={chatSavedState} onComplete={onChatComplete} />
     </div>
   </div>
 {:else if phase === 'review'}

@@ -18,32 +18,60 @@
 
   let {
     sessionId = crypto.randomUUID(),
-    onComplete = () => {}
+    onComplete = () => {},
+    savedState = null
   }: {
     sessionId?: string;
-    onComplete?: (summary: Array<{ question: string; answer: string }>) => void;
+    onComplete?: (summary: Array<{ question: string; answer: string; followUpAnswer?: string }>) => void;
+    savedState?: {
+      messages: ChatMessage[];
+      currentQuestionIndex: number;
+      answers: Array<{ questionId: string; question: string; answer: string; followUpAnswer?: string }>;
+      followUpAsked: boolean;
+      currentFollowUp: string | undefined;
+      lastQuestionId: string;
+    } | null;
   } = $props();
 
-  let messages = $state<ChatMessage[]>([]);
-  let currentQuestionIndex = $state(0);
+  let messages = $state<ChatMessage[]>(savedState?.messages || []);
+  let currentQuestionIndex = $state(savedState?.currentQuestionIndex ?? 0);
   let inputText = $state('');
   let isTyping = $state(false);
   let chatContainer: HTMLDivElement;
   let inputEl: HTMLInputElement;
-  let followUpAsked = $state(false);
-  let currentFollowUp: string | undefined;
-  let lastQuestionId = $state('');
-  let answers = $state<Array<{ questionId: string; question: string; answer: string; followUpAnswer?: string }>>([]);
+  let followUpAsked = $state(savedState?.followUpAsked ?? false);
+  let currentFollowUp = $state<string | undefined>(savedState?.currentFollowUp);
+  let lastQuestionId = $state(savedState?.lastQuestionId ?? '');
+  let answers = $state<Array<{ questionId: string; question: string; answer: string; followUpAnswer?: string }>>(savedState?.answers || []);
   let intakeScript: typeof import('$lib/server/assessment/intake-script').INTAKE_SCRIPT = [];
 
   // Load intake script questions
   $effect(() => {
     import('$lib/server/assessment/intake-script').then(mod => {
       intakeScript = mod.INTAKE_SCRIPT;
-      if (intakeScript.length > 0 && messages.length === 0) {
+      if (intakeScript.length > 0 && messages.length === 0 && !savedState) {
         askQuestion(0);
       }
     });
+  });
+
+  // Save session state to localStorage on each update
+  $effect(() => {
+    if (messages.length > 0 && sessionId) {
+      try {
+        localStorage.setItem('annie-session-id', sessionId);
+        localStorage.setItem('annie-session-state', JSON.stringify({
+          messages,
+          currentQuestionIndex,
+          answers,
+          followUpAsked,
+          currentFollowUp,
+          lastQuestionId
+        }));
+      } catch {
+        // localStorage may be unavailable
+      }
+    }
   });
 
   // Auto-scroll on new message

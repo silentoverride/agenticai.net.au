@@ -1,93 +1,78 @@
 /**
- * POST /api/chat/intake
+ * GET /api/chat/intake?sessionId=<id>
  *
- * Persists Annie chat intake answers to D1.
- * Creates/updates the intake_progress record for the session.
- *
- * Body:
- *   { sessionId, questionId, answer, isFollowUp, currentIndex }
+ * Retrieves saved Annie chat intake progress for session resume.
+ * Returns 404 if session not found or expired (>24h).
  */
 
 import { json } from '@sveltejs/kit';
 import { apiError } from '$lib/server/api-error';
 import type { RequestHandler } from './$types';
 
-interface IntakePayload {
-  sessionId: string;
-  questionId: string;
-  answer: string;
-  isFollowUp?: boolean;
-  currentIndex: number;
-}
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-export const POST: RequestHandler = async ({ request, platform }) => {
-  const payload = await request.json<IntakePayload>().catch(() => null);
-
-  if (!payload || !payload.sessionId || !payload.questionId || !payload.answer) {
-    throw apiError(400, 'Missing required fields: sessionId, questionId, answer');
+export const GET: RequestHandler = async ({ url, platform }) => {
+  const sessionId = url.searchParams.get('sessionId');
+  if (!sessionId) {
+    throw apiError(400, 'Missing sessionId parameter');
   }
 
   if (!platform?.env?.assessment_db) {
-    // Graceful degradation: log but don't fail
-    console.warn('[chat/intake] No D1 binding available, skipping persistence');
-    return json({ persisted: false, reason: 'no_db' });
+    return json({ found: false, reason: 'no_db' });
   }
 
   const db = platform.env.assessment_db;
 
   try {
-    // Check if a progress record exists for this session
-    const existing = await db
-      .prepare('SELECT id, answers_json FROM intake_progress WHERE session_id = ?')
-      .bind(payload.sessionId)
-      .first<{ id: number; answers_json: string }>();
+    const record = await db
+      .prepare('SELECT * FROM intake_progress WHERE session_id = ? AND completed = 0')
+      .bind(sessionId)
+      .first<{
+        id: number;
+        session_id: string;
+        answers_json: string;
+        current_index: number;
+        created_at: string;
+        updated_at: string;
+      }>();
 
-    const now = new Date().toISOString();
-    const answerEntry = {
-      questionId: payload.questionId,
-      answer: payload.answer,
-      isFollowUp: payload.isFollowUp || false,
-      timestamp: now
-    };
-
-    if (existing) {
-      // Update existing record
-      const currentAnswers = JSON.parse(existing.answers_json || '[]');
-      currentAnswers.push(answerEntry);
-
-      await db
-        .prepare(`
-          UPDATE intake_progress
-          SET answers_json = ?, current_index = ?, updated_at = ?
-          WHERE id = ?
-        `)
-        .bind(
-          JSON.stringify(currentAnswers),
-          payload.currentIndex,
-          now,
-          existing.id
-        )
-        .run();
-    } else {
-      // Create new progress record
-      await db
-        .prepare(`
-          INSERT INTO intake_progress (session_id, answers_json, current_index, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?)
-        `)
-        .bind(
-          payload.sessionId,
-          JSON.stringify([answerEntry]),
-          payload.currentIndex,
-          now,
-          now
-        )
-        .run();
+    if (!record) {
+      return json({ found: false, reason: 'not_found' });
     }
 
-    return json({ persisted: true });
+    // Check session expiry
+    const updatedAt = new Date(record.updated_at).getTime();
+    const now = Date.now();
+    if (now - updatedAt > SESSION_TTL_MS) {
+      // Mark session as expired so we don't keep checking it
+      await db
+        .prepare('UPDATE intake_progress SET completed = 2 WHERE id = ?')
+        .bind(record.id)
+        .run();
+
+      return json({
+        found: false,
+        reason: 'expired',
+        message: 'Your previous session has expired. Please start a new assessment.',
+        expiredAt: new Date(updatedAt + SESSION_TTL_MS).toISOString()
+      });
+    }
+
+    const answers = JSON.parse(record.answers_json);
+
+    return json({
+      found: true,
+      session: {
+        sessionId: record.session_id,
+        answers,
+        currentIndex: record.current_index,
+        createdAt: record.created_at,
+        updatedAt: record.updated_at,
+        expiresIn: Math.round((SESSION_TTL_MS - (now - updatedAt)) / 1000) // seconds remaining
+      }
+    });
   } catch (err) {
-    console.error('[chat/intake] DB error:', err);
-    return json({ persisted: false, reason: 'db_error' });
+    console.error('[chat/intake] GET error:', err);
+    return json({ found: false, reason: 'db_error' });
   }
 };
