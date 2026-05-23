@@ -11,7 +11,10 @@
     "check:visual": "node scripts/visual-check.mjs",
     "deploy": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name agenticai-net-au",
     "deploy:preview": "npm run build && wrangler pages deploy .svelte-kit/cloudflare --project-name agenticai-net-au --branch preview",
-    "deploy:worker": "cd workers && wrangler deploy"
+    "deploy:worker": "cd workers && wrangler deploy",
+    "test:gate": "vitest run tests/gate/",
+    "test:gate:watch": "vitest watch tests/gate/",
+    "test:gate:regression": "vitest run .scripts/test-gate-regression.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260504.1",
@@ -29,7 +32,8 @@
     "svelte-check": "^4.1.6",
     "typescript": "^5.8.3",
     "vite": "^6.3.4",
-    "wrangler": "^4.86.0"
+    "wrangler": "^4.86.0",
+    "vitest": "^3.0.0"
   },
   "dependencies": {
     "@clerk/backend": "^3.4.4",
