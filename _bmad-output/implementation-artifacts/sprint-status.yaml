@@ -55,11 +55,12 @@ development_status:
     priority: 6
   1-4-guided-annie-intake-business-context-capture-probing:
     epic: epic-1
-    status: ready-for-dev
+    status: done
+    completed: 2026-05-21
     priority: 7
   1-5-business-summary-review-confirmation:
     epic: epic-1
-    status: backlog
+    status: ready-for-dev
     priority: 8
   1-6-intake-interruption-recovery-session-resume:
     epic: epic-1
