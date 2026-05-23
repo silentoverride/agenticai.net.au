@@ -59,7 +59,7 @@ describe('Analysis Validation', () => {
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.errors.length).toBeGreaterThan(0);
-      expect(result.errors.some(e => e.includes('pain_points'))).toBe(true);
+      expect(result.errors.some((e: string) => e.includes('pain_points'))).toBe(true);
     }
   });
 
@@ -71,14 +71,18 @@ describe('Analysis Validation', () => {
   it('rejects empty arrays', () => {
     const result = validateAnalysis({ ...validAnalysis(), pain_points: [] });
     expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.includes('pain_points'))).toBe(true);
+    if (!result.valid) {
+      expect(result.errors.some((e: string) => e.includes('pain_points'))).toBe(true);
+    }
   });
 
   it('rejects non-numeric financial_impact fields', () => {
     const bad = { ...validAnalysis(), financial_impact: { ...validAnalysis().financial_impact, annual_value_aud: 'not-a-number' } };
     const result = validateAnalysis(bad);
     expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.includes('financial_impact'))).toBe(true);
+    if (!result.valid) {
+      expect(result.errors.some((e: string) => e.includes('financial_impact'))).toBe(true);
+    }
   });
 
   it('validates all required field names are checked', () => {
@@ -163,13 +167,13 @@ describe('Pipeline Timeout (NFR7)', () => {
 });
 
 async function runWithTimeout<T>(fn: () => Promise<T>, timeoutMs: number, message: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout>;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const timeoutPromise = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error(message)), timeoutMs);
   });
   try {
     return await Promise.race([fn(), timeoutPromise]);
   } finally {
-    clearTimeout(timer);
+    if (timer) clearTimeout(timer);
   }
 }

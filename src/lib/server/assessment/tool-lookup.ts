@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import { getCachedTools, setCachedTools, buildSearchQuery } from './tool-cache';
 
 export interface AITool {
   name: string;
@@ -207,24 +208,52 @@ Return ONLY a JSON array of tools. No markdown, no explanations. Limit to 8 tool
 /**
  * Quick lookup — extracts pain points and searches for tools in one call.
  * Best used as a pre-analysis step to enrich the report with real tool data.
+ *
+ * @param transcript - Raw transcript text
+ * @param db - Optional D1 database for caching results (24h TTL)
+ * @returns Array of AI tools (limited to 5 most relevant)
  */
-export async function lookupToolsForTranscript(transcript: string): Promise<AITool[]> {
+export async function lookupToolsForTranscript(transcript: string, db?: D1Database | null): Promise<AITool[]> {
   const start = Date.now();
-  
+
   const painPoints = await extractPainPointsForToolLookup(transcript);
   if (!painPoints.length) {
     console.info('No pain points extracted, skipping tool lookup');
     return [];
   }
 
+  // Check cache first (if D1 is available)
+  const searchQuery = buildSearchQuery(painPoints);
+  if (db && searchQuery) {
+    const cached = await getCachedTools(db, searchQuery);
+    if (cached && cached.length > 0) {
+      console.info('Tool lookup complete (cached)', {
+        painPoints: painPoints.length,
+        toolsFound: cached.length,
+        durationMs: Date.now() - start
+      });
+      return cached.slice(0, 5);
+    }
+  }
+
   const tools = await lookupToolsWithPerplexity(painPoints);
+
+  // Cache results (if D1 is available)
+  if (db && searchQuery && tools.length > 0) {
+    await setCachedTools(db, searchQuery, tools);
+  }
+
+  // Limit to 5 most relevant tools (AC: 3-5 tools)
+  const limited = tools.slice(0, 5);
+
   console.info('Tool lookup complete', {
     painPoints: painPoints.length,
-    toolsFound: tools.length,
+    toolsFound: limited.length,
+    totalRaw: tools.length,
     durationMs: Date.now() - start
   });
 
-  return tools;
+  return limited;
 }
 
 /**

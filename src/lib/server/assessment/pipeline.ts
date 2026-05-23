@@ -17,11 +17,12 @@ import { isGateActive, getGateMode } from './gate/gate-mode';
 
 /** Stage 0: Tool Research — lookup AI tools relevant to transcript context. */
 export async function stageToolResearch(
-  transcript: string
+  transcript: string,
+  db?: D1Database | null
 ): Promise<import('./tool-lookup').AITool[]> {
   let tools: import('./tool-lookup').AITool[] = [];
   try {
-    tools = await lookupToolsForTranscript(transcript);
+    tools = await lookupToolsForTranscript(transcript, db);
     console.info(`[pipeline:stage:tool-research] Complete`, { toolsFound: tools.length });
   } catch (error) {
     const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
@@ -276,7 +277,7 @@ export async function runGateCheckpoint(params: {
  */
 export async function runReportPipeline(
   job: AssessmentReportJob,
-  opts?: { r2Bucket?: R2Bucket | null }
+  opts?: { r2Bucket?: R2Bucket | null; db?: D1Database | null }
 ): Promise<PipelineResult> {
   const sessionId = job.callId || job.sessionId || 'unknown';
   const logPrefix = `[pipeline:${sessionId}]`;
@@ -289,7 +290,7 @@ export async function runReportPipeline(
   });
 
   // Stage 0: Tool Research
-  const tools = await stageToolResearch(job.transcript);
+  const tools = await stageToolResearch(job.transcript, opts?.db);
 
   // Gate Checkpoint: quick-wins-verification (placeholder — wired in Epic 2a)
   await runGateCheckpoint({
