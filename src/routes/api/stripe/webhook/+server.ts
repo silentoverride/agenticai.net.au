@@ -8,6 +8,7 @@ import { enqueueReportJob } from '$lib/server/assessment/queue';
 import { saveReceipt, savePendingReceipt, findOrCreateUserFromStripe } from '$lib/server/portal';
 import { isEventProcessed, markEventProcessed } from '$lib/server/stripe/processed-events';
 import { saveTranscriptToDisk } from '$lib/server/assessment/transcript-file-store';
+import { saveRawIntake } from '$lib/server/assessment/intake-store-r2';
 import { StripeWebhookSchema } from '$lib/server/validation';
 import type { RequestHandler } from './$types';
 
@@ -230,6 +231,28 @@ export const POST: RequestHandler = async ({ request, platform }) => {
           console.error('Failed to persist transcript to disk', { error: saved.error, callId: retellCallId });
         }
 
+        // Preserve raw intake data to R2 for immutable audit trail
+        const bucket = platform?.env?.assessment_blobs;
+        if (bucket) {
+          try {
+            await saveRawIntake(bucket, session.id, {
+              sessionId: session.id,
+              source: 'retell-voice-agent',
+              customerName,
+              customerEmail,
+              customerPhone,
+              company,
+              transcript,
+              stripeSessionId: session.id,
+              amountCents: record.amountTotal || 120000,
+              currency: record.currency || 'aud',
+              createdAt: record.receivedAt
+            });
+          } catch (err) {
+            console.error('Failed to preserve intake to R2 (non-blocking)', { error: err, sessionId: session.id });
+          }
+        }
+
         await setPipelineStatus(session.id, { status: 'queued', callId: retellCallId });
         const queue = platform?.env?.assessment_queue;
         try {
@@ -264,6 +287,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
       await setPipelineStatus(intakeSessionId, { status: 'queued' });
 
+
       // Reconstruct transcript from full intake data saved in D1
       let transcript = metadata.summary_preview || '';
       let transcriptObject: Array<{ question: string; answer: string }> = [];
@@ -289,6 +313,28 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         }
       } catch (err) {
         console.warn('[webhook] Could not load full intake transcript, using preview', { sessionId: intakeSessionId, error: err });
+      }
+
+      // Preserve raw intake data to R2 for immutable audit trail
+      const annieBucket = platform?.env?.assessment_blobs;
+      if (annieBucket) {
+        try {
+          await saveRawIntake(annieBucket, intakeSessionId, {
+            sessionId: intakeSessionId,
+            source: 'annie-chat-intake',
+            customerName,
+            customerEmail,
+            company,
+            transcript,
+            summary: transcriptObject as Array<{ question: string; answer: string; followUpAnswer?: string }>,
+            stripeSessionId: session.id,
+            amountCents: record.amountTotal || 120000,
+            currency: record.currency || 'aud',
+            createdAt: record.receivedAt
+          });
+        } catch (err) {
+          console.error('Failed to preserve Annie intake to R2 (non-blocking)', { error: err, sessionId: intakeSessionId });
+        }
       }
 
       const queue = platform?.env?.assessment_queue;
