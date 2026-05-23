@@ -16,7 +16,7 @@ development_status:
     status: done
   epic-2a:
     title: 'Epic 2a: Payment & Pipeline + GPT-5.5 Gate (Shadow)'
-    status: backlog
+    status: active
   epic-2b:
     title: 'Epic 2b: Gate Calibration & Operator Dashboard'
     status: done
@@ -70,7 +70,7 @@ development_status:
     priority: 9
   2a-1-stripe-checkout-payment-integration:
     epic: epic-2a
-    status: backlog
+    status: ready-for-dev
     priority: 10
   2a-2-payment-intake-reconciliation-idempotency:
     epic: epic-2a
