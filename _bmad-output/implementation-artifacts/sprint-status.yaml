@@ -140,33 +140,41 @@ development_status:
     priority: 23
   3-1-clerk-auth-private-briefing-room-shell:
     epic: epic-3
-    status: review
+    status: done
+    completed: 2026-05-23
     priority: 24
   3-2-advisory-briefing-content-rendering:
     epic: epic-3
-    status: review
+    status: done
+    completed: 2026-05-23
     priority: 25
   3-3-assessment-status-receipt-display:
     epic: epic-3
-    status: ready-for-dev
+    status: done
+    completed: 2026-05-23
     priority: 26
   3-4-recommendation-cards-evidence-blocks:
     epic: epic-3
-    status: review
+    status: done
+    completed: 2026-05-23
     priority: 27
   3-5-opportunity-map-cardlist-v1:
     epic: epic-3
-    status: review
+    status: done
+    completed: 2026-05-23
     priority: 28
   3-6-controlled-pilot-access-boundaries-email-notifications:
     epic: epic-3
-    status: review
+    status: done
+    completed: 2026-05-23
     priority: 29
   3-7-follow-up-cta-panel-recovery:
     epic: epic-3
-    status: review
+    status: done
+    completed: 2026-05-23
     priority: 30
   3-8-versioning-regeneration-display:
     epic: epic-3
-    status: review
+    status: done
+    completed: 2026-05-23
     priority: 31
