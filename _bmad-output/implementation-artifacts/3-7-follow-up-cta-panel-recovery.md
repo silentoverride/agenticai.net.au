@@ -4,7 +4,7 @@
 
 **ID:** 3-7
 **Epic:** Epic 3
-**Status:** ready-for-dev
+**Status:** review
 **Priority:** (TBD)
 
 ---
@@ -41,9 +41,9 @@ As a customer, I want a follow-up CTA panel so that I can book a consultation or
 
 ## Tasks / Subtasks
 
-1. Follow-up CTA Panel & Recovery implementation
-2. Unit and integration tests
-3. Acceptance criteria verification
+1. [x] Follow-up CTA Panel & Recovery implementation
+2. [x] Unit and integration tests
+3. [x] Acceptance criteria verification
 
 ---
 
@@ -63,9 +63,24 @@ As a customer, I want a follow-up CTA panel so that I can book a consultation or
 
 ## Dev Agent Record
 
-- **Agent Model Used:** (TBD)
-- **Debug Log References:** (TBD)
+- **Agent Model Used:** GPT-5.1 Codex Max
+- **Debug Log References:**
+  - `npm exec vitest run` — 243 tests passed (231 baseline + 12 cta-panel)
 - **Completion Notes List:**
-  - (TBD)
+  - Created `CtaPanel.svelte` component with 'Ready to take the next step?' heading and buttons for Book Consultation (Calendly), Download PDF, Share with Team.
+  - Fallback to 'Contact Us' email link when Calendly not configured.
+  - Sticky positioning on desktop, static/inline on mobile via media query.
+  - Download PDF triggers via existing `/api/portal/reports/{id}/download` endpoint.
+  - Share button uses Web Share API, falls back to clipboard copy.
+  - Added CTA panel to briefing page after BriefingContent.
 - **File List:**
-  - (TBD)
+  - `_bmad-output/implementation-artifacts/3-7-follow-up-cta-panel-recovery.md`
+  - `src/lib/components/briefing/CtaPanel.svelte`
+  - `src/routes/portal/[user_id]/briefing/[report_id]/+page.svelte`
+  - `tests/briefing/cta-panel.test.ts`
+
+---
+
+## Change Log
+
+- 2026-05-23: Implemented follow-up CTA panel with Calendly/PDF/Share buttons, sticky layout, and contact fallback.
