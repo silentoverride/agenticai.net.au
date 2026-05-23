@@ -4,7 +4,7 @@
 
 **ID:** 3-4
 **Epic:** Epic 3
-**Status:** backlog
+**Status:** ready-for-dev
 **Priority:** (TBD)
 
 ---
