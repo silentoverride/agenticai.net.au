@@ -5,7 +5,7 @@
 # =============================================================================
 
 sprint_status: active
-last_updated: '2026-05-21'
+last_updated: '2026-05-23'
 story_location: _bmad-output/implementation-artifacts
 development_status:
   sprint-0:
@@ -105,8 +105,9 @@ development_status:
     priority: 16
   2a-8-basic-operator-gate-state-view:
     epic: epic-2a
-    status: ready-for-dev
+    status: done
     priority: 17
+    completed: 2026-05-23
   2b-1-gate-mode-promotion-framework:
     epic: epic-2b
     status: done
