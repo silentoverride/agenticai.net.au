@@ -26,10 +26,10 @@
 
 <ClerkProvider
   publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}
-  signInFallbackRedirectUrl="/portal"
-  signInForceRedirectUrl="/portal"
-  signUpFallbackRedirectUrl="/portal"
-  signUpForceRedirectUrl="/portal"
+  signInFallbackRedirectUrl="/dashboard"
+  signInForceRedirectUrl="/dashboard"
+  signUpFallbackRedirectUrl="/dashboard"
+  signUpForceRedirectUrl="/dashboard"
 >
   <Navigation />
   {@render children()}

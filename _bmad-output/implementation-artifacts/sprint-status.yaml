@@ -140,7 +140,7 @@ development_status:
     priority: 23
   3-1-clerk-auth-private-briefing-room-shell:
     epic: epic-3
-    status: backlog
+    status: review
     priority: 24
   3-2-advisory-briefing-content-rendering:
     epic: epic-3

@@ -4,7 +4,7 @@
 
 **ID:** 3-1
 **Epic:** Epic 3
-**Status:** backlog
+**Status:** review
 **Priority:** (TBD)
 
 ---
@@ -42,9 +42,9 @@ As a customer, I want to sign in with Clerk so that I can access my private asse
 
 ## Tasks / Subtasks
 
-1. Clerk Auth & Private Briefing Room Shell implementation
-2. Unit and integration tests
-3. Acceptance criteria verification
+1. [x] Clerk Auth & Private Briefing Room Shell implementation
+2. [x] Unit and integration tests
+3. [x] Acceptance criteria verification
 
 ---
 
@@ -64,9 +64,25 @@ As a customer, I want to sign in with Clerk so that I can access my private asse
 
 ## Dev Agent Record
 
-- **Agent Model Used:** (TBD)
-- **Debug Log References:** (TBD)
+- **Agent Model Used:** GPT-5.1 Codex Max
+- **Debug Log References:**
+  - `npm exec vitest run` — 159 tests passed (149 baseline + 10 new)
+  - LSP diagnostics clean for changed files
 - **Completion Notes List:**
-  - (TBD)
+  - Created `/dashboard` route as the private briefing room entry point, redirects authenticated users to `/portal/[userId]`.
+  - Updated ClerkProvider redirect URLs in root layout from `/portal` to `/dashboard`.
+  - Updated portal layout SignIn/SignUp components to redirect to `/dashboard`.
+  - Added 10 tests for auth redirect flow, briefing room shell layout, and Clerk configuration.
+  - Verified existing Clerk auth, portal layout with sidebar navigation, and auth gating are already in place.
 - **File List:**
-  - (TBD)
+  - `_bmad-output/implementation-artifacts/3-1-clerk-auth-private-briefing-room-shell.md`
+  - `src/routes/dashboard/+page.server.ts`
+  - `src/routes/+layout.svelte`
+  - `src/routes/portal/+layout.svelte`
+  - `tests/auth/briefing-room-auth.test.ts`
+
+---
+
+## Change Log
+
+- 2026-05-23: Implemented /dashboard briefing room entry, updated auth redirects, added tests.

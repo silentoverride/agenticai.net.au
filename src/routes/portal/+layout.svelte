@@ -30,9 +30,9 @@
       <p>Sign {isSignUp ? 'up' : 'in'} to view your AI Business Assessment reports and receipts.</p>
       <div class="portal-signin">
         {#if isSignUp}
-          <SignUp fallbackRedirectUrl="/portal" forceRedirectUrl="/portal" />
+          <SignUp fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard" />
         {:else}
-          <SignIn fallbackRedirectUrl="/portal" forceRedirectUrl="/portal" />
+          <SignIn fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard" />
         {/if}
       </div>
     </div>
