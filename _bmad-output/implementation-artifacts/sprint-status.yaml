@@ -148,7 +148,7 @@ development_status:
     priority: 25
   3-3-assessment-status-receipt-display:
     epic: epic-3
-    status: backlog
+    status: ready-for-dev
     priority: 26
   3-4-recommendation-cards-evidence-blocks:
     epic: epic-3

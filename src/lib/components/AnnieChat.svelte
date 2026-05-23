@@ -12,8 +12,8 @@
    * responses to the server API for persistence.
    */
 
-  import type { ChatMessage } from '$lib/server/assessment/intake-script';
-  import { TOTAL_QUESTIONS } from '$lib/server/assessment/intake-script';
+  import type { ChatMessage } from '$lib/assessment/intake-script';
+  import { TOTAL_QUESTIONS } from '$lib/assessment/intake-script';
   import { fade } from 'svelte/transition';
 
   let {
@@ -43,11 +43,11 @@
   let currentFollowUp = $state<string | undefined>(savedState?.currentFollowUp);
   let lastQuestionId = $state(savedState?.lastQuestionId ?? '');
   let answers = $state<Array<{ questionId: string; question: string; answer: string; followUpAnswer?: string }>>(savedState?.answers || []);
-  let intakeScript: typeof import('$lib/server/assessment/intake-script').INTAKE_SCRIPT = [];
+  let intakeScript: typeof import('$lib/assessment/intake-script').INTAKE_SCRIPT = [];
 
   // Load intake script questions
   $effect(() => {
-    import('$lib/server/assessment/intake-script').then(mod => {
+    import('$lib/assessment/intake-script').then(mod => {
       intakeScript = mod.INTAKE_SCRIPT;
       if (intakeScript.length > 0 && messages.length === 0 && !savedState) {
         askQuestion(0);

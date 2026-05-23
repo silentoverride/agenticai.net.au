@@ -93,6 +93,14 @@
     phase = 'chat';
   }
 
+  function getOrientationOpen() {
+    return phase === 'orientation';
+  }
+
+  function setOrientationOpen(open: boolean) {
+    phase = open ? 'orientation' : 'idle';
+  }
+
   function onChatComplete(summary: Array<{ question: string; answer: string; followUpAnswer?: string }>) {
     chatSummary = summary;
     chatSavedState = null;
@@ -413,7 +421,7 @@
 </main>
 {/if}
 
-<OrientationPanel bind:open={phase === 'orientation'} onacknowledge={startIntake} />
+<OrientationPanel bind:open={getOrientationOpen, setOrientationOpen} onacknowledge={startIntake} />
 
 <style>
   /* ── Testimonials ──────────────────────────────────────────── */
