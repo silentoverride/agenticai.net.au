@@ -16,7 +16,7 @@ development_status:
     status: done
   epic-2a:
     title: 'Epic 2a: Payment & Pipeline + GPT-5.5 Gate (Shadow)'
-    status: active
+    status: done
   epic-2b:
     title: 'Epic 2b: Gate Calibration & Operator Dashboard'
     status: done
