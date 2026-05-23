@@ -13,7 +13,7 @@ development_status:
     status: done
   epic-1:
     title: 'Epic 1: Public Offer & Intake Flow'
-    status: active
+    status: done
   epic-2a:
     title: 'Epic 2a: Payment & Pipeline + GPT-5.5 Gate (Shadow)'
     status: backlog
@@ -65,7 +65,8 @@ development_status:
     priority: 8
   1-6-intake-interruption-recovery-session-resume:
     epic: epic-1
-    status: ready-for-dev
+    status: done
+    completed: 2026-05-21
     priority: 9
   2a-1-stripe-checkout-payment-integration:
     epic: epic-2a
