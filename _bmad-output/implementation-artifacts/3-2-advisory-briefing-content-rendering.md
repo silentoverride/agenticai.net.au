@@ -4,7 +4,7 @@
 
 **ID:** 3-2
 **Epic:** Epic 3
-**Status:** ready-for-dev
+**Status:** review
 **Priority:** (TBD)
 
 ---
@@ -43,9 +43,9 @@ As a customer, I want to read my completed assessment briefing in a clean, reada
 
 ## Tasks / Subtasks
 
-1. Advisory Briefing Content Rendering implementation
-2. Unit and integration tests
-3. Acceptance criteria verification
+1. [x] Advisory Briefing Content Rendering implementation
+2. [x] Unit and integration tests
+3. [x] Acceptance criteria verification
 
 ---
 
@@ -65,9 +65,23 @@ As a customer, I want to read my completed assessment briefing in a clean, reada
 
 ## Dev Agent Record
 
-- **Agent Model Used:** (TBD)
-- **Debug Log References:** (TBD)
+- **Agent Model Used:** GPT-5.1 Codex Max
+- **Debug Log References:**
+  - `npm exec vitest run` — 177 tests passed (149 baseline + 10 auth + 18 briefing)
 - **Completion Notes List:**
-  - (TBD)
+  - Created `BriefingContent.svelte` component with all AC-required sections: header with title/date, executive summary (with premium badge + gradient), Quick Wins cards (effort badges, expand/collapse recommended tools), Deeper Opportunities cards (financial details), Recommended Tools table, Financial Impact metrics grid, Methodology note.
+  - Created `BriefingSkeleton.svelte` for loading state with animated shimmer placeholders.
+  - Created briefing page route at `/portal/[userId]/briefing/[reportId]` with data loaded from existing `/api/portal/reports/[reportId]` endpoint.
+  - Added 18 tests covering all AC areas.
 - **File List:**
-  - (TBD)
+  - `_bmad-output/implementation-artifacts/3-2-advisory-briefing-content-rendering.md`
+  - `src/lib/components/briefing/BriefingContent.svelte`
+  - `src/lib/components/briefing/BriefingSkeleton.svelte`
+  - `src/routes/portal/[user_id]/briefing/[report_id]/+page.svelte`
+  - `tests/briefing/briefing-content.test.ts`
+
+---
+
+## Change Log
+
+- 2026-05-23: Implemented advisory briefing content rendering with sections, skeleton loader, and expand/collapse evidence.
