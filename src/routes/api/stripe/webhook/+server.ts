@@ -222,10 +222,64 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         await setPipelineStatus(session.id, { status: 'pending_payment' });
         console.info('Payment confirmed for retell call, but transcript not yet available', { callId: retellCallId });
       }
+    } else if (metadata.session_id) {
+      // Annie chat intake flow: session_id in metadata identifies the intake session
+      const intakeSessionId = metadata.session_id;
+      const customerName = metadata.customer_name || session.customer_details?.name || '';
+      const customerEmail = metadata.customer_email || session.customer_details?.email || '';
+      const company = metadata.company || '';
+
+      await setPipelineStatus(intakeSessionId, { status: 'queued' });
+
+      // Reconstruct transcript from full intake data saved in D1
+      let transcript = metadata.summary_preview || '';
+      let transcriptObject: Array<{ question: string; answer: string }> = [];
+
+      try {
+        const db = platform?.env?.assessment_db;
+        if (db) {
+          const intakeRecord = await db.prepare(
+            'SELECT answers_json FROM intake_progress WHERE session_id = ? AND completed = 1'
+          ).bind(intakeSessionId).first();
+          if (intakeRecord) {
+            const r = intakeRecord as { answers_json: string };
+            if (r.answers_json) {
+              const answers = JSON.parse(r.answers_json);
+              if (Array.isArray(answers)) {
+                transcriptObject = answers;
+                transcript = answers
+                  .map((a) => 'Q: ' + a.question + '\nA: ' + a.answer + (a.followUpAnswer ? '\nFollow-up: ' + a.followUpAnswer : ''))
+                  .join('\n\n---\n\n');
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[webhook] Could not load full intake transcript, using preview', { sessionId: intakeSessionId, error: err });
+      }
+
+      const queue = platform?.env?.assessment_queue;
+      try {
+        await enqueueReportJob(queue, {
+          receivedAt: record.receivedAt,
+          source: 'annie-chat-intake',
+          sessionId: intakeSessionId,
+          customerName,
+          customerEmail,
+          company,
+          transcript,
+          transcriptObject
+        });
+        pipelineEnqueued = true;
+        console.info('[webhook] Annie intake pipeline enqueued', { sessionId: intakeSessionId });
+      } catch (err) {
+        console.error('Failed to enqueue Annie intake report job', { error: err, sessionId: intakeSessionId });
+        return text('Pipeline enqueue failed', { status: 500 });
+      }
     }
 
     // Only mark event as processed after critical work succeeded (or there was no pipeline work)
-    if (eventId && (pipelineEnqueued || !retellCallId || (retellCallId && !stored?.transcript))) {
+    if (eventId && (pipelineEnqueued || (!retellCallId && !metadata.session_id) || (retellCallId && !stored?.transcript))) {
       await markEventProcessed(eventId, event.type);
     }
   }

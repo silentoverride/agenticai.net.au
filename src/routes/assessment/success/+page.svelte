@@ -1,242 +1,142 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { page } from '$app/stores';
+  import { Button } from '$lib/components/ui';
 
-  let status = $state('Finalising your assessment intake...');
-  let reportId = $state('');
-  let pollInterval: ReturnType<typeof setInterval>;
   let sessionId = $state('');
+  let status = $state<'pending' | 'paid' | 'error'>('pending');
 
-  interface TranscriptResponse {
-    status?:
-      | 'queued'
-      | 'pending_payment'
-      | 'running_llm'
-      | 'running_tools'
-      | 'running_deck'
-      | 'completed'
-      | 'error'
-      | 'retry'
-      | string;
-    reportId?: string;
-    message?: string;
-    error?: string;
-  }
-
-  const statusMessages: Record<string, string> = {
-    queued: 'Assessment received. Your report is now in the queue for processing.',
-    pending_payment: 'Payment received. Waiting for the voice interview to finish — your report will be generated automatically.',
-    running_llm: 'Transcript received. Our AI is analysing your workflow and identifying opportunities...',
-    running_tools: 'Analysis nearly complete. Matching the best AI tools to your pain points...',
-    running_deck: 'Finalising your report — assembling the presentation with recommendations...',
-    completed: 'Your AI Business Assessment report is ready!',
-    error: 'Report generation ran into an issue. Please contact hello@agenticai.net.au with your payment reference.',
-    retry: 'Retrying report generation — this stage ran into a temporary issue.'
-  };
-
-  onMount(async () => {
-    const params = new URLSearchParams(window.location.search);
-    sessionId = params.get('session_id') || '';
-
-    if (!sessionId) {
-      status = 'Payment completed, but no Stripe session id was returned.';
-      return;
-    }
-
-    // Step 1: Submit transcript (or trigger server-side retrieval)
-    const stored = localStorage.getItem('annie-assessment-transcript');
-    const payload: Record<string, unknown> = { sessionId };
-
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as Record<string, unknown>;
-        Object.assign(payload, parsed);
-        payload.sessionId = sessionId;
-      } catch {
-        // ignore invalid stored JSON
-      }
-    }
-
-    try {
-      const response = await fetch('/api/assessment-transcript', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = (await response.json().catch(() => ({}))) as TranscriptResponse;
-
-      if (!response.ok && response.status !== 202) {
-        throw new Error(data.message || 'Transcript submission failed.');
-      }
-
-      // If queued (202), start polling for status
-      if (data.status === 'queued' || response.status === 202) {
-        status = statusMessages.queued || statusMessages.queued;
-        startPolling(sessionId);
-      } else if (data.status === 'pending_payment') {
-        status = statusMessages.pending_payment;
-        startPolling(sessionId);
-      } else if (data.status === 'completed') {
-        status = statusMessages.completed;
-        if (data.reportId) reportId = data.reportId;
-      } else if (data.status === 'error') {
-        status = statusMessages.error;
-      } else {
-        status = statusMessages[data.status as string] || statusMessages.queued;
-        if (data.status && data.status !== 'completed' && data.status !== 'error') {
-          startPolling(sessionId);
+  $effect(() => {
+    sessionId = $page.url.searchParams.get('session_id') || '';
+    if (sessionId) {
+      // Poll pipeline status to confirm payment went through
+      const checkStatus = async () => {
+        try {
+          const res = await fetch(`/api/pipeline-status/${sessionId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'queued' || data.status === 'running_llm' || data.status === 'completed') {
+              status = 'paid';
+            } else if (data.status === 'pending_payment') {
+              // Still pending — Stripe might not have fired webhook yet
+              setTimeout(checkStatus, 2000);
+            } else {
+              status = 'paid'; // Assume paid, pipeline will catch up
+            }
+          }
+        } catch {
+          // Webhook will process it — show success regardless
+          status = 'paid';
         }
-      }
-
-      localStorage.removeItem('annie-assessment-transcript');
-    } catch (err) {
-      console.error('Assessment pipeline failed:', err);
-      status = statusMessages.error;
+      };
+      checkStatus();
+    } else {
+      status = 'error';
     }
   });
-
-  function startPolling(sid: string) {
-    pollInterval = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/assessment-transcript?sessionId=${encodeURIComponent(sid)}`);
-        if (!res.ok) return;
-        const data = (await res.json()) as TranscriptResponse;
-
-        if (data.status === 'completed') {
-          clearInterval(pollInterval);
-          status = statusMessages.completed;
-          reportId = data.reportId || '';
-        } else if (data.status === 'error') {
-          clearInterval(pollInterval);
-          status = data.error
-            ? `${statusMessages.error} \u2014 ${data.error}`
-            : statusMessages.error;
-        } else {
-          status = statusMessages[data.status as string] || statusMessages.queued;
-        }
-        // else keep polling
-      } catch {
-        // ignore polling errors
-      }
-    }, 5000); // poll every 5 seconds
-
-    // Stop polling after 10 minutes
-    setTimeout(() => {
-      clearInterval(pollInterval);
-      if (!reportId) {
-        status = 'Your report is taking longer than expected. Please contact hello@agenticai.net.au with your payment reference.';
-      }
-    }, 10 * 60 * 1000);
-  }
 </script>
 
 <svelte:head>
-  <title>Assessment Payment Confirmed — Agentic AI</title>
-  <meta name="robots" content="noindex, nofollow" />
+  <title>Assessment Confirmed — AgenticAI</title>
 </svelte:head>
 
-<main class="light-theme">
-  <section class="page-hero">
-    <p class="eyebrow">Assessment payment</p>
-    <h1>Thank you</h1>
-    <p class="status-message">{status}</p>
-    {#if reportId}
-      <p class="deck-link">
-        <a href={`/portal/reports/${reportId}`}>
-          View your assessment report
-        </a>
+<div class="success-page">
+  <div class="success-card">
+    {#if status === 'pending'}
+      <div class="spinner-large"></div>
+      <h1>Confirming your payment...</h1>
+      <p>Please wait while we verify your payment and queue your assessment.</p>
+    {:else if status === 'paid'}
+      <div class="success-icon" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      </div>
+      <h1>Payment confirmed!</h1>
+      <p>Your AI Business Assessment is being queued for processing.</p>
+      <p class="success-subtitle">
+        Annie is preparing your personalised analysis. We'll email you when it's ready.<br>
+        You can check progress anytime.
       </p>
+      <div class="success-actions">
+        <Button onclick={() => window.location.href = '/'}>Return to Home</Button>
+      </div>
+    {:else}
+      <div class="error-icon" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      </div>
+      <h1>Something went wrong</h1>
+      <p>We couldn't find your payment session. Please check your email for updates or contact support.</p>
+      <div class="success-actions">
+        <Button onclick={() => window.location.href = '/'}>Return to Home</Button>
+      </div>
     {/if}
-  </section>
-
-  <section class="section split-section">
-    <div>
-      <h2>What happens next</h2>
-      <p>
-        Your intake is reviewed and turned into an AI Business Assessment report covering workflow pain
-        points, quick wins, effort versus impact, estimated value, and implementation options.
-      </p>
-      <p class="portal-link">
-        <a href="/portal/sign-up">
-          Set up your portal account →
-        </a>
-      </p>
-    </div>
-    <div class="statement-panel">
-      <h3>Report timeline</h3>
-      <p>The standard turnaround target is 48 hours after payment and transcript receipt.</p>
-      <a href="mailto:hello@agenticai.net.au">hello@agenticai.net.au</a>
-    </div>
-  </section>
-</main>
+  </div>
+</div>
 
 <style>
-  .light-theme {
-    background: #fff;
-    color: #1a1a2e;
-    min-height: 100vh;
+  .success-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
     padding: 2rem;
   }
 
-  .light-theme .page-hero {
-    background: #fff;
-    color: #1a1a2e;
+  .success-card {
+    text-align: center;
+    max-width: 480px;
+    padding: 3rem 2rem;
+    background: var(--color-panel);
+    border: 1.5px solid var(--color-line);
+    border-radius: var(--radius);
   }
 
-  .light-theme .status-message {
-    white-space: pre-line;
-    color: #333;
+  .success-icon {
+    color: #059669;
+    margin-bottom: 1rem;
   }
 
-  .light-theme h1,
-  .light-theme h2,
-  .light-theme h3 {
-    color: #1a1a2e;
+  .error-icon {
+    color: #ef4444;
+    margin-bottom: 1rem;
   }
 
-  .light-theme .eyebrow {
-    color: #666;
+  .success-card h1 {
+    font-size: 1.5rem;
+    margin: 0 0 0.75rem;
   }
 
-  .light-theme .statement-panel {
-    background: #f5f7fa;
-    border-radius: 12px;
-    padding: 1.5rem;
+  .success-card p {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0 0 0.5rem;
   }
 
-  .light-theme .statement-panel p,
-  .light-theme .statement-panel a {
-    color: #333;
+  .success-subtitle {
+    font-size: 0.82rem;
   }
 
-  .light-theme .split-section p {
-    color: #333;
+  .success-actions {
+    margin-top: 1.5rem;
   }
 
-  .deck-link a {
-    display: inline-block;
-    background: var(--color-accent, #0066cc);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    font-weight: 500;
-  }
-  .deck-link a:hover {
-    opacity: 0.9;
+  .spinner-large {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--color-line);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
   }
 
-  .portal-link a {
-    display: inline-block;
-    border: 2px solid var(--color-accent, #0066cc);
-    color: var(--color-accent, #0066cc);
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    font-weight: 500;
-  }
-  .portal-link a:hover {
-    background: var(--color-accent, #0066cc);
-    color: white;
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 </style>

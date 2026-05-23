@@ -12,11 +12,17 @@
   let {
     summary = $bindable<Array<{ question: string; answer: string; followUpAnswer?: string }>>([]),
     sessionId = '',
+    customerName = '',
+    customerEmail = '',
+    company = '',
     onComplete = () => {},
     onBack = () => {}
   }: {
     summary?: Array<{ question: string; answer: string; followUpAnswer?: string }>;
     sessionId?: string;
+    customerName?: string;
+    customerEmail?: string;
+    company?: string;
     onComplete?: () => void;
     onBack?: () => void;
   } = $props();
@@ -63,7 +69,7 @@
     queueStatus = 'queuing';
 
     try {
-      const res = await fetch('/api/assessment/queue', {
+      const res = await fetch('/api/assessment/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -73,6 +79,9 @@
             answer: s.answer,
             followUpAnswer: s.followUpAnswer
           })),
+          customerName,
+          customerEmail,
+          company,
           source: 'annie-chat-intake'
         })
       });
@@ -83,13 +92,8 @@
       }
 
       const data = await res.json();
-      if (data.estimatedMinutes) {
-        estimatedMinutes = data.estimatedMinutes;
-      }
-
-      queueStatus = 'queued';
-      confirmed = true;
-      onComplete();
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
     } catch (err) {
       error = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       queueStatus = 'idle';

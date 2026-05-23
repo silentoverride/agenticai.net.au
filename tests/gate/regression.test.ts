@@ -50,13 +50,21 @@ describe('Gate Policy Engine', () => {
     expect(action).toBe('escalate');
   });
 
-  it('low confidence APPROVE with retry threshold returns retry', () => {
-    const action = applyGatePolicy(GateVerdict.APPROVE, 0.4, 0, {
-      ...DEFAULT_GATE_POLICY,
-      blockConfidenceThreshold: 0.7,
-      retryConfidenceThreshold: 0.5
-    });
+  it('low confidence APPROVE with retry remaining returns retry', () => {
+    const action = applyGatePolicy(GateVerdict.APPROVE, 0.4, 0, DEFAULT_GATE_POLICY);
+    // Confidence 0.4 < 0.7 approveThreshold, retryCount 0 < 2 → RETRY
     expect(action).toBe('retry');
+  });
+
+  it('low confidence APPROVE with no retries remaining escalates', () => {
+    const action = applyGatePolicy(GateVerdict.APPROVE, 0.3, 2, DEFAULT_GATE_POLICY);
+    // Confidence 0.3 < 0.7 approveThreshold, retryCount 2 >= 2 → ESCALATE
+    expect(action).toBe('escalate');
+  });
+
+  it('BLOCK verdict with escalateOnBlock returns escalate', () => {
+    const action = applyGatePolicy(GateVerdict.BLOCK, 0.9, 0, DEFAULT_GATE_POLICY);
+    expect(action).toBe('escalate');
   });
 });
 

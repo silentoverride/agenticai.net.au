@@ -13,6 +13,9 @@
   let sessionId = $state('');
   let chatSummary = $state<Array<{ question: string; answer: string; followUpAnswer?: string }>>([]);
   let chatSavedState = $state<AnnieChatSavedState | null>(null);
+  let customerName = $state('');
+  let customerEmail = $state('');
+  let company = $state('');
   let resumeSessionId = $state('');
   let resumeInfo = $state({ lastQuestionIndex: 0, expiresInSeconds: 86400 });
 
@@ -155,6 +158,9 @@
       <SummaryReview
         bind:summary={chatSummary}
         {sessionId}
+        {customerName}
+        {customerEmail}
+        {company}
         onBack={backToChat}
         onComplete={onConfirmComplete}
       />
@@ -166,6 +172,9 @@
       <SummaryReview
         bind:summary={chatSummary}
         {sessionId}
+        {customerName}
+        {customerEmail}
+        {company}
       />
     </div>
   </div>
