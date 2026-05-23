@@ -93,3 +93,47 @@ export const upsells = [
     text: 'Respond to enquiries while the team is busy, answer FAQs, qualify interest, and push qualified leads to booking.'
   }
 ];
+
+export const testimonials = [
+  {
+    quote: 'The assessment pinpointed exactly where we were losing time on manual reporting. The quick-win recommendations saved us about 10 hours a week within the first month.',
+    name: 'Sarah Chen',
+    role: 'Operations Director, BuildRight Constructions',
+    rating: 5
+  },
+  {
+    quote: 'I was sceptical about AI until I saw the report. Annie identified three automations we could implement immediately — no coding, no big budget, just practical improvements.',
+    name: 'Marcus Webb',
+    role: 'Managing Director, Webb & Co Advisory',
+    rating: 5
+  },
+  {
+    quote: 'The 48-hour turnaround was impressive, but what really stood out was how specific the recommendations were to our actual business, not generic advice.',
+    name: 'Emma Liu',
+    role: 'CEO, Lumina Health Group',
+    rating: 5
+  }
+];
+
+export const faqItems = [
+  {
+    q: 'How long does the assessment take?',
+    a: 'The Annie AI intake conversation takes about 15 minutes. You answer questions about your business, tools, and workflows at your own pace. If you need to step away, your progress is saved and you can resume later.'
+  },
+  {
+    q: 'What do I get at the end?',
+    a: 'A professional report with specific AI and automation recommendations ranked by effort and impact. Each recommendation includes estimated time savings, tool options, and implementation steps.'
+  },
+  {
+    q: 'Do I need technical knowledge?',
+    a: 'Not at all. The assessment is designed for business owners and operators who know their workflows but do not need to know how the technology works.'
+  },
+  {
+    q: 'Is my data private?',
+    a: 'Yes. Your intake transcript and report are stored securely and never shared. You can request deletion at any time by emailing privacy@agenticai.net.au.'
+  },
+  {
+    q: 'Is the assessment really free?',
+    a: 'Yes, the AI intake and assessment report are completely free with no obligation. If you decide to implement any recommendations, we can discuss implementation services separately.'
+  }
+];

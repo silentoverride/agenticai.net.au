@@ -1,7 +1,7 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import ServiceGrid from '$lib/components/ServiceGrid.svelte';
-  import { metrics, reportSections, useCases, upsells } from '$lib/content';
+  import { metrics, reportSections, useCases, upsells, testimonials, faqItems } from '$lib/content';
 </script>
 
 <svelte:head>
@@ -183,6 +183,55 @@
     </div>
   </section>
 
+  <!-- Testimonials / Social Proof (UX-DR5) -->
+  <section class="section">
+    <div class="section-heading">
+      <p class="eyebrow">Trusted by businesses</p>
+      <h2>What business owners say</h2>
+    </div>
+    <div class="testimonials-grid">
+      {#each testimonials as t}
+        <article class="testimonial-card">
+          <div class="stars" aria-label="{t.rating} out of 5 stars">
+            {#each Array(t.rating) as _}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            {/each}
+          </div>
+          <blockquote>&ldquo;{t.quote}&rdquo;</blockquote>
+          <div class="testimonial-author">
+            <strong>{t.name}</strong>
+            <span>{t.role}</span>
+          </div>
+        </article>
+      {/each}
+    </div>
+  </section>
+
+  <!-- FAQ Accordion (UX-DR14/15) -->
+  <section class="section">
+    <div class="section-heading">
+      <p class="eyebrow">Common questions</p>
+      <h2>Frequently asked questions</h2>
+    </div>
+    <div class="faq-list">
+      {#each faqItems as item, i}
+        <details class="faq-item" name="faq">
+          <summary class="faq-question">
+            <span>{item.q}</span>
+            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </summary>
+          <div class="faq-answer">
+            <p>{item.a}</p>
+          </div>
+        </details>
+      {/each}
+    </div>
+  </section>
+
   <section class="cta-section">
     <h2>Ready to see where AI fits?</h2>
     <p>
@@ -190,5 +239,137 @@
       and quick wins most likely to create measurable leverage.
     </p>
     <CallAssessmentButton label="Start AI Business Assessment" source="cta-start-assessment" />
+    <p class="trust-note">No credit card required. Your data is private and never shared. <a href="/privacy">Privacy policy</a></p>
   </section>
 </main>
+
+<style>
+  /* ── Testimonials ──────────────────────────────────────────── */
+  .testimonials-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .testimonial-card {
+    background: var(--color-panel);
+    border: 1.5px solid var(--color-line);
+    border-radius: var(--radius);
+    display: grid;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .stars {
+    color: #f59e0b;
+    display: flex;
+    gap: 0.15rem;
+  }
+
+  .testimonial-card blockquote {
+    color: var(--color-ink-2);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .testimonial-author {
+    border-top: 1px solid var(--color-line-soft);
+    display: grid;
+    gap: 0.15rem;
+    padding-top: 0.85rem;
+  }
+
+  .testimonial-author strong {
+    color: var(--color-ink);
+    font-size: 0.88rem;
+  }
+
+  .testimonial-author span {
+    color: var(--color-muted);
+    font-size: 0.78rem;
+  }
+
+  /* ── FAQ Accordion ────────────────────────────────────────── */
+  .faq-list {
+    display: grid;
+    gap: 0;
+    max-width: 720px;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .faq-item:first-child {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .faq-question {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    font-size: 0.95rem;
+    font-weight: 700;
+    gap: 0.75rem;
+    justify-content: space-between;
+    list-style: none;
+    padding: 1.15rem 0;
+    user-select: none;
+  }
+
+  .faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-question:hover {
+    color: var(--color-accent);
+  }
+
+  .faq-chevron {
+    color: var(--color-muted-2);
+    flex-shrink: 0;
+    transition: transform 200ms ease;
+  }
+
+  .faq-item[open] .faq-chevron {
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    padding-bottom: 1.15rem;
+  }
+
+  .faq-answer p {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    max-width: 60ch;
+  }
+
+  /* ── Trust Note (UX-DR13/15) ───────────────────────────── */
+  .trust-note {
+    color: var(--color-muted-2);
+    font-size: 0.78rem;
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+
+  .trust-note a {
+    color: var(--color-accent);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media (max-width: 940px) {
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .faq-list {
+      max-width: 100%;
+    }
+  }
+</style>
