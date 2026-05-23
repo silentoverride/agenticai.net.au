@@ -12,6 +12,7 @@
 
   let reports = $state<PortalReport[]>([]);
   let receipts = $state<PortalReceipt[]>([]);
+  let assessments = $state<any[]>([]);
   let loading = $state(true);
 
   $effect(() => {
@@ -22,17 +23,48 @@
 
   async function loadData() {
     try {
-      const [reportsRes, receiptsRes] = await Promise.all([
+      const [reportsRes, receiptsRes, assessmentsRes] = await Promise.all([
         portalGet('/api/portal/reports'),
-        portalGet('/api/portal/receipts')
+        portalGet('/api/portal/receipts'),
+        portalGet('/api/portal/assessments')
       ]);
       if (reportsRes.ok) reports = await reportsRes.json();
       if (receiptsRes.ok) receipts = await receiptsRes.json();
+      if (assessmentsRes.ok) {
+        const data = await assessmentsRes.json();
+        assessments = data.assessments || [];
+      }
     } catch (e) {
       console.error('Failed to load portal data', e);
     } finally {
       loading = false;
     }
+  }
+
+  function statusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      queued: 'Queued',
+      generating: 'Processing',
+      delayed: 'Delayed',
+      ready: 'Ready',
+      failed: 'Failed',
+      error: 'Error',
+      human_assist: 'Under Review'
+    };
+    return labels[status] || status;
+  }
+
+  function statusClass(status: string): string {
+    const classes: Record<string, string> = {
+      queued: 'badge-amber',
+      generating: 'badge-blue',
+      delayed: 'badge-amber',
+      ready: 'badge-green',
+      failed: 'badge-red',
+      error: 'badge-red',
+      human_assist: 'badge-purple'
+    };
+    return classes[status] || 'badge-amber';
   }
 </script>
 
@@ -90,6 +122,36 @@
         <a href={`/portal/${portalAuth.userId}/receipts`} class="dashboard-link">View all receipts →</a>
       </div>
     </div>
+
+    <!-- Assessment Statuses -->
+    {#if assessments.length > 0}
+      <div class="assessments-section">
+        <h2>📋 Assessment Status</h2>
+        <div class="assessments-list">
+          {#each assessments as a}
+            <div class="assessment-row">
+              <div class="assessment-info">
+                <span class="assessment-title">{a.company || 'Business Assessment'}</span>
+                <span class="assessment-date">{new Date(a.created_at).toLocaleDateString()}</span>
+              </div>
+              <div class="assessment-actions">
+                <span class="status-badge {statusClass(a.status)}">{statusLabel(a.status)}</span>
+                {#if a.status === 'ready'}
+                  <a href={`/portal/${portalAuth.userId}/reports/${a.id}`} class="assessment-cta">View</a>
+                {:else if a.status === 'failed' || a.status === 'error'}
+                  <span class="assessment-cta muted">Retry</span>
+                {:else}
+                  <span class="assessment-cta muted">In Progress</span>
+                {/if}
+                {#if a.receiptId}
+                  <a href={`/portal/${portalAuth.userId}/receipts`} class="assessment-receipt-link">Receipt</a>
+                {/if}
+              </div>
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/if}
 
     <div class="portal-cta-row">
       <div class="start-assessment-card">
@@ -201,5 +263,86 @@
     text-decoration: none;
     font-weight: 500;
     font-size: 0.9375rem;
+  }
+
+  /* ── Assessment Statuses ── */
+  .assessments-section {
+    margin-top: 2rem;
+  }
+  .assessments-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #1a1a2e;
+  }
+  .assessments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .assessment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 0.875rem 1.25rem;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  }
+  .assessment-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .assessment-title {
+    font-weight: 600;
+    color: #1a1a2e;
+    font-size: 0.9375rem;
+  }
+  .assessment-date {
+    font-size: 0.8125rem;
+    color: #888;
+    margin-top: 0.125rem;
+  }
+  .assessment-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge-green { background: #e8f5e9; color: #2e7d32; }
+  .badge-amber { background: #fff8e1; color: #f57f17; }
+  .badge-blue { background: #e3f2fd; color: #1565c0; }
+  .badge-red { background: #ffebee; color: #c62828; }
+  .badge-purple { background: #f3e5f5; color: #6a1b9a; }
+  .assessment-cta {
+    display: inline-block;
+    background: #0066ff;
+    color: white;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+  .assessment-cta.muted {
+    background: #e0e0e0;
+    color: #888;
+    font-size: 0.8125rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+  }
+  .assessment-receipt-link {
+    font-size: 0.8125rem;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .assessment-receipt-link:hover {
+    text-decoration: underline;
   }
 </style>
