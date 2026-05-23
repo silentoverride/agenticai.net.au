@@ -16,6 +16,8 @@
             const data = await res.json();
             if (data.status === 'queued' || data.status === 'running_llm' || data.status === 'completed') {
               status = 'paid';
+              // Redirect to full status page
+              window.location.href = `/assessment/status/${sessionId}`;
             } else if (data.status === 'pending_payment') {
               // Still pending — Stripe might not have fired webhook yet
               setTimeout(checkStatus, 2000);

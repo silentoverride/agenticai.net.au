@@ -30,5 +30,10 @@ export const GET: RequestHandler = async ({ params }) => {
     deckUrl: status.deckUrl || null,
     error: status.error || null,
     callId: status.callId || null
+  }, {
+    headers: {
+      'Cache-Control': 'max-age=30, private',  // NFR9: 30-second cache
+      'Vary': 'Accept-Encoding'
+    }
   });
 };
