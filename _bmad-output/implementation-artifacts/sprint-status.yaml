@@ -122,11 +122,12 @@ development_status:
     priority: 21
   2b-5-cost-dashboards-prompt-versioning:
     epic: epic-2b
-    status: ready-for-dev
+    status: done
+    completed: 2026-05-21
     priority: 22
   2b-6-gate-regression-test-suite:
     epic: epic-2b
-    status: backlog
+    status: ready-for-dev
     priority: 23
   3-1-clerk-auth-private-briefing-room-shell:
     epic: epic-3
