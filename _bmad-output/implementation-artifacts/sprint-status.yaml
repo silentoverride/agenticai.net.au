@@ -160,7 +160,7 @@ development_status:
     priority: 28
   3-6-controlled-pilot-access-boundaries-email-notifications:
     epic: epic-3
-    status: backlog
+    status: review
     priority: 29
   3-7-follow-up-cta-panel-recovery:
     epic: epic-3

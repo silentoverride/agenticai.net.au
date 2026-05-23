@@ -4,7 +4,7 @@
 
 **ID:** 3-6
 **Epic:** Epic 3
-**Status:** ready-for-dev
+**Status:** review
 **Priority:** (TBD)
 
 ---
@@ -41,9 +41,9 @@ As an operator, I want controlled access to the briefing portal during pilot so 
 
 ## Tasks / Subtasks
 
-1. Controlled Pilot Access, Boundaries & Email Notifications implementation
-2. Unit and integration tests
-3. Acceptance criteria verification
+1. [x] Controlled Pilot Access, Boundaries & Email Notifications implementation
+2. [x] Unit and integration tests
+3. [x] Acceptance criteria verification
 
 ---
 
@@ -63,9 +63,25 @@ As an operator, I want controlled access to the briefing portal during pilot so 
 
 ## Dev Agent Record
 
-- **Agent Model Used:** (TBD)
-- **Debug Log References:** (TBD)
+- **Agent Model Used:** GPT-5.1 Codex Max
+- **Debug Log References:**
+  - `npm exec vitest run` — 231 tests passed (217 baseline + 14 pilot access)
 - **Completion Notes List:**
-  - (TBD)
+  - Created `src/lib/server/rate-limiter.ts`: in-memory sliding-window rate limiter (5 attempts per 15 min per IP) with `checkRateLimit()` and `requireRateLimit()` throw-on-exceed.
+  - Created `src/routes/api/portal/access/+server.ts`: admin endpoint GET (list users with report/receipt stats) and POST (grant|revoke|set_admin actions), operator-only via `requireOperator`.
+  - Updated `src/lib/server/portal-auth.ts`: revoked-role check after upsertUser returns 403 for revoked accounts.
+- **Pre-existing (from earlier epics):**
+  - Email notification on assessment ready already implemented in pipeline stageEmailDelivery via `sendReportReadyEmail`.
+  - reportReadyTemplate, portalInvitationTemplate, welcomeTemplate all exist.
 - **File List:**
-  - (TBD)
+  - `_bmad-output/implementation-artifacts/3-6-controlled-pilot-access-boundaries-email-notifications.md`
+  - `src/lib/server/rate-limiter.ts`
+  - `src/lib/server/portal-auth.ts`
+  - `src/routes/api/portal/access/+server.ts`
+  - `tests/portal/pilot-access.test.ts`
+
+---
+
+## Change Log
+
+- 2026-05-23: Implemented rate limiter, admin access management API, portal auth access control check.
