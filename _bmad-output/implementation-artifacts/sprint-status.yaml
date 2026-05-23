@@ -1,0 +1,153 @@
+# =============================================================================
+# Sprint Status - Agentic AI Advisory Assessment
+# Generated: 2026-05-21 from epics.md
+# Stories: 31 across 5 epics
+# =============================================================================
+
+sprint_status: active
+last_updated: '2026-05-21'
+story_location: _bmad-output/implementation-artifacts
+development_status:
+  sprint-0:
+    title: 'Sprint 0: Platform Foundation & Shared Contracts + Gate Module'
+    status: done
+  epic-1:
+    title: 'Epic 1: Public Offer & Intake Flow'
+    status: active
+  epic-2a:
+    title: 'Epic 2a: Payment & Pipeline + GPT-5.5 Gate (Shadow)'
+    status: backlog
+  epic-2b:
+    title: 'Epic 2b: Gate Calibration & Operator Dashboard'
+    status: backlog
+  epic-3:
+    title: 'Epic 3: Advisory Portal Experience'
+    status: backlog
+  0-1-pipeline-worker-re-architecture:
+    epic: sprint-0
+    status: done
+    priority: 1
+    completed: 2026-05-21
+  0-2-shared-schema-contracts-assessment-data-model:
+    epic: sprint-0
+    status: done
+    priority: 2
+    completed: 2026-05-21
+  0-3-gpt-55-gate-module-infrastructure:
+    epic: sprint-0
+    status: done
+    priority: 3
+    completed: 2026-05-21
+  1-1-design-token-foundation-component-primitives:
+    epic: epic-1
+    status: done
+    priority: 4
+    completed: 2026-05-21
+  1-2-public-landing-page-offer-trust-start-path:
+    epic: epic-1
+    status: backlog
+    priority: 5
+  1-3-orientation-panel-annie-intake-disclosure:
+    epic: epic-1
+    status: backlog
+    priority: 6
+  1-4-guided-annie-intake-business-context-capture-probing:
+    epic: epic-1
+    status: backlog
+    priority: 7
+  1-5-business-summary-review-confirmation:
+    epic: epic-1
+    status: backlog
+    priority: 8
+  1-6-intake-interruption-recovery-session-resume:
+    epic: epic-1
+    status: backlog
+    priority: 9
+  2a-1-stripe-checkout-payment-integration:
+    epic: epic-2a
+    status: backlog
+    priority: 10
+  2a-2-payment-intake-reconciliation-idempotency:
+    epic: epic-2a
+    status: backlog
+    priority: 11
+  2a-3-source-data-preservation-artifact-storage:
+    epic: epic-2a
+    status: backlog
+    priority: 12
+  2a-4-analysis-generation-pipeline:
+    epic: epic-2a
+    status: backlog
+    priority: 13
+  2a-5-tool-based-research-integration:
+    epic: epic-2a
+    status: backlog
+    priority: 14
+  2a-6-gpt-55-gate-pipeline-wiring-shadow-mode:
+    epic: epic-2a
+    status: backlog
+    priority: 15
+  2a-7-pipeline-status-views-user-facing:
+    epic: epic-2a
+    status: backlog
+    priority: 16
+  2a-8-basic-operator-gate-state-view:
+    epic: epic-2a
+    status: backlog
+    priority: 17
+  2b-1-gate-mode-promotion-framework:
+    epic: epic-2b
+    status: backlog
+    priority: 18
+  2b-2-calibration-tooling:
+    epic: epic-2b
+    status: backlog
+    priority: 19
+  2b-3-full-operator-dashboard:
+    epic: epic-2b
+    status: backlog
+    priority: 20
+  2b-4-human-assist-workflow:
+    epic: epic-2b
+    status: backlog
+    priority: 21
+  2b-5-cost-dashboards-prompt-versioning:
+    epic: epic-2b
+    status: backlog
+    priority: 22
+  2b-6-gate-regression-test-suite:
+    epic: epic-2b
+    status: backlog
+    priority: 23
+  3-1-clerk-auth-private-briefing-room-shell:
+    epic: epic-3
+    status: backlog
+    priority: 24
+  3-2-advisory-briefing-content-rendering:
+    epic: epic-3
+    status: backlog
+    priority: 25
+  3-3-assessment-status-receipt-display:
+    epic: epic-3
+    status: backlog
+    priority: 26
+  3-4-recommendation-cards-evidence-blocks:
+    epic: epic-3
+    status: backlog
+    priority: 27
+  3-5-opportunity-map-cardlist-v1:
+    epic: epic-3
+    status: backlog
+    priority: 28
+  3-6-controlled-pilot-access-boundaries-email-notifications:
+    epic: epic-3
+    status: backlog
+    priority: 29
+  3-7-follow-up-cta-panel-recovery:
+    epic: epic-3
+    status: backlog
+    priority: 30
+  3-8-versioning-regeneration-display:
+    epic: epic-3
+    status: backlog
+    priority: 31
