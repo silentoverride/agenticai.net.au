@@ -292,11 +292,12 @@ export async function runReportPipeline(
   // Stage 0: Tool Research
   const tools = await stageToolResearch(job.transcript, opts?.db);
 
-  // Gate Checkpoint: quick-wins-verification (placeholder — wired in Epic 2a)
+  // Gate Checkpoint: quick-wins-verification (wired shadow mode)
   await runGateCheckpoint({
     stage: 'quick-wins-verification',
     content: job.transcript,
-    assessmentId: sessionId
+    assessmentId: sessionId,
+    db: opts?.db ?? undefined
   });
 
   // Stage 1: LLM Analysis + enrichment
@@ -305,11 +306,12 @@ export async function runReportPipeline(
   // Note: structured analysis persisted to R2 via stageSaveReport below.
   // D1 persistence via user_reports table is handled in stageLinkReport.
 
-  // Gate Checkpoint: major-project-verification (placeholder)
+  // Gate Checkpoint: major-project-verification
   await runGateCheckpoint({
     stage: 'major-project-verification',
     content: analysis,
-    assessmentId: sessionId
+    assessmentId: sessionId,
+    db: opts?.db ?? undefined
   });
 
   // Stage 2: Save Report
@@ -318,11 +320,12 @@ export async function runReportPipeline(
   // Stage 3: Link Report
   await stageLinkReport(saved, job);
 
-  // Gate Checkpoint: report-review (placeholder)
+  // Gate Checkpoint: report-review
   await runGateCheckpoint({
     stage: 'report-review',
     content: analysis,
-    assessmentId: sessionId
+    assessmentId: sessionId,
+    db: opts?.db ?? undefined
   });
 
   // Stage 4: Email Delivery

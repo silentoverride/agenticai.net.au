@@ -33,10 +33,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
   }
 
   const r2Bucket = platform?.env?.assessment_blobs ?? null;
+  const db = platform?.env?.assessment_db ?? null;
 
   try {
     await setPipelineStatus(job.sessionId, { status: 'running_llm' });
-    const result = await runReportPipeline(job, { r2Bucket: r2Bucket as unknown as R2Bucket | null });
+    const result = await runReportPipeline(job, { r2Bucket: r2Bucket as unknown as R2Bucket | null, db: db as unknown as D1Database | null });
 
     if (!result.savedReport?.id) {
       throw new Error('Pipeline succeeded but no report was saved');
