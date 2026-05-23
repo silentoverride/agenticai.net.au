@@ -4,7 +4,7 @@
 
 **ID:** 3-4
 **Epic:** Epic 3
-**Status:** ready-for-dev
+**Status:** review
 **Priority:** (TBD)
 
 ---
@@ -40,9 +40,9 @@ As a customer, I want Quick Win recommendations presented as actionable cards so
 
 ## Tasks / Subtasks
 
-1. Recommendation Cards & Evidence Blocks implementation
-2. Unit and integration tests
-3. Acceptance criteria verification
+1. [x] Recommendation Cards & Evidence Blocks implementation
+2. [x] Unit and integration tests
+3. [x] Acceptance criteria verification
 
 ---
 
@@ -62,9 +62,22 @@ As a customer, I want Quick Win recommendations presented as actionable cards so
 
 ## Dev Agent Record
 
-- **Agent Model Used:** (TBD)
-- **Debug Log References:** (TBD)
+- **Agent Model Used:** GPT-5.1 Codex Max
+- **Debug Log References:**
+  - `npm exec vitest run` — 202 tests passed (190 baseline + 12 recommendation cards)
 - **Completion Notes List:**
-  - (TBD)
+  - Created `RecommendationCards.svelte` component using shadcn-svelte Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter.
+  - Quick Win cards: title, description, effort badge (low/medium/high with color coding), impact estimate, recommended tools list, CTA button linking to briefing.
+  - Sortable by effort, impact (hours saved), or both, ascending/descending toggle.
+  - Expandable evidence section showing transcript excerpt.
+  - Empty state when no recommendations exist.
 - **File List:**
-  - (TBD)
+  - `_bmad-output/implementation-artifacts/3-4-recommendation-cards-and-evidence-blocks.md`
+  - `src/lib/components/briefing/RecommendationCards.svelte`
+  - `tests/briefing/recommendation-cards.test.ts`
+
+---
+
+## Change Log
+
+- 2026-05-23: Implemented recommendation cards with sortable Quick Wins, expandable evidence, and shadcn-svelte Card integration.
