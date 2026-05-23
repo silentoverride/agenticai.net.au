@@ -4,7 +4,7 @@
 
 **ID:** 3-5
 **Epic:** Epic 3
-**Status:** ready-for-dev
+**Status:** review
 **Priority:** (TBD)
 
 ---
@@ -40,9 +40,9 @@ As a customer, I want to see the Deeper Opportunities mapped visually so that I 
 
 ## Tasks / Subtasks
 
-1. Opportunity Map / Card List v1 implementation
-2. Unit and integration tests
-3. Acceptance criteria verification
+1. [x] Opportunity Map / Card List v1 implementation
+2. [x] Unit and integration tests
+3. [x] Acceptance criteria verification
 
 ---
 
@@ -62,9 +62,22 @@ As a customer, I want to see the Deeper Opportunities mapped visually so that I 
 
 ## Dev Agent Record
 
-- **Agent Model Used:** (TBD)
-- **Debug Log References:** (TBD)
+- **Agent Model Used:** GPT-5.1 Codex Max
+- **Debug Log References:**
+  - `npm exec vitest run` — 217 tests passed (202 baseline + 15 opportunity map)
 - **Completion Notes List:**
-  - (TBD)
+  - Created `OpportunityMap.svelte` component with two-column grid layout of deeper opportunity cards.
+  - Each card shows: title, description, effort strip (low/medium/high color-coded), investment range, monthly value, timeline estimate, ROI category.
+  - Filter by effort level (All/Low/Medium/High) with count badges.
+  - Expandable detail panel with break-even calculation, annual value, and Calendly consultation booking button.
+  - Empty state when filter yields no results.
 - **File List:**
-  - (TBD)
+  - `_bmad-output/implementation-artifacts/3-5-opportunity-map-cardlist-v1.md`
+  - `src/lib/components/briefing/OpportunityMap.svelte`
+  - `tests/briefing/opportunity-map.test.ts`
+
+---
+
+## Change Log
+
+- 2026-05-23: Implemented opportunity map card list with effort filters, grid layout, Calendly booking integration.
