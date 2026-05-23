@@ -35,9 +35,20 @@ export async function requirePortalAuth(
       if (dbUser) {
         user.email = dbUser.email || user.email;
         user.name = dbUser.name || user.name;
+
+        // Check access — revoked users cannot access the portal
+        if (dbUser.role === 'revoked') {
+          throw error(403, 'Portal access revoked. Please contact support.');
+        }
       }
     } else {
       await upsertUser(user.userId, user.email, user.name || undefined);
+
+      // Check access after upsert
+      const dbUser = await getUser(user.userId);
+      if (dbUser?.role === 'revoked') {
+        throw error(403, 'Portal access revoked. Please contact support.');
+      }
     }
   } catch (err) {
     if (err instanceof Error && err.message.includes('Database schema missing')) {
