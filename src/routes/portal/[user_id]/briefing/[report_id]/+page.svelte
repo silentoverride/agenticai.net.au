@@ -4,6 +4,7 @@
   import BriefingContent from '$lib/components/briefing/BriefingContent.svelte';
   import BriefingSkeleton from '$lib/components/briefing/BriefingSkeleton.svelte';
   import CtaPanel from '$lib/components/briefing/CtaPanel.svelte';
+  import VersionInfo from '$lib/components/briefing/VersionInfo.svelte';
   import type { PortalReportDetail } from '$lib/types';
 
   const reportId = page.params.report_id;
@@ -56,6 +57,7 @@
   </div>
 {:else if analysis}
   <BriefingContent {analysis} company={report?.company ?? undefined} />
+  <VersionInfo version={report?.version ?? 1} lastUpdated={report?.created_at} reportId={reportId} />
   <CtaPanel reportId={reportId} company={report?.company ?? undefined} />
 {/if}
 
