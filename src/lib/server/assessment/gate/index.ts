@@ -38,3 +38,7 @@ export type { GateRunRecord } from './gate-store';
 // Runner
 export { runGate, runAllGates } from './runner';
 export type { GateRunOptions, GateRunResult } from './runner';
+
+// Gate mode
+export { isGateActive, getGateMode, getGateMaxRetries, getGateEnvVars } from './gate-mode';
+export type { GateMode } from './gate-mode';

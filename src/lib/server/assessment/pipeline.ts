@@ -4,6 +4,8 @@ import { lookupToolsForTranscript, enrichAnalysisWithTools } from './tool-lookup
 import { saveReportUnified, isR2Available } from './report-store-r2';
 import { sendReportReadyEmail } from './emails';
 import { findOrCreateUserFromStripe, linkReportToUser, upsertReportMetadata } from '$lib/server/portal';
+import { runGate } from './gate/runner';
+import { isGateActive, getGateMode } from './gate/gate-mode';
 
 // ============================================================================
 // Stage Functions — independently callable pipeline stages
@@ -163,18 +165,57 @@ export async function stageEmailDelivery(
  * Currently a no-op placeholder. Gate execution is wired in Epic 2a
  * when the assessment pipeline gets stage routing.
  */
-export async function runGateCheckpoint(
-  _params: {
-    stage: string;
-    content: string;
-    assessmentId: string;
-    db?: D1Database;
+export async function runGateCheckpoint(params: {
+  stage: string;
+  content: string;
+  assessmentId: string;
+  db?: D1Database;
+  envOverrides?: Record<string, string | undefined>;
+}): Promise<{ passed: boolean; blocked: boolean; verdict?: string; shadowMode?: boolean }> {
+  const gateType = params.stage;
+
+  // Check if gate is active
+  if (!isGateActive(gateType, params.envOverrides)) {
+    return { passed: true, blocked: false };
   }
-): Promise<{ passed: boolean; blocked: boolean; verdict?: string }> {
-  // Gate module is available but not wired into the synchronous pipeline yet.
-  // Gate evaluation runs asynchronously in shadow mode (Epic 2a Story 2a.6).
-  // This checkpoint is a hook point for future wiring.
-  return { passed: true, blocked: false };
+
+  // Run gate with env-var-driven mode
+  const result = await runGate({
+    assessmentId: params.assessmentId,
+    content: params.content,
+    gateType,
+    db: params.db,
+    envOverrides: params.envOverrides,
+    includeUsage: true,
+    promptVersion: 'v1'
+  });
+
+  const blocked = result.action === 'block' || result.action === 'escalate';
+
+  if (blocked) {
+    console.warn(`[pipeline:gate] Gate checkpoint "${gateType}" ${result.shadowMode ? 'WOULD BLOCK (shadow mode)' : 'BLOCKED'} pipeline`, {
+      assessmentId: params.assessmentId,
+      verdict: result.verdict,
+      action: result.action,
+      confidence: result.confidence,
+      reasoning: result.reasoning,
+      shadowMode: result.shadowMode
+    });
+  } else {
+    console.info(`[pipeline:gate] Gate checkpoint "${gateType}" passed`, {
+      assessmentId: params.assessmentId,
+      verdict: result.verdict,
+      action: result.action,
+      confidence: result.confidence
+    });
+  }
+
+  return {
+    passed: result.passed,
+    blocked,
+    verdict: result.verdict,
+    shadowMode: result.shadowMode
+  };
 }
 
 // ============================================================================

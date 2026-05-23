@@ -13,6 +13,7 @@ import { GateVerdict, applyGatePolicy, DEFAULT_GATE_POLICY } from './types';
 import { gpt55Judge, type OpenAiGpt55JudgeProvider } from './gpt55-provider';
 import { getGateDefinition } from './definitions';
 import { D1GateStore, type GateRunRecord } from './gate-store';
+import { isGateActive, getGateMode, getGateMaxRetries, type GateMode } from './gate-mode';
 import type { GateAction } from './types';
 
 export interface GateRunOptions {
@@ -36,6 +37,15 @@ export interface GateRunOptions {
   metadata?: Record<string, unknown>;
   /** Prompt version identifier. */
   promptVersion?: string;
+  /**
+   * Gate mode: 'shadow' = log only, 'blocking' = can halt pipeline.
+   * Overrides the env-var-based mode if set.
+   */
+  mode?: GateMode;
+  /** Env var overrides for gate configuration. */
+  envOverrides?: Record<string, string | undefined>;
+  /** Route human_assist verdict to operator escalation. */
+  routeHumanAssist?: boolean;
 }
 
 export interface GateRunResult {
@@ -55,6 +65,8 @@ export interface GateRunResult {
   passed: boolean;
   /** Token usage if requested. */
   usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+  /** Whether the gate ran in shadow mode (logged but did not block). */
+  shadowMode?: boolean;
 }
 
 /**
@@ -71,12 +83,41 @@ export async function runGate(options: GateRunOptions): Promise<GateRunResult> {
     provider = gpt55Judge,
     policy = DEFAULT_GATE_POLICY,
     includeUsage = false,
-    promptVersion = 'v1'
+    promptVersion = 'v1',
+    mode: explicitMode,
+    envOverrides,
+    routeHumanAssist = false
   } = options;
+
+  // Check if gate is active (not killed, enabled)
+  if (!isGateActive(gateType, envOverrides)) {
+    return {
+      action: 'approve' as GateAction,
+      verdict: GateVerdict.APPROVE,
+      confidence: 1.0,
+      reasoning: 'Gate skipped: not enabled or kill-switch is active',
+      gateRunId: crypto.randomUUID(),
+      passed: true,
+      shadowMode: false
+    };
+  }
+
+  // Determine gate mode: explicit override, env var, or default shadow
+  const gateMode: GateMode = explicitMode || getGateMode(envOverrides);
+  const maxRetries = getGateMaxRetries(envOverrides);
 
   const gateDef = getGateDefinition(gateType);
   if (!gateDef) {
-    throw new Error(`Unknown gate type: "${gateType}". Available: quick-wins-verification, major-project-verification, report-review`);
+    console.warn(`[gate:runner] Unknown gate type "${gateType}", skipping`);
+    return {
+      action: 'approve' as GateAction,
+      verdict: GateVerdict.APPROVE,
+      confidence: 1.0,
+      reasoning: `Gate skipped: unknown type "${gateType}"`,
+      gateRunId: crypto.randomUUID(),
+      passed: true,
+      shadowMode: false
+    };
   }
 
   const startTime = Date.now();
@@ -93,10 +134,26 @@ export async function runGate(options: GateRunOptions): Promise<GateRunResult> {
 
   const evaluationTimeMs = Date.now() - startTime;
 
-  // Step 2: Apply gate policy
-  const action = applyGatePolicy(result.verdict, result.confidence, retryCount, policy);
+  // Step 2: Apply gate policy (use maxRetries from options or env)
+  const effectiveRetries = options.retryCount !== undefined ? retryCount : 0;
+  const action = applyGatePolicy(result.verdict, result.confidence, effectiveRetries, {
+    ...policy,
+    ...(maxRetries !== 2 ? { maxRetries } : {})
+  });
 
-  // Step 3: Persist to D1
+  // Step 3: Determine the effective action based on gate mode
+  // In shadow mode: block/escalate become 'approve' (log only, pipeline continues)
+  // In blocking mode: actions are respected
+  // human_assist with routeHumanAssist → escalate
+  let effectiveAction = action;
+  if (gateMode === 'shadow' && (action === 'block' || action === 'escalate')) {
+    effectiveAction = 'approve' as GateAction;
+  }
+  if (routeHumanAssist && result.verdict === GateVerdict.HUMAN_ASSIST) {
+    effectiveAction = 'escalate' as GateAction;
+  }
+
+  // Step 4: Persist to D1
   const gateRunId = crypto.randomUUID();
   if (db) {
     const store = new D1GateStore(db);
@@ -118,9 +175,11 @@ export async function runGate(options: GateRunOptions): Promise<GateRunResult> {
 
     try {
       await store.insert(record);
-      console.info(`[gate:runner] Persisted gate run`, { gateRunId, assessmentId, gateType, verdict: result.verdict, action });
+      console.info(`[gate:runner] Persisted gate run`, {
+        gateRunId, assessmentId, gateType, verdict: result.verdict,
+        rawAction: action, effectiveAction, mode: gateMode
+      });
     } catch (err) {
-      // Non-fatal: log but don't fail the pipeline
       console.error(`[gate:runner] Failed to persist gate run`, {
         gateRunId, assessmentId, gateType,
         error: err instanceof Error ? err.message : String(err)
@@ -129,14 +188,15 @@ export async function runGate(options: GateRunOptions): Promise<GateRunResult> {
   }
 
   return {
-    action,
+    action: effectiveAction,
     verdict: result.verdict,
     confidence: result.confidence,
     reasoning: result.reasoning,
     details: result.details,
     gateRunId,
-    passed: action === 'approve',
-    usage: result.usage
+    passed: effectiveAction === 'approve',
+    usage: result.usage,
+    shadowMode: gateMode === 'shadow'
   };
 }
 
@@ -152,20 +212,34 @@ export async function runAllGates(
   const gateTypes = ['quick-wins-verification', 'major-project-verification', 'report-review'];
   const results: GateRunResult[] = [];
 
+  // Determine mode for this batch
+  const gateMode: GateMode = options.mode || getGateMode(options.envOverrides);
+
   for (const gateType of gateTypes) {
+    // Skip inactive gates
+    if (!isGateActive(gateType, options.envOverrides)) {
+      continue;
+    }
+
     const result = await runGate({
       assessmentId,
       content,
       gateType,
       retryCount: 0,
-      ...options
+      ...options,
+      mode: gateMode
     });
     results.push(result);
 
-    // If any gate blocks, stop — no point running further gates
-    if (result.action === 'block' || result.action === 'escalate') {
-      console.warn(`[gate:runner] Pipeline blocked by gate "${gateType}", skipping remaining gates`);
+    // In blocking mode: if any gate blocks, stop
+    if (gateMode === 'blocking' && (result.action === 'block' || result.action === 'escalate')) {
+      console.warn(`[gate:runner] Pipeline blocked by gate "${gateType}" (blocking mode), skipping remaining gates`);
       break;
+    }
+
+    // In shadow mode: always continue, just log
+    if (gateMode === 'shadow' && (result.verdict === GateVerdict.BLOCK || result.verdict === GateVerdict.ESCALATE)) {
+      console.info(`[gate:runner] Gate "${gateType}" would block in blocking mode (shadow mode — continuing)`);
     }
   }
 

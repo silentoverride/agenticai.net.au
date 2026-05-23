@@ -27,6 +27,24 @@ dead_letter_queue = "assessment-jobs-dlq"
 # Override per-env below.
 SELF_URL = "https://agenticai.net.au"
 
+# Gate mode: 'shadow' (default) or 'blocking'
+# Shadow mode: gates log verdicts but pipeline continues
+# Blocking mode: gate block/escalate verdicts halt the pipeline
+GATE_MODE = "shadow"
+
+# Gate max retries for 'retry' verdict (default: 2)
+GATE_MAX_RETRIES = "2"
+
+# Per-gate feature flags (enable/disable)
+GATE_QUICK_WINS_VERIFICATION_ENABLED = "true"
+GATE_MAJOR_PROJECT_VERIFICATION_ENABLED = "true"
+GATE_REPORT_REVIEW_ENABLED = "true"
+
+# Per-gate kill switches (set to 'true' to disable)
+GATE_QUICK_WINS_VERIFICATION_KILL = "false"
+GATE_MAJOR_PROJECT_VERIFICATION_KILL = "false"
+GATE_REPORT_REVIEW_KILL = "false"
+
 [env.staging]
 name = "agenticai-queue-consumer-staging"
 

@@ -14,3 +14,14 @@ binding = "assessment_blobs"
 [[queues.producers]]
 binding = "assessment_queue"
 queue = "assessment-jobs"
+
+[vars]
+# Gate mode: 'shadow' (default) or 'blocking'
+GATE_MODE = "shadow"
+GATE_MAX_RETRIES = "2"
+GATE_QUICK_WINS_VERIFICATION_ENABLED = "true"
+GATE_MAJOR_PROJECT_VERIFICATION_ENABLED = "true"
+GATE_REPORT_REVIEW_ENABLED = "true"
+GATE_QUICK_WINS_VERIFICATION_KILL = "false"
+GATE_MAJOR_PROJECT_VERIFICATION_KILL = "false"
+GATE_REPORT_REVIEW_KILL = "false"
