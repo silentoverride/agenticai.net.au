@@ -45,7 +45,7 @@ development_status:
     completed: 2026-05-21
   1-2-public-landing-page-offer-trust-start-path:
     epic: epic-1
-    status: backlog
+    status: ready-for-dev
     priority: 5
   1-3-orientation-panel-annie-intake-disclosure:
     epic: epic-1
