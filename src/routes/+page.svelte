@@ -2,20 +2,32 @@
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import OrientationPanel from '$lib/components/OrientationPanel.svelte';
   import AnnieChat from '$lib/components/AnnieChat.svelte';
+  import SummaryReview from '$lib/components/SummaryReview.svelte';
   import ServiceGrid from '$lib/components/ServiceGrid.svelte';
   import { metrics, reportSections, useCases, upsells, testimonials, faqItems } from '$lib/content';
 
-  let showOrientation = $state(false);
-  let intakeStarted = $state(false);
+  type IntakePhase = 'idle' | 'orientation' | 'chat' | 'review' | 'queued';
+
+  let phase = $state<IntakePhase>('idle');
+  let sessionId = $state('');
+  let chatSummary = $state<Array<{ question: string; answer: string; followUpAnswer?: string }>>([]);
 
   function startIntake() {
-    intakeStarted = true;
-    showOrientation = false;
+    sessionId = crypto.randomUUID();
+    phase = 'chat';
   }
 
-  function onChatComplete(summary: Array<{ question: string; answer: string }>) {
-    console.log('[Intake] Complete', { sessionId: crypto.randomUUID(), summary });
-    // Future: redirect to payment or assessment queued page (Story 1.5)
+  function onChatComplete(summary: Array<{ question: string; answer: string; followUpAnswer?: string }>) {
+    chatSummary = summary;
+    phase = 'review';
+  }
+
+  function backToChat() {
+    phase = 'chat';
+  }
+
+  function onConfirmComplete() {
+    phase = 'queued';
   }
 </script>
 
@@ -29,7 +41,7 @@
   <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
-{#if intakeStarted}
+{#if phase === 'chat'}
   <div class="intake-container">
     <div class="intake-header">
       <div class="intake-header-content">
@@ -39,7 +51,34 @@
       </div>
     </div>
     <div class="intake-chat-wrap">
-      <AnnieChat onComplete={onChatComplete} />
+      <AnnieChat {sessionId} onComplete={onChatComplete} />
+    </div>
+  </div>
+{:else if phase === 'review'}
+  <div class="intake-container">
+    <div class="intake-header">
+      <div class="intake-header-content">
+        <span class="eyebrow">AI Business Assessment</span>
+        <h2>Review your information</h2>
+        <p>Check everything is correct before we start processing your assessment.</p>
+      </div>
+    </div>
+    <div class="intake-chat-wrap">
+      <SummaryReview
+        bind:summary={chatSummary}
+        {sessionId}
+        onBack={backToChat}
+        onComplete={onConfirmComplete}
+      />
+    </div>
+  </div>
+{:else if phase === 'queued'}
+  <div class="intake-container">
+    <div class="intake-chat-wrap">
+      <SummaryReview
+        bind:summary={chatSummary}
+        {sessionId}
+      />
     </div>
   </div>
 {:else}
@@ -53,7 +92,7 @@
         showing which AI tools, automations, and agents are worth implementing first.
       </p>
       <div class="actions">
-        <button class="button primary" onclick={() => showOrientation = true}>
+        <button class="button primary" onclick={() => phase = 'orientation'}>
           Start AI Business Assessment
         </button>
         <a class="button secondary" href="/services">See What You Get</a>
@@ -269,7 +308,7 @@
       Start with a focused assessment. You will leave with a practical plan for the workflows, tools,
       and quick wins most likely to create measurable leverage.
     </p>
-    <button class="button primary" onclick={() => showOrientation = true}>
+    <button class="button primary" onclick={() => phase = 'orientation'}>
       Start AI Business Assessment
     </button>
     <p class="trust-note">No credit card required. Your data is private and never shared. <a href="/privacy">Privacy policy</a></p>
@@ -277,7 +316,7 @@
 </main>
 {/if}
 
-<OrientationPanel bind:open={showOrientation} onacknowledge={startIntake} />
+<OrientationPanel bind:open={phase === 'orientation'} onacknowledge={startIntake} />
 
 <style>
   /* ── Testimonials ──────────────────────────────────────────── */
