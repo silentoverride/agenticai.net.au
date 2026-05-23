@@ -4,7 +4,7 @@
 
 **ID:** 3-8
 **Epic:** Epic 3
-**Status:** ready-for-dev
+**Status:** review
 **Priority:** (TBD)
 
 ---
@@ -41,9 +41,9 @@ As a customer, I want version tracking on my assessment so that I can see when i
 
 ## Tasks / Subtasks
 
-1. Versioning, Regeneration & Display implementation
-2. Unit and integration tests
-3. Acceptance criteria verification
+1. [x] Versioning, Regeneration & Display implementation
+2. [x] Unit and integration tests
+3. [x] Acceptance criteria verification
 
 ---
 
@@ -63,9 +63,22 @@ As a customer, I want version tracking on my assessment so that I can see when i
 
 ## Dev Agent Record
 
-- **Agent Model Used:** (TBD)
-- **Debug Log References:** (TBD)
+- **Agent Model Used:** GPT-5.1 Codex Max
+- **Debug Log References:**
+  - `npm exec vitest run` — 260 tests passed (243 baseline + 17 versioning)
 - **Completion Notes List:**
-  - (TBD)
+  - Created `VersionInfo.svelte` component showing version number, last-updated date, Re-run Assessment button, version history panel.
+  - Created POST `/api/assessment/:reportId/regenerate` endpoint with ownership verification and 30-day cooldown rate limiting.
+  - R2 key pattern `assessments/{reportId}/v{version}-briefing.json` documented for version preservation.
+  - Added VersionInfo to briefing page between content and CTA panel.
 - **File List:**
-  - (TBD)
+  - `_bmad-output/implementation-artifacts/3-8-versioning-regeneration-display.md`
+  - `src/lib/components/briefing/VersionInfo.svelte`
+  - `src/routes/api/assessment/[report_id]/regenerate/+server.ts`
+  - `tests/assessment/versioning.test.ts`
+
+---
+
+## Change Log
+
+- 2026-05-23: Implemented versioning display, regeneration API, and version history for assessment briefing.
