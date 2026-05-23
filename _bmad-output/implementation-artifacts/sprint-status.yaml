@@ -75,11 +75,12 @@ development_status:
     priority: 10
   2a-2-payment-intake-reconciliation-idempotency:
     epic: epic-2a
-    status: ready-for-dev
+    status: done
+    completed: 2026-05-21
     priority: 11
   2a-3-source-data-preservation-artifact-storage:
     epic: epic-2a
-    status: backlog
+    status: ready-for-dev
     priority: 12
   2a-4-analysis-generation-pipeline:
     epic: epic-2a
