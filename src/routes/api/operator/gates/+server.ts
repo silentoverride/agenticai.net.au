@@ -12,10 +12,10 @@
  */
 
 import { json } from '@sveltejs/kit';
-import { D1GateStore } from '$lib/server/assessment/gate/gate-store';
+import { requireOperator } from '$lib/server/operator-auth';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ url, platform }) => {
+export const GET: RequestHandler = async ({ url, platform, locals }) => {
   const env = platform?.env as Record<string, unknown> | undefined;
   const db = env?.assessment_db as D1Database | undefined;
 
@@ -23,12 +23,12 @@ export const GET: RequestHandler = async ({ url, platform }) => {
     return json({ success: false, error: 'D1 binding not available' }, { status: 503 });
   }
 
+  await requireOperator(locals, db);
+
   const gateType = url.searchParams.get('gateType') || undefined;
   const verdict = url.searchParams.get('verdict') || undefined;
   const cursor = url.searchParams.get('cursor') || undefined;
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10) || 50, 100);
-
-  const store = new D1GateStore(db);
 
   // Build the query dynamically based on filters
   let sql = 'SELECT * FROM assessment_gates WHERE 1=1';
@@ -45,11 +45,17 @@ export const GET: RequestHandler = async ({ url, platform }) => {
   }
 
   if (cursor) {
-    sql += ' AND created_at < ?';
-    bindings.push(cursor);
+    const [cursorCreatedAt, cursorGateRunId] = cursor.split('|');
+    if (cursorCreatedAt && cursorGateRunId) {
+      sql += ' AND (created_at < ? OR (created_at = ? AND gate_run_id < ?))';
+      bindings.push(cursorCreatedAt, cursorCreatedAt, cursorGateRunId);
+    } else {
+      sql += ' AND created_at < ?';
+      bindings.push(cursor);
+    }
   }
 
-  sql += ' ORDER BY created_at DESC LIMIT ?';
+  sql += ' ORDER BY created_at DESC, gate_run_id DESC LIMIT ?';
   bindings.push(limit + 1); // Fetch one extra to check for next page
 
   const result = await db.prepare(sql).bind(...bindings).all<Record<string, unknown>>();
@@ -67,7 +73,8 @@ export const GET: RequestHandler = async ({ url, platform }) => {
     createdAt: String(r.created_at)
   }));
 
-  const nextCursor = hasMore ? records[records.length - 1]?.createdAt : undefined;
+  const lastRecord = records[records.length - 1];
+  const nextCursor = hasMore && lastRecord ? `${lastRecord.createdAt}|${lastRecord.gateRunId}` : undefined;
 
   // Get distinct gate types and verdicts for filter dropdowns
   const [gateTypesResult, verdictsResult] = await Promise.all([

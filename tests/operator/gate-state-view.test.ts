@@ -3,11 +3,12 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { requireOperator } from '$lib/server/operator-auth';
 
 describe('Gate Evaluations Query', () => {
-  it('returns assessment_gates records ordered by creation date', () => {
-    const query = 'SELECT * FROM assessment_gates ORDER BY created_at DESC LIMIT ?';
-    expect(query).toContain('ORDER BY created_at DESC');
+  it('returns assessment_gates records with stable ordering', () => {
+    const query = 'SELECT * FROM assessment_gates ORDER BY created_at DESC, gate_run_id DESC LIMIT ?';
+    expect(query).toContain('ORDER BY created_at DESC, gate_run_id DESC');
     expect(query).toContain('LIMIT');
   });
 
@@ -21,10 +22,10 @@ describe('Gate Evaluations Query', () => {
     expect(sql).toContain('verdict = ?');
   });
 
-  it('supports cursor-based pagination', () => {
-    const cursor = '2026-05-21T12:00:00';
-    const sql = 'SELECT * FROM assessment_gates WHERE 1=1 AND created_at < ? ORDER BY created_at DESC LIMIT ?';
+  it('supports compound cursor-based pagination', () => {
+    const sql = 'SELECT * FROM assessment_gates WHERE 1=1 AND (created_at < ? OR (created_at = ? AND gate_run_id < ?)) ORDER BY created_at DESC, gate_run_id DESC LIMIT ?';
     expect(sql).toContain('created_at < ?');
+    expect(sql).toContain('created_at = ? AND gate_run_id < ?');
   });
 
   it('fetches one extra row to detect next page', () => {
@@ -97,10 +98,37 @@ describe('ID Formatting', () => {
 });
 
 describe('Role-Based Access', () => {
-  it('operator routes are behind operator layout', () => {
-    // The /operator/* routes have a layout that checks operator role
-    const path = '/operator/gates/';
-    expect(path.startsWith('/operator/')).toBe(true);
+  function mockDb(role: string | null): D1Database {
+    return {
+      prepare: () => ({
+        bind: () => ({
+          first: async () => role == null ? null : { role }
+        })
+      })
+    } as unknown as D1Database;
+  }
+
+  function mockLocals(userId: string | null): App.Locals {
+    return {
+      auth: () => ({ userId }) as ReturnType<App.Locals['auth']>,
+      user: null
+    };
+  }
+
+  it('allows users with operator role', async () => {
+    await expect(requireOperator(mockLocals('user_1'), mockDb('operator'))).resolves.toBeUndefined();
+  });
+
+  it('allows users with admin role', async () => {
+    await expect(requireOperator(mockLocals('user_1'), mockDb('admin'))).resolves.toBeUndefined();
+  });
+
+  it('rejects authenticated non-operators', async () => {
+    await expect(requireOperator(mockLocals('user_1'), mockDb('client'))).rejects.toMatchObject({ status: 403 });
+  });
+
+  it('rejects unauthenticated users', async () => {
+    await expect(requireOperator(mockLocals(null), mockDb('operator'))).rejects.toMatchObject({ status: 401 });
   });
 });
 
@@ -111,10 +139,11 @@ describe('NFR Compliance', () => {
     expect(pagination.nextCursor).toBeDefined();
   });
 
-  it('load more fetches next page with cursor', () => {
-    const cursor = '2026-05-21T12:00:00';
+  it('load more fetches next page with compound cursor', () => {
+    const cursor = '2026-05-21T12:00:00|gate_run_abc123';
     const url = `/api/operator/gates?cursor=${encodeURIComponent(cursor)}&limit=50`;
     expect(url).toContain('cursor=');
+    expect(decodeURIComponent(url)).toContain('|gate_run_abc123');
     expect(url).toContain('limit=');
   });
 
