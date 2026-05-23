@@ -11,7 +11,7 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import { apiError } from '$lib/server/api-error';
-import { setPipelineStatus } from '$lib/server/assessment/pipeline-store';
+import { setPipelineStatus, getPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import type { RequestHandler } from './$types';
 
 interface SummaryItem {
@@ -42,6 +42,18 @@ export const POST: RequestHandler = async ({ request, url }) => {
   }
 
   const siteUrl = env.PUBLIC_SITE_URL || `${url.protocol}//${url.host}`;
+  const idempotencyKey = `checkout-${payload.sessionId}-${Date.now()}`;
+
+  // Check if already paid (reconciliation guard)
+  try {
+    const existing = await getPipelineStatus(payload.sessionId);
+    if (existing?.status === 'queued' || existing?.status === 'running_llm' || existing?.status === 'completed') {
+      throw apiError(409, 'Assessment already has active pipeline processing.');
+    }
+  } catch (err) {
+    if (err && typeof err === 'object' && 'status' in err && (err as any).status === 409) throw err;
+    // Ignore — pipeline status may not exist yet
+  }
 
   // Build a brief summary of intake answers for Stripe metadata (max 450 chars per field)
   const summaryText = payload.summary
@@ -82,6 +94,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
       authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
       'content-type': 'application/x-www-form-urlencoded',
       'user-agent': 'agenticai.net.au/1.0 (SvelteKit; Cloudflare Pages)',
+      'idempotency-key': idempotencyKey,
       accept: 'application/json'
     },
     body: params

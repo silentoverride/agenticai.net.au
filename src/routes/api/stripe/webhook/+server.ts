@@ -47,7 +47,40 @@ export const POST: RequestHandler = async ({ request, platform }) => {
   const eventId = event.id || '';
   if (eventId && await isEventProcessed(eventId)) {
     console.info('Stripe webhook: event already processed, skipping', { eventId, type: event.type });
-    return new Response(null, { status: 200 });
+  
+  // ── Failed / expired payment events ───────────────────────────
+  if (event.type === 'charge.failed' || event.type === 'checkout.session.expired') {
+    const session = event.data?.object || {};
+    const metadata = session.metadata || {};
+    const sessionId = metadata.session_id || session.id || '';
+    const reason = event.type === 'charge.failed'
+      ? (session.failure_message || 'charge failed')
+      : 'session expired';
+
+    console.info('[webhook] Payment event: ' + event.type, {
+      sessionId,
+      reason,
+      stripeSessionId: session.id,
+      customerEmail: metadata.customer_email || session.customer_details?.email
+    });
+
+    // Update pipeline status to failed for Annie intake sessions
+    if (sessionId) {
+      try {
+        await setPipelineStatus(sessionId, { status: 'error', error: 'Payment ' + event.type + ': ' + reason });
+        console.info('[webhook] Pipeline status set to error for failed payment', { sessionId, reason });
+      } catch (err) {
+        console.warn('[webhook] Could not update pipeline status for failed payment', { sessionId, error: err });
+      }
+    }
+
+    // Always mark failed events as processed (no critical pipeline work to protect)
+    if (eventId) {
+      await markEventProcessed(eventId, event.type);
+    }
+  }
+
+  return new Response(null, { status: 200 });
   }
 
   if (event.type === 'checkout.session.completed') {
