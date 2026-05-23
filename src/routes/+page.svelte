@@ -1,7 +1,16 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
+  import OrientationPanel from '$lib/components/OrientationPanel.svelte';
   import ServiceGrid from '$lib/components/ServiceGrid.svelte';
   import { metrics, reportSections, useCases, upsells, testimonials, faqItems } from '$lib/content';
+
+  let showOrientation = $state(false);
+  let intakeStarted = $state(false);
+
+  function startIntake() {
+    intakeStarted = true;
+    showOrientation = false;
+  }
 </script>
 
 <svelte:head>
@@ -24,7 +33,9 @@
         showing which AI tools, automations, and agents are worth implementing first.
       </p>
       <div class="actions">
-        <CallAssessmentButton label="Start AI Business Assessment" source="hero-start-assessment" />
+        <button class="button primary" onclick={() => showOrientation = true}>
+          Start AI Business Assessment
+        </button>
         <a class="button secondary" href="/services">See What You Get</a>
       </div>
       <div class="metric-strip" aria-label="Assessment highlights">
@@ -238,10 +249,14 @@
       Start with a focused assessment. You will leave with a practical plan for the workflows, tools,
       and quick wins most likely to create measurable leverage.
     </p>
-    <CallAssessmentButton label="Start AI Business Assessment" source="cta-start-assessment" />
+    <button class="button primary" onclick={() => showOrientation = true}>
+      Start AI Business Assessment
+    </button>
     <p class="trust-note">No credit card required. Your data is private and never shared. <a href="/privacy">Privacy policy</a></p>
   </section>
 </main>
+
+<OrientationPanel bind:open={showOrientation} onacknowledge={startIntake} />
 
 <style>
   /* ── Testimonials ──────────────────────────────────────────── */
