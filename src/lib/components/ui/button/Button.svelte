@@ -25,7 +25,7 @@
     disabled?: boolean;
     class?: string;
     children?: Snippet;
-  } = $props();
+  } & import('svelte/elements').HTMLButtonAttributes = $props();
 </script>
 
 {#if href}
@@ -33,7 +33,6 @@
     {href}
     class="btn btn-{variant} btn-{size} {className}"
     role="button"
-    {...restProps}
   >
     {#if children}{@render children()}{/if}
   </a>

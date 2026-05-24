@@ -1,6 +1,8 @@
 <script lang="ts">
   import { PUBLIC_CALENDLY_URL } from '$env/static/public';
 
+  let { label = 'Book Your Complimentary 30-Min Session' }: { label?: string } = $props();
+
   function openCalendly() {
     if (typeof window !== 'undefined' && (window as any).Calendly) {
       (window as any).Calendly.initPopupWidget({ url: PUBLIC_CALENDLY_URL });
@@ -20,7 +22,7 @@
   ontouchend={(e) => { e.stopPropagation(); e.preventDefault(); openCalendly(); }}
   onclick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
   <span class="icon">📅</span>
-  <span>Book Your Complimentary 30-Min Session</span>
+  <span>{label}</span>
 </button>
 
 <style>

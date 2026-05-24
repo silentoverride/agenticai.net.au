@@ -70,11 +70,11 @@
     error = '';
     try {
       const res = await fetch(`/api/operator/cost-dashboard?period=${period}`);
-      const d = await res.json();
-      if (d.success) {
+      const d = (await res.json()) as { success?: boolean; dashboard?: CostData; error?: string };
+      if (d.success && d.dashboard) {
         data = d.dashboard;
       } else {
-        error = d.error;
+        error = d.error || 'Failed to load cost dashboard';
       }
     } catch (e) {
       error = 'Failed to load cost dashboard';

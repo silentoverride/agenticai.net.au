@@ -31,7 +31,7 @@
       if (reportsRes.ok) reports = await reportsRes.json();
       if (receiptsRes.ok) receipts = await receiptsRes.json();
       if (assessmentsRes.ok) {
-        const data = await assessmentsRes.json();
+        const data = (await assessmentsRes.json()) as { assessments?: typeof assessments };
         assessments = data.assessments || [];
       }
     } catch (e) {

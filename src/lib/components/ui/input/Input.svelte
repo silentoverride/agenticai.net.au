@@ -9,7 +9,7 @@
     ...restProps
   }: {
     class?: string;
-  } & import('svelte/elements').InputHTMLAttributes<HTMLInputElement> = $props();
+  } & import('svelte/elements').HTMLInputAttributes = $props();
 </script>
 
 <input class="input {className}" {...restProps} />

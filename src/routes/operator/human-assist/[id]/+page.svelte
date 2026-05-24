@@ -41,12 +41,12 @@
       if (!id) { error = 'No review ID'; return; }
 
       const res = await fetch(`/api/operator/human-assist/${id}`);
-      const data = await res.json();
-      if (data.success) {
+      const data = (await res.json()) as { success?: boolean; review?: ReviewDetails; error?: string };
+      if (data.success && data.review) {
         review = data.review;
         editedContent = data.review.editedContent || data.review.transcript || '';
       } else {
-        error = data.error;
+        error = data.error || 'Failed to load review';
       }
     } catch (e) {
       error = 'Failed to load review';
@@ -77,7 +77,7 @@
           operatorId: 'operator'
         })
       });
-      const data = await res.json();
+      const data = (await res.json()) as { success?: boolean; error?: string };
       if (data.success) {
         successMsg = action === 'approve' ? 'Assessment approved — delivery will proceed.'
           : action === 'reject' ? 'Assessment rejected — customer will be notified.'

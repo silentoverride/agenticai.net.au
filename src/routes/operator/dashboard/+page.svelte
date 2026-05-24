@@ -84,8 +84,8 @@
   async function fetchDashboard() {
     try {
       const res = await fetch('/api/operator/dashboard');
-      const d = await res.json();
-      if (d.success) {
+      const d = (await res.json()) as { success?: boolean; dashboard?: DashboardData; error?: string };
+      if (d.success && d.dashboard) {
         data = d.dashboard;
       } else {
         error = d.error || 'Failed to load dashboard';

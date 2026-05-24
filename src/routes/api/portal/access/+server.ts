@@ -8,24 +8,22 @@
  * Only operators and admins can use this endpoint.
  */
 import { json, error } from '@sveltejs/kit';
-import { resolveUser } from '$lib/server/auth';
 import { requireOperator } from '$lib/server/operator-auth';
 import { getDb, assertSchema, isDatabaseAvailable } from '$lib/server/db';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ locals, url, platform }) => {
-  const user = resolveUser(locals, url);
+export const GET: RequestHandler = async ({ locals, platform }) => {
   const db = platform?.env?.assessment_db;
-  await requireOperator(user, db);
+  await requireOperator(locals, db);
 
-  if (!db || !isDatabaseAvailable()) {
+  if (!isDatabaseAvailable()) {
     throw error(503, 'Database not available');
   }
 
   const localDb = getDb();
   await assertSchema(localDb);
 
-  const rows = localDb.queryAll(`
+  const rows = await localDb.queryAll(`
     SELECT u.clerk_id, u.email, u.name, u.role, u.company, u.created_at,
            (SELECT COUNT(*) FROM reports WHERE user_id = u.clerk_id) as report_count,
            (SELECT COUNT(*) FROM receipts WHERE user_id = u.clerk_id) as receipt_count
@@ -36,16 +34,15 @@ export const GET: RequestHandler = async ({ locals, url, platform }) => {
   return json({ users: rows });
 };
 
-export const POST: RequestHandler = async ({ locals, url, request, platform }) => {
-  const user = resolveUser(locals, url);
+export const POST: RequestHandler = async ({ locals, request, platform }) => {
   const db = platform?.env?.assessment_db;
-  await requireOperator(user, db);
+  await requireOperator(locals, db);
 
-  if (!db || !isDatabaseAvailable()) {
+  if (!isDatabaseAvailable()) {
     throw error(503, 'Database not available');
   }
 
-  const body = await request.json();
+  const body = (await request.json()) as { clerkId?: string; action?: string };
   const { clerkId, action } = body;
 
   if (!clerkId || !action || !['grant', 'revoke', 'set_admin'].includes(action)) {
@@ -56,12 +53,12 @@ export const POST: RequestHandler = async ({ locals, url, request, platform }) =
   await assertSchema(localDb);
 
   if (action === 'set_admin') {
-    localDb.query('UPDATE users SET role = ? WHERE clerk_id = ?', 'admin', clerkId);
+    await localDb.exec('UPDATE users SET role = ? WHERE clerk_id = ?', 'admin', clerkId);
   } else {
     // For pilot: grant/revoke means enabling/disabling portal access
     // We use role field: 'client' = access granted, 'revoked' = access denied
     const newRole = action === 'grant' ? 'client' : 'revoked';
-    localDb.query('UPDATE users SET role = ? WHERE clerk_id = ?', newRole, clerkId);
+    await localDb.exec('UPDATE users SET role = ? WHERE clerk_id = ?', newRole, clerkId);
   }
 
   return json({ success: true, clerkId, action });

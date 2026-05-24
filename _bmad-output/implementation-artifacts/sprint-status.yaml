@@ -1,5 +1,5 @@
 # generated: 2026-05-25T06:32:15+10:00
-# last_updated: 2026-05-25T06:35:49+10:00
+# last_updated: 2026-05-25T06:49:53+10:00
 # project: agenticai-net-au
 # project_key: NOKEY
 # tracking_system: file-system
@@ -43,7 +43,7 @@ story_location: /home/loki/projects.io/agenticai.net.au/_bmad-output/implementat
 
 development_status:
   epic-1: in-progress
-  1-1-governed-staff-portal-state-foundation: ready-for-dev
+  1-1-governed-staff-portal-state-foundation: done
   1-2-audit-and-idempotent-action-persistence: backlog
   1-3-report-review-queue-and-workspace-read-model: backlog
   1-4-gate-finding-decision-actions: backlog
