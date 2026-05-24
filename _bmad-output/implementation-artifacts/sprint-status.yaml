@@ -1,180 +1,81 @@
-# =============================================================================
-# Sprint Status - Agentic AI Advisory Assessment
-# Generated: 2026-05-21 from epics.md
-# Stories: 31 across 5 epics
-# =============================================================================
+# generated: 2026-05-25T06:32:15+10:00
+# last_updated: 2026-05-25T06:35:49+10:00
+# project: agenticai-net-au
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: /home/loki/projects.io/agenticai.net.au/_bmad-output/implementation-artifacts
 
-sprint_status: active
-last_updated: '2026-05-23'
-story_location: _bmad-output/implementation-artifacts
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-05-25T06:32:15+10:00
+last_updated: 2026-05-25T06:35:49+10:00
+project: agenticai-net-au
+project_key: NOKEY
+tracking_system: file-system
+story_location: /home/loki/projects.io/agenticai.net.au/_bmad-output/implementation-artifacts
+
 development_status:
-  sprint-0:
-    title: 'Sprint 0: Platform Foundation & Shared Contracts + Gate Module'
-    status: done
-  epic-1:
-    title: 'Epic 1: Public Offer & Intake Flow'
-    status: done
-  epic-2a:
-    title: 'Epic 2a: Payment & Pipeline + GPT-5.5 Gate (Shadow)'
-    status: done
-  epic-2b:
-    title: 'Epic 2b: Gate Calibration & Operator Dashboard'
-    status: done
-  epic-3:
-    title: 'Epic 3: Advisory Portal Experience'
-    status: backlog
-  0-1-pipeline-worker-re-architecture:
-    epic: sprint-0
-    status: done
-    priority: 1
-    completed: 2026-05-21
-  0-2-shared-schema-contracts-assessment-data-model:
-    epic: sprint-0
-    status: done
-    priority: 2
-    completed: 2026-05-21
-  0-3-gpt-55-gate-module-infrastructure:
-    epic: sprint-0
-    status: done
-    priority: 3
-    completed: 2026-05-21
-  1-1-design-token-foundation-component-primitives:
-    epic: epic-1
-    status: done
-    priority: 4
-    completed: 2026-05-21
-  1-2-public-landing-page-offer-trust-start-path:
-    epic: epic-1
-    status: done
-    completed: 2026-05-21
-    priority: 5
-  1-3-orientation-panel-annie-intake-disclosure:
-    epic: epic-1
-    status: done
-    completed: 2026-05-21
-    priority: 6
-  1-4-guided-annie-intake-business-context-capture-probing:
-    epic: epic-1
-    status: done
-    completed: 2026-05-21
-    priority: 7
-  1-5-business-summary-review-confirmation:
-    epic: epic-1
-    status: done
-    completed: 2026-05-21
-    priority: 8
-  1-6-intake-interruption-recovery-session-resume:
-    epic: epic-1
-    status: done
-    completed: 2026-05-21
-    priority: 9
-  2a-1-stripe-checkout-payment-integration:
-    epic: epic-2a
-    status: done
-    completed: 2026-05-21
-    priority: 10
-  2a-2-payment-intake-reconciliation-idempotency:
-    epic: epic-2a
-    status: done
-    completed: 2026-05-21
-    priority: 11
-  2a-3-source-data-preservation-artifact-storage:
-    epic: epic-2a
-    status: done
-    completed: 2026-05-21
-    priority: 12
-  2a-4-analysis-generation-pipeline:
-    epic: epic-2a
-    status: done
-    completed: 2026-05-21
-    priority: 13
-  2a-5-tool-based-research-integration:
-    epic: epic-2a
-    status: done
-    completed: 2026-05-21
-    priority: 14
-  2a-6-gpt-55-gate-pipeline-wiring-shadow-mode:
-    epic: epic-2a
-    status: done
-    completed: 2026-05-21
-    priority: 15
-  2a-7-pipeline-status-views-user-facing:
-    epic: epic-2a
-    status: done
-    completed: 2026-05-21
-    priority: 16
-  2a-8-basic-operator-gate-state-view:
-    epic: epic-2a
-    status: done
-    priority: 17
-    completed: 2026-05-23
-  2b-1-gate-mode-promotion-framework:
-    epic: epic-2b
-    status: done
-    completed: 2026-05-21
-    priority: 18
-  2b-2-calibration-tooling:
-    epic: epic-2b
-    status: done
-    completed: 2026-05-21
-    priority: 19
-  2b-3-full-operator-dashboard:
-    epic: epic-2b
-    status: done
-    completed: 2026-05-21
-    priority: 20
-  2b-4-human-assist-workflow:
-    epic: epic-2b
-    status: done
-    completed: 2026-05-21
-    priority: 21
-  2b-5-cost-dashboards-prompt-versioning:
-    epic: epic-2b
-    status: done
-    completed: 2026-05-21
-    priority: 22
-  2b-6-gate-regression-test-suite:
-    epic: epic-2b
-    status: done
-    completed: 2026-05-21
-    priority: 23
-  3-1-clerk-auth-private-briefing-room-shell:
-    epic: epic-3
-    status: done
-    completed: 2026-05-23
-    priority: 24
-  3-2-advisory-briefing-content-rendering:
-    epic: epic-3
-    status: done
-    completed: 2026-05-23
-    priority: 25
-  3-3-assessment-status-receipt-display:
-    epic: epic-3
-    status: done
-    completed: 2026-05-23
-    priority: 26
-  3-4-recommendation-cards-evidence-blocks:
-    epic: epic-3
-    status: done
-    completed: 2026-05-23
-    priority: 27
-  3-5-opportunity-map-cardlist-v1:
-    epic: epic-3
-    status: done
-    completed: 2026-05-23
-    priority: 28
-  3-6-controlled-pilot-access-boundaries-email-notifications:
-    epic: epic-3
-    status: done
-    completed: 2026-05-23
-    priority: 29
-  3-7-follow-up-cta-panel-recovery:
-    epic: epic-3
-    status: done
-    completed: 2026-05-23
-    priority: 30
-  3-8-versioning-regeneration-display:
-    epic: epic-3
-    status: done
-    completed: 2026-05-23
-    priority: 31
+  epic-1: in-progress
+  1-1-governed-staff-portal-state-foundation: ready-for-dev
+  1-2-audit-and-idempotent-action-persistence: backlog
+  1-3-report-review-queue-and-workspace-read-model: backlog
+  1-4-gate-finding-decision-actions: backlog
+  1-5-whole-report-guarded-decisions: backlog
+  1-6-decision-receipt-and-audit-timeline-surfaces: backlog
+  1-7-safe-review-ui-accessibility-and-responsive-behaviour: backlog
+  epic-1-retrospective: optional
+  epic-2: backlog
+  2-1-command-center-priority-read-model: backlog
+  2-2-command-console-and-priority-work-item-rows: backlog
+  2-3-role-based-queue-visibility: backlog
+  2-4-command-center-navigation-and-recovery: backlog
+  epic-2-retrospective: optional
+  epic-3: backlog
+  3-1-client-profile-snapshot-read-model: backlog
+  3-2-what-matters-now-panel: backlog
+  3-3-linked-reports-and-gate-findings-context: backlog
+  3-4-activity-memory-and-audit-history: backlog
+  3-5-client-profile-continuity-layout: backlog
+  epic-3-retrospective: optional
+  epic-4: backlog
+  4-1-follow-up-commitment-model-and-actions: backlog
+  4-2-followupeditor-on-client-profile: backlog
+  4-3-follow-ups-from-review-and-other-source-contexts: backlog
+  4-4-due-and-overdue-follow-up-surfacing: backlog
+  4-5-follow-up-audit-receipts-and-failure-states: backlog
+  epic-4-retrospective: optional
+  epic-5: backlog
+  5-1-calendly-access-and-meeting-brief-notes: backlog
+  5-2-meeting-brief-readiness-and-stale-state-guardrails: backlog
+  5-3-meetingbriefpanel-and-meeting-follow-ups: backlog
+  5-4-commercial-next-step-model-and-panel: backlog
+  5-5-commercial-follow-up-requirement-and-audit: backlog
+  5-6-meeting-and-commercial-responsive-accessibility: backlog
+  epic-5-retrospective: optional

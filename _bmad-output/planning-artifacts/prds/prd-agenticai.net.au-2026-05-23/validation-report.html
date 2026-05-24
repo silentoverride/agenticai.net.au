@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PRD Validation: Staff Portal MVP PRD</title>
+<style>
+  :root { --bg:#fafaf9; --surface:#fff; --border:#e7e5e4; --text:#1c1917; --muted:#78716c; --strong:#16a34a; --adequate:#65a30d; --excellent:#16a34a; --medium:#ca8a04; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; font-size:15px; }
+  .container { max-width:960px; margin:0 auto; padding:32px 24px 64px; }
+  header { display:flex; justify-content:space-between; gap:24px; border-bottom:1px solid var(--border); padding-bottom:16px; margin-bottom:24px; }
+  h1 { margin:0; font-size:22px; } h2 { font-size:17px; margin:0; } h3 { font-size:15px; margin:0; }
+  .subtitle, footer { color:var(--muted); font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12.5px; }
+  .grade { padding:10px 18px; border-radius:8px; color:white; font-weight:700; background:var(--excellent); white-space:nowrap; }
+  .card, section, .synthesis, .mechanical { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin-bottom:14px; }
+  .synthesis { border-left:3px solid var(--excellent); font-size:15.5px; }
+  .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-bottom:24px; }
+  .card { margin:0; padding:12px 14px; }
+  .dim-name { color:var(--muted); font-size:13px; } .verdict { font-weight:700; }
+  .strong { color:var(--strong); } .adequate { color:var(--adequate); }
+  .finding { border-top:1px solid var(--border); padding:12px 0; } .finding:first-child { border-top:0; }
+  .badge { font-size:11px; font-weight:700; text-transform:uppercase; border-radius:4px; padding:3px 8px; margin-right:8px; }
+  .sev-medium { color:var(--medium); background:rgba(202,138,4,.14); }
+  .loc { color:var(--muted); font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12.5px; }
+  footer { margin-top:40px; border-top:1px solid var(--border); padding-top:16px; }
+</style>
+</head>
+<body><div class="container">
+<header><div><h1>Staff Portal MVP PRD — Validation Report</h1><div class="subtitle">_bmad-output/planning-artifacts/prds/prd-agenticai.net.au-2026-05-23/prd.md</div></div><div class="grade">Excellent</div></header>
+
+<div class="synthesis"><p>Strong enough for downstream UX, architecture, epics, and story planning. The validation update closes the two prior high findings: core safety semantics are now specified through brownfield status and blocking-verdict tables, and priority/blocker derivation is now anchored in an MVP priority order plus tie-breaks. The remaining risk is not product direction but implementation precision: a few lifecycle transition edges are still implicit and should be made explicit during architecture/story slicing.</p></div>
+
+<div class="summary">
+  <div class="card"><div class="dim-name">Decision-readiness</div><div class="verdict strong">strong</div></div>
+  <div class="card"><div class="dim-name">Substance over theater</div><div class="verdict strong">strong</div></div>
+  <div class="card"><div class="dim-name">Strategic coherence</div><div class="verdict strong">strong</div></div>
+  <div class="card"><div class="dim-name">Done-ness clarity</div><div class="verdict adequate">adequate</div></div>
+  <div class="card"><div class="dim-name">Scope honesty</div><div class="verdict strong">strong</div></div>
+  <div class="card"><div class="dim-name">Downstream usability</div><div class="verdict strong">strong</div></div>
+  <div class="card"><div class="dim-name">Shape fit</div><div class="verdict strong">strong</div></div>
+</div>
+
+<section><h2>Decision-readiness <span class="verdict strong">strong</span></h2><p>Core safety semantics are now specified through §5.1 brownfield mappings, §5.2 blocking verdict rules, §5.7 Reason Codes, and §5.8 audit retention/export floor.</p></section>
+<section><h2>Substance over theater <span class="verdict strong">strong</span></h2><p>The PRD remains product-specific, with earned personas, UJ traceability, concrete non-goals, and NFRs tied to product semantics.</p></section>
+<section><h2>Strategic coherence <span class="verdict strong">strong</span></h2><p>The feature set consistently serves the thesis: make report delivery safe before making operations sophisticated.</p></section>
+<section><h2>Done-ness clarity <span class="verdict adequate">adequate</span></h2><p>Priority/blocker derivation and safety guardrails are now testable. The remaining gap is a compact lifecycle transition/action matrix for architecture/story slicing.</p><div class="finding"><span class="badge sev-medium">medium</span><strong>Lifecycle transition edges remain implicit</strong> <span class="loc">§5.1–§5.6; §6 NFR-1</span><p>The PRD lists allowed states and key guardrails, but it does not fully enumerate valid transitions/actions for each lifecycle object.</p><p><strong>Fix:</strong> Add a compact MVP transition/action matrix per lifecycle object, or make architecture/story slicing explicitly responsible for deriving transition edges while preserving the product prohibitions already stated.</p></div></section>
+<section><h2>Scope honesty <span class="verdict strong">strong</span></h2><p>No phase-blocking product questions remain; remaining follow-ups are downstream architecture/implementation decisions.</p></section>
+<section><h2>Downstream usability <span class="verdict strong">strong</span></h2><p>The PRD is source-extractable and now includes brownfield status/verdict mappings useful to architecture and stories.</p></section>
+<section><h2>Shape fit <span class="verdict strong">strong</span></h2><p>The document shape fits a brownfield internal Staff Portal with safety-critical review, auditability, role boundaries, and meaningful UX.</p></section>
+
+<div class="mechanical"><h2>Mechanical notes</h2><ul><li>FR IDs are contiguous from FR-1 through FR-67.</li><li>UJ IDs UJ-1 through UJ-6 are defined and referenced.</li><li>The single inline assumption roundtrips to §11.</li><li>Previous high findings are closed by §5.1/§5.2/§5.7/§5.8 and §4.1/§4.2.</li><li>Terminology is materially consistent: Commercial Next Step is the MVP implementation noun; Offer Fit remains a product-area label.</li></ul></div>
+
+<footer><div>Rubric: .agents/skills/bmad-prd/assets/prd-validation-checklist.md</div><div>Reviewer file: _bmad-output/planning-artifacts/prds/prd-agenticai.net.au-2026-05-23/review-rubric.md</div><div>Run at: 2026-05-24T16:56:58Z</div></footer>
+</div></body></html>

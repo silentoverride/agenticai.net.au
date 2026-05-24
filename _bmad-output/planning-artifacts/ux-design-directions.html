@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agentic AI Staff Portal — UX Design Direction Showcase</title>
+  <style>
+    :root {
+      --ink: #0f172a;
+      --ink-2: #1e293b;
+      --muted: #64748b;
+      --muted-2: #94a3b8;
+      --page: #f8fafc;
+      --panel: #ffffff;
+      --panel-soft: #f1f5f9;
+      --line: #e2e8f0;
+      --line-soft: #f1f5f9;
+      --blue: #2563eb;
+      --blue-2: #1d4ed8;
+      --blue-soft: #eff6ff;
+      --blue-line: #bfdbfe;
+      --amber: #d97706;
+      --amber-soft: #fffbeb;
+      --amber-line: #fde68a;
+      --green: #059669;
+      --green-soft: #ecfdf5;
+      --green-line: #a7f3d0;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --red-line: #fecaca;
+      --radius: 14px;
+      --radius-sm: 9px;
+      --shadow: 0 16px 48px rgba(15, 23, 42, 0.10), 0 3px 12px rgba(15, 23, 42, 0.06);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--page);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--page); }
+    a { color: inherit; }
+    h1, h2, h3, p { margin: 0; }
+    p { color: var(--muted); line-height: 1.55; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 24px;
+      background: rgba(248, 250, 252, 0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand { display: grid; gap: 2px; }
+    .brand strong { font-size: 14px; }
+    .brand span { color: var(--muted); font-size: 12px; }
+
+    .nav { display: flex; flex-wrap: wrap; gap: 8px; }
+    .nav a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 10px;
+      text-decoration: none;
+    }
+    .nav a:hover { border-color: var(--blue-line); color: var(--blue); background: var(--blue-soft); }
+
+    .intro {
+      display: grid;
+      gap: 18px;
+      padding: 42px 24px 22px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .intro h1 { font-size: clamp(28px, 4vw, 48px); letter-spacing: -0.035em; max-width: 860px; }
+    .intro p { max-width: 760px; font-size: 16px; }
+    .principles { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--ink-2);
+      font-size: 12px;
+      font-weight: 800;
+      gap: 8px;
+      padding: 8px 12px;
+    }
+    .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+    .pill.amber::before { background: var(--amber); }
+    .pill.green::before { background: var(--green); }
+    .pill.red::before { background: var(--red); }
+
+    .direction {
+      min-height: 100vh;
+      padding: 38px 24px;
+      border-top: 1px solid var(--line);
+    }
+    .direction-inner { max-width: 1280px; margin: 0 auto; display: grid; gap: 22px; }
+    .direction-header {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(300px, 0.45fr);
+      gap: 24px;
+      align-items: end;
+    }
+    .direction-kicker { color: var(--blue); font-size: 12px; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+    .direction h2 { margin-top: 6px; font-size: clamp(24px, 3vw, 36px); letter-spacing: -0.03em; }
+    .direction-note { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.03); }
+    .direction-note strong { display: block; margin-bottom: 5px; font-size: 13px; }
+    .direction-note p { font-size: 13px; }
+
+    .mockup {
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      min-height: 700px;
+    }
+
+    .app-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 700px; }
+    .sidebar { background: #0f172a; color: #f8fafc; padding: 20px; display: grid; align-content: start; gap: 20px; }
+    .sidebar .logo { font-size: 15px; font-weight: 900; }
+    .side-group { display: grid; gap: 8px; }
+    .side-label { color: #94a3b8; font-size: 11px; font-weight: 900; letter-spacing: 0.11em; text-transform: uppercase; }
+    .side-item { display: flex; justify-content: space-between; color: #cbd5e1; border-radius: 10px; font-size: 13px; font-weight: 750; padding: 10px; }
+    .side-item.active, .side-item:hover { background: rgba(96, 165, 250, 0.16); color: #fff; }
+    .badge-count { background: rgba(255,255,255,0.12); border-radius: 999px; padding: 1px 7px; font-size: 11px; }
+
+    .workspace { padding: 22px; background: var(--page); display: grid; gap: 16px; align-content: start; }
+    .workspace-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .workspace-head h3 { font-size: 22px; letter-spacing: -0.02em; }
+    .meta { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 10px; font: inherit; font-size: 13px; font-weight: 850; padding: 10px 13px; }
+    .button.primary { background: var(--blue); border-color: var(--blue); color: white; }
+    .button.danger { background: var(--red); border-color: var(--red); color: white; }
+    .button:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(15,23,42,0.10); }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .metric { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+    .metric span { color: var(--muted); font-size: 12px; font-weight: 800; }
+    .metric strong { display: block; margin-top: 6px; font-size: 24px; letter-spacing: -0.03em; }
+
+    .queue { display: grid; gap: 8px; }
+    .row { display: grid; grid-template-columns: 1.2fr 0.85fr 0.75fr 0.75fr auto; gap: 12px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 13px 14px; }
+    .row:hover { border-color: var(--blue-line); box-shadow: 0 10px 24px rgba(15,23,42,0.07); }
+    .row-title { display: grid; gap: 3px; }
+    .row-title strong { font-size: 14px; }
+    .row-title span { color: var(--muted); font-size: 12px; }
+    .chip { display: inline-flex; width: fit-content; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 900; padding: 5px 8px; white-space: nowrap; }
+    .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+    .chip.blue { background: var(--blue-soft); border-color: var(--blue-line); color: var(--blue-2); }
+    .chip.amber { background: var(--amber-soft); border-color: var(--amber-line); color: #92400e; }
+    .chip.amber::before { background: var(--amber); }
+    .chip.green { background: var(--green-soft); border-color: var(--green-line); color: #047857; }
+    .chip.green::before { background: var(--green); }
+    .chip.red { background: var(--red-soft); border-color: var(--red-line); color: #b91c1c; }
+    .chip.red::before { background: var(--red); }
+
+    .split { display: grid; grid-template-columns: 0.75fr 1.25fr; min-height: 700px; }
+    .list-pane { border-right: 1px solid var(--line); background: var(--panel); padding: 18px; display: grid; gap: 12px; align-content: start; }
+    .detail-pane { background: var(--page); padding: 18px; display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 16px; align-content: start; }
+    .case-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; background: var(--panel); display: grid; gap: 8px; }
+    .case-card.active { border-color: var(--blue-line); box-shadow: inset 4px 0 0 var(--blue); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 12px; }
+    .panel h3 { font-size: 15px; }
+    .evidence { display: grid; gap: 8px; }
+    .evidence li { color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+
+    .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 18px; background: var(--page); min-height: 700px; }
+    .lane { background: var(--panel-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: grid; gap: 10px; align-content: start; }
+    .lane h3 { font-size: 13px; display: flex; justify-content: space-between; }
+    .ticket { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px; display: grid; gap: 10px; }
+    .ticket:hover { border-color: var(--blue-line); transform: translateY(-1px); }
+
+    .review-grid { display: grid; grid-template-columns: 320px 1fr 360px; min-height: 700px; background: var(--page); }
+    .review-col { border-right: 1px solid var(--line); padding: 18px; display: grid; align-content: start; gap: 12px; }
+    .review-col:last-child { border-right: 0; }
+    .finding { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius-sm); padding: 12px; display: grid; gap: 7px; }
+    .checkline { display: flex; gap: 9px; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
+    .box { width: 18px; height: 18px; border-radius: 5px; border: 1px solid var(--line); flex: 0 0 auto; margin-top: 1px; }
+    .box.ok { background: var(--green); border-color: var(--green); }
+
+    .timeline-shell { display: grid; grid-template-columns: 1fr 390px; min-height: 700px; background: var(--page); }
+    .timeline-main { padding: 20px; display: grid; gap: 14px; align-content: start; }
+    .timeline-aside { border-left: 1px solid var(--line); background: var(--panel); padding: 20px; display: grid; gap: 14px; align-content: start; }
+    .event { display: grid; grid-template-columns: 26px 1fr; gap: 12px; }
+    .event-dot { width: 26px; height: 26px; border-radius: 999px; background: var(--blue-soft); border: 1px solid var(--blue-line); position: relative; }
+    .event-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: grid; gap: 6px; }
+
+    .exec { background: #0b1120; color: #f8fafc; min-height: 700px; padding: 22px; display: grid; gap: 16px; align-content: start; }
+    .exec p, .exec .meta { color: #94a3b8; }
+    .exec-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .exec-card { background: #111827; border: 1px solid rgba(255,255,255,0.10); border-radius: var(--radius); padding: 16px; display: grid; gap: 10px; }
+    .exec-card strong { font-size: 24px; }
+    .exec-list { display: grid; gap: 10px; }
+    .exec-row { background: #111827; border: 1px solid rgba(255,255,255,0.10); border-radius: var(--radius); padding: 14px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+
+    .comparison { max-width: 1280px; margin: 0 auto; padding: 38px 24px; display: grid; gap: 16px; }
+    .comparison table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); }
+    th, td { border-bottom: 1px solid var(--line); padding: 12px; text-align: left; vertical-align: top; font-size: 13px; }
+    th { background: var(--panel-soft); font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    tr:last-child td { border-bottom: 0; }
+
+    @media (max-width: 960px) {
+      .direction-header, .app-shell, .split, .detail-pane, .review-grid, .timeline-shell, .exec-grid { grid-template-columns: 1fr; }
+      .sidebar, .timeline-aside, .list-pane, .review-col { border-right: 0; border-left: 0; }
+      .metrics, .kanban { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .mockup { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <strong>Agentic AI Staff Portal</strong>
+      <span>Step 9 — Design direction showcase</span>
+    </div>
+    <nav class="nav" aria-label="Design directions">
+      <a href="#d1">1 Console</a>
+      <a href="#d2">2 Workspace</a>
+      <a href="#d3">3 Queue</a>
+      <a href="#d4">4 Review</a>
+      <a href="#d5">5 Audit</a>
+      <a href="#d6">6 Exceptions</a>
+      <a href="#compare">Compare</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div class="direction-kicker">Protective clarity over administrative control</div>
+      <h1>Six visual directions for a calm workflow governance console.</h1>
+      <p>Each direction applies the approved slate/blue foundation, amber attention states, green proof-backed outcomes, and red-only-for-blocked/destructive semantics. Use these mockups to choose the layout and interaction style that best supports the safe handoff loop.</p>
+      <div class="principles">
+        <span class="pill">State first</span>
+        <span class="pill amber">Reason second</span>
+        <span class="pill green">Receipt after action</span>
+        <span class="pill red">Unsafe progress blocked</span>
+      </div>
+    </section>
+
+    <section class="direction" id="d1">
+      <div class="direction-inner">
+        <div class="direction-header">
+          <div><div class="direction-kicker">Direction 1</div><h2>Command Console — recommended operational default</h2></div>
+          <div class="direction-note"><strong>Best for</strong><p>A shared Command Center where staff need state, reason, owner, readiness, and next safe action in one scan.</p></div>
+        </div>
+        <div class="mockup app-shell">
+          <aside class="sidebar">
+            <div class="logo">Agentic AI</div>
+            <div class="side-group"><div class="side-label">Work queues</div><div class="side-item active">Needs attention <span class="badge-count">8</span></div><div class="side-item">Human review <span class="badge-count">5</span></div><div class="side-item">Delivery blocked <span class="badge-count">2</span></div><div class="side-item">Follow-up due <span class="badge-count">6</span></div></div>
+            <div class="side-group"><div class="side-label">Governance</div><div class="side-item">Audit receipts</div><div class="side-item">Escalations</div><div class="side-item">Settings</div></div>
+          </aside>
+          <section class="workspace">
+            <div class="workspace-head"><div><h3>Command Center</h3><div class="meta">Prioritised by delivery risk, stale context, blockers, and due commitments</div></div><button class="button primary">Review top case</button></div>
+            <div class="metrics"><div class="metric"><span>Needs attention</span><strong>8</strong></div><div class="metric"><span>Delivery blocked</span><strong>2</strong></div><div class="metric"><span>Stale briefs</span><strong>4</strong></div><div class="metric"><span>Receipts today</span><strong>13</strong></div></div>
+            <div class="queue">
+              <div class="row"><div class="row-title"><strong>Northside Dental</strong><span>Priority reason: two gate findings block delivery</span></div><span class="chip amber">Needs review</span><span class="chip red">Blocked</span><span class="chip amber">Readiness missing</span><button class="button">Open safe action</button></div>
+              <div class="row"><div class="row-title"><strong>Greenline Accounting</strong><span>Priority reason: meeting brief stale after report decision</span></div><span class="chip blue">Review context</span><span class="chip amber">Stale evidence</span><span class="chip amber">Refresh needed</span><button class="button">Refresh brief</button></div>
+              <div class="row"><div class="row-title"><strong>Harbour Fit Studio</strong><span>Priority reason: follow-up due today; commercial next step missing</span></div><span class="chip blue">Follow-up due</span><span class="chip amber">Needs attention</span><span class="chip red">Next step missing</span><button class="button">Add next step</button></div>
+              <div class="row"><div class="row-title"><strong>Westside Builders</strong><span>Priority reason: report approved, ready for client delivery</span></div><span class="chip green">Recorded</span><span class="chip green">Ready</span><span class="chip blue">Safe next action</span><button class="button primary">Preview delivery</button></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="d2">
+      <div class="direction-inner">
+        <div class="direction-header"><div><div class="direction-kicker">Direction 2</div><h2>Split Decision Workspace — context beside action</h2></div><div class="direction-note"><strong>Best for</strong><p>Deep case work where staff must inspect evidence, blocker reason, and consequence preview before committing.</p></div></div>
+        <div class="mockup split">
+          <aside class="list-pane"><div class="workspace-head"><h3>Attention queue</h3></div><div class="case-card active"><span class="chip red">Delivery blocked</span><strong>Northside Dental</strong><p>Missing evidence in automation recommendation.</p></div><div class="case-card"><span class="chip amber">Stale brief</span><strong>Greenline Accounting</strong><p>Source changed after brief generation.</p></div><div class="case-card"><span class="chip blue">Review required</span><strong>Bayside Legal</strong><p>Reviewer decision required before delivery.</p></div></aside>
+          <section class="detail-pane"><div class="panel"><span class="chip red">Current state: human review blocked</span><h3>Northside Dental — What matters now</h3><p>Report delivery is paused because two findings still require review. This protects the client from receiving unsupported recommendations.</p><ul class="evidence"><li><strong>Blocking reason:</strong> Finding 2 has no linked source evidence.</li><li><strong>Owner:</strong> Quality reviewer</li><li><strong>Consequence if ignored:</strong> Unsupported automation advice may be delivered.</li></ul><button class="button primary">Request evidence update</button></div><aside class="panel"><h3>Action preview</h3><p>Before commit, the portal will record: previous state, new blocked reason, actor, rationale, and next owner.</p><span class="chip green">Audit receipt will be created</span><button class="button">Preview receipt</button></aside></section>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="d3">
+      <div class="direction-inner">
+        <div class="direction-header"><div><div class="direction-kicker">Direction 3</div><h2>Inbox Triage Board — support-style ownership</h2></div><div class="direction-note"><strong>Best for</strong><p>Teams that think in ownership lanes and escalation flow, while still preserving readiness and risk semantics.</p></div></div>
+        <div class="mockup kanban">
+          <div class="lane"><h3>Needs review <span>5</span></h3><div class="ticket"><span class="chip amber">Needs attention</span><strong>Bayside Legal</strong><p>Human approval required before client delivery.</p></div><div class="ticket"><span class="chip blue">Review context</span><strong>Prahran Clinic</strong><p>AI conclusion changed after staff note.</p></div></div>
+          <div class="lane"><h3>Blocked <span>2</span></h3><div class="ticket"><span class="chip red">Blocked</span><strong>Northside Dental</strong><p>Unsupported recommendation blocks delivery.</p></div><div class="ticket"><span class="chip red">Unsafe</span><strong>Harbour Fit Studio</strong><p>Commercial next step missing before follow-up.</p></div></div>
+          <div class="lane"><h3>Ready <span>4</span></h3><div class="ticket"><span class="chip green">Ready</span><strong>Westside Builders</strong><p>Report approved; delivery preview available.</p></div><div class="ticket"><span class="chip green">Resolved</span><strong>Metro Cafe</strong><p>Escalation closed with receipt.</p></div></div>
+          <div class="lane"><h3>Follow-up <span>6</span></h3><div class="ticket"><span class="chip amber">Due today</span><strong>Greenline Accounting</strong><p>Meeting brief must be refreshed first.</p></div><div class="ticket"><span class="chip blue">Safe action</span><strong>Melbourne Physio</strong><p>Record consultation complete.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="d4">
+      <div class="direction-inner">
+        <div class="direction-header"><div><div class="direction-kicker">Direction 4</div><h2>Safety Review Cockpit — checklist for high-impact actions</h2></div><div class="direction-note"><strong>Best for</strong><p>Report approval, delivery pause, escalation closure, and other actions where readiness evidence must be explicit.</p></div></div>
+        <div class="mockup review-grid">
+          <aside class="review-col"><h3>Gate findings</h3><div class="finding"><span class="chip green">Resolved</span><strong>Finding 1: Intake mismatch</strong><p>Reviewer accepted corrected client context.</p></div><div class="finding"><span class="chip red">Blocking</span><strong>Finding 2: Unsupported claim</strong><p>Evidence missing for automation readiness claim.</p></div><div class="finding"><span class="chip amber">Needs review</span><strong>Finding 3: Follow-up implication</strong><p>Commercial next step may need update.</p></div></aside>
+          <section class="review-col"><h3>Evidence and report context</h3><div class="panel"><p>The generated report recommends workflow automation for missed appointment follow-up. The linked evidence currently references old intake notes, not the latest call transcript.</p></div><div class="panel"><h3>Why progress is blocked</h3><p>Client delivery is unavailable until all blocking findings are resolved and the Meeting Brief is refreshed from current source context.</p><span class="chip red">Delivery action disabled</span></div></section>
+          <aside class="review-col"><h3>Readiness checklist</h3><div class="checkline"><span class="box ok"></span><span>Reviewer identity recorded</span></div><div class="checkline"><span class="box ok"></span><span>Finding 1 resolved with rationale</span></div><div class="checkline"><span class="box"></span><span>Finding 2 evidence linked</span></div><div class="checkline"><span class="box"></span><span>Meeting Brief refreshed</span></div><button class="button danger">Mark cannot proceed</button><button class="button primary">Request evidence update</button></aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="d5">
+      <div class="direction-inner">
+        <div class="direction-header"><div><div class="direction-kicker">Direction 5</div><h2>Audit Timeline First — proof after action</h2></div><div class="direction-note"><strong>Best for</strong><p>Workspaces where continuity, handoff memory, and immutable decision receipts need to dominate the experience.</p></div></div>
+        <div class="mockup timeline-shell">
+          <section class="timeline-main"><div class="workspace-head"><div><h3>Northside Dental timeline</h3><div class="meta">Formal audit and operational continuity separated but adjacent</div></div><span class="chip red">Currently blocked</span></div><div class="event"><span class="event-dot"></span><div class="event-card"><strong>Report generation completed</strong><p>Automation produced draft report. Human review required before delivery.</p><span class="meta">Today 09:12 · System</span></div></div><div class="event"><span class="event-dot"></span><div class="event-card"><strong>Reviewer blocked delivery</strong><p>Reason: unsupported recommendation in section 3. Evidence update required.</p><span class="meta">Today 10:04 · Ada Reviewer · Receipt #AR-1042</span></div></div><div class="event"><span class="event-dot"></span><div class="event-card"><strong>Next owner assigned</strong><p>Operations coordinator requested updated evidence from intake source.</p><span class="meta">Today 10:08 · Maya Operator</span></div></div></section>
+          <aside class="timeline-aside"><h3>Decision receipt</h3><span class="chip green">Recorded for continuity</span><p><strong>What changed:</strong> Delivery paused until evidence is linked.</p><p><strong>Why:</strong> Prevent unsupported client recommendation.</p><p><strong>Next owner:</strong> Quality reviewer after evidence update.</p><button class="button primary">Continue from receipt</button></aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="d6">
+      <div class="direction-inner">
+        <div class="direction-header"><div><div class="direction-kicker">Direction 6</div><h2>Executive Exceptions — quiet dark operations wall</h2></div><div class="direction-note"><strong>Best for</strong><p>A low-noise oversight mode for admins who need exceptions, unsafe ambiguity, and stalled handoffs surfaced fast.</p></div></div>
+        <div class="mockup exec">
+          <div class="workspace-head"><div><h3>Operations exceptions</h3><div class="meta">Only signals that change next action, ownership, risk, or readiness are promoted</div></div><button class="button primary">Open highest risk</button></div>
+          <div class="exec-grid"><div class="exec-card"><span class="chip red">Blocked</span><strong>2</strong><p>Delivery-blocking issues requiring intervention.</p></div><div class="exec-card"><span class="chip amber">Stale</span><strong>4</strong><p>Meeting briefs invalidated by material changes.</p></div><div class="exec-card"><span class="chip green">Receipts</span><strong>13</strong><p>Recorded decisions today.</p></div></div>
+          <div class="exec-list"><div class="exec-row"><div><strong>Northside Dental</strong><p>Unsafe report delivery prevented. Evidence gap in automation recommendation.</p></div><span class="chip red">Intervention required</span></div><div class="exec-row"><div><strong>Greenline Accounting</strong><p>Consultation prep stale after review decision. Refresh required before client call.</p></div><span class="chip amber">Needs attention</span></div><div class="exec-row"><div><strong>Westside Builders</strong><p>Ready for delivery with receipt-backed approval.</p></div><span class="chip green">Ready</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="comparison" id="compare">
+      <div><div class="direction-kicker">Comparison guide</div><h2>Evaluation criteria</h2></div>
+      <table>
+        <thead><tr><th>Direction</th><th>Strength</th><th>Tradeoff</th><th>Use if...</th></tr></thead>
+        <tbody>
+          <tr><td>1. Command Console</td><td>Best default for state-first operational scanning.</td><td>Less immersive for deep review unless paired with detail pages.</td><td>You want the Command Center to be the portal’s anchor.</td></tr>
+          <tr><td>2. Split Decision Workspace</td><td>Strongest context-beside-action pattern.</td><td>Needs careful responsive handling.</td><td>Human review and safe action commitment are dominant workflows.</td></tr>
+          <tr><td>3. Inbox Triage Board</td><td>Easy ownership and escalation mental model.</td><td>Can drift toward ticket closure if overused.</td><td>Operators manage many cases across ownership lanes.</td></tr>
+          <tr><td>4. Safety Review Cockpit</td><td>Best for readiness-before-progress and disabled action clarity.</td><td>Too heavy for routine updates.</td><td>High-impact report decisions need explicit evidence checks.</td></tr>
+          <tr><td>5. Audit Timeline First</td><td>Best for proof after action and handoff continuity.</td><td>Can feel record-first if not balanced with next action.</td><td>Audit receipts and decision history are the core confidence driver.</td></tr>
+          <tr><td>6. Executive Exceptions</td><td>Quiet, serious, and useful for admin oversight.</td><td>Dark mode must be carefully tested for contrast and semantics.</td><td>You need a separate exception-monitoring mode.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
