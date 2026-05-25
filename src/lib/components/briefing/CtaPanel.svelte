@@ -46,7 +46,7 @@
 </script>
 
 <div class="cta-panel-wrapper">
-  <aside class="cta-panel" role="complementary" aria-label="Next steps">
+  <aside class="cta-panel" aria-label="Next steps">
     <div class="cta-content">
       <h2>Ready to take the next step?</h2>
       <p class="cta-subtitle">

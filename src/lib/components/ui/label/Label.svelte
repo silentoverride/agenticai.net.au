@@ -28,9 +28,4 @@
     font-weight: 700;
     line-height: 1;
   }
-
-  .label:has(+ :disabled) {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
 </style>
