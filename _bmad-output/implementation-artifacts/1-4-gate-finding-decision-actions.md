@@ -96,4 +96,10 @@ To be completed by dev agent.
 
 ### Completion Notes List
 
+- GateFindingCard.svelte: Created with full detail rendering (type, verdict, confidence bar, severity badge, expandable reasoning/details, flagged section, evidence, inspection steps, state badge, decision notes, risk signal). All optional fields handled gracefully. Data-testid hooks for gate-finding-{id}, gate-verdict-{verdict}, gate-state-{state}. Added inline action controls with per-action forms for action-requiring reason code/note. Override action has front-end validation requiring both reasonCode and reason. Stale and blocked actions display visible adjacent text, not colour alone (WCAG 2.2 AA).
+- +page.svelte: Wired GateFindingCard into workspace page. Findings ordered: unresolved first (open/escalatedFurther/conflict), then resolved, then overridden. Section header shows count summary. Removed stale inline gate finding card CSS classes. Added card-subtitle CSS class for the count summary.
+- get-assessment-review.ts: `toGateFindingDto` extended to accept actor context and compute per-finding `actions` array via `getAvailableActions`.
+- dto.ts: Added `actions: StaffActionDescriptor[]` to `StaffGateFindingDto`.
+- get-available-actions.test.ts: Added 3 tests — open gate finding returns all 4 actions, resolved state blocks all actions, override/resolve/escalate require reason code and note.
+- commit-staff-action.test.ts: Added 2 tests — overrideFinding fails without reason/note, overrideFinding succeeds with all metadata.
 ### File List

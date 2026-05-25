@@ -67,4 +67,67 @@ describe('getAvailableActions', () => {
     expect(isStaffRole('sales')).toBe(false);
     expect(isStaffRole('manager')).toBe(false);
   });
+
+  it('returns claim, resolve, override, escalate for open gate finding', () => {
+    const state = mapGateFindingState(gateFindingFacts({ gateVerdict: 'human_assist' }));
+    const actions = getAvailableActions({
+      targetType: 'gateFinding',
+      state,
+      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+    });
+
+    const ids = actions.map((a) => a.id);
+    expect(ids).toContain('claimFinding');
+    expect(ids).toContain('resolveFinding');
+    expect(ids).toContain('overrideFinding');
+    expect(ids).toContain('escalateFinding');
+
+    // All should be enabled for open state with assigned operator
+    expect(actions.every((a) => a.enabled)).toBe(true);
+  });
+
+  it('blocks all gate finding actions for resolved state', () => {
+    const state = mapGateFindingState(gateFindingFacts({ gateVerdict: 'approve', humanAssistStatus: 'approved', approvalEvidence: true }));
+    expect(state.state).toBe('resolved');
+
+    const actions = getAvailableActions({
+      targetType: 'gateFinding',
+      state,
+      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+    });
+
+    // Resolved gate finding should have all actions blocked
+    expect(actions.every((a) => a.enabled === false)).toBe(true);
+    const blocked = actions.filter((a) => a.blockedReason);
+    expect(blocked.length).toBe(actions.length);
+  });
+
+  it('marks override and escalate as requiring reason code and note', () => {
+    const state = mapGateFindingState(gateFindingFacts({ gateVerdict: 'human_assist' }));
+    const actions = getAvailableActions({
+      targetType: 'gateFinding',
+      state,
+      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+    });
+
+    const override = actions.find((a) => a.id === 'overrideFinding');
+    expect(override?.requiresReasonCode).toBe(true);
+    expect(override?.requiresNote).toBe(true);
+
+    const resolve = actions.find((a) => a.id === 'resolveFinding');
+    expect(resolve?.requiresReasonCode).toBe(true);
+    expect(resolve?.requiresNote).toBe(true);
+
+    const escalate = actions.find((a) => a.id === 'escalateFinding');
+    expect(escalate?.requiresReasonCode).toBe(true);
+    expect(escalate?.requiresNote).toBe(true);
+
+    // claimFinding does not require reason code or note
+    const claim = actions.find((a) => a.id === 'claimFinding');
+    expect(claim?.requiresReasonCode).toBe(false);
+    expect(claim?.requiresNote).toBe(false);
+  });
 });

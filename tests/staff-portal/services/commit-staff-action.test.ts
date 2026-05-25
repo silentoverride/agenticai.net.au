@@ -125,6 +125,39 @@ describe('commitStaffAction', () => {
     const result = await commitStaffAction(baseInput(failingDb));
     expect(result).toMatchObject({ success: false, error: { code: 'auditWriteFailed', currentState: 'open' } });
   });
+
+  it('rejects overrideFinding when reason code and note are missing', async () => {
+    const { db } = seededDb();
+    // overrideFinding requires reasonCode and reason — without them it should fail validation
+    const result = await commitStaffAction(baseInput(db, {
+      action: 'overrideFinding',
+      targetId: 'gate-2'
+    }));
+    expect(result).toMatchObject({ success: false, error: { code: 'validationFailed' } });
+    await expect(countEvents(db)).resolves.toBe(0);
+  });
+
+  it('accepts overrideFinding when all required metadata is provided', async () => {
+    const { db } = seededDb();
+    const result = await commitStaffAction(baseInput(db, {
+      action: 'overrideFinding',
+      targetId: 'gate-2',
+      idempotencyKey: 'idem-override-1',
+      idFactory: () => 'event-override-1',
+      reasonCode: 'evidence_sufficient',
+      reason: 'Supporting evidence confirms the finding is a false positive.'
+    }));
+    expect(result).toMatchObject({
+      success: true,
+      state: 'overriddenWithReason',
+      receipt: {
+        id: 'event-override-1',
+        action: 'overrideFinding',
+        previousState: 'open'
+      }
+    });
+    await expect(countEvents(db)).resolves.toBe(1);
+  });
 });
 
 function seededDb() {
