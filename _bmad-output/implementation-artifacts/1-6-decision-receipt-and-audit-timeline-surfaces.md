@@ -1,6 +1,6 @@
 # Story 1.6: Decision Receipt and Audit Timeline Surfaces
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
