@@ -60,7 +60,7 @@ development_status:
   epic-3: in-progress
   3-1-client-profile-snapshot-read-model: done
   3-2-what-matters-now-panel: done
-  3-3-linked-reports-and-gate-findings-context: ready-for-dev
+  3-3-linked-reports-and-gate-findings-context: done
   3-4-activity-memory-and-audit-history: ready-for-dev
   3-5-client-profile-continuity-layout: ready-for-dev
   epic-3-retrospective: optional
