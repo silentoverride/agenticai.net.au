@@ -554,3 +554,42 @@ export interface StaffWhatMattersNowDto {
   sourceDomain: SourceDomain | null;
   precedenceLevel: number;
 }
+
+// ---------------------------------------------------------------------------
+// Linked Reports & Gate Findings DTOs (Story 3.3)
+// ---------------------------------------------------------------------------
+
+export interface StaffLinkedReportDto {
+  reportId: string;
+  title: string;
+  reportState: ReportState;
+  humanReviewState: HumanReviewState;
+  artifactVersion: string | null;
+  createdAt: string;
+  hasArtifacts: boolean;
+  degradedFields: string[];
+  reviewWorkspaceRoute: string;
+}
+
+export interface StaffLinkedGateFindingDto {
+  findingId: string;
+  type: string;
+  verdict: string;
+  confidence: number | null;
+  severity: string | null;
+  reasoning: string | null;
+  details: string | null;
+  flaggedSection: string | null;
+  relatedIntakeEvidence: string | null;
+  suggestedInspectionSteps: string | null;
+  decisionState: GateFindingState;
+  linkedReportId: string;
+  isBlocking: boolean;
+}
+
+export interface StaffLinkedContextSectionDto {
+  reports: StaffLinkedReportDto[];
+  findings: StaffLinkedGateFindingDto[];
+  totalReports: number;
+  totalFindings: number;
+}
