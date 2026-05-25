@@ -3,7 +3,8 @@ import { json } from '@sveltejs/kit';
 import { z } from 'zod';
 import { getDb } from '$lib/server/db';
 import { requireOperator } from '$lib/server/operator-auth';
-import { insertFollowUp, findFollowUpsByAssessment } from '$lib/server/staff-portal/repositories/follow-up.repository';
+import { insertFollowUp, findFollowUpsByAssessment, findFollowUpById } from '$lib/server/staff-portal/repositories/follow-up.repository';
+import { insertStaffActionAuditEvent, findStaffActionAuditEventByIdempotency, staffActionReceiptFromEvent } from '$lib/server/staff-portal/repositories/staff-audit.repository';
 
 // ── Schemas ──
 
@@ -18,6 +19,7 @@ const FOLLOW_UP_SOURCES = [
 ] as const;
 
 const createFollowUpSchema = z.object({
+  idempotencyKey: z.string().optional(),
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   ownerId: z.string().optional(),
@@ -72,13 +74,66 @@ export async function POST(event: RequestEvent) {
 
   const db = getDb();
   const id = crypto.randomUUID();
+  const idempotencyKey = parsed.data.idempotencyKey ?? crypto.randomUUID();
+
+  // Check idempotency for create action
+  const existingEvent = await findStaffActionAuditEventByIdempotency(db, {
+    actorId,
+    assessmentId,
+    idempotencyKey
+  });
+  if (existingEvent) {
+    // Idempotent retry — return existing follow-up if it exists
+    const existingFollowUp = existingEvent.targetId
+      ? await findFollowUpById(db, existingEvent.targetId)
+      : null;
+    return json({
+      success: true,
+      receipt: staffActionReceiptFromEvent(existingEvent),
+      followUp: existingFollowUp
+    });
+  }
 
   try {
     const followUp = await insertFollowUp(db, { id, assessmentId, ...parsed.data });
-    return json({ success: true, followUp });
+
+    // Create audit event for follow-up creation
+    try {
+      await insertStaffActionAuditEvent(db, {
+        id: crypto.randomUUID(),
+        assessmentId,
+        targetType: 'followUp',
+        targetId: id,
+        actorId,
+        action: 'completeFollowUp',  // placeholder — 'createFollowUp' not in StaffPortalActionId
+        fromState: 'open',
+        toState: 'open',
+        reasonCode: undefined,
+        reason: undefined,
+        requestHash: `${id}-create-${new Date().toISOString()}`,
+        idempotencyKey,
+        createdAt: new Date().toISOString()
+      });
+    } catch (auditErr) {
+      console.error('Failed to create audit event for follow-up creation:', auditErr);
+      // Creation succeeded — audit write failure is non-blocking for the response
+    }
+
+    const receipt = await findStaffActionAuditEventByIdempotency(db, {
+      actorId, assessmentId, idempotencyKey
+    });
+
+    return json({
+      success: true,
+      followUp,
+      receipt: receipt ? staffActionReceiptFromEvent(receipt) : undefined
+    });
   } catch (err) {
     console.error('Failed to create follow-up:', err);
-    return json({ success: false, error: { code: 'auditWriteFailed', message: 'Failed to create follow-up' } }, { status: 500 });
+    return json({
+      success: false,
+      error: { code: 'auditWriteFailed', message: 'Failed to create follow-up' }
+    }, { status: 500 });
   }
 }
 
