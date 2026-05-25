@@ -3,6 +3,7 @@ import { requireOperator } from '$lib/server/operator-auth';
 import { getDb } from '$lib/server/db';
 import { getClientProfileSnapshot } from '$lib/server/staff-portal/read-models/get-client-profile-snapshot';
 import { deriveWhatMattersNow } from '$lib/server/staff-portal/read-models/derive-what-matters-now';
+import { findFollowUpsByAssessment } from '$lib/server/staff-portal/repositories/follow-up.repository';
 import { getLinkedReportContext } from '$lib/server/staff-portal/read-models/get-linked-report-context';
 import { getLinkedGateFindings } from '$lib/server/staff-portal/read-models/get-linked-gate-findings';
 import { getClientAuditHistory } from '$lib/server/staff-portal/read-models/get-client-audit-history';
@@ -36,9 +37,29 @@ export const load: PageServerLoad = async ({ locals, platform, params }) => {
       throw error(403, 'You do not have access to this assessment.');
     }
 
-    // 2. What Matters Now (Story 3.2)
+    // 7. Follow-ups (Story 4.2) — fetch before What Matters Now to pass urgency
+    const followUps = profileResult.hasData
+      ? await findFollowUpsByAssessment(db, assessmentId)
+      : [];
+
+    // Pick the most urgent open follow-up (overdue first, then nearest due date)
+    const openFollowUps = followUps.filter((fu) => fu.status === 'open');
+    openFollowUps.sort((a, b) => {
+      const aDue = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+      const bDue = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+      // Overdue items (past due) rank higher than future due
+      const now = Date.now();
+      const aIsOverdue = aDue < now;
+      const bIsOverdue = bDue < now;
+      if (aIsOverdue && !bIsOverdue) return -1;
+      if (!aIsOverdue && bIsOverdue) return 1;
+      return aDue - bDue;
+    });
+    const mostUrgentFollowUp = openFollowUps[0] ?? null;
+
+    // 2. What Matters Now (Story 3.2) — pass most urgent follow-up
     const whatMattersNow = profileResult.hasData && profileResult.profile
-      ? deriveWhatMattersNow({ profile: profileResult.profile })
+      ? deriveWhatMattersNow({ profile: profileResult.profile, mostUrgentFollowUp })
       : null;
 
     // 3. Linked Reports Context (Story 3.3)
