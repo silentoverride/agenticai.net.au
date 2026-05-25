@@ -30,6 +30,7 @@
     PrimaryTreatment
   } from '$lib/staff-portal/dto';
   import FollowUpEditor from './FollowUpEditor.svelte';
+  import MeetingBriefPanel from './MeetingBriefPanel.svelte';
 
   let {
     profile,
@@ -442,64 +443,12 @@
         {/if}
       </section>
 
-      <section class="section" data-testid="meeting-brief-section" aria-label="Meeting Briefs">
-        <div class="section-header">
-          <h2 class="section-title">Meeting Brief</h2>
-          {#if calendlyLink}
-            <a href={calendlyLink} target="_blank" rel="noopener noreferrer" class="calendly-link">
-              📅 Schedule via Calendly
-            </a>
-          {/if}
-        </div>
-
-        {#if staleWarning?.stale}
-          <div class="mb-stale-warning" role="alert" data-testid="mb-stale-warning">
-            ⚠ {staleWarning.message}
-          </div>
-        {/if}
-
-        {#if meetingBrief}
-          <div class="meeting-brief-card" data-testid="meeting-brief-content">
-            {#if meetingBrief.meetingDate}
-              <p class="mb-field"><strong>Meeting date:</strong> {meetingBrief.meetingDate}</p>
-            {:else}
-              <p class="mb-field mb-missing"><strong>Meeting date:</strong> <em>Not set</em></p>
-            {/if}
-
-            {#if meetingBrief.objective}
-              <p class="mb-field"><strong>Objective:</strong> {meetingBrief.objective}</p>
-            {/if}
-            {#if meetingBrief.talkingPoints}
-              <p class="mb-field"><strong>Talking points:</strong> {meetingBrief.talkingPoints}</p>
-            {/if}
-            {#if meetingBrief.sensitiveIssues}
-              <p class="mb-field mb-sensitive"><strong>Sensitive issues:</strong> {meetingBrief.sensitiveIssues}</p>
-            {/if}
-            {#if meetingBrief.offerNextStep}
-              <p class="mb-field"><strong>Offer / next step to discuss:</strong> {meetingBrief.offerNextStep}</p>
-            {/if}
-            {#if meetingBrief.followUpIntention}
-              <p class="mb-field"><strong>Follow-up intention:</strong> {meetingBrief.followUpIntention}</p>
-            {/if}
-            {#if meetingBrief.finalAgendaNotes}
-              <p class="mb-field"><strong>Final agenda / notes:</strong> {meetingBrief.finalAgendaNotes}</p>
-            {/if}
-            {#if meetingBrief.prepChecklist}
-              <div class="mb-field">
-                <strong>Prep checklist:</strong>
-                <pre class="mb-checklist">{meetingBrief.prepChecklist}</pre>
-              </div>
-            {/if}
-
-            <div class="mb-meta">
-              <span class="state-badge state-{meetingBrief.status}">{meetingBrief.status}</span>
-              <span class="mb-timestamp">Updated: {formatDate(meetingBrief.updatedAt)}</span>
-            </div>
-          </div>
-        {:else}
-          <p class="empty-note">No meeting brief yet. <em>Draft notes will appear here once saved.</em></p>
-        {/if}
-      </section>
+      <MeetingBriefPanel
+        {meetingBrief}
+        {staleWarning}
+        {calendlyLink}
+        {assessmentId}
+      />
 
       <section class="section placeholder" data-testid="placeholder-commercial" aria-label="Commercial Next Step">
         <h2 class="section-title">Commercial Next Step</h2>
