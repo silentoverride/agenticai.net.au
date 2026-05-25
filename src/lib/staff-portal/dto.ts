@@ -465,3 +465,29 @@ export interface StaffBlockedReasonDto {
   remediationHint: string;
   testId: string;
 }
+
+// ---------------------------------------------------------------------------
+// Command Center DTOs (Story 2.1)
+// ---------------------------------------------------------------------------
+
+export type WorkItemType = 'report' | 'followUp' | 'meetingBrief' | 'commercialNextStep';
+
+export interface StaffCommandCenterItemDto {
+  workItemId: string;
+  workItemType: WorkItemType;
+  clientName: string;
+  lifecycleState: string;
+  owner: string | null;
+  dueDate: string | null;
+  ageDays: number;
+  priorityReason: string;
+  consequenceOfInaction: string | null;
+  priorityRank: number;
+  nextSafeAction: StaffActionDescriptor;
+}
+
+export interface StaffCommandCenterResultDto {
+  items: StaffCommandCenterItemDto[];
+  total: number;
+  hasMore: boolean;
+}
