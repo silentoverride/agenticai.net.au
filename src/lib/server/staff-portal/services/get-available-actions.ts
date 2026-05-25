@@ -44,27 +44,39 @@ interface ActionDraft {
 
 export function getAvailableActions(input: GetAvailableActionsInput): StaffActionDescriptor[] {
   const drafts = input.targetType === 'report'
-    ? reportActionDrafts(input.state)
+    ? reportActionDrafts(input.state, input.providedAuditMetadata)
     : gateFindingActionDrafts(input.state);
 
   return drafts.map((draft) => toDescriptor(draft, input));
 }
 
-function reportActionDrafts(state: GovernedReportState): ActionDraft[] {
+function reportActionDrafts(state: GovernedReportState, providedAuditMetadata?: Partial<Record<RequiredAuditMetadata, unknown>>): ActionDraft[] {
   const firstBlocked = state.blockedReasons[0];
   const staleReason = state.staleReasons[0];
   const reviewable = state.state === REPORT_STATES.GENERATED || state.state === REPORT_STATES.IN_REVIEW;
+
+  // For approveReport, check checklist items specifically
+  const checklistComplete = Boolean(providedAuditMetadata?.checklistVersion) && Boolean(providedAuditMetadata?.evidenceId) && Boolean(providedAuditMetadata?.artifactVersion);
+  const approveBlockedReason = !reviewable
+    ? BLOCKED_REASONS.NOT_REVIEWABLE
+    : !state.artifactPresent
+      ? BLOCKED_REASONS.MISSING_ARTIFACT
+      : state.blockedReasons.includes(BLOCKED_REASONS.UNRESOLVED_BLOCKING_FINDING)
+        ? BLOCKED_REASONS.UNRESOLVED_BLOCKING_FINDING
+        : staleReason
+          ? undefined
+          : undefined;
 
   return [
     {
       id: STAFF_ACTIONS.APPROVE_REPORT,
       targetType: 'report',
       label: 'Approve report',
-      lifecycleEnabled: reviewable && state.artifactPresent && !firstBlocked && !staleReason,
-      lifecycleBlockedReason: firstBlocked ?? (!state.artifactPresent ? BLOCKED_REASONS.MISSING_ARTIFACT : reviewable ? undefined : BLOCKED_REASONS.NOT_REVIEWABLE),
+      lifecycleEnabled: reviewable && state.artifactPresent && !state.blockedReasons.includes(BLOCKED_REASONS.UNRESOLVED_BLOCKING_FINDING) && !staleReason && !state.approved,
+      lifecycleBlockedReason: state.approved ? BLOCKED_REASONS.ALREADY_FINALIZED : approveBlockedReason,
       staleReason,
       consequence: 'Marks the report as approved for later audited delivery.',
-      remediationHint: 'Resolve blockers and complete approval evidence before approving.'
+      remediationHint: checklistComplete ? '' : 'Complete the review checklist: add a note, select a Reason Code, review delivery impact, and confirm audit details before approving.'
     },
     {
       id: STAFF_ACTIONS.REJECT_REPORT,
@@ -85,6 +97,16 @@ function reportActionDrafts(state: GovernedReportState): ActionDraft[] {
       staleReason,
       consequence: 'Routes the report back for a new generated version.',
       remediationHint: 'Provide concise regeneration notes and reason code.'
+    },
+    {
+      id: STAFF_ACTIONS.REQUEST_CLARIFICATION,
+      targetType: 'report',
+      label: 'Request clarification',
+      lifecycleEnabled: !state.approved && !staleReason,
+      lifecycleBlockedReason: state.approved ? BLOCKED_REASONS.ALREADY_FINALIZED : undefined,
+      staleReason,
+      consequence: 'Creates or links an internal follow-up — no client-facing request is sent.',
+      remediationHint: 'Explain what clarification is needed so the follow-up captures the missing context.'
     }
   ];
 }

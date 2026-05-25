@@ -158,6 +158,74 @@ describe('commitStaffAction', () => {
     });
     await expect(countEvents(db)).resolves.toBe(1);
   });
+
+  it('accepts requestClarification as a report-level action', async () => {
+    const { db } = seededDb();
+    const result = await commitStaffAction(baseInput(db, {
+      action: 'requestClarification',
+      targetType: 'report',
+      targetId: null,
+      reasonCode: 'evidence_sufficient',
+      reason: 'Need more info',
+      idempotencyKey: 'idem-clarify-1',
+      expectedState: 'generated',
+      loadCurrentTarget: async () => ({
+        targetType: 'report',
+        state: {
+          state: 'generated',
+          humanReviewState: 'none',
+          approved: false,
+          canDeliver: false,
+          artifactPresent: true,
+          risk: 'none',
+          blockedReasons: [],
+          staleReasons: []
+        },
+        version: 'v1',
+        assignedOperatorId: null
+      })
+    }));
+
+    expect(result).toMatchObject({ success: true, state: 'clarificationRequired' });
+  });
+
+  it('returns auditWriteFailed when audit insertion fails for a report-level action', async () => {
+    const db = failingAuditDb();
+    const result = await commitStaffAction({
+      db,
+      action: 'rejectReport',
+      targetType: 'report',
+      targetId: null,
+      assessmentId: 'a1',
+      actorId: 'op-1',
+      role: 'operator',
+      assignedOperatorId: null,
+      sharedQueue: false,
+      reasonCode: 'evidence_sufficient',
+      reason: 'Report contains errors',
+      idempotencyKey: 'idem-reject-1',
+      expectedState: 'generated',
+      now: () => new Date('2026-05-25T00:00:00.000Z'),
+      idFactory: () => 'event-2',
+      loadCurrentTarget: async () => ({
+        targetType: 'report',
+        state: {
+          state: 'generated',
+          humanReviewState: 'none',
+          approved: false,
+          canDeliver: false,
+          artifactPresent: true,
+          risk: 'none',
+          blockedReasons: [],
+          staleReasons: []
+        },
+        version: 'v1',
+        assignedOperatorId: null
+      })
+    });
+
+    expect(result).toMatchObject({ success: false, error: { code: 'auditWriteFailed' } });
+  });
 });
 
 function seededDb() {

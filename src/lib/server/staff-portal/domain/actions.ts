@@ -13,7 +13,8 @@ export const STAFF_ACTIONS = {
   ESCALATE_FINDING: 'escalateFinding',
   APPROVE_REPORT: 'approveReport',
   REJECT_REPORT: 'rejectReport',
-  REQUEST_REGENERATION: 'requestRegeneration'
+  REQUEST_REGENERATION: 'requestRegeneration',
+  REQUEST_CLARIFICATION: 'requestClarification'
 } as const satisfies Record<string, StaffPortalActionId>;
 
 export const ACTION_AUDIT_REQUIREMENTS: Record<StaffPortalActionId, RequiredAuditMetadata[]> = {
@@ -23,7 +24,8 @@ export const ACTION_AUDIT_REQUIREMENTS: Record<StaffPortalActionId, RequiredAudi
   escalateFinding: ['operatorId', 'note', 'reasonCode'],
   approveReport: ['operatorId', 'checklistVersion', 'evidenceId', 'artifactVersion'],
   rejectReport: ['operatorId', 'note', 'reasonCode'],
-  requestRegeneration: ['operatorId', 'note', 'reasonCode']
+  requestRegeneration: ['operatorId', 'note', 'reasonCode'],
+  requestClarification: ['operatorId', 'note', 'reasonCode']
 };
 
 export const ACTIONS_REQUIRING_REASON_CODE = new Set<StaffPortalActionId>([
@@ -31,7 +33,8 @@ export const ACTIONS_REQUIRING_REASON_CODE = new Set<StaffPortalActionId>([
   'overrideFinding',
   'escalateFinding',
   'rejectReport',
-  'requestRegeneration'
+  'requestRegeneration',
+  'requestClarification'
 ]);
 
 export const ACTIONS_REQUIRING_NOTE = new Set<StaffPortalActionId>([
@@ -39,5 +42,6 @@ export const ACTIONS_REQUIRING_NOTE = new Set<StaffPortalActionId>([
   'overrideFinding',
   'escalateFinding',
   'rejectReport',
-  'requestRegeneration'
+  'requestRegeneration',
+  'requestClarification'
 ]);

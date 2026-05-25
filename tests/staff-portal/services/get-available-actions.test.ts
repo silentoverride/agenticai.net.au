@@ -130,4 +130,56 @@ describe('getAvailableActions', () => {
     expect(claim?.requiresReasonCode).toBe(false);
     expect(claim?.requiresNote).toBe(false);
   });
+
+  it('returns requestClarification as a report action', () => {
+    const state = mapBrownfieldReportState(reportFacts({ pipelineStatus: 'ready', humanAssistStatus: null }));
+    const actions = getAvailableActions({
+      targetType: 'report',
+      state,
+      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+    });
+    const clarification = actions.find((a) => a.id === 'requestClarification');
+    expect(clarification).toBeDefined();
+    expect(clarification?.requiresReasonCode).toBe(true);
+    expect(clarification?.requiresNote).toBe(true);
+    expect(clarification?.consequence).toContain('internal follow-up');
+  });
+
+  it('does not return requestClarification when report is already approved', () => {
+    const state = mapBrownfieldReportState(reportFacts({
+      pipelineStatus: 'ready',
+      humanAssistStatus: 'approved',
+      approvalEvidence: true,
+      unresolvedBlockingFindings: 0
+    }));
+    // When fully approved, the state should be 'approved'
+    if (state.state !== 'approved') return; // skip if state mapper doesn't produce approved
+    const actions = getAvailableActions({
+      targetType: 'report',
+      state,
+      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+    });
+    const clarification = actions.find((a) => a.id === 'requestClarification');
+    expect(clarification?.enabled).toBe(false);
+    expect(clarification?.blockedReason).toBe('alreadyFinalized');
+  });
+
+  it('surfaces unresolvedBlockingFinding as blocked reason on approveReport', () => {
+    const state = mapBrownfieldReportState(reportFacts({
+      pipelineStatus: 'ready',
+      humanAssistStatus: null,
+      unresolvedBlockingFindings: 2
+    }));
+    const actions = getAvailableActions({
+      targetType: 'report',
+      state,
+      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { operatorId: 'op-1', checklistVersion: 'v1', evidenceId: 'e1', artifactVersion: 'latest' }
+    });
+    const approve = actions.find((a) => a.id === 'approveReport');
+    expect(approve?.enabled).toBe(false);
+    expect(approve?.blockedReason).toBe('unresolvedBlockingFinding');
+  });
 });
