@@ -3,6 +3,7 @@ import { json } from '@sveltejs/kit';
 import { getDb, setD1Binding } from '$lib/server/db';
 import { requireOperator } from '$lib/server/operator-auth';
 import { commitStaffAction } from '$lib/server/staff-portal/services/commit-staff-action';
+import { createFollowUpForSource } from '$lib/server/staff-portal/services/create-follow-up-for-source';
 import { staffActionRequestSchema } from '$lib/server/staff-portal/validation/staff-action.schema';
 import type { StaffActionMutationErrorDto } from '$lib/staff-portal/dto';
 
@@ -40,11 +41,34 @@ export async function POST(event: RequestEvent) {
     ...parsed.data
   });
 
-  if (result.success) {
-    return json({ success: true, receipt: result.receipt, state: result.state });
+  if (!result.success) {
+    return json({ success: false, error: result.error }, { status: statusForServiceError(result.error.code) });
   }
 
-  return json({ success: false, error: result.error }, { status: statusForServiceError(result.error.code) });
+  // When clarification is required on a report decision, auto-create a follow-up
+  // linked to the report so the commitment is not lost after review.
+  let followUp = undefined;
+  if (parsed.data.action === 'requestClarification') {
+    const fwResult = await createFollowUpForSource(getDb(), {
+      assessmentId,
+      title: parsed.data.reason
+        ? `Clarification required — ${parsed.data.reason}`
+        : 'Clarification required for report',
+      description: `Auto-created from a Human Review decision. ${parsed.data.reason ?? 'No additional context provided.'}`,
+      ownerId: actorId,
+      source: 'human_review',
+      clientVisiblePromise: false,
+      reportId: parsed.data.targetId
+    });
+    if (fwResult.success) {
+      followUp = fwResult.followUp;
+    }
+    // If follow-up creation fails, the audit event was already persisted.
+    // We return success but without the follow-up reference so the UI
+    // can warn that follow-up creation failed.
+  }
+
+  return json({ success: true, receipt: result.receipt, state: result.state, followUp });
 }
 
 function errorResponse(status: number, code: StaffActionMutationErrorDto['code'], message: string) {
