@@ -27,7 +27,7 @@ export type GateFindingState =
 
 export type HumanReviewState = 'none' | 'pending' | 'inReview' | 'approved' | 'rejected' | 'edited';
 
-export type StaffPortalTargetType = 'report' | 'gateFinding';
+export type StaffPortalTargetType = 'report' | 'gateFinding' | 'followUp';
 
 export type PresentationTone =
   | 'neutral'
@@ -69,7 +69,10 @@ export type StaffPortalActionId =
   | 'approveReport'
   | 'rejectReport'
   | 'requestRegeneration'
-  | 'requestClarification';
+  | 'requestClarification'
+  | 'completeFollowUp'
+  | 'deferFollowUp'
+  | 'reassignFollowUp';
 
 export interface StatePresentationMetadata {
   label: string;
@@ -127,7 +130,7 @@ export type StaffActionErrorCode =
   | 'validationFailed'
   | 'auditWriteFailed';
 
-export type StaffActionState = ReportState | GateFindingState;
+export type StaffActionState = ReportState | GateFindingState | FollowUpStatus;
 
 export interface StaffActionReceiptDto {
   id: string;
@@ -320,6 +323,12 @@ export const GATE_FINDING_ACTION_PRESENTATION: Record<string, { label: string }>
   resolveFinding: { label: 'Resolve Finding' },
   overrideFinding: { label: 'Override Finding' },
   escalateFinding: { label: 'Escalate Finding' }
+};
+
+export const FOLLOW_UP_ACTION_PRESENTATION: Record<string, { label: string }> = {
+  completeFollowUp: { label: 'Complete Follow-up' },
+  deferFollowUp: { label: 'Defer Follow-up' },
+  reassignFollowUp: { label: 'Reassign Follow-up' }
 };
 
 export const BLOCKED_REASON_PRESENTATION: Record<BlockedReason, StatePresentationMetadata> = {
@@ -649,3 +658,91 @@ export interface StaffAuditTrailResultDto {
   total: number;
   hasMore: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Follow-up DTOs (Epic 4)
+// ---------------------------------------------------------------------------
+
+export type FollowUpStatus = 'open' | 'completed' | 'deferred' | 'reassigned';
+export type FollowUpSource = 'client_profile' | 'human_review' | 'meeting_brief' | 'commercial_next_step' | 'support_issue' | 'admin_task' | 'delayed_journey';
+
+export interface StaffFollowUpDto {
+  id: string;
+  assessmentId: string;
+  title: string;
+  description: string | null;
+  ownerId: string | null;
+  dueDate: string | null;
+  source: FollowUpSource;
+  status: FollowUpStatus;
+  clientVisiblePromise: boolean;
+  consequenceOfInaction: string | null;
+  notes: string | null;
+  linkedReportId: string | null;
+  linkedGateFindingId: string | null;
+  linkedMeetingBriefId: string | null;
+  linkedCommercialStepId: string | null;
+  supportIssueRef: string | null;
+  adminTaskRef: string | null;
+  delayedJourneyState: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFollowUpInput {
+  assessmentId: string;
+  title: string;
+  description?: string;
+  ownerId?: string;
+  dueDate?: string;
+  source: FollowUpSource;
+  clientVisiblePromise?: boolean;
+  consequenceOfInaction?: string;
+  notes?: string;
+  linkedReportId?: string;
+  linkedGateFindingId?: string;
+  linkedMeetingBriefId?: string;
+  linkedCommercialStepId?: string;
+  supportIssueRef?: string;
+  adminTaskRef?: string;
+  delayedJourneyState?: string;
+}
+
+export interface UpdateFollowUpActionInput {
+  followUpId: string;
+  actorId: string;
+  assessmentId: string;
+  action: 'completeFollowUp' | 'deferFollowUp' | 'reassignFollowUp';
+  reason?: string;
+  newOwnerId?: string;
+  idempotencyKey: string;
+}
+
+export type FollowUpActionReceiptDto = StaffActionReceiptDto;
+
+export const FOLLOW_UP_STATE_PRESENTATION: Record<FollowUpStatus, StatePresentationMetadata> = {
+  open: {
+    label: 'Open', tone: 'attention', accessibleLabel: 'Follow-up open',
+    description: 'The follow-up commitment has not been completed.',
+    remediationHint: 'Complete the follow-up or defer it with a reason.',
+    testId: 'follow-up-state-open'
+  },
+  completed: {
+    label: 'Completed', tone: 'success', accessibleLabel: 'Follow-up completed',
+    description: 'The follow-up has been resolved.',
+    remediationHint: 'No further action is needed.',
+    testId: 'follow-up-state-completed'
+  },
+  deferred: {
+    label: 'Deferred', tone: 'warning', accessibleLabel: 'Follow-up deferred',
+    description: 'The follow-up was deferred with a recorded reason.',
+    remediationHint: 'Review the deferral reason and reschedule if needed.',
+    testId: 'follow-up-state-deferred'
+  },
+  reassigned: {
+    label: 'Reassigned', tone: 'audit', accessibleLabel: 'Follow-up reassigned',
+    description: 'The follow-up was reassigned to another staff member.',
+    remediationHint: 'Confirm the new owner has accepted the commitment.',
+    testId: 'follow-up-state-reassigned'
+  }
+};
