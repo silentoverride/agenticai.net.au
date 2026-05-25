@@ -21,8 +21,10 @@
   import type {
     StaffActionDescriptor,
     StaffPortalActionId,
-    StaffActionMutationResultDto
+    StaffActionMutationResultDto,
+    StaffActionReceiptDto
   } from '$lib/staff-portal/dto';
+  import DecisionReceipt from './DecisionReceipt.svelte';
 
   let {
     actions,
@@ -46,6 +48,9 @@
   let formReasonCode = $state('');
   let formReason = $state('');
   let formError = $state<string | null>(null);
+
+  // Receipt state
+  let lastReceipt = $state<StaffActionReceiptDto | null>(null);
 
   // Approval checklist state
   let showApprovalForm = $state(false);
@@ -178,6 +183,7 @@
         showApprovalForm = false;
         showActionForm = null;
         actionSuccess = `${action.label} completed.`;
+        lastReceipt = result.receipt;
         onStateChange?.(result.state);
       } else {
         const err = result.error;
@@ -405,6 +411,10 @@
   {/if}
   {#if actionSuccess}
     <p class="general-success" role="status" data-testid="guarded-action-success">{actionSuccess}</p>
+  {/if}
+
+  {#if lastReceipt}
+    <DecisionReceipt receipt={lastReceipt} dismissible onDismiss={() => (lastReceipt = null)} />
   {/if}
 </div>
 

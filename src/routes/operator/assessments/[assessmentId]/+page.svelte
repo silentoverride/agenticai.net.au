@@ -3,6 +3,7 @@
   import { Button, Badge, Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui';
   import GateFindingCard from '$lib/components/staff-portal/GateFindingCard.svelte';
   import GuardedActionPanel from '$lib/components/staff-portal/GuardedActionPanel.svelte';
+  import AuditTimeline from '$lib/components/staff-portal/AuditTimeline.svelte';
   import {
     REPORT_STATE_PRESENTATION
   } from '$lib/staff-portal/dto';
@@ -309,6 +310,13 @@
           reportState={review.reportState}
           onStateChange={handleReportStateChange}
         />
+      </CardContent>
+    </Card>
+
+    <!-- ============ AUDIT TIMELINE ============ -->
+    <Card>
+      <CardContent>
+        <AuditTimeline assessmentId={review.assessmentId} />
       </CardContent>
     </Card>
 
