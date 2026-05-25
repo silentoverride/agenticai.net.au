@@ -1,6 +1,6 @@
 # Story 2.4: Command Center Navigation and Recovery
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

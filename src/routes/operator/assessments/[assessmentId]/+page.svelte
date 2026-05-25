@@ -107,14 +107,16 @@
 </script>
 
 <svelte:head>
-  <title>Review Workspace — Operator</title>
+  <title>Assessment Review — Command Console</title>
 </svelte:head>
 
 <div class="workspace-page">
   <!-- Header -->
   <header class="page-header">
     <div class="breadcrumb">
-      <a href="/operator/assessments">← Review Queue</a>
+      <a href="/operator/assessments">← Back to Command Console</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Assessment Review</span>
     </div>
 
     {#if review}
@@ -363,6 +365,12 @@
 
   .breadcrumb a:hover {
     text-decoration: underline;
+  }
+
+  .breadcrumb-sep {
+    margin: 0 0.4rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #888);
   }
 
   .header-info {
