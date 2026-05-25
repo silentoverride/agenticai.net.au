@@ -521,3 +521,36 @@ export interface StaffClientProfileResultDto {
   degradedFields: string[];
   errorCode: ErrorCode | null;
 }
+
+// ---------------------------------------------------------------------------
+// What Matters Now DTOs (Story 3.2)
+// ---------------------------------------------------------------------------
+
+export type PrimaryTreatment =
+  | 'blocked'
+  | 'requires_decision'
+  | 'at_risk'
+  | 'draft_stale'
+  | 'ready'
+  | 'completed'
+  | 'all_clear';
+
+export type BlockerType = 'report_blocker' | 'gate_finding' | 'follow_up' | 'meeting_brief' | 'commercial';
+export type SourceDomain = 'report_review' | 'gate_finding' | 'follow_up' | 'meeting_brief' | 'commercial';
+
+export interface StaffBlockerInfoDto {
+  blockerName: string | null;
+  blockerType: BlockerType | null;
+}
+
+export interface StaffWhatMattersNowDto {
+  primaryTreatment: PrimaryTreatment;
+  blocker: StaffBlockerInfoDto;
+  nextValidAction: string | null;
+  nextActionRoute: string | null;
+  ownerName: string | null;
+  dueDate: string | null;
+  consequenceOfInaction: string | null;
+  sourceDomain: SourceDomain | null;
+  precedenceLevel: number;
+}
