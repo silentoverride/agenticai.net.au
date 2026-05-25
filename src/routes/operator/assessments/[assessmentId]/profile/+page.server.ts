@@ -5,6 +5,7 @@ import { getClientProfileSnapshot } from '$lib/server/staff-portal/read-models/g
 import { deriveWhatMattersNow } from '$lib/server/staff-portal/read-models/derive-what-matters-now';
 import { findFollowUpsByAssessment } from '$lib/server/staff-portal/repositories/follow-up.repository';
 import { findMeetingBriefByAssessment } from '$lib/server/staff-portal/repositories/meeting-brief.repository';
+import { findCommercialNextStepByAssessment } from '$lib/server/staff-portal/repositories/commercial-next-step.repository';
 import { getCalendlyConfig } from '$lib/server/staff-portal/services/calendly.service';
 import { checkMeetingBriefStaleness } from '$lib/server/staff-portal/services/meeting-brief-staleness';
 import { getLinkedReportContext } from '$lib/server/staff-portal/read-models/get-linked-report-context';
@@ -98,6 +99,11 @@ export const load: PageServerLoad = async ({ locals, platform, params }) => {
       ? checkMeetingBriefStaleness(meetingBrief)
       : null;
 
+    // 9. Commercial Next Step (Story 5.4)
+    const commercialStep = profileResult.hasData
+      ? await findCommercialNextStepByAssessment(db, assessmentId)
+      : null;
+
     return {
       profile: profileResult,
       whatMattersNow,
@@ -109,7 +115,8 @@ export const load: PageServerLoad = async ({ locals, platform, params }) => {
       meetingBrief,
       staleWarning,
       calendly,
-      assessmentId
+      assessmentId,
+      commercialStep
     };
   } catch (err) {
     const errStatus = (err as Error & { status?: number }).status ?? 500;
