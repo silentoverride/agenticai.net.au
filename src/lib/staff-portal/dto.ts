@@ -73,7 +73,8 @@ export type StaffPortalActionId =
   | 'completeFollowUp'
   | 'deferFollowUp'
   | 'reassignFollowUp'
-  | 'changeMeetingBriefStatus';
+  | 'changeMeetingBriefStatus'
+  | 'changeCommercialStep';
 
 export interface StatePresentationMetadata {
   label: string;
