@@ -72,8 +72,8 @@ development_status:
   4-5-follow-up-audit-receipts-and-failure-states: done
   epic-4-retrospective: optional
   epic-5: in-progress
-  5-1-calendly-access-and-meeting-brief-notes: ready-for-dev
-  5-2-meeting-brief-readiness-and-stale-state-guardrails: backlog
+  5-1-calendly-access-and-meeting-brief-notes: done
+  5-2-meeting-brief-readiness-and-stale-state-guardrails: ready-for-dev
   5-3-meetingbriefpanel-and-meeting-follow-ups: backlog
   5-4-commercial-next-step-model-and-panel: backlog
   5-5-commercial-follow-up-requirement-and-audit: backlog
