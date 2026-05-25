@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { createMemoryDb } from '../test-db';
-import { validateFollowupContinuity, isHighIntentStatus } from '$lib/server/staff-portal/services/commercial-followup-requirement.service';
+import { validateFollowupContinuity, isHighIntentStatus } from '$lib/staff-portal/commercial-utils';
 
 describe('commercial-followup-requirement service', () => {
   describe('isHighIntentStatus', () => {

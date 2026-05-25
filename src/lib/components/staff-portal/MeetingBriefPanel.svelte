@@ -1,7 +1,7 @@
 <script lang="ts">
   /**
    * MeetingBriefPanel — Meeting Brief preparation panel with readiness
-   * controls and follow-up creation.
+   * controls, follow-up creation, responsive layout, and accessibility.
    */
 
   import type {
@@ -50,6 +50,7 @@
   }
 
   async function handleMarkReady() {
+    if (markReadyStatus === 'loading') return; // duplicate-submit guard
     markReadyStatus = 'loading';
     markReadyError = null;
 
@@ -67,7 +68,6 @@
       if (data.success) {
         markReadyStatus = 'success';
         exceptionReason = '';
-        // Refresh page to reflect new state
         window.location.reload();
       } else {
         markReadyStatus = 'error';
@@ -81,14 +81,31 @@
 
   async function handleCreateFollowUp() {
     if (!meetingBrief) return;
-
     followUpExpanded = true;
+  }
+
+  // ── Keyboard handlers ──
+
+  function onFollowupKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      followUpExpanded = false;
+    }
+  }
+
+  function onReadinessKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      readinessExpanded = false;
+    }
   }
 
   async function submitFollowUp(e: SubmitEvent) {
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
     followUpError = null;
+
+    // Duplicate-submit guard: disable submit button immediately
+    const submitBtn = form.querySelector<HTMLButtonElement>('[data-testid="mb-followup-submit"]');
+    if (submitBtn) submitBtn.disabled = true;
 
     try {
       const res = await fetch(followUpApiPath, {
@@ -109,9 +126,11 @@
         window.location.reload();
       } else {
         followUpError = data.error?.message ?? 'Failed to create follow-up.';
+        if (submitBtn) submitBtn.disabled = false;
       }
     } catch {
       followUpError = 'Network error. Please try again.';
+      if (submitBtn) submitBtn.disabled = false;
     }
   }
 </script>
@@ -184,13 +203,24 @@
       class="panel-toggle"
       onclick={() => { readinessExpanded = !readinessExpanded; }}
       aria-expanded={readinessExpanded}
+      aria-controls="readiness-panel"
       data-testid="mb-readiness-toggle"
     >
-      {readinessExpanded ? '▾' : '▸'} Readiness &amp; State
+      <span class="toggle-icon">{readinessExpanded ? '▾' : '▸'}</span>
+      <span>Readiness &amp; State</span>
     </button>
 
     {#if readinessExpanded}
-      <div class="readiness-panel" data-testid="mb-readiness-panel">
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div
+        id="readiness-panel"
+        class="readiness-panel"
+        data-testid="mb-readiness-panel"
+        role="region"
+        aria-label="Readiness and state"
+        tabindex="-1"
+        onkeydown={onReadinessKeydown}
+      >
         <dl class="readiness-dl">
           <dt>Current state</dt>
           <dd><span class="state-badge state-{meetingBrief.status}">{meetingBrief.status}</span></dd>
@@ -213,7 +243,7 @@
             <h4 class="readiness-subtitle">Mark Ready</h4>
 
             {#if markReadyStatus === 'success'}
-              <p class="feedback-success" role="status" data-testid="mb-ready-success">
+              <p class="feedback-success" role="status" data-testid="mb-ready-success" aria-live="polite">
                 ✓ Meeting Brief marked ready.
               </p>
             {:else}
@@ -227,21 +257,24 @@
                   placeholder="e.g. No approved deliverable required"
                   data-testid="mb-exception-reason"
                   disabled={markReadyStatus === 'loading'}
+                  aria-describedby="mark-ready-desc"
                 />
               </label>
 
               <div class="mark-ready-actions">
+                <p id="mark-ready-desc" class="sr-only">Marks the meeting brief as ready for discussion</p>
                 <button
                   class="btn btn-primary"
                   onclick={handleMarkReady}
                   disabled={markReadyStatus === 'loading'}
+                  aria-busy={markReadyStatus === 'loading'}
                   data-testid="mb-mark-ready-btn"
                 >
                   {markReadyStatus === 'loading' ? 'Marking…' : 'Mark Ready'}
                 </button>
 
                 {#if markReadyError}
-                  <p class="feedback-error" role="alert" data-testid="mb-ready-error">
+                  <p class="feedback-error" role="alert" data-testid="mb-ready-error" aria-live="assertive">
                     {markReadyError}
                   </p>
                 {/if}
@@ -257,16 +290,22 @@
       class="panel-toggle"
       onclick={() => { followUpExpanded = !followUpExpanded; }}
       aria-expanded={followUpExpanded}
+      aria-controls="followup-form"
       data-testid="mb-followup-toggle"
     >
-      {followUpExpanded ? '▾' : '▸'} Create Follow-up from Notes
+      <span class="toggle-icon">{followUpExpanded ? '▾' : '▸'}</span>
+      <span>Create Follow-up from Notes</span>
     </button>
 
     {#if followUpExpanded}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <form
+        id="followup-form"
         class="followup-form"
         onsubmit={submitFollowUp}
+        onkeydown={onFollowupKeydown}
         data-testid="mb-followup-form"
+        aria-label="Create follow-up from meeting notes"
       >
         <label class="followup-label">
           <span>Description</span>
@@ -315,7 +354,9 @@
 <style>
   /* ── Panel toggle ── */
   .panel-toggle {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
     width: 100%;
     text-align: left;
     background: var(--color-panel-soft);
@@ -330,6 +371,16 @@
   }
   .panel-toggle:hover {
     background: var(--color-panel);
+  }
+  .panel-toggle:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .toggle-icon {
+    flex-shrink: 0;
+    width: 1em;
+    text-align: center;
   }
 
   /* ── Readiness panel ── */
@@ -382,6 +433,8 @@
     border: 1px solid var(--color-line);
     border-radius: var(--radius-sm);
     font-size: 0.8125rem;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .mark-ready-actions {
@@ -397,6 +450,7 @@
     font-weight: 600;
     cursor: pointer;
     border: 1px solid transparent;
+    white-space: nowrap;
   }
   .btn-primary {
     background: var(--color-accent);
@@ -456,6 +510,8 @@
     font-family: inherit;
     min-height: 4rem;
     resize: vertical;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .followup-date {
@@ -464,15 +520,17 @@
     border-radius: var(--radius-sm);
     font-size: 0.8125rem;
     max-width: 12rem;
+    box-sizing: border-box;
   }
 
   .followup-actions {
     display: flex;
     gap: 0.5rem;
     margin-top: 0.25rem;
+    flex-wrap: wrap;
   }
 
-  /* ── State badge — replicated from parent for scoping ── */
+  /* ── State badge ── */
   .state-badge {
     font-size: 0.6875rem;
     font-weight: 600;
@@ -486,5 +544,70 @@
   :global(.state-stale) { background: #fffbeb; color: #b45309; }
   :global(.state-completed) { background: var(--color-panel-soft); color: var(--color-muted); }
 
-  /* ── Inherited meeting-brief-card / mb-* styles are in ClientProfile ── */
+  /* ── Screen reader only ── */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ── Responsive ── */
+
+  /* Tablet and below */
+  @media (max-width: 768px) {
+    .readiness-dl {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+    .readiness-dl dt {
+      margin-top: 0.35rem;
+    }
+    .readiness-dl dt:first-child {
+      margin-top: 0;
+    }
+
+    .exception-input {
+      font-size: 16px; /* prevent iOS zoom on focus */
+    }
+
+    .followup-textarea {
+      font-size: 16px;
+    }
+
+    .followup-date {
+      font-size: 16px;
+      max-width: 100%;
+    }
+
+    .btn {
+      flex: 1;
+      text-align: center;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .section-header {
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .calendly-link {
+      align-self: flex-start;
+    }
+
+    .followup-actions {
+      flex-direction: column;
+    }
+
+    .followup-actions .btn {
+      width: 100%;
+    }
+  }
 </style>
