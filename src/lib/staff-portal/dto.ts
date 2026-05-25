@@ -491,3 +491,33 @@ export interface StaffCommandCenterResultDto {
   total: number;
   hasMore: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Client Profile Snapshot DTOs (Story 3.1)
+// ---------------------------------------------------------------------------
+
+export type MeetingBriefState = 'draft' | 'needsReview' | 'ready' | 'stale' | 'completed' | 'not_available';
+export type FollowUpState = 'open' | 'completed' | 'deferred' | 'reassigned' | 'not_available';
+export type CommercialNextStepStatus = 'noAction' | 'nurture' | 'discussOffer' | 'sendFollowUp' | 'createFutureOpportunity' | 'not_available';
+export type ErrorCode = 'not_found' | 'permission_denied' | 'stale_data' | 'degraded';
+
+export interface StaffClientProfileSnapshotDto {
+  clientId: string;
+  businessName: string;
+  ownerName: string;
+  journeyStage: string;
+  riskFlags: string[];
+  valueFlags: string[];
+  reportState: ReportState;
+  humanReviewState: HumanReviewState;
+  meetingBriefState: MeetingBriefState;
+  followUpState: FollowUpState;
+  commercialNextStepStatus: CommercialNextStepStatus;
+}
+
+export interface StaffClientProfileResultDto {
+  profile: StaffClientProfileSnapshotDto | null;
+  hasData: boolean;
+  degradedFields: string[];
+  errorCode: ErrorCode | null;
+}
