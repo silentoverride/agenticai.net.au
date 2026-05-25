@@ -46,6 +46,18 @@
   // Receipt state
   let lastReceipt = $state<StaffActionReceiptDto | null>(null);
 
+  // Svelte 5 refs for focus management
+  let formEl = $state<HTMLDivElement | null>(null);
+
+  // Escape key handler
+  function onKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      if (showActionForm) cancelForm();
+      else if (expandedReasoning) expandedReasoning = false;
+      else if (expandedDetails) expandedDetails = false;
+    }
+  }
+
   // Expandable sections
   let expandedReasoning = $state(false);
   let expandedDetails = $state(false);
@@ -165,6 +177,7 @@
   class="gate-finding-card"
   class:unresolved={isUnresolved}
   data-testid="gate-finding-{finding.id}"
+  onkeydown={onKeydown}
 >
   <!-- ===== Header: type, verdict, state, risk ===== -->
   <div class="gf-header">
@@ -666,5 +679,25 @@
   .form-actions {
     display: flex;
     gap: 0.5rem;
+  }
+
+  /* ── Accessibility: focus indicators ───────────────── */
+  :global(.gate-finding-card) button:focus-visible,
+  .gf-toggle-btn:focus-visible,
+  .form-select:focus-visible,
+  .form-textarea:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* ── Accessibility: reduced motion ────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .gate-finding-card {
+      transition: none;
+    }
+    .confidence-fill {
+      transition: none;
+    }
   }
 </style>

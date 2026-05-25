@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { fade } from 'svelte/transition';
   import { Button, Badge, Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui';
   import GateFindingCard from '$lib/components/staff-portal/GateFindingCard.svelte';
   import GuardedActionPanel from '$lib/components/staff-portal/GuardedActionPanel.svelte';
@@ -16,6 +15,16 @@
   let loading = $state(false);
   let stale = $state(false);
   let error = $state('');
+
+  // Viewport size warning
+  let viewportBelowSafe = $state(false);
+  $effect(() => {
+    const mq = window.matchMedia('(max-width: 479px)');
+    viewportBelowSafe = mq.matches;
+    const handler = (e: MediaQueryListEvent) => { viewportBelowSafe = e.matches; };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  });
 
   // Derive ordered gate findings: unresolved first, then resolved, then overridden
   let orderedFindings = $derived.by(() => {
@@ -138,6 +147,12 @@
     <div class="state-banner stale" role="alert">
       <p>Data may be stale. Refresh to see the latest state.</p>
       <button class="retry-link" onclick={refresh}>Refresh</button>
+    </div>
+  {/if}
+
+  {#if viewportBelowSafe}
+    <div class="state-banner viewport-warning" role="status">
+      <p>This screen size is not recommended for safe review.</p>
     </div>
   {/if}
 
@@ -598,5 +613,66 @@
 
   .delivery-banner p {
     margin: 0;
+  }
+
+  /* ── Accessibility: viewport warning ── */
+  .state-banner.viewport-warning {
+    background: var(--color-warning-bg, #fffbeb);
+    border: 2px dashed var(--color-warning, #d97706);
+    color: var(--color-warning, #92400e);
+  }
+
+  /* ── Accessibility: focus indicators ── */
+  button:focus-visible,
+  a:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* ── Responsive: state-first order ── */
+  @media (max-width: 768px) {
+    .workspace-page {
+      padding: 1rem 0.75rem;
+    }
+
+    .context-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .header-info {
+      flex-direction: column;
+    }
+
+    .state-info-grid {
+      gap: 0.5rem;
+    }
+
+    .gate-findings-list {
+      gap: 0.75rem;
+    }
+
+    .artifact-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-header h1 {
+      font-size: 1.25rem;
+    }
+  }
+
+  /* ── Accessibility: reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 </style>
