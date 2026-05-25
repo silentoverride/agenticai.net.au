@@ -69,7 +69,7 @@ development_status:
   4-2-followupeditor-on-client-profile: done
   4-3-follow-ups-from-review-and-other-source-contexts: done
   4-4-due-and-overdue-follow-up-surfacing: done
-  4-5-follow-up-audit-receipts-and-failure-states: backlog
+  4-5-follow-up-audit-receipts-and-failure-states: ready-for-dev
   epic-4-retrospective: optional
   epic-5: backlog
   5-1-calendly-access-and-meeting-brief-notes: backlog
