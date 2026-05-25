@@ -1,11 +1,19 @@
 <script lang="ts">
   /**
    * CommercialNextStepPanel — Staff-entered commercial next step with status,
-   * owner, notes, and display state. Operational record, not CRM/pipeline.
+   * owner, notes, follow-up continuity validation, audit receipts, and
+   * confirmation for risky changes.
    */
 
-  import type { StaffCommercialNextStepDto, CommercialNextStepStatus, CommercialDisplayState } from '$lib/staff-portal/dto';
+  import type {
+    StaffCommercialNextStepDto,
+    StaffActionReceiptDto,
+    CommercialNextStepStatus,
+    CommercialDisplayState
+  } from '$lib/staff-portal/dto';
   import { COMMERCIAL_NEXT_STEP_STATUSES, COMMERCIAL_DISPLAY_STATES } from '$lib/server/staff-portal/domain/commercial-next-step-states';
+  import { isHighIntentStatus } from '$lib/server/staff-portal/services/commercial-followup-requirement.service';
+  import { requiresConfirmation } from '$lib/server/staff-portal/services/commercial-audit.service';
 
   // ── Props ──
 
@@ -28,7 +36,32 @@
   let editOwner = $state('');
   let editNotes = $state('');
 
+  // Follow-up continuity fields
+  let followUpNote = $state('');
+  let showConfirmation = $state(false);
+  let pendingSave = $state(false);
+
+  // Audit receipt
+  let lastReceipt = $state<StaffActionReceiptDto | null>(null);
+  let showReceipt = $state(false);
+
   let apiUrl = $derived(`/api/operator/assessments/${assessmentId}/commercial-next-step`);
+
+  // ── Derived ──
+
+  let isHighIntentChange = $derived(
+    isHighIntentStatus(editStatus) &&
+    (!commercialStep || commercialStep.status !== editStatus)
+  );
+
+  let needsConfirmation = $derived(
+    commercialStep && requiresConfirmation(
+      commercialStep.status,
+      editStatus,
+      commercialStep.owner,
+      editOwner || null
+    )
+  );
 
   // ── Status labels ──
 
@@ -68,35 +101,70 @@
     editStatus = commercialStep?.status ?? 'noAction';
     editOwner = commercialStep?.owner ?? '';
     editNotes = commercialStep?.notes ?? '';
+    followUpNote = '';
+    showConfirmation = false;
+    showReceipt = false;
     isEditing = true;
     saveError = null;
   }
 
   function cancelEditing() {
     isEditing = false;
+    showConfirmation = false;
+    pendingSave = false;
     saveError = null;
   }
 
-  async function save() {
+  function confirmSave() {
+    showConfirmation = false;
+    pendingSave = false;
+    doSave();
+  }
+
+  function cancelConfirm() {
+    showConfirmation = false;
+    pendingSave = false;
+  }
+
+  async function doSave() {
     saveStatus = 'saving';
     saveError = null;
+
+    const body: Record<string, unknown> = {
+      status: editStatus,
+      owner: editOwner || null,
+      notes: editNotes || null
+    };
+
+    // Include follow-up continuity fields when relevant
+    if (isHighIntentChange && followUpNote.trim()) {
+      body.followUpNote = followUpNote.trim();
+    } else if (isHighIntentChange && !followUpNote.trim()) {
+      body.confirmedNoFollowUp = true;
+    }
+
+    body.idempotencyKey = `commercial:${assessmentId}:${Date.now()}`;
 
     try {
       const res = await fetch(apiUrl, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: editStatus,
-          owner: editOwner || null,
-          notes: editNotes || null
-        })
+        body: JSON.stringify(body)
       });
 
       const data = await res.json();
       if (data.success) {
         commercialStep = data.commercialStep;
+        lastReceipt = data.receipt ?? null;
+        showReceipt = true;
         saveStatus = 'success';
         isEditing = false;
+        showConfirmation = false;
+
+        // Auto-hide receipt after 8 seconds
+        if (data.receipt) {
+          setTimeout(() => { showReceipt = false; }, 8000);
+        }
       } else {
         saveStatus = 'error';
         saveError = data.error?.message ?? 'Failed to save.';
@@ -106,6 +174,20 @@
       saveError = 'Network error. Please try again.';
     }
   }
+
+  async function save() {
+    // Show confirmation for risky changes before saving
+    if (needsConfirmation) {
+      showConfirmation = true;
+      return;
+    }
+
+    await doSave();
+  }
+
+  function dismissReceipt() {
+    showReceipt = false;
+  }
 </script>
 
 <section class="section" data-testid="commercial-next-step-section" aria-label="Commercial Next Step">
@@ -114,81 +196,110 @@
     <span class="header-note">Staff-entered · Operational</span>
   </div>
 
-  {#if commercialStep}
+  {#if isEditing}
+    <div class="step-card" data-testid="commercial-step-editing">
+      <div class="edit-form">
+        <label class="field-label" for="cs-status">Status</label>
+        <select id="cs-status" class="field-select" bind:value={editStatus} data-testid="cs-status-select">
+          {#each Object.entries(COMMERCIAL_NEXT_STEP_STATUSES) as [, val]}
+            {#if val !== 'not_available'}
+              <option value={val}>{STATUS_LABELS[val]}</option>
+            {/if}
+          {/each}
+        </select>
+
+        <label class="field-label" for="cs-owner">Owner</label>
+        <input
+          id="cs-owner"
+          class="field-input"
+          type="text"
+          bind:value={editOwner}
+          placeholder="e.g. Sarah (operator)"
+          maxlength="200"
+          data-testid="cs-owner-input"
+        />
+
+        <label class="field-label" for="cs-notes">Notes</label>
+        <textarea
+          id="cs-notes"
+          class="field-textarea"
+          bind:value={editNotes}
+          placeholder="Brief operational notes about the next step..."
+          maxlength="2000"
+          rows="3"
+          data-testid="cs-notes-input"
+        ></textarea>
+
+        {#if isHighIntentChange}
+          <div class="followup-continuity" data-testid="cs-followup-continuity">
+            <label class="field-label" for="cs-followup-note">
+              Follow-up explanation <span class="label-hint">(required for this status)</span>
+            </label>
+            <textarea
+              id="cs-followup-note"
+              class="field-textarea continuity-textarea"
+              bind:value={followUpNote}
+              placeholder="Explain why no follow-up is needed, or describe the follow-up plan..."
+              maxlength="2000"
+              rows="2"
+              data-testid="cs-followup-note"
+            ></textarea>
+            <p class="continuity-hint">
+              Status “{STATUS_LABELS[editStatus]}” requires follow-up continuity.
+              Provide a note or <button class="link-btn" onclick={() => { followUpNote = 'CONFIRMED_NO_FOLLOWUP'; }} data-testid="cs-confirm-no-followup">confirm no follow-up needed</button>.
+            </p>
+          </div>
+        {/if}
+
+        {#if saveError}
+          <p class="feedback-error" role="alert">{saveError}</p>
+        {/if}
+
+        <div class="edit-actions">
+          <button class="btn btn-secondary" onclick={cancelEditing} disabled={saveStatus === 'saving'}>Cancel</button>
+          <button class="btn btn-primary" onclick={save} disabled={saveStatus === 'saving'} data-testid="cs-save-btn">
+            {saveStatus === 'saving' ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </div>
+    </div>
+  {:else if commercialStep}
     <div class="step-card" data-testid="commercial-step-content">
-      {#if isEditing}
-        <div class="edit-form">
-          <label class="field-label" for="cs-status">Status</label>
-          <select id="cs-status" class="field-select" bind:value={editStatus} data-testid="cs-status-select">
-            {#each Object.entries(COMMERCIAL_NEXT_STEP_STATUSES) as [, val]}
-              {#if val !== 'not_available'}
-                <option value={val}>{STATUS_LABELS[val]}</option>
-              {/if}
-            {/each}
-          </select>
-
-          <label class="field-label" for="cs-owner">Owner</label>
-          <input
-            id="cs-owner"
-            class="field-input"
-            type="text"
-            bind:value={editOwner}
-            placeholder="e.g. Sarah (operator)"
-            maxlength="200"
-            data-testid="cs-owner-input"
-          />
-
-          <label class="field-label" for="cs-notes">Notes</label>
-          <textarea
-            id="cs-notes"
-            class="field-textarea"
-            bind:value={editNotes}
-            placeholder="Brief operational notes about the next step..."
-            maxlength="2000"
-            rows="3"
-            data-testid="cs-notes-input"
-          ></textarea>
-
-          {#if saveError}
-            <p class="feedback-error" role="alert">{saveError}</p>
-          {/if}
-
-          <div class="edit-actions">
-            <button class="btn btn-secondary" onclick={cancelEditing} disabled={saveStatus === 'saving'}>Cancel</button>
-            <button class="btn btn-primary" onclick={save} disabled={saveStatus === 'saving'} data-testid="cs-save-btn">
-              {saveStatus === 'saving' ? 'Saving…' : 'Save'}
-            </button>
-          </div>
+      <dl class="step-fields">
+        <div class="field-row">
+          <dt>Status</dt>
+          <dd>
+            <span class="state-badge state-{commercialStep.displayState}" data-testid="cs-display-state">
+              {DISPLAY_LABELS[commercialStep.displayState]}
+            </span>
+            <span class="field-value">{STATUS_LABELS[commercialStep.status]}</span>
+          </dd>
         </div>
-      {:else}
-        <dl class="step-fields">
-          <div class="field-row">
-            <dt>Status</dt>
-            <dd>
-              <span class="state-badge state-{commercialStep.displayState}" data-testid="cs-display-state">
-                {DISPLAY_LABELS[commercialStep.displayState]}
-              </span>
-              <span class="field-value">{STATUS_LABELS[commercialStep.status]}</span>
-            </dd>
-          </div>
-          <div class="field-row">
-            <dt>Owner</dt>
-            <dd>{commercialStep.owner ?? <em class="empty">Not assigned</em>}</dd>
-          </div>
-          <div class="field-row">
-            <dt>Notes</dt>
-            <dd>{commercialStep.notes ?? <em class="empty">No notes</em>}</dd>
-          </div>
-        </dl>
-
-        <div class="step-meta">
-          <span class="step-timestamp">Updated: {formatDate(commercialStep.updatedAt)}</span>
+        <div class="field-row">
+          <dt>Owner</dt>
+          <dd>{commercialStep.owner ?? <em class="empty">Not assigned</em>}</dd>
         </div>
+        <div class="field-row">
+          <dt>Notes</dt>
+          <dd>{commercialStep.notes ?? <em class="empty">No notes</em>}</dd>
+        </div>
+      </dl>
 
-        <div class="step-actions">
-          <button class="btn btn-secondary btn-sm" onclick={startEditing} data-testid="cs-edit-btn">Edit</button>
+      <div class="step-meta">
+        <span class="step-timestamp">Updated: {formatDate(commercialStep.updatedAt)}</span>
+      </div>
+
+      {#if showReceipt && lastReceipt}
+        <div class="receipt-banner" data-testid="cs-receipt" role="status">
+          <span class="receipt-icon">✓</span>
+          <span class="receipt-text">Saved. Action: {lastReceipt.action} | Ref: <code>{lastReceipt.id.slice(0, 8)}</code></span>
+          <button class="receipt-dismiss" onclick={dismissReceipt} aria-label="Dismiss">×</button>
         </div>
       {/if}
+
+      <div class="step-actions">
+        <button class="btn btn-secondary btn-sm" onclick={startEditing} data-testid="cs-edit-btn">Edit</button>
+      </div>
     </div>
   {:else}
     <div class="step-card step-empty" data-testid="cs-empty-state">
@@ -196,13 +307,33 @@
       <button class="btn btn-secondary btn-sm" onclick={startEditing} data-testid="cs-add-btn">+ Add next step</button>
     </div>
   {/if}
+
+  {#if showConfirmation}
+    <div class="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <div class="confirm-dialog">
+        <h3 id="confirm-title" class="confirm-title">Confirm commercial change</h3>
+        <p class="confirm-text">
+          You are changing from <strong>{commercialStep?.status ?? 'none'}</strong>
+          {#if needsConfirmation}
+            to <strong>{editStatus}</strong>
+            {#if commercialStep?.owner !== editOwner && editOwner}
+              and reassigning owner from <strong>{commercialStep?.owner ?? 'unassigned'}</strong> to <strong>{editOwner}</strong>
+            {/if}
+          {/if}.
+          This is a significant commercial action. Are you sure?
+        </p>
+        <div class="confirm-actions">
+          <button class="btn btn-secondary" onclick={cancelConfirm} data-testid="cs-confirm-cancel">Cancel</button>
+          <button class="btn btn-primary" onclick={confirmSave} data-testid="cs-confirm-yes">Confirm</button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </section>
 
 <style>
-  /* ── Section layout (matches other panels) ── */
-  .section {
-    padding: 0;
-  }
+  /* ── Section layout ── */
+  .section { padding: 0; }
 
   .section-header {
     display: flex;
@@ -271,14 +402,9 @@
     flex-wrap: wrap;
   }
 
-  .field-value {
-    color: var(--color-text);
-  }
+  .field-value { color: var(--color-text); }
 
-  .empty {
-    color: var(--color-muted);
-    font-style: italic;
-  }
+  .empty { color: var(--color-muted); font-style: italic; }
 
   /* ── State badge ── */
   .state-badge {
@@ -288,14 +414,50 @@
     border-radius: var(--radius-sm);
   }
 
-  .state-missing,
-  .state-draft { background: var(--color-panel-soft); color: var(--color-muted); }
+  .state-missing, .state-draft { background: var(--color-panel-soft); color: var(--color-muted); }
   .state-active { background: #eff6ff; color: #1d4ed8; }
   .state-needsFollowUp { background: #fffbeb; color: #b45309; }
   .state-completed { background: #f0fdf4; color: #15803d; }
   .state-deferred { background: var(--color-panel-soft); color: var(--color-muted); }
   .state-cancelled { background: #fef2f2; color: #dc2626; }
   .state-stale { background: #fff7ed; color: #c2410c; }
+
+  /* ── Follow-up continuity ── */
+  .followup-continuity {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius-sm);
+    padding: 0.625rem;
+  }
+
+  .label-hint {
+    font-weight: 400;
+    color: var(--color-muted);
+    font-size: 0.75rem;
+  }
+
+  .continuity-textarea {
+    margin-top: 0.25rem;
+  }
+
+  .continuity-hint {
+    font-size: 0.75rem;
+    color: #92400e;
+    margin: 0.25rem 0 0;
+  }
+
+  .link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: #2563eb;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.75rem;
+  }
+
+  .link-btn:hover { color: #1d4ed8; }
 
   /* ── Edit form ── */
   .edit-form {
@@ -304,10 +466,7 @@
     gap: 0.625rem;
   }
 
-  .field-label {
-    font-size: 0.8125rem;
-    font-weight: 600;
-  }
+  .field-label { font-size: 0.8125rem; font-weight: 600; }
 
   .field-select {
     padding: 0.375rem 0.5rem;
@@ -340,24 +499,72 @@
     margin-top: 0.25rem;
   }
 
-  .feedback-error {
-    color: #dc2626;
+  .feedback-error { color: #dc2626; font-size: 0.75rem; margin: 0; }
+
+  /* ── Receipt banner ── */
+  .receipt-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius-sm);
     font-size: 0.75rem;
-    margin: 0;
+    color: #15803d;
+  }
+
+  .receipt-icon { font-weight: 700; font-size: 0.875rem; }
+
+  .receipt-text { flex: 1; }
+
+  .receipt-dismiss {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #15803d;
+    padding: 0 0.25rem;
+    line-height: 1;
   }
 
   /* ── Meta & actions ── */
-  .step-meta {
-    margin-top: 0.75rem;
+  .step-meta { margin-top: 0.75rem; }
+
+  .step-timestamp { font-size: 0.6875rem; color: var(--color-muted); }
+
+  .step-actions { margin-top: 0.75rem; }
+
+  /* ── Confirmation dialog ── */
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
   }
 
-  .step-timestamp {
-    font-size: 0.6875rem;
-    color: var(--color-muted);
+  .confirm-dialog {
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    max-width: 28rem;
+    width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
-  .step-actions {
-    margin-top: 0.75rem;
+  .confirm-title { font-size: 1rem; font-weight: 600; margin: 0 0 0.5rem; }
+
+  .confirm-text { font-size: 0.8125rem; color: var(--color-muted); margin: 0 0 1rem; line-height: 1.5; }
+
+  .confirm-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
   }
 
   /* ── Buttons ── */
@@ -370,10 +577,7 @@
     border: 1px solid transparent;
   }
 
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .btn-primary {
     background: var(--color-primary, #2563eb);
@@ -387,8 +591,5 @@
     border-color: var(--color-line);
   }
 
-  .btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-  }
+  .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
 </style>

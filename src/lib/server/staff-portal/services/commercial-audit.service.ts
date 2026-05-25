@@ -1,0 +1,111 @@
+import type { AsyncDb } from '$lib/server/db';
+import type { CommercialNextStepStatus, StaffCommercialNextStepDto, StaffActionReceiptDto } from '$lib/staff-portal/dto';
+import {
+  insertStaffActionAuditEvent,
+  findStaffActionAuditEventByIdempotency,
+  staffActionReceiptFromEvent
+} from '$lib/server/staff-portal/repositories/staff-audit.repository';
+
+/**
+ * Records an audit event when a commercial next step's status or owner changes.
+ *
+ * Returns a receipt that includes the previous and resulting state.
+ *
+ * Idempotent: if an event with the same idempotencyKey already exists for this
+ * actor+assessment, the existing receipt is returned without inserting a duplicate.
+ */
+export async function recordCommercialNextStepChange(
+  db: AsyncDb,
+  input: {
+    assessmentId: string;
+    commercialStepId: string;
+    actorId: string;
+    previousStatus: CommercialNextStepStatus;
+    newStatus: CommercialNextStepStatus;
+    previousOwner: string | null;
+    newOwner: string | null;
+    idempotencyKey: string;
+    reason?: string | null;
+  }
+): Promise<StaffActionReceiptDto> {
+  const idempCheck = await findStaffActionAuditEventByIdempotency(db, {
+    actorId: input.actorId,
+    assessmentId: input.assessmentId,
+    idempotencyKey: input.idempotencyKey
+  });
+
+  if (idempCheck) {
+    return staffActionReceiptFromEvent(idempCheck);
+  }
+
+  const statusChanged = input.previousStatus !== input.newStatus;
+  const ownerChanged = input.previousOwner !== input.newOwner;
+
+  // Build from/to state descriptions
+  const fromParts: string[] = [];
+  const toParts: string[] = [];
+
+  fromParts.push(`status:${input.previousStatus}`);
+  toParts.push(`status:${input.newStatus}`);
+  fromParts.push(`owner:${input.previousOwner ?? 'unassigned'}`);
+  toParts.push(`owner:${input.newOwner ?? 'unassigned'}`);
+
+  const fromState = fromParts.join('|');
+  const toState = toParts.join('|');
+
+  // Build metadata with explicit change flags
+  const metadata = {
+    statusChanged,
+    ownerChanged,
+    previousStatus: input.previousStatus,
+    newStatus: input.newStatus,
+    previousOwner: input.previousOwner,
+    newOwner: input.newOwner
+  };
+
+  const now = new Date().toISOString();
+  const event = await insertStaffActionAuditEvent(db, {
+    id: crypto.randomUUID(),
+    assessmentId: input.assessmentId,
+    targetType: 'commercialNextStep',
+    targetId: input.commercialStepId,
+    actorId: input.actorId,
+    action: 'changeCommercialStep',
+    fromState,
+    toState,
+    reasonCode: statusChanged ? 'status_change' : ownerChanged ? 'owner_change' : 'no_change',
+    reason: input.reason ?? null,
+    requestHash: '', // caller sets this if needed
+    idempotencyKey: input.idempotencyKey,
+    metadataJson: JSON.stringify(metadata),
+    createdAt: now
+  });
+
+  return staffActionReceiptFromEvent(event);
+}
+
+/**
+ * Determines whether a commercial next step change is "risky" and requires
+ * a confirmation prompt.
+ *
+ * High risk changes:
+ *  - Moving from any status to noAction (dropping intent)
+ *  - Changing owner on a high-intent status
+ */
+export function requiresConfirmation(
+  previousStatus: CommercialNextStepStatus,
+  newStatus: CommercialNextStepStatus,
+  previousOwner: string | null,
+  newOwner: string | null
+): boolean {
+  // Dropping from an active/high-intent status to noAction
+  if (previousStatus !== 'noAction' && newStatus === 'noAction') {
+    return true;
+  }
+  // Changing owner while on a high-intent status
+  const highIntent: ReadonlySet<CommercialNextStepStatus> = new Set(['discussOffer', 'sendFollowUp']);
+  if (highIntent.has(previousStatus) && previousOwner !== newOwner) {
+    return true;
+  }
+  return false;
+}
