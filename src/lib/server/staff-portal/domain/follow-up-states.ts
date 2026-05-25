@@ -39,6 +39,7 @@ export interface AllowedFollowUpAction {
   blockedReason?: BlockedReason;
   requiresReason: boolean;
   requiresNewOwner: boolean;
+  remediationHint?: string;
 }
 
 export function getFollowUpActionEligibility(
@@ -116,6 +117,18 @@ function buildAction(opts: {
     enabled: !blockedReason,
     blockedReason,
     requiresReason: opts.requiresReason,
-    requiresNewOwner: opts.requiresNewOwner
+    requiresNewOwner: opts.requiresNewOwner,
+    remediationHint: remediationForBlockedReason(blockedReason)
   };
+}
+
+function remediationForBlockedReason(reason?: BlockedReason): string | undefined {
+  switch (reason) {
+    case BLOCKED_REASONS.ALREADY_FINALIZED:
+      return 'This follow-up has already reached a terminal state. No further action is available.';
+    case BLOCKED_REASONS.PERMISSION_DENIED:
+      return 'Only the assigned owner or an admin can modify this follow-up.';
+    default:
+      return undefined;
+  }
 }

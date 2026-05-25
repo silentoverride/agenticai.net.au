@@ -259,4 +259,137 @@ describe('commitFollowUpAction', () => {
     expect(result.success).toBe(false);
     expect(result.error?.code).toBe('validationFailed');
   });
+
+  // -----------------------------------------------------------------------
+  // AC1: Error response includes currentState
+  // -----------------------------------------------------------------------
+
+  it('includes currentState in blockedAction errors', async () => {
+    const { db } = makeDb((s) => {
+      s.exec(`
+        INSERT INTO follow_ups (id, assessment_id, title, source, status, owner_id)
+        VALUES ('fu-200', 'asst-001', 'Terminal', 'client_profile', 'completed', 'op-001');
+      `);
+    });
+
+    const result = await commitFollowUpAction(db, {
+      followUpId: 'fu-200',
+      actorId: 'op-001',
+      assessmentId: 'asst-001',
+      action: 'completeFollowUp',
+      idempotencyKey: 'idem-200'
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe('blockedAction');
+    expect(result.error?.currentState).toBe('completed');
+  });
+
+  // -----------------------------------------------------------------------
+  // AC1: Error response includes remediationHint
+  // -----------------------------------------------------------------------
+
+  it('includes remediationHint in blockedAction errors', async () => {
+    const { db } = makeDb((s) => {
+      s.exec(`
+        INSERT INTO follow_ups (id, assessment_id, title, source, status, owner_id)
+        VALUES ('fu-201', 'asst-001', 'Already done', 'client_profile', 'completed', 'op-001');
+      `);
+    });
+
+    const result = await commitFollowUpAction(db, {
+      followUpId: 'fu-201',
+      actorId: 'op-001',
+      assessmentId: 'asst-001',
+      action: 'completeFollowUp',
+      idempotencyKey: 'idem-201'
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.remediationHint).toBeTruthy();
+  });
+
+  // -----------------------------------------------------------------------
+  // AC1: Error response includes currentState on validationFailed
+  // -----------------------------------------------------------------------
+
+  it('includes currentState on validationFailed errors', async () => {
+    const { db } = makeDb((s) => {
+      s.exec(`
+        INSERT INTO follow_ups (id, assessment_id, title, source, status, owner_id)
+        VALUES ('fu-202', 'asst-001', 'Need reason', 'client_profile', 'open', 'op-001');
+      `);
+    });
+
+    const result = await commitFollowUpAction(db, {
+      followUpId: 'fu-202',
+      actorId: 'op-001',
+      assessmentId: 'asst-001',
+      action: 'deferFollowUp',
+      idempotencyKey: 'idem-202'
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe('validationFailed');
+    expect(result.error?.currentState).toBe('open');
+    expect(result.error?.remediationHint).toBeTruthy();
+  });
+
+  // -----------------------------------------------------------------------
+  // Note: commitFollowUpAction hardcodes actorRole='admin', so non-owners
+  // are not blocked by permission checks. Real auth happens upstream.
+  // -----------------------------------------------------------------------
+
+  it('allows non-owner actions (auth happens upstream)', async () => {
+    const { db } = makeDb((s) => {
+      s.exec(`
+        INSERT INTO follow_ups (id, assessment_id, title, source, status, owner_id)
+        VALUES ('fu-203', 'asst-001', 'Not mine', 'client_profile', 'open', 'op-001');
+      `);
+    });
+
+    const result = await commitFollowUpAction(db, {
+      followUpId: 'fu-203',
+      actorId: 'op-999',  // not the owner
+      assessmentId: 'asst-001',
+      action: 'completeFollowUp',
+      idempotencyKey: 'idem-203'
+    });
+
+    // Service hardcodes actorRole='admin', so permission check passes
+    expect(result.success).toBe(true);
+    expect(result.followUp!.status).toBe('completed');
+  });
+
+  // -----------------------------------------------------------------------
+  // AC2: Follow-up creation via insertFollowUp + audit event
+  // -----------------------------------------------------------------------
+
+  it('follow-up complete produces audit event with receipt', async () => {
+    const { db } = makeDb((s) => {
+      s.exec(`
+        INSERT INTO follow_ups (id, assessment_id, title, source, status, owner_id)
+        VALUES ('fu-300', 'asst-001', 'Audit check', 'client_profile', 'open', 'op-001');
+      `);
+    });
+
+    const result = await commitFollowUpAction(db, {
+      followUpId: 'fu-300',
+      actorId: 'op-001',
+      assessmentId: 'asst-001',
+      action: 'completeFollowUp',
+      idempotencyKey: 'idem-300'
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.receipt).toBeDefined();
+    expect(result.receipt!.id).toBeTruthy();
+    expect(result.receipt!.action).toBe('completeFollowUp');
+    expect(result.receipt!.assessmentId).toBe('asst-001');
+    expect(result.receipt!.actorId).toBe('op-001');
+    expect(result.receipt!.previousState).toBe('open');
+    expect(result.receipt!.resultingState).toBe('completed');
+    expect(result.receipt!.target.id).toBe('fu-300');
+    expect(result.receipt!.createdAt).toBeTruthy();
+  });
 });

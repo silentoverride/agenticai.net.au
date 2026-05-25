@@ -23,6 +23,8 @@ export interface CommitFollowUpActionResult {
   error?: {
     code: 'staleState' | 'permissionDenied' | 'blockedAction' | 'duplicateAction' | 'validationFailed' | 'auditWriteFailed';
     message: string;
+    currentState?: FollowUpStatus;
+    remediationHint?: string;
   };
 }
 
@@ -55,7 +57,7 @@ export async function commitFollowUpAction(
   if (!followUp) {
     return {
       success: false,
-      error: { code: 'validationFailed', message: 'Follow-up not found.' }
+      error: { code: 'validationFailed', message: 'Follow-up not found.', remediationHint: 'Check the follow-up ID and try again.' }
     };
   }
 
@@ -75,7 +77,9 @@ export async function commitFollowUpAction(
         code: reason === 'permissionDenied' ? 'permissionDenied' : 'blockedAction',
         message: matchingAction
           ? `Action ${action} is not allowed.${matchingAction.blockedReason ? ` Reason: ${matchingAction.blockedReason}` : ''}`
-          : `Unknown action: ${action}`
+          : `Unknown action: ${action}`,
+        currentState: followUp.status,
+        remediationHint: matchingAction?.remediationHint ?? 'Review the follow-up state and available actions.'
       }
     };
   }
@@ -84,14 +88,24 @@ export async function commitFollowUpAction(
   if (matchingAction.requiresReason && !reason) {
     return {
       success: false,
-      error: { code: 'validationFailed', message: 'A reason is required for this action.' }
+      error: {
+        code: 'validationFailed',
+        message: 'A reason is required for this action.',
+        currentState: followUp.status,
+        remediationHint: 'Provide a reason and resubmit.'
+      }
     };
   }
 
   if (matchingAction.requiresNewOwner && !newOwnerId) {
     return {
       success: false,
-      error: { code: 'validationFailed', message: 'A new owner is required for reassignment.' }
+      error: {
+        code: 'validationFailed',
+        message: 'A new owner is required for reassignment.',
+        currentState: followUp.status,
+        remediationHint: 'Specify the new owner and resubmit.'
+      }
     };
   }
 
@@ -112,7 +126,12 @@ export async function commitFollowUpAction(
   if (!updatedFollowUp) {
     return {
       success: false,
-      error: { code: 'staleState', message: 'Follow-up was not found after update.' }
+      error: {
+        code: 'staleState',
+        message: 'Follow-up was not found after update.',
+        currentState: followUp.status,
+        remediationHint: 'The follow-up may have been removed. Check and try again.'
+      }
     };
   }
 
@@ -137,7 +156,12 @@ export async function commitFollowUpAction(
   } catch {
     return {
       success: false,
-      error: { code: 'auditWriteFailed', message: 'Failed to persist audit event. State change was not committed.' }
+      error: {
+        code: 'auditWriteFailed',
+        message: 'Failed to persist audit event. State change was not committed.',
+        currentState: followUp.status,
+        remediationHint: 'Retry the action. If the problem persists, contact support.'
+      }
     };
   }
 
