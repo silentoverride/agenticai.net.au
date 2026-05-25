@@ -38,11 +38,12 @@
         headers: { 'Cache-Control': 'max-age=0' }
       });
       if (res.ok) {
-        data = await res.json();
+        const nextData = (await res.json()) as StatusData;
+        data = nextData;
         error = '';
         retryDelay = 10_000;
         // Stop polling when terminal state reached
-        if (data.status === 'ready' || data.status === 'completed' || data.status === 'failed' || data.status === 'error') {
+        if (nextData.status === 'ready' || nextData.status === 'completed' || nextData.status === 'failed' || nextData.status === 'error') {
           pollingActive = false;
           return;
         }
@@ -131,6 +132,10 @@
     return titles[status] || 'Processing your assessment';
   }
 
+  function reportHref(reportId: string | null): string {
+    return reportId ? `/assessment/report/${reportId}` : '/portal';
+  }
+
   function stateDescription(status: string): string {
     const descs: Record<string, string> = {
       queued: 'Your assessment has been received and will begin shortly.',
@@ -189,7 +194,7 @@
         <p>Checking for your assessment progress.</p>
         <Progress value={25} />
       </div>
-    {:else}
+    {:else if data}
       {@const raw = data.status}
       {@const ds = displayState(raw)}
       {@const color = stateColor(ds)}
@@ -255,7 +260,7 @@
       <!-- Ready state — CTA -->
       {#if raw === 'ready' || raw === 'completed'}
         <div class="status-cta" in:fade>
-          <Button onclick={() => window.location.href = data.reportId ? `/assessment/report/${data.reportId}` : '/portal'}>
+          <Button onclick={() => window.location.href = reportHref(data?.reportId ?? null)}>
             View Your Advisory Briefing
           </Button>
         </div>

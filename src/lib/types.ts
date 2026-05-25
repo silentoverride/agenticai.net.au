@@ -27,6 +27,8 @@ export type PortalReport = {
   r2_key: string | null;
   deck_url: string | null;
   title: string | null;
+  version?: number | null;
+  last_regenerated_at?: string | null;
   created_at: string;
 };
 

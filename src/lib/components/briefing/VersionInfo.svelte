@@ -18,7 +18,7 @@
 
     try {
       const res = await fetch(`/api/assessment/${reportId}/regenerate`, { method: 'POST' });
-      const data = await res.json();
+      const data = (await res.json()) as { message?: string; error?: string };
       if (res.ok) {
         regenerateMsg = data.message || 'Regeneration requested. Check back later.';
       } else {

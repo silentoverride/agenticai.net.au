@@ -27,6 +27,7 @@ export interface PortalAuth {
   userId: string;
   isDevBypass: boolean;
   devUserId: string;
+  role: string;
 }
 
 const AUTH_KEY = Symbol('portal-auth');

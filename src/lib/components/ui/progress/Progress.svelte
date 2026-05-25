@@ -13,7 +13,7 @@
     value?: number;
     max?: number;
     class?: string;
-  } & import('svelte/elements').ProgressHTMLAttributes<HTMLProgressElement> = $props();
+  } & import('svelte/elements').HTMLProgressAttributes = $props();
 
   const pct = $derived(max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0);
 </script>

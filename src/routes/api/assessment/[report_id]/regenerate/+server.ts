@@ -6,15 +6,13 @@
  * Creates a new pipeline job that archives the current version.
  */
 import { json, error } from '@sveltejs/kit';
-import { resolveUser } from '$lib/server/auth';
 import { requirePortalAuth } from '$lib/server/portal-auth';
 import { getDb, assertSchema, isDatabaseAvailable } from '$lib/server/db';
-import { checkRateLimit } from '$lib/server/rate-limiter';
 import type { RequestHandler } from './$types';
 
 const REGENERATE_COOLDOWN_DAYS = 30;
 
-export const POST: RequestHandler = async ({ locals, url, params, platform, request }) => {
+export const POST: RequestHandler = async ({ locals, url, params }) => {
   const user = await requirePortalAuth(locals, url);
   const reportId = params.report_id;
 
@@ -30,8 +28,13 @@ export const POST: RequestHandler = async ({ locals, url, params, platform, requ
   await assertSchema(db);
 
   // Verify user owns this report
-  const report = db.queryOne<any>(
-    'SELECT id, user_id, version, created_at FROM reports WHERE id = ?',
+  const report = await db.queryOne<{
+    id: string;
+    user_id: string | null;
+    version?: number | null;
+    last_regenerated_at?: string | null;
+  }>(
+    'SELECT id, user_id, version, created_at, last_regenerated_at FROM reports WHERE id = ?',
     reportId
   );
 
@@ -43,11 +46,7 @@ export const POST: RequestHandler = async ({ locals, url, params, platform, requ
     throw error(403, 'Access denied');
   }
 
-  // Rate limit: 1 per 30 days per assessment
-  // Use IP + reportId as the rate limit key
-  const clientIp = request.headers.get('x-forwarded-for') || url.hostname;
-  const rateLimitKey = `regenerate:${reportId}:${clientIp}`;
-
+  // Rate limit: 1 per 30 days per assessment.
   // For rate limiting we use a simplified approach here
   // since we don't have redis. We'll check the report's last_regenerated_at field
   // For now, use the report's last_regenerated_at if available
@@ -69,7 +68,7 @@ export const POST: RequestHandler = async ({ locals, url, params, platform, requ
   // In production this is handled by the report-store-r2.ts
 
   // Update report version
-  db.query(
+  await db.exec(
     'UPDATE reports SET version = ?, last_regenerated_at = datetime(\'now\') WHERE id = ?',
     newVersion,
     reportId

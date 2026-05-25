@@ -6,6 +6,7 @@
   import ResumePrompt from '$lib/components/ResumePrompt.svelte';
   import ServiceGrid from '$lib/components/ServiceGrid.svelte';
   import { metrics, reportSections, useCases, upsells, testimonials, faqItems } from '$lib/content';
+  import type { ChatMessage } from '$lib/assessment/intake-script';
 
   type IntakePhase = 'idle' | 'orientation' | 'chat' | 'review' | 'queued' | 'resume';
 
@@ -20,7 +21,7 @@
   let resumeInfo = $state({ lastQuestionIndex: 0, expiresInSeconds: 86400 });
 
   interface AnnieChatSavedState {
-    messages: Array<{ role: string; text: string; timestamp: string }>;
+    messages: ChatMessage[];
     currentQuestionIndex: number;
     answers: Array<{ questionId: string; question: string; answer: string; followUpAnswer?: string }>;
     followUpAsked: boolean;
@@ -43,7 +44,10 @@
   async function checkResumeSession(sid: string) {
     try {
       const res = await fetch(`/api/chat/intake?sessionId=${encodeURIComponent(sid)}`);
-      const data = await res.json();
+      const data = (await res.json()) as {
+        found?: boolean;
+        session?: { currentIndex: number; expiresIn: number };
+      };
       if (data.found && data.session) {
         resumeSessionId = sid;
         resumeInfo = {
@@ -416,7 +420,7 @@
     <button class="button primary" onclick={() => phase = 'orientation'}>
       Start AI Business Assessment
     </button>
-    <p class="trust-note">No credit card required. Your data is private and never shared. <a href="/privacy">Privacy policy</a></p>
+    <p class="trust-note">Your data is private and never shared. <a href="/privacy">Privacy policy</a></p>
   </section>
 </main>
 {/if}

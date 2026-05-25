@@ -1,13 +1,13 @@
 <script lang="ts">
   import {
+    Button,
     Card,
     CardHeader,
     CardTitle,
     CardDescription,
     CardContent,
     CardFooter
-  } from '$lib/components/ui/card';
-  import Button from '$lib/components/ui/button/button.svelte';
+  } from '$lib/components/ui';
   import type { AnalysisQuickWin } from '$lib/server/assessment/types';
 
   interface Props {

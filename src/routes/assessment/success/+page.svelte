@@ -13,7 +13,7 @@
         try {
           const res = await fetch(`/api/pipeline-status/${sessionId}`);
           if (res.ok) {
-            const data = await res.json();
+            const data = (await res.json()) as { status?: string };
             if (data.status === 'queued' || data.status === 'running_llm' || data.status === 'completed') {
               status = 'paid';
               // Redirect to full status page

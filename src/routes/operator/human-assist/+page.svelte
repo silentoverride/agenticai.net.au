@@ -51,12 +51,12 @@
     try {
       const url = `/api/operator/human-assist${filterStatus !== 'all' ? `?status=${filterStatus}` : ''}`;
       const res = await fetch(url);
-      const data = await res.json();
+      const data = (await res.json()) as { success?: boolean; queue?: QueueItem[]; stats?: QueueStats; error?: string };
       if (data.success) {
-        queue = data.queue;
-        stats = data.stats;
+        queue = data.queue || [];
+        stats = data.stats || null;
       } else {
-        error = data.error;
+        error = data.error || 'Failed to fetch queue';
       }
     } catch (e) {
       error = 'Failed to fetch queue';

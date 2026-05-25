@@ -3,7 +3,7 @@
   import { SignIn, SignUp } from 'svelte-clerk';
   import { page } from '$app/state';
   import { setPortalAuth } from '$lib/portal-context.svelte';
-  import { portalNavUrl } from '$lib/portal-client';
+  import { portalGet, portalNavUrl } from '$lib/portal-client';
 
   let { children } = $props();
 
@@ -14,13 +14,33 @@
   const isDevBypass = !import.meta.env.PROD && devUserId != null;
 
   // Reactive auth context shared with child pages
-  let portalAuth = $state({ userId: '', isDevBypass: false, devUserId: '' });
+  let portalAuth = $state({ userId: '', isDevBypass: false, devUserId: '', role: '' });
+
+  // Fetch the user's role for role-based navigation
+  let userRole = $state('');
+
   $effect(() => {
     portalAuth.userId = clerk.auth.userId || devUserId || '';
     portalAuth.isDevBypass = isDevBypass;
     portalAuth.devUserId = devUserId || '';
+    portalAuth.role = userRole;
   });
   setPortalAuth(portalAuth);
+
+  $effect(() => {
+    const uid = clerk.auth.userId || (isDevBypass ? devUserId : null);
+    if (uid) {
+      portalGet('/api/portal/user').then(r => r.json()).then((data: unknown) => {
+        const d = data as { role?: string };
+        if (d.role) {
+          userRole = d.role;
+          portalAuth.role = d.role;
+        }
+      }).catch(() => {});
+    }
+  });
+
+  const isOperator = $derived(userRole === 'operator' || userRole === 'admin');
 </script>
 
 <div class="portal-layout">
@@ -43,6 +63,13 @@
       <a href={portalNavUrl(`/portal/${portalAuth.userId}/receipts`)}>Receipts</a>
       <a href={portalNavUrl(`/portal/${portalAuth.userId}/profile`)}>Profile</a>
       <a href="/services" class="nav-cta">Start Assessment</a>
+      {#if isOperator}
+        <span class="nav-separator"></span>
+        <a href="/operator/dashboard" class="nav-operator-link">📊 Operator Dashboard</a>
+        <a href="/operator/gates" class="nav-operator-link">🔬 Gates</a>
+        <a href="/operator/human-assist" class="nav-operator-link">💬 Human Assist</a>
+        <a href="/operator/calibration" class="nav-operator-link">⚙️ Calibration</a>
+      {/if}
       <div class="portal-nav-right">
         <span>{isDevBypass ? 'Dev User' : (clerk.user?.firstName || clerk.user?.emailAddresses?.[0]?.emailAddress)}</span>
         {#if !isDevBypass}
@@ -113,6 +140,19 @@
   .portal-nav a.nav-cta:hover {
     background: #0052cc;
     border-bottom: none;
+  }
+  .nav-separator {
+    width: 1px;
+    height: 1.5rem;
+    background: #d0d0d0;
+    margin: 0 0.25rem;
+  }
+  .nav-operator-link {
+    font-size: 0.875rem;
+    opacity: 0.85;
+  }
+  .nav-operator-link:hover {
+    opacity: 1;
   }
   .portal-nav-right {
     margin-left: auto;

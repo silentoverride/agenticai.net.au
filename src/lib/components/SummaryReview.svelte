@@ -87,11 +87,11 @@
       });
 
       if (!res.ok) {
-        const errBody = await res.json().catch(() => null);
+        const errBody = (await res.json().catch(() => null)) as { message?: string } | null;
         throw new Error(errBody?.message || `Server error: ${res.status}`);
       }
 
-      const data = await res.json();
+      const data = (await res.json()) as { url: string };
       // Redirect to Stripe Checkout
       window.location.href = data.url;
     } catch (err) {

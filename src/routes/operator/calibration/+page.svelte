@@ -64,7 +64,12 @@
   async function loadMetadata() {
     try {
       const res = await fetch('/api/operator/calibration/run');
-      const data = await res.json();
+      const data = (await res.json()) as {
+        success?: boolean;
+        cases: TestCaseMeta[];
+        allTags: string[];
+        defaultConfig: { promptVersion: string };
+      };
       if (data.success) {
         testCases = data.cases;
         allTags = data.allTags;
@@ -96,8 +101,8 @@
           }
         })
       });
-      const data = await res.json();
-      if (data.success) {
+      const data = (await res.json()) as { success?: boolean; report?: CalibrationReport; error?: string };
+      if (data.success && data.report) {
         report = data.report;
       } else {
         error = data.error || 'Calibration run failed';
