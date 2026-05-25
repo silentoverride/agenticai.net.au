@@ -55,7 +55,7 @@ development_status:
   2-1-command-center-priority-read-model: done
   2-2-command-console-and-priority-work-item-rows: done
   2-3-role-based-queue-visibility: done
-  2-4-command-center-navigation-and-recovery: backlog
+  2-4-command-center-navigation-and-recovery: ready-for-dev
   epic-2-retrospective: optional
   epic-3: backlog
   3-1-client-profile-snapshot-read-model: backlog
