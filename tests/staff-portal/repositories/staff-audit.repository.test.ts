@@ -60,6 +60,44 @@ describe('staff action audit repository', () => {
       actorId: 'operator-1', assessmentId: 'assessment-1', idempotencyKey: 'idem-1', requestHash: 'different-hash'
     })).resolves.toMatchObject({ status: 'conflict' });
   });
+
+  it('queries all audit events for an assessment ordered newest first', async () => {
+    const { db } = createMemoryDb(schemaSql);
+    await insertStaffActionAuditEvent(db, baseEvent({
+      id: 'event-1', action: 'claimFinding', fromState: 'open', toState: 'inReview',
+      createdAt: '2026-05-25T10:00:00.000Z', idempotencyKey: 'idem-1'
+    }));
+    await insertStaffActionAuditEvent(db, baseEvent({
+      id: 'event-2', action: 'resolveFinding', fromState: 'inReview', toState: 'resolved',
+      createdAt: '2026-05-25T11:00:00.000Z', idempotencyKey: 'idem-2',
+      reasonCode: 'evidence_sufficient', reason: 'Evidence checks out'
+    }));
+
+    const { findAuditEventsByAssessment } = await import('$lib/server/staff-portal/repositories/staff-audit.repository');
+    const events = await findAuditEventsByAssessment(db, 'assessment-1');
+
+    expect(events).toHaveLength(2);
+    // Newest first
+    expect(events[0].id).toBe('event-2');
+    expect(events[0].action).toBe('resolveFinding');
+    expect(events[0].reasonCode).toBe('evidence_sufficient');
+    expect(events[1].id).toBe('event-1');
+  });
+
+  it('queries multiple assessments independently', async () => {
+    const { db } = createMemoryDb(schemaSql);
+    await insertStaffActionAuditEvent(db, baseEvent({ assessmentId: 'a1', id: 'e1', idempotencyKey: 'idem-a1' }));
+    await insertStaffActionAuditEvent(db, baseEvent({ assessmentId: 'a2', id: 'e2', idempotencyKey: 'idem-a2' }));
+
+    const { findAuditEventsByAssessment } = await import('$lib/server/staff-portal/repositories/staff-audit.repository');
+    const a1Events = await findAuditEventsByAssessment(db, 'a1');
+    expect(a1Events).toHaveLength(1);
+    expect(a1Events[0].assessmentId).toBe('a1');
+
+    const a2Events = await findAuditEventsByAssessment(db, 'a2');
+    expect(a2Events).toHaveLength(1);
+    expect(a2Events[0].assessmentId).toBe('a2');
+  });
 });
 
 function baseEvent(overrides: Partial<Parameters<typeof insertStaffActionAuditEvent>[1]> = {}): Parameters<typeof insertStaffActionAuditEvent>[1] {

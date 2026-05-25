@@ -306,6 +306,22 @@ export const GATE_FINDING_STATE_PRESENTATION: Record<GateFindingState, StatePres
   }
 };
 
+/** Human-readable labels for report-level actions used in receipts and timelines. */
+export const REPORT_ACTION_PRESENTATION: Record<string, { label: string }> = {
+  approveReport: { label: 'Approve Report' },
+  rejectReport: { label: 'Reject Report' },
+  requestRegeneration: { label: 'Request Regeneration' },
+  requestClarification: { label: 'Request Clarification' }
+};
+
+/** Human-readable labels for gate-finding actions used in receipts and timelines. */
+export const GATE_FINDING_ACTION_PRESENTATION: Record<string, { label: string }> = {
+  claimFinding: { label: 'Claim Finding' },
+  resolveFinding: { label: 'Resolve Finding' },
+  overrideFinding: { label: 'Override Finding' },
+  escalateFinding: { label: 'Escalate Finding' }
+};
+
 export const BLOCKED_REASON_PRESENTATION: Record<BlockedReason, StatePresentationMetadata> = {
   permissionDenied: {
     label: 'Permission denied', tone: 'disabled', accessibleLabel: 'Action blocked by permission',

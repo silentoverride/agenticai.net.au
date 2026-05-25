@@ -142,3 +142,18 @@ export function staffActionReceiptFromEvent(event: StaffActionAuditEvent): Staff
     createdAt: event.createdAt
   };
 }
+
+/** Query all audit events for a given assessment, ordered newest first. */
+export async function findAuditEventsByAssessment(
+  db: AsyncDb,
+  assessmentId: string
+): Promise<StaffActionAuditEvent[]> {
+  const rows = await db.queryAll<StaffActionAuditEventRow>(
+    `SELECT * FROM staff_action_audit_events
+     WHERE assessment_id = ?
+     ORDER BY created_at DESC
+     LIMIT 200`,
+    assessmentId
+  );
+  return rows.map(mapStaffActionAuditEventRow);
+}

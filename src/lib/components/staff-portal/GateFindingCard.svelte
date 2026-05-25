@@ -18,8 +18,10 @@
     StaffActionDescriptor,
     StaffPortalActionId,
     StaffActionMutationResultDto,
+    StaffActionReceiptDto,
     GateFindingState
   } from '$lib/staff-portal/dto';
+  import DecisionReceipt from './DecisionReceipt.svelte';
 
   let {
     finding,
@@ -40,6 +42,9 @@
   let formReasonCode = $state('');
   let formReason = $state('');
   let formError = $state<string | null>(null);
+
+  // Receipt state
+  let lastReceipt = $state<StaffActionReceiptDto | null>(null);
 
   // Expandable sections
   let expandedReasoning = $state(false);
@@ -120,6 +125,7 @@
       if (result.success) {
         showActionForm = null;
         actionSuccess = `${action.label} completed.`;
+        lastReceipt = result.receipt;
         onStateChange?.(finding.id, result.state as GateFindingState);
       } else {
         const err = result.error;
@@ -369,6 +375,10 @@
     {/if}
     {#if actionSuccess}
       <p class="action-success" role="status" data-testid="gate-action-success">{actionSuccess}</p>
+    {/if}
+
+    {#if lastReceipt}
+      <DecisionReceipt receipt={lastReceipt} dismissible onDismiss={() => (lastReceipt = null)} />
     {/if}
   </div>
 </div>
