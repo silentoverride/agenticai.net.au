@@ -27,10 +27,12 @@
     StaffFollowUpDto,
     StaffMeetingBriefDto,
     MeetingBriefStalenessWarning,
-    PrimaryTreatment
+    PrimaryTreatment,
+    StaffCommercialNextStepDto
   } from '$lib/staff-portal/dto';
   import FollowUpEditor from './FollowUpEditor.svelte';
   import MeetingBriefPanel from './MeetingBriefPanel.svelte';
+  import CommercialNextStepPanel from './CommercialNextStepPanel.svelte';
 
   let {
     profile,
@@ -56,6 +58,7 @@
     staleWarning?: MeetingBriefStalenessWarning | null;
     calendlyLink?: string | null;
     assessmentId?: string;
+    commercialStep?: StaffCommercialNextStepDto | null;
   } = $props();
 
   // ── Helpers ──
@@ -450,11 +453,10 @@
         {assessmentId}
       />
 
-      <section class="section placeholder" data-testid="placeholder-commercial" aria-label="Commercial Next Step">
-        <h2 class="section-title">Commercial Next Step</h2>
-        <p class="placeholder-text">Commercial tracking is coming in a future update (Epic 5).</p>
-        <span class="placeholder-badge">Coming soon</span>
-      </section>
+      <CommercialNextStepPanel
+        commercialStep={commercialStep ?? null}
+        {assessmentId}
+      />
     </div>
 
     <!-- Footer Navigation -->

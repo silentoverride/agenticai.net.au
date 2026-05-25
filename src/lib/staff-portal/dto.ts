@@ -27,7 +27,7 @@ export type GateFindingState =
 
 export type HumanReviewState = 'none' | 'pending' | 'inReview' | 'approved' | 'rejected' | 'edited';
 
-export type StaffPortalTargetType = 'report' | 'gateFinding' | 'followUp' | 'meetingBrief';
+export type StaffPortalTargetType = 'report' | 'gateFinding' | 'followUp' | 'meetingBrief' | 'commercialNextStep';
 
 export type PresentationTone =
   | 'neutral'
@@ -131,7 +131,7 @@ export type StaffActionErrorCode =
   | 'validationFailed'
   | 'auditWriteFailed';
 
-export type StaffActionState = ReportState | GateFindingState | FollowUpStatus | MeetingBriefState;
+export type StaffActionState = ReportState | GateFindingState | FollowUpStatus | MeetingBriefState | CommercialNextStepStatus;
 
 export interface StaffActionReceiptDto {
   id: string;
@@ -539,6 +539,19 @@ export interface MeetingBriefStalenessWarning {
 
 export type FollowUpState = 'open' | 'completed' | 'deferred' | 'reassigned' | 'not_available';
 export type CommercialNextStepStatus = 'noAction' | 'nurture' | 'discussOffer' | 'sendFollowUp' | 'createFutureOpportunity' | 'not_available';
+
+export type CommercialDisplayState = 'missing' | 'draft' | 'active' | 'needsFollowUp' | 'completed' | 'deferred' | 'cancelled' | 'stale';
+
+export interface StaffCommercialNextStepDto {
+  id: string;
+  assessmentId: string;
+  status: CommercialNextStepStatus;
+  owner: string | null;
+  notes: string | null;
+  displayState: CommercialDisplayState;
+  createdAt: string;
+  updatedAt: string;
+}
 export type ErrorCode = 'not_found' | 'permission_denied' | 'stale_data' | 'degraded';
 
 export interface StaffClientProfileSnapshotDto {

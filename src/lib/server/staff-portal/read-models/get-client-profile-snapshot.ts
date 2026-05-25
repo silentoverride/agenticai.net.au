@@ -122,11 +122,23 @@ export async function getClientProfileSnapshot(
   const riskFlags = parseFlags(base.risk_flags);
   const valueFlags = parseFlags(base.value_flags);
 
-  // Follow-up, Meeting Brief, and Commercial Next Step are not available
-  // in MVP until their respective epics (4 and 5) are implemented.
+  // Follow-up and Meeting Brief are not available in MVP until epics 4.
   const notAvailableMeetingBrief: MeetingBriefState = 'not_available';
   const notAvailableFollowUp: FollowUpState = 'not_available';
-  const notAvailableCommercial: CommercialNextStepStatus = 'not_available';
+
+  // Read commercial next step from database
+  let commercialNextStepStatus: CommercialNextStepStatus = 'not_available';
+  try {
+    const commercialRow = await db.queryOne<{ status: string }>(
+      'SELECT status FROM commercial_next_steps WHERE assessment_id = ? ORDER BY created_at DESC LIMIT 1',
+      base.session_id
+    );
+    if (commercialRow) {
+      commercialNextStepStatus = commercialRow.status as CommercialNextStepStatus;
+    }
+  } catch {
+    // Table may not exist yet — default to not_available
+  }
 
   const profile: StaffClientProfileSnapshotDto = {
     clientId: base.session_id,
@@ -139,7 +151,7 @@ export async function getClientProfileSnapshot(
     humanReviewState,
     meetingBriefState: notAvailableMeetingBrief,
     followUpState: notAvailableFollowUp,
-    commercialNextStepStatus: notAvailableCommercial
+    commercialNextStepStatus
   };
 
   const errorCode: ErrorCode | null = degradedFields.length > 0 ? 'degraded' : null;
