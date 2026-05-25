@@ -1,6 +1,6 @@
 # Story 1.7: Safe Review UI Accessibility and Responsive Behaviour
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
