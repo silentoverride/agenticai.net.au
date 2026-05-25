@@ -118,6 +118,43 @@ export interface GovernedGateFindingDto {
   actions: StaffActionDescriptor[];
 }
 
+export type StaffActionErrorCode =
+  | 'staleState'
+  | 'permissionDenied'
+  | 'blockedAction'
+  | 'duplicateAction'
+  | 'validationFailed'
+  | 'auditWriteFailed';
+
+export type StaffActionState = ReportState | GateFindingState;
+
+export interface StaffActionReceiptDto {
+  id: string;
+  assessmentId: string;
+  target: {
+    type: StaffPortalTargetType;
+    id: string | null;
+  };
+  action: StaffPortalActionId;
+  actorId: string;
+  previousState: StaffActionState;
+  resultingState: StaffActionState;
+  reasonCode: string | null;
+  reason: string | null;
+  auditReference: string;
+  createdAt: string;
+}
+
+export interface StaffActionMutationErrorDto {
+  code: StaffActionErrorCode;
+  message: string;
+  currentState?: StaffActionState;
+}
+
+export type StaffActionMutationResultDto =
+  | { success: true; receipt: StaffActionReceiptDto; state: StaffActionState }
+  | { success: false; error: StaffActionMutationErrorDto };
+
 export const REPORT_STATE_PRESENTATION: Record<ReportState, StatePresentationMetadata> = {
   queued: {
     label: 'Queued',
