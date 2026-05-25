@@ -420,6 +420,7 @@ export interface StaffGateFindingDto {
   state: GateFindingState;
   decisionNotes: string | null;
   riskSignal: RiskSignalPresentationDto;
+  actions: StaffActionDescriptor[];
 }
 
 export interface RiskSignalPresentationDto {

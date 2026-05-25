@@ -157,7 +157,9 @@ export async function getAssessmentReview(
     assessmentId
   );
 
-  const linkedGateFindings: StaffGateFindingDto[] = gateRows.map((row) => toGateFindingDto(row));
+  const linkedGateFindings: StaffGateFindingDto[] = gateRows.map((row) => toGateFindingDto(row, {
+    role, operatorId: actorId, assignedOperatorId: base.review_operator_id, sharedQueue: !base.review_operator_id
+  }));
 
   // 4. Load artifact history — bounded query from reports table
   const artifactRows = await db.queryAll<ArtifactRow>(
@@ -213,7 +215,10 @@ export async function getAssessmentReview(
 // Mapping helpers
 // ---------------------------------------------------------------------------
 
-function toGateFindingDto(row: GateFindingRow & { flagged_section?: string | null; related_intake_evidence?: string | null; inspection_steps?: string | null; severity?: string | null }): StaffGateFindingDto {
+function toGateFindingDto(
+  row: GateFindingRow & { flagged_section?: string | null; related_intake_evidence?: string | null; inspection_steps?: string | null; severity?: string | null },
+  actor?: { role: 'admin' | 'operator'; operatorId?: string; assignedOperatorId?: string | null; sharedQueue?: boolean }
+): StaffGateFindingDto {
   const governedState = mapGateFindingState({
     gateVerdict: row.verdict,
     humanAssistStatus: row.review_status,
@@ -222,6 +227,10 @@ function toGateFindingDto(row: GateFindingRow & { flagged_section?: string | nul
   });
 
   const riskPresentation = RISK_SIGNAL_PRESENTATION[governedState.risk];
+
+  const actions: StaffActionDescriptor[] = actor
+    ? getAvailableActions({ targetType: 'gateFinding', state: governedState, actor })
+    : [];
 
   return {
     id: row.gate_run_id,
@@ -241,7 +250,8 @@ function toGateFindingDto(row: GateFindingRow & { flagged_section?: string | nul
       label: riskPresentation.label,
       description: riskPresentation.description,
       testId: riskPresentation.testId
-    }
+    },
+    actions
   };
 }
 

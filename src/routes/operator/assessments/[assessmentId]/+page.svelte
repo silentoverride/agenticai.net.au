@@ -1,12 +1,12 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import { Button, Badge, Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui';
+  import GateFindingCard from '$lib/components/staff-portal/GateFindingCard.svelte';
   import {
     REPORT_STATE_PRESENTATION,
-    GATE_FINDING_STATE_PRESENTATION,
     BLOCKED_REASON_PRESENTATION
   } from '$lib/staff-portal/dto';
-  import type { StaffAssessmentReviewDto, StaffGateFindingDto, StaffArtifactVersionDto } from '$lib/staff-portal/dto';
+  import type { StaffAssessmentReviewDto, StaffGateFindingDto, StaffArtifactVersionDto, GateFindingState } from '$lib/staff-portal/dto';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -15,6 +15,33 @@
   let loading = $state(false);
   let stale = $state(false);
   let error = $state('');
+
+  // Derive ordered gate findings: unresolved first, then resolved, then overridden
+  let orderedFindings = $derived.by(() => {
+    if (!review) return [];
+    const unresolved: StaffGateFindingDto[] = [];
+    const resolved: StaffGateFindingDto[] = [];
+    const overridden: StaffGateFindingDto[] = [];
+    for (const f of review.linkedGateFindings) {
+      if (f.state === 'resolved') resolved.push(f);
+      else if (f.state === 'overriddenWithReason') overridden.push(f);
+      else unresolved.push(f);
+    }
+    return [...unresolved, ...resolved, ...overridden];
+  });
+
+  let unresolvedCount = $derived(
+    orderedFindings.filter((f) => f.state === 'open' || f.state === 'inReview' || f.state === 'escalatedFurther' || f.state === 'conflict').length
+  );
+
+  function handleFindingStateChange(findingId: string, newState: string) {
+    // Update the finding's state in local state to reflect the server response
+    // This triggers a re-render via the $derived chain
+    const finding = review?.linkedGateFindings.find((f) => f.id === findingId);
+    if (finding) {
+      finding.state = newState as GateFindingState;
+    }
+  }
 
   async function refresh() {
     loading = true;
@@ -46,21 +73,6 @@
     return 'default';
   }
 
-  function gateStateBadgeVariant(s: string): 'default' | 'warning' | 'success' | 'danger' | 'secondary' | 'outline' {
-    if (s === 'open' || s === 'escalatedFurther') return 'warning';
-    if (s === 'inReview') return 'default';
-    if (s === 'resolved' || s === 'overriddenWithReason') return 'success';
-    if (s === 'conflict') return 'danger';
-    return 'default';
-  }
-
-  function verdictBadgeVariant(v: string): 'default' | 'warning' | 'danger' | 'secondary' | 'outline' | 'success' {
-    if (v === 'human_assist' || v === 'escalate') return 'warning';
-    if (v === 'block' || v === 'retry') return 'danger';
-    if (v === 'approve') return 'success';
-    return 'default';
-  }
-
   function riskBadgeVariant(r: string): 'default' | 'warning' | 'success' | 'danger' | 'secondary' | 'outline' {
     if (r === 'blocked' || r === 'high') return 'danger';
     if (r === 'medium') return 'warning';
@@ -74,10 +86,6 @@
         hour: '2-digit', minute: '2-digit'
       });
     } catch { return iso; }
-  }
-
-  function gateTypeLabel(type: string): string {
-    return type.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   }
 </script>
 
@@ -221,80 +229,17 @@
     <Card>
       <CardHeader>
         <CardTitle>Gate Findings ({review.linkedGateFindings.length})</CardTitle>
+        {#if unresolvedCount > 0}
+          <p class="card-subtitle">{unresolvedCount} unresolved</p>
+        {/if}
       </CardHeader>
       <CardContent>
         {#if review.linkedGateFindings.length === 0}
           <p class="no-data">No gate findings for this assessment.</p>
         {:else}
           <div class="gate-findings-list">
-            {#each review.linkedGateFindings as finding (finding.id)}
-              <div class="gate-finding-card">
-                <div class="gf-header">
-                  <div class="gf-header-left">
-                    <span class="gf-type">{gateTypeLabel(finding.type)}</span>
-                    <Badge variant={verdictBadgeVariant(finding.verdict)}>{finding.verdict}</Badge>
-                  </div>
-                  <Badge variant={gateStateBadgeVariant(finding.state)}>
-                    {GATE_FINDING_STATE_PRESENTATION[finding.state]?.label ?? finding.state}
-                  </Badge>
-                </div>
-
-                <div class="gf-details">
-                  {#if finding.confidence !== null}
-                    <span class="gf-meta">Confidence: {(finding.confidence * 100).toFixed(0)}%</span>
-                  {/if}
-                  {#if finding.severity}
-                    <Badge variant={finding.severity === 'high' || finding.severity === 'critical' ? 'danger' : 'warning'}>
-                      {finding.severity}
-                    </Badge>
-                  {/if}
-                  <Badge variant={riskBadgeVariant(finding.riskSignal.tone === 'danger' ? 'high' : finding.riskSignal.tone === 'warning' ? 'medium' : 'none')}>
-                    {finding.riskSignal.label}
-                  </Badge>
-                </div>
-
-                {#if finding.reasoning}
-                  <div class="gf-block">
-                    <span class="gf-block-label">Reasoning</span>
-                    <p>{finding.reasoning}</p>
-                  </div>
-                {/if}
-
-                {#if finding.details}
-                  <div class="gf-block">
-                    <span class="gf-block-label">Details</span>
-                    <p>{finding.details}</p>
-                  </div>
-                {/if}
-
-                {#if finding.flaggedReportSection}
-                  <div class="gf-block">
-                    <span class="gf-block-label">Flagged Section</span>
-                    <p>{finding.flaggedReportSection}</p>
-                  </div>
-                {/if}
-
-                {#if finding.relatedIntakeEvidence}
-                  <div class="gf-block">
-                    <span class="gf-block-label">Related Intake Evidence</span>
-                    <p>{finding.relatedIntakeEvidence}</p>
-                  </div>
-                {/if}
-
-                {#if finding.suggestedInspectionSteps}
-                  <div class="gf-block">
-                    <span class="gf-block-label">Suggested Inspection Steps</span>
-                    <p>{finding.suggestedInspectionSteps}</p>
-                  </div>
-                {/if}
-
-                {#if finding.decisionNotes}
-                  <div class="gf-block">
-                    <span class="gf-block-label">Decision Notes</span>
-                    <p>{finding.decisionNotes}</p>
-                  </div>
-                {/if}
-              </div>
+            {#each orderedFindings as finding (finding.id)}
+              <GateFindingCard {finding} assessmentId={review.assessmentId} onStateChange={handleFindingStateChange} />
             {/each}
           </div>
         {/if}
@@ -573,77 +518,16 @@
     flex-wrap: wrap;
   }
 
+  .card-subtitle {
+    font-size: 0.8125rem;
+    color: var(--color-ink-muted);
+    margin: 0.25rem 0 0;
+  }
+
   .gate-findings-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-  }
-
-  .gate-finding-card {
-    padding: 1rem;
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius);
-    background: var(--color-page);
-  }
-
-  .gf-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .gf-header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
-
-  .gf-type {
-    font-weight: 600;
-    font-size: 0.9375rem;
-  }
-
-  .gf-details {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    margin-bottom: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .gf-meta {
-    font-size: 0.75rem;
-    color: var(--color-ink-muted);
-    font-family: monospace;
-  }
-
-  .gf-block {
-    margin-bottom: 0.5rem;
-  }
-
-  .gf-block:last-child {
-    margin-bottom: 0;
-  }
-
-  .gf-block-label {
-    display: block;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--color-ink-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.125rem;
-  }
-
-  .gf-block p {
-    margin: 0;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    color: var(--color-ink);
-    white-space: pre-wrap;
   }
 
   .artifact-list {
