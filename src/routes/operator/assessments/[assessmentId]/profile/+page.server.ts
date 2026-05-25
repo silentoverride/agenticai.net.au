@@ -7,6 +7,7 @@ import { getLinkedReportContext } from '$lib/server/staff-portal/read-models/get
 import { getLinkedGateFindings } from '$lib/server/staff-portal/read-models/get-linked-gate-findings';
 import { getClientAuditHistory } from '$lib/server/staff-portal/read-models/get-client-audit-history';
 import { getClientActivityHistory } from '$lib/server/staff-portal/read-models/get-client-activity-history';
+import { findFollowUpsByAssessment } from '$lib/server/staff-portal/repositories/follow-up.repository';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, platform, params }) => {
@@ -60,13 +61,20 @@ export const load: PageServerLoad = async ({ locals, platform, params }) => {
       ? await getClientActivityHistory({ db, assessmentId })
       : [];
 
+    // 7. Follow-ups (Story 4.2)
+    const followUps = profileResult.hasData
+      ? await findFollowUpsByAssessment(db, assessmentId)
+      : [];
+
     return {
       profile: profileResult,
       whatMattersNow,
       linkedReports,
       linkedFindings,
       auditHistory,
-      activityHistory
+      activityHistory,
+      followUps,
+      assessmentId
     };
   } catch (err) {
     const errStatus = (err as Error & { status?: number }).status ?? 500;
