@@ -202,6 +202,7 @@ export async function getAssessmentReview(
     clientName: base.customer_name ?? base.company ?? 'Unknown',
     reportState: governedState.state,
     humanReviewState: mapReviewStatus(base.review_status),
+    canDeliver: governedState.canDeliver,
     reportContext,
     linkedGateFindings,
     artifactHistory,

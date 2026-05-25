@@ -2,9 +2,9 @@
   import { fade } from 'svelte/transition';
   import { Button, Badge, Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui';
   import GateFindingCard from '$lib/components/staff-portal/GateFindingCard.svelte';
+  import GuardedActionPanel from '$lib/components/staff-portal/GuardedActionPanel.svelte';
   import {
-    REPORT_STATE_PRESENTATION,
-    BLOCKED_REASON_PRESENTATION
+    REPORT_STATE_PRESENTATION
   } from '$lib/staff-portal/dto';
   import type { StaffAssessmentReviewDto, StaffGateFindingDto, StaffArtifactVersionDto, GateFindingState } from '$lib/staff-portal/dto';
   import type { PageData } from './$types';
@@ -40,6 +40,13 @@
     const finding = review?.linkedGateFindings.find((f) => f.id === findingId);
     if (finding) {
       finding.state = newState as GateFindingState;
+    }
+  }
+
+  function handleReportStateChange(newState: string) {
+    if (review) {
+      review.reportState = newState as any;
+      stale = true;
     }
   }
 
@@ -288,40 +295,20 @@
     <!-- ============ VALID ACTIONS ============ -->
     <Card>
       <CardHeader>
-        <CardTitle>Available Actions</CardTitle>
+        <CardTitle>Decide Report</CardTitle>
       </CardHeader>
       <CardContent>
-        {#if review.availableActions.length === 0}
-          <p class="no-data">No actions available for the current state.</p>
-        {:else}
-          <div class="actions-list">
-            {#each review.availableActions as action (action.id)}
-              <div class="action-row">
-                <div class="action-left">
-                  <span class="action-label" class:action-disabled={!action.enabled}>
-                    {action.label}
-                  </span>
-                  {#if action.blockedReason}
-                    <Badge variant="secondary">
-                      {BLOCKED_REASON_PRESENTATION[action.blockedReason]?.label ?? action.blockedReason}
-                    </Badge>
-                  {/if}
-                  {#if action.staleReason}
-                    <Badge variant="warning">
-                      Stale: {action.staleReason}
-                    </Badge>
-                  {/if}
-                </div>
-                <div class="action-right">
-                  <span class="action-consequence">{action.consequence}</span>
-                  {#if !action.enabled && action.remediationHint}
-                    <p class="action-hint">{action.remediationHint}</p>
-                  {/if}
-                </div>
-              </div>
-            {/each}
+        {#if review.canDeliver === false && review.reportState !== 'approved'}
+          <div class="delivery-banner">
+            <p>Report must be approved before client delivery is available.</p>
           </div>
         {/if}
+        <GuardedActionPanel
+          actions={review.availableActions}
+          assessmentId={review.assessmentId}
+          reportState={review.reportState}
+          onStateChange={handleReportStateChange}
+        />
       </CardContent>
     </Card>
 
@@ -591,58 +578,17 @@
     font-style: italic;
   }
 
-  .actions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .action-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0.75rem;
-    border: 1px solid var(--color-line);
+  .delivery-banner {
+    background: var(--color-warning-bg, #fffbeb);
+    border: 1px solid var(--color-warning, #d97706);
     border-radius: var(--radius);
-    gap: 1rem;
-    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--color-ink);
   }
 
-  .action-left {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .action-label {
-    font-weight: 500;
-    font-size: 0.9375rem;
-  }
-
-  .action-disabled {
-    opacity: 0.6;
-  }
-
-  .action-right {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-    align-items: flex-end;
-  }
-
-  .action-consequence {
-    font-size: 0.75rem;
-    color: var(--color-ink-muted);
-    text-align: right;
-  }
-
-  .action-hint {
+  .delivery-banner p {
     margin: 0;
-    font-size: 0.6875rem;
-    color: var(--color-ink-muted);
-    font-style: italic;
-    text-align: right;
-    max-width: 300px;
   }
 </style>

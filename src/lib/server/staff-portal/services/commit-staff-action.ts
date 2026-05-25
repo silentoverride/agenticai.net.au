@@ -262,6 +262,7 @@ function nextState(targetType: StaffPortalTargetType, action: StaffPortalActionI
   if (targetType === 'report') {
     if (action === 'approveReport') return REPORT_STATES.APPROVED;
     if (action === 'rejectReport') return REPORT_STATES.REJECTED;
+    if (action === 'requestClarification') return REPORT_STATES.CLARIFICATION_REQUIRED;
     return REPORT_STATES.REGENERATION_REQUIRED;
   }
   if (action === 'claimFinding') return GATE_FINDING_STATES.IN_REVIEW;

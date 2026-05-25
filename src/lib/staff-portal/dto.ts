@@ -68,7 +68,8 @@ export type StaffPortalActionId =
   | 'escalateFinding'
   | 'approveReport'
   | 'rejectReport'
-  | 'requestRegeneration';
+  | 'requestRegeneration'
+  | 'requestClarification';
 
 export interface StatePresentationMetadata {
   label: string;
@@ -390,6 +391,7 @@ export interface StaffAssessmentReviewDto {
   clientName: string;
   reportState: ReportState;
   humanReviewState: HumanReviewState;
+  canDeliver: boolean;
   reportContext: StaffReportContextDto;
   linkedGateFindings: StaffGateFindingDto[];
   artifactHistory: StaffArtifactVersionDto[];
