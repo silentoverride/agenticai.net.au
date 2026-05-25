@@ -593,3 +593,59 @@ export interface StaffLinkedContextSectionDto {
   totalReports: number;
   totalFindings: number;
 }
+
+// ---------------------------------------------------------------------------
+// Activity Memory & Audit History DTOs (Story 3.4)
+// ---------------------------------------------------------------------------
+
+export type AuditEventType =
+  | 'report_state_change'
+  | 'gate_finding_decision'
+  | 'follow_up_change'
+  | 'meeting_brief_change'
+  | 'commercial_change'
+  | 'ownership_change';
+
+export type AffectedEntityType =
+  | 'report'
+  | 'gate_finding'
+  | 'follow_up'
+  | 'meeting_brief'
+  | 'commercial_next_step';
+
+export interface StaffAuditEventDto {
+  eventId: string;
+  actor: string;
+  timestamp: string;
+  eventType: AuditEventType;
+  affectedEntity: string;
+  affectedEntityType: AffectedEntityType;
+  previousState: string | null;
+  newState: string;
+  reasonOrNote: string | null;
+  receiptRoute: string | null;
+  sourceContextRoute: string | null;
+}
+
+export type ActivitySourceDomain =
+  | 'pipeline'
+  | 'assessment'
+  | 'gate'
+  | 'human_review'
+  | 'follow_up'
+  | 'meeting_brief'
+  | 'commercial';
+
+export interface StaffActivityEventDto {
+  activityId: string;
+  summary: string;
+  timestamp: string;
+  sourceDomain: ActivitySourceDomain;
+  actor: string | null;
+}
+
+export interface StaffAuditTrailResultDto {
+  events: StaffAuditEventDto[];
+  total: number;
+  hasMore: boolean;
+}
