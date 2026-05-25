@@ -52,6 +52,14 @@
   // Receipt state
   let lastReceipt = $state<StaffActionReceiptDto | null>(null);
 
+  // Escape key handler
+  function onKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      if (showApprovalForm) cancelApproval();
+      else if (showActionForm) cancelForm();
+    }
+  }
+
   // Approval checklist state
   let showApprovalForm = $state(false);
   let reviewNote = $state('');
@@ -224,7 +232,7 @@
   }
 </script>
 
-<div class="guarded-actions-panel">
+<div class="guarded-actions-panel"onkeydown={onKeydown}>
   <!-- ===== Approve Report (guarded) ===== -->
   {#if approveAction}
     <div class="approve-section">
@@ -587,5 +595,21 @@
     padding: 0.35rem 0.5rem;
     background: var(--color-success-bg, #ecfdf5);
     border-radius: 4px;
+  }
+
+  /* ── Accessibility: focus indicators ───────────────── */
+  button:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ── Accessibility: reduced motion ────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .guarded-actions-panel * {
+      transition: none !important;
+    }
   }
 </style>

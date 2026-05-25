@@ -185,4 +185,11 @@
   .receipt-reason {
     font-style: italic;
   }
+
+  /* ── Accessibility ── */
+  .dismiss-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 </style>

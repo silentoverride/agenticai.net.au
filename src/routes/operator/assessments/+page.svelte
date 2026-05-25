@@ -95,13 +95,13 @@
       <table class="queue-table">
         <thead>
           <tr>
-            <th>Client</th>
-            <th>Report State</th>
-            <th>Review State</th>
-            <th>Blocker</th>
-            <th>Owner</th>
-            <th>Age</th>
-            <th>Next Safe Action</th>
+            <th scope="col">Client</th>
+            <th scope="col">Report State</th>
+            <th scope="col">Review State</th>
+            <th scope="col">Blocker</th>
+            <th scope="col">Owner</th>
+            <th scope="col">Age</th>
+            <th scope="col">Next Safe Action</th>
           </tr>
         </thead>
         <tbody>
@@ -305,5 +305,45 @@
     margin-top: 1rem;
     font-size: 0.8125rem;
     color: var(--color-ink-muted);
+  }
+
+  /* ── Accessibility: focus indicators ── */
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .queue-page {
+      padding: 1rem 0.5rem;
+    }
+
+    .queue-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .queue-table th,
+    .queue-table td {
+      padding: 0.4rem 0.5rem;
+      white-space: nowrap;
+    }
+
+    .blocker-cell {
+      max-width: 120px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-header h1 {
+      font-size: 1.25rem;
+    }
+
+    .header-top {
+      flex-direction: column;
+    }
   }
 </style>
