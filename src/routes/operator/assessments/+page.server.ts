@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { requireOperator } from '$lib/server/operator-auth';
 import { getDb } from '$lib/server/db';
-import { listReportReviewQueue } from '$lib/server/staff-portal/read-models/list-report-review-queue';
+import { getCommandCenterItems } from '$lib/server/staff-portal/read-models/get-command-center-items';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, platform, url }) => {
@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ locals, platform, url }) => {
   const limit = Math.min(Number(url.searchParams.get('limit')) || 50, 100);
   const offset = Number(url.searchParams.get('offset')) || 0;
 
-  const result = await listReportReviewQueue({
+  const result = await getCommandCenterItems({
     db,
     actorId: userId,
     role,
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ locals, platform, url }) => {
   });
 
   return {
-    queue: result.items,
+    items: result.items,
     total: result.total,
     hasMore: result.hasMore,
     limit,
