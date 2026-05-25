@@ -1,6 +1,6 @@
 # Story 1.2: Audit and Idempotent Action Persistence
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,45 +20,45 @@ FR57, FR58, FR61, FR62; NFR1, NFR2, NFR7.
 
 ## Tasks / Subtasks
 
-- [ ] Add Staff Portal action/audit persistence schema (AC: 1)
-  - [ ] Add the next sequential migration, expected `migrations/0017_staff_portal_action_audit_events.sql`, for a durable Staff Portal action/audit event table.
-  - [ ] Include at minimum: `id`, `assessment_id`, `actor_id`, `action`, `from_state`, `to_state`, `reason_code`, `reason`, `request_hash`, `idempotency_key`, `created_at`.
-  - [ ] Also include `target_type`, `target_id`, and optional `metadata_json` unless a simpler equivalent preserves FR58 affected-object provenance; keep DB names `snake_case`.
-  - [ ] Add `UNIQUE(actor_id, assessment_id, idempotency_key)` exactly for retry protection; do not include timestamp or random value in that uniqueness scope.
-  - [ ] Add bounded lookup indexes for `assessment_id`, `actor_id`, `action`, and `created_at` suitable for later Client Profile/Audit Timeline reads.
-  - [ ] Update `src/lib/server/db.ts` local `initSchema(...)` with the same table, unique constraint, and indexes so local SQLite and D1 stay in parity.
-- [ ] Add repository and DTO contracts for persisted actions, receipts, and errors (AC: 1, 2, 3)
-  - [ ] Add server-only repositories under `src/lib/server/staff-portal/repositories/**` for inserting/finding action audit events and looking up idempotency records.
-  - [ ] Keep raw DB rows and `snake_case` inside repositories; export camelCase domain/DTO objects only.
-  - [ ] Extend `src/lib/staff-portal/dto.ts` with client-safe receipt and mutation result/error DTOs, including error codes `staleState`, `permissionDenied`, `blockedAction`, `duplicateAction`, `validationFailed`, and `auditWriteFailed`.
-  - [ ] Receipt DTOs must render from the persisted event, not from optimistic local state: event/receipt ID, assessment ID, target, action, actor, previous state, resulting state, reason code/reason, audit reference, and created timestamp.
-- [ ] Implement `commitStaffAction(...)` as the only lifecycle mutation boundary (AC: 2, 3)
-  - [ ] Add `src/lib/server/staff-portal/services/commit-staff-action.ts`.
-  - [ ] Input must include `assessmentId`, `action`, `targetType`, optional `targetId`, `idempotencyKey`, `expectedState`, optional `expectedVersion`, optional `reasonCode`, optional `reason`/note, and audit metadata required by `ACTION_AUDIT_REQUIREMENTS`.
-  - [ ] Re-check actor identity/role/assignment in the service; do not trust client-visible `availableActions`.
-  - [ ] Load current governed state from existing brownfield facts and Story 1.1 mappers before committing; raw `pipeline_status`, `human_assist_reviews`, or `assessment_gates` values must not become mutation truth directly.
-  - [ ] Re-run `getAvailableActions(...)` inside `commitStaffAction(...)` and reject disabled actions with structured `blockedAction` or `permissionDenied` responses.
-  - [ ] Enforce stale preconditions by comparing `expectedState` and `expectedVersion`/current version where available; return `staleState` with current state when mismatched.
-  - [ ] Compute a stable `request_hash` from canonicalized action input excluding transport noise; retries with the same idempotency key and same hash return the previously persisted receipt without creating a duplicate event.
-  - [ ] Retries with the same idempotency key and a different request hash must return a safe structured duplicate/idempotency conflict response and must not mutate state.
-  - [ ] Audit event creation must happen in the same logical commit path as any lifecycle state change. If audit insertion fails, report `auditWriteFailed` and do not report the lifecycle transition as successful.
-  - [ ] Do not update lifecycle state from route handlers. If this story needs action-specific state writes, encapsulate them behind `commitStaffAction(...)`; otherwise leave action-specific transition adapters minimal and tested for later stories.
-- [ ] Add the thin Staff Portal mutation endpoint (AC: 2, 3)
-  - [ ] Add `src/routes/api/operator/assessments/[assessmentId]/actions/+server.ts` only as a delivery adapter.
-  - [ ] Use existing Clerk/operator auth patterns and reject unauthenticated/non-operator/non-admin access before calling the service; production must not trust `dev_user_id`.
-  - [ ] Parse request JSON as `unknown` and validate with existing `zod` dependency; do not type-cast raw JSON into trusted input.
-  - [ ] The route may authenticate, validate, call `commitStaffAction(...)`, and map service errors to structured JSON. It must not inspect raw lifecycle statuses, construct audit rows, write D1/SQLite lifecycle state, or generate receipts itself.
-  - [ ] Response shape must be `{ success: true, receipt, state }` or `{ success: false, error: { code, message, currentState? } }` with correct status codes.
-- [ ] Preserve and integrate Story 1.1 contracts (AC: 2)
-  - [ ] Reuse `src/lib/server/staff-portal/domain/actions.ts`, `roles.ts`, `states.ts`, mappers, and `getAvailableActions(...)`; do not create parallel action IDs, roles, state names, or eligibility logic.
-  - [ ] Keep `admin` and `operator` as the only Staff Portal roles.
-  - [ ] Keep browser imports client-safe: UI/API response types from `$lib/staff-portal/dto.ts`; server persistence/auth/DB code stays under `$lib/server/staff-portal/**` or route server files.
-- [ ] Add targeted tests (AC: 1, 2, 3)
-  - [ ] Add migration/local-schema parity tests or repository tests proving the required columns and unique idempotency constraint exist for local SQLite and migration SQL.
-  - [ ] Add repository tests for insert, receipt mapping, lookup by idempotency scope, duplicate same-hash retry, and duplicate different-hash rejection.
-  - [ ] Add `commitStaffAction(...)` tests for authentication/actor rejection, role/assignment denial, current-state recheck, stale expected-state rejection, disabled action rejection, audit metadata validation, successful audit event creation, same-key retry returning the same receipt, and audit-write failure returning `auditWriteFailed` without reported transition success.
-  - [ ] Add route tests proving the API delegates to `commitStaffAction(...)` and does not mutate DB/lifecycle state directly.
-  - [ ] Run `npx vitest run tests/staff-portal` and `npm run check`.
+- [x] Add Staff Portal action/audit persistence schema (AC: 1)
+  - [x] Add the next sequential migration, expected `migrations/0017_staff_portal_action_audit_events.sql`, for a durable Staff Portal action/audit event table.
+  - [x] Include at minimum: `id`, `assessment_id`, `actor_id`, `action`, `from_state`, `to_state`, `reason_code`, `reason`, `request_hash`, `idempotency_key`, `created_at`.
+  - [x] Also include `target_type`, `target_id`, and optional `metadata_json` unless a simpler equivalent preserves FR58 affected-object provenance; keep DB names `snake_case`.
+  - [x] Add `UNIQUE(actor_id, assessment_id, idempotency_key)` exactly for retry protection; do not include timestamp or random value in that uniqueness scope.
+  - [x] Add bounded lookup indexes for `assessment_id`, `actor_id`, `action`, and `created_at` suitable for later Client Profile/Audit Timeline reads.
+  - [x] Update `src/lib/server/db.ts` local `initSchema(...)` with the same table, unique constraint, and indexes so local SQLite and D1 stay in parity.
+- [x] Add repository and DTO contracts for persisted actions, receipts, and errors (AC: 1, 2, 3)
+  - [x] Add server-only repositories under `src/lib/server/staff-portal/repositories/**` for inserting/finding action audit events and looking up idempotency records.
+  - [x] Keep raw DB rows and `snake_case` inside repositories; export camelCase domain/DTO objects only.
+  - [x] Extend `src/lib/staff-portal/dto.ts` with client-safe receipt and mutation result/error DTOs, including error codes `staleState`, `permissionDenied`, `blockedAction`, `duplicateAction`, `validationFailed`, and `auditWriteFailed`.
+  - [x] Receipt DTOs must render from the persisted event, not from optimistic local state: event/receipt ID, assessment ID, target, action, actor, previous state, resulting state, reason code/reason, audit reference, and created timestamp.
+- [x] Implement `commitStaffAction(...)` as the only lifecycle mutation boundary (AC: 2, 3)
+  - [x] Add `src/lib/server/staff-portal/services/commit-staff-action.ts`.
+  - [x] Input must include `assessmentId`, `action`, `targetType`, optional `targetId`, `idempotencyKey`, `expectedState`, optional `expectedVersion`, optional `reasonCode`, optional `reason`/note, and audit metadata required by `ACTION_AUDIT_REQUIREMENTS`.
+  - [x] Re-check actor identity/role/assignment in the service; do not trust client-visible `availableActions`.
+  - [x] Load current governed state from existing brownfield facts and Story 1.1 mappers before committing; raw `pipeline_status`, `human_assist_reviews`, or `assessment_gates` values must not become mutation truth directly.
+  - [x] Re-run `getAvailableActions(...)` inside `commitStaffAction(...)` and reject disabled actions with structured `blockedAction` or `permissionDenied` responses.
+  - [x] Enforce stale preconditions by comparing `expectedState` and `expectedVersion`/current version where available; return `staleState` with current state when mismatched.
+  - [x] Compute a stable `request_hash` from canonicalized action input excluding transport noise; retries with the same idempotency key and same hash return the previously persisted receipt without creating a duplicate event.
+  - [x] Retries with the same idempotency key and a different request hash must return a safe structured duplicate/idempotency conflict response and must not mutate state.
+  - [x] Audit event creation must happen in the same logical commit path as any lifecycle state change. If audit insertion fails, report `auditWriteFailed` and do not report the lifecycle transition as successful.
+  - [x] Do not update lifecycle state from route handlers. If this story needs action-specific state writes, encapsulate them behind `commitStaffAction(...)`; otherwise leave action-specific transition adapters minimal and tested for later stories.
+- [x] Add the thin Staff Portal mutation endpoint (AC: 2, 3)
+  - [x] Add `src/routes/api/operator/assessments/[assessmentId]/actions/+server.ts` only as a delivery adapter.
+  - [x] Use existing Clerk/operator auth patterns and reject unauthenticated/non-operator/non-admin access before calling the service; production must not trust `dev_user_id`.
+  - [x] Parse request JSON as `unknown` and validate with existing `zod` dependency; do not type-cast raw JSON into trusted input.
+  - [x] The route may authenticate, validate, call `commitStaffAction(...)`, and map service errors to structured JSON. It must not inspect raw lifecycle statuses, construct audit rows, write D1/SQLite lifecycle state, or generate receipts itself.
+  - [x] Response shape must be `{ success: true, receipt, state }` or `{ success: false, error: { code, message, currentState? } }` with correct status codes.
+- [x] Preserve and integrate Story 1.1 contracts (AC: 2)
+  - [x] Reuse `src/lib/server/staff-portal/domain/actions.ts`, `roles.ts`, `states.ts`, mappers, and `getAvailableActions(...)`; do not create parallel action IDs, roles, state names, or eligibility logic.
+  - [x] Keep `admin` and `operator` as the only Staff Portal roles.
+  - [x] Keep browser imports client-safe: UI/API response types from `$lib/staff-portal/dto.ts`; server persistence/auth/DB code stays under `$lib/server/staff-portal/**` or route server files.
+- [x] Add targeted tests (AC: 1, 2, 3)
+  - [x] Add migration/local-schema parity tests or repository tests proving the required columns and unique idempotency constraint exist for local SQLite and migration SQL.
+  - [x] Add repository tests for insert, receipt mapping, lookup by idempotency scope, duplicate same-hash retry, and duplicate different-hash rejection.
+  - [x] Add `commitStaffAction(...)` tests for authentication/actor rejection, role/assignment denial, current-state recheck, stale expected-state rejection, disabled action rejection, audit metadata validation, successful audit event creation, same-key retry returning the same receipt, and audit-write failure returning `auditWriteFailed` without reported transition success.
+  - [x] Add route tests proving the API delegates to `commitStaffAction(...)` and does not mutate DB/lifecycle state directly.
+  - [x] Run `npx vitest run tests/staff-portal` and `npm run check`.
 
 ## Dev Notes
 
@@ -248,10 +248,42 @@ npm run check
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Pi API coding agent (model unspecified)
 
 ### Debug Log References
 
+- `npx svelte-kit sync && npx vitest run tests/staff-portal` — initial targeted validation after implementation: 57 tests passed.
+- BMAD review found a missing gate-finding target blocker; fixed `commitStaffAction(...)` to reject missing gate targets and added regression coverage.
+- `npx vitest run tests/staff-portal` — final targeted Staff Portal suite: 58 tests passed.
+- `npm run check` — final Svelte/TypeScript validation: passed with 0 errors and 26 pre-existing warnings after creating a local ignored `.env` from `.env.example` for public env type generation.
+- BMAD review and lightweight gate — passed with no remaining AC blockers.
+
 ### Completion Notes List
 
+- Added `staff_action_audit_events` D1 migration and local SQLite schema parity with required receipt/audit fields, provenance fields, actor/assessment/idempotency uniqueness, and bounded lookup indexes.
+- Added server-only audit/idempotency repositories and client-safe mutation receipt/result/error DTO contracts.
+- Implemented `commitStaffAction(...)` as the lifecycle mutation boundary: actor/role/assignment re-checks, governed state loading through Story 1.1 mappers, stale preconditions, idempotency hashing/replay handling, eligibility validation, persisted receipt generation, and `auditWriteFailed` failure handling.
+- Added thin SvelteKit API delivery adapter with Clerk/operator auth reuse, Zod validation from `unknown` JSON, structured response mapping, and no direct lifecycle/audit row construction in the route.
+- Added targeted migration, repository, service, and route tests covering schema parity, idempotency, stale/permission/blocked/validation/audit-failure paths, route delegation, and missing gate-finding target rejection.
+
 ### File List
+
+- `_bmad-output/implementation-artifacts/1-2-audit-and-idempotent-action-persistence.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `migrations/0017_staff_portal_action_audit_events.sql`
+- `src/lib/server/db.ts`
+- `src/lib/staff-portal/dto.ts`
+- `src/lib/server/staff-portal/repositories/staff-audit.repository.ts`
+- `src/lib/server/staff-portal/repositories/staff-idempotency.repository.ts`
+- `src/lib/server/staff-portal/services/commit-staff-action.ts`
+- `src/lib/server/staff-portal/validation/staff-action.schema.ts`
+- `src/routes/api/operator/assessments/[assessmentId]/actions/+server.ts`
+- `tests/staff-portal/migrations/staff-action-audit-schema.test.ts`
+- `tests/staff-portal/repositories/staff-audit.repository.test.ts`
+- `tests/staff-portal/routes/assessment-actions.test.ts`
+- `tests/staff-portal/services/commit-staff-action.test.ts`
+- `tests/staff-portal/test-db.ts`
+
+### Change Log
+
+- 2026-05-25: Implemented Staff Portal action/audit persistence, idempotent commit boundary, thin mutation API, and targeted Staff Portal tests.
