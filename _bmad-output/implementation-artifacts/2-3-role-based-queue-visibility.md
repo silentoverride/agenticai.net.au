@@ -1,6 +1,6 @@
 # Story 2.3: Role-Based Queue Visibility
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
