@@ -22,6 +22,7 @@
   activityHistory={data.activityHistory}
   followUps={data.followUps}
   meetingBrief={data.meetingBrief}
+  staleWarning={data.staleWarning}
   calendlyLink={data.calendly?.calendlyLink ?? null}
   assessmentId={assessmentId}
 />

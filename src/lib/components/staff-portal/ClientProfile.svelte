@@ -26,6 +26,7 @@
     StaffActivityEventDto,
     StaffFollowUpDto,
     StaffMeetingBriefDto,
+    MeetingBriefStalenessWarning,
     PrimaryTreatment
   } from '$lib/staff-portal/dto';
   import FollowUpEditor from './FollowUpEditor.svelte';
@@ -39,6 +40,7 @@
     activityHistory,
     followUps = [],
     meetingBrief = null,
+    staleWarning = null,
     calendlyLink = null,
     assessmentId = ''
   }: {
@@ -50,6 +52,7 @@
     activityHistory: StaffActivityEventDto[];
     followUps?: StaffFollowUpDto[];
     meetingBrief?: StaffMeetingBriefDto | null;
+    staleWarning?: MeetingBriefStalenessWarning | null;
     calendlyLink?: string | null;
     assessmentId?: string;
   } = $props();
@@ -448,6 +451,12 @@
             </a>
           {/if}
         </div>
+
+        {#if staleWarning?.stale}
+          <div class="mb-stale-warning" role="alert" data-testid="mb-stale-warning">
+            ⚠ {staleWarning.message}
+          </div>
+        {/if}
 
         {#if meetingBrief}
           <div class="meeting-brief-card" data-testid="meeting-brief-content">
@@ -905,6 +914,16 @@
 
   .calendly-link:hover {
     text-decoration: underline;
+  }
+
+  .mb-stale-warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.75rem;
   }
 
   /* ── Placeholders ── */

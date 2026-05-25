@@ -72,7 +72,8 @@ export type StaffPortalActionId =
   | 'requestClarification'
   | 'completeFollowUp'
   | 'deferFollowUp'
-  | 'reassignFollowUp';
+  | 'reassignFollowUp'
+  | 'changeMeetingBriefStatus';
 
 export interface StatePresentationMetadata {
   label: string;
@@ -130,7 +131,7 @@ export type StaffActionErrorCode =
   | 'validationFailed'
   | 'auditWriteFailed';
 
-export type StaffActionState = ReportState | GateFindingState | FollowUpStatus;
+export type StaffActionState = ReportState | GateFindingState | FollowUpStatus | MeetingBriefState;
 
 export interface StaffActionReceiptDto {
   id: string;
@@ -526,6 +527,14 @@ export interface StaffMeetingBriefDto {
   linkedReportId: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface MeetingBriefStalenessWarning {
+  stale: boolean;
+  reason?: 'idleLongerThan30Days' | 'linkedReportChanged';
+  message?: string;
+  lastUpdated: string | null;
+  daysSinceUpdate: number | null;
 }
 
 export type FollowUpState = 'open' | 'completed' | 'deferred' | 'reassigned' | 'not_available';

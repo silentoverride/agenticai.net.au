@@ -6,6 +6,7 @@ import { deriveWhatMattersNow } from '$lib/server/staff-portal/read-models/deriv
 import { findFollowUpsByAssessment } from '$lib/server/staff-portal/repositories/follow-up.repository';
 import { findMeetingBriefByAssessment } from '$lib/server/staff-portal/repositories/meeting-brief.repository';
 import { getCalendlyConfig } from '$lib/server/staff-portal/services/calendly.service';
+import { checkMeetingBriefStaleness } from '$lib/server/staff-portal/services/meeting-brief-staleness';
 import { getLinkedReportContext } from '$lib/server/staff-portal/read-models/get-linked-report-context';
 import { getLinkedGateFindings } from '$lib/server/staff-portal/read-models/get-linked-gate-findings';
 import { getClientAuditHistory } from '$lib/server/staff-portal/read-models/get-client-audit-history';
@@ -93,6 +94,9 @@ export const load: PageServerLoad = async ({ locals, platform, params }) => {
     const calendly = profileResult.hasData
       ? await getCalendlyConfig(db)
       : { calendlyLink: null };
+    const staleWarning = meetingBrief
+      ? checkMeetingBriefStaleness(meetingBrief)
+      : null;
 
     return {
       profile: profileResult,
@@ -103,6 +107,7 @@ export const load: PageServerLoad = async ({ locals, platform, params }) => {
       activityHistory,
       followUps,
       meetingBrief,
+      staleWarning,
       calendly,
       assessmentId
     };

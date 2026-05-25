@@ -10,6 +10,9 @@ import {
 } from '$lib/server/staff-portal/repositories/meeting-brief.repository';
 import { MEETING_BRIEF_STATUSES } from '$lib/server/staff-portal/domain/meeting-brief-states';
 import { getCalendlyConfig } from '$lib/server/staff-portal/services/calendly.service';
+import { validateMeetingBriefReady, isStatusTransitionAllowed } from '$lib/server/staff-portal/services/meeting-brief-readiness';
+import { checkMeetingBriefStaleness } from '$lib/server/staff-portal/services/meeting-brief-staleness';
+import { recordMeetingBriefStatusChange } from '$lib/server/staff-portal/services/meeting-brief-audit.service';
 
 // ── Schemas ──
 
@@ -23,7 +26,9 @@ const upsertMeetingBriefSchema = z.object({
   finalAgendaNotes: z.string().nullable().optional(),
   prepChecklist: z.string().nullable().optional(),
   status: z.enum(['draft', 'needsReview', 'ready', 'stale', 'completed']).optional(),
-  linkedReportId: z.string().nullable().optional()
+  linkedReportId: z.string().nullable().optional(),
+  exceptionReason: z.string().nullable().optional(),
+  idempotencyKey: z.string().optional()
 }).strict();
 
 // ── Routes ──
@@ -44,7 +49,13 @@ export async function GET(event: RequestEvent) {
   const meetingBrief = await findMeetingBriefByAssessment(db, assessmentId);
   const calendly = await getCalendlyConfig(db);
 
-  return json({ meetingBrief, calendly });
+  // Check staleness if meeting brief exists
+  let staleWarning = null;
+  if (meetingBrief) {
+    staleWarning = checkMeetingBriefStaleness(meetingBrief);
+  }
+
+  return json({ meetingBrief, calendly, staleWarning });
 }
 
 export async function PUT(event: RequestEvent) {
@@ -85,23 +96,100 @@ export async function PUT(event: RequestEvent) {
   // Check if a meeting brief already exists
   const existing = await findMeetingBriefByAssessment(db, assessmentId);
 
+  // Determine previous status for audit (if status is changing)
+  const previousStatus = existing?.status ?? null;
+  const requestedStatus = parsed.data.status;
+
+  // Ready-state guard: check linked report approval when transitioning to 'ready'
+  if (requestedStatus === 'ready') {
+    const effectiveReportId = parsed.data.linkedReportId ?? existing?.linkedReportId ?? null;
+    const hasException = Boolean(parsed.data.exceptionReason);
+
+    if (!hasException) {
+      const readyCheck = await validateMeetingBriefReady({
+        db,
+        meetingBriefId: existing?.id ?? 'new',
+        linkedReportId: effectiveReportId
+      });
+
+      if (!readyCheck.allowed) {
+        return json({
+          success: false,
+          error: {
+            code: 'blockedAction',
+            message: readyCheck.message,
+            remediationHint: 'Provide an exception reason if no approved report is needed.'
+          }
+        }, { status: 400 });
+      }
+    }
+  }
+
+  // State transition guard: check if the transition is allowed
+  if (requestedStatus && existing && previousStatus) {
+    const allowed = isStatusTransitionAllowed(previousStatus, requestedStatus);
+    if (!allowed) {
+      return json({
+        success: false,
+        error: {
+          code: 'blockedAction',
+          message: `Cannot transition from "${previousStatus}" to "${requestedStatus}".`,
+          currentState: previousStatus,
+          remediationHint: `Allowed states from "${previousStatus}": check Meeting Brief state transitions.`
+        }
+      }, { status: 400 });
+    }
+  }
+
   try {
+    const idempotencyKey = parsed.data.idempotencyKey ?? crypto.randomUUID();
+
     if (existing) {
       // Update existing
       const updated = await updateMeetingBrief(db, {
         id: existing.id,
         ...parsed.data
       });
+
+      // Create audit event if status changed
+      if (requestedStatus && previousStatus && requestedStatus !== previousStatus) {
+        await recordMeetingBriefStatusChange({
+          db,
+          assessmentId,
+          meetingBriefId: existing.id,
+          actorId,
+          fromState: previousStatus,
+          toState: requestedStatus,
+          idempotencyKey,
+          reasonCode: parsed.data.exceptionReason ? 'exception' : 'status_change',
+          reason: parsed.data.exceptionReason ?? undefined
+        });
+      }
+
       return json({ success: true, meetingBrief: updated });
     } else {
       // Create new
       const id = crypto.randomUUID();
+      const targetStatus = requestedStatus ?? MEETING_BRIEF_STATUSES.DRAFT;
       const created = await insertMeetingBrief(db, {
         id,
         assessmentId,
-        status: parsed.data.status ?? MEETING_BRIEF_STATUSES.DRAFT,
+        status: targetStatus,
         ...parsed.data
       });
+
+      // Create audit event for initial status
+      await recordMeetingBriefStatusChange({
+        db,
+        assessmentId,
+        meetingBriefId: id,
+        actorId,
+        fromState: 'draft',
+        toState: targetStatus,
+        idempotencyKey,
+        reasonCode: 'created'
+      });
+
       return json({ success: true, meetingBrief: created });
     }
   } catch (err) {
