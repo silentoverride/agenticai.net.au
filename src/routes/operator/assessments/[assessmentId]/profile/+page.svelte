@@ -21,5 +21,7 @@
   auditHistory={data.auditHistory}
   activityHistory={data.activityHistory}
   followUps={data.followUps}
+  meetingBrief={data.meetingBrief}
+  calendlyLink={data.calendly?.calendlyLink ?? null}
   assessmentId={assessmentId}
 />

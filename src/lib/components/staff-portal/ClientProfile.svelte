@@ -25,6 +25,7 @@
     StaffAuditEventDto,
     StaffActivityEventDto,
     StaffFollowUpDto,
+    StaffMeetingBriefDto,
     PrimaryTreatment
   } from '$lib/staff-portal/dto';
   import FollowUpEditor from './FollowUpEditor.svelte';
@@ -37,6 +38,8 @@
     auditHistory,
     activityHistory,
     followUps = [],
+    meetingBrief = null,
+    calendlyLink = null,
     assessmentId = ''
   }: {
     profile: StaffClientProfileResultDto;
@@ -46,6 +49,8 @@
     auditHistory: StaffAuditEventDto[];
     activityHistory: StaffActivityEventDto[];
     followUps?: StaffFollowUpDto[];
+    meetingBrief?: StaffMeetingBriefDto | null;
+    calendlyLink?: string | null;
     assessmentId?: string;
   } = $props();
 
@@ -434,10 +439,57 @@
         {/if}
       </section>
 
-      <section class="section placeholder" data-testid="placeholder-meeting-briefs" aria-label="Meeting Briefs">
-        <h2 class="section-title">Meeting Briefs</h2>
-        <p class="placeholder-text">Meeting Briefs are coming in a future update (Epic 5).</p>
-        <span class="placeholder-badge">Coming soon</span>
+      <section class="section" data-testid="meeting-brief-section" aria-label="Meeting Briefs">
+        <div class="section-header">
+          <h2 class="section-title">Meeting Brief</h2>
+          {#if calendlyLink}
+            <a href={calendlyLink} target="_blank" rel="noopener noreferrer" class="calendly-link">
+              📅 Schedule via Calendly
+            </a>
+          {/if}
+        </div>
+
+        {#if meetingBrief}
+          <div class="meeting-brief-card" data-testid="meeting-brief-content">
+            {#if meetingBrief.meetingDate}
+              <p class="mb-field"><strong>Meeting date:</strong> {meetingBrief.meetingDate}</p>
+            {:else}
+              <p class="mb-field mb-missing"><strong>Meeting date:</strong> <em>Not set</em></p>
+            {/if}
+
+            {#if meetingBrief.objective}
+              <p class="mb-field"><strong>Objective:</strong> {meetingBrief.objective}</p>
+            {/if}
+            {#if meetingBrief.talkingPoints}
+              <p class="mb-field"><strong>Talking points:</strong> {meetingBrief.talkingPoints}</p>
+            {/if}
+            {#if meetingBrief.sensitiveIssues}
+              <p class="mb-field mb-sensitive"><strong>Sensitive issues:</strong> {meetingBrief.sensitiveIssues}</p>
+            {/if}
+            {#if meetingBrief.offerNextStep}
+              <p class="mb-field"><strong>Offer / next step to discuss:</strong> {meetingBrief.offerNextStep}</p>
+            {/if}
+            {#if meetingBrief.followUpIntention}
+              <p class="mb-field"><strong>Follow-up intention:</strong> {meetingBrief.followUpIntention}</p>
+            {/if}
+            {#if meetingBrief.finalAgendaNotes}
+              <p class="mb-field"><strong>Final agenda / notes:</strong> {meetingBrief.finalAgendaNotes}</p>
+            {/if}
+            {#if meetingBrief.prepChecklist}
+              <div class="mb-field">
+                <strong>Prep checklist:</strong>
+                <pre class="mb-checklist">{meetingBrief.prepChecklist}</pre>
+              </div>
+            {/if}
+
+            <div class="mb-meta">
+              <span class="state-badge state-{meetingBrief.status}">{meetingBrief.status}</span>
+              <span class="mb-timestamp">Updated: {formatDate(meetingBrief.updatedAt)}</span>
+            </div>
+          </div>
+        {:else}
+          <p class="empty-note">No meeting brief yet. <em>Draft notes will appear here once saved.</em></p>
+        {/if}
       </section>
 
       <section class="section placeholder" data-testid="placeholder-commercial" aria-label="Commercial Next Step">
@@ -789,6 +841,70 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  /* ── Meeting Brief ── */
+  .meeting-brief-card {
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    padding: 0.875rem;
+  }
+
+  .mb-field {
+    font-size: 0.8125rem;
+    margin: 0.35rem 0;
+    line-height: 1.5;
+  }
+
+  .mb-field strong {
+    color: var(--color-ink-2);
+  }
+
+  .mb-missing em {
+    color: var(--color-muted);
+    font-style: italic;
+  }
+
+  .mb-sensitive {
+    border-left: 3px solid var(--color-warm);
+    padding-left: 0.5rem;
+    color: var(--color-muted);
+  }
+
+  .mb-checklist {
+    font-family: inherit;
+    font-size: 0.8125rem;
+    white-space: pre-wrap;
+    margin: 0.25rem 0 0;
+    padding: 0.5rem;
+    background: var(--color-panel-soft);
+    border-radius: var(--radius-sm);
+  }
+
+  .mb-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--color-line);
+    font-size: 0.75rem;
+  }
+
+  .mb-timestamp {
+    color: var(--color-muted);
+  }
+
+  .calendly-link {
+    font-size: 0.8125rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .calendly-link:hover {
+    text-decoration: underline;
   }
 
   /* ── Placeholders ── */

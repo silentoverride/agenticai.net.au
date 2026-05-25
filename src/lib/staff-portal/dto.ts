@@ -27,7 +27,7 @@ export type GateFindingState =
 
 export type HumanReviewState = 'none' | 'pending' | 'inReview' | 'approved' | 'rejected' | 'edited';
 
-export type StaffPortalTargetType = 'report' | 'gateFinding' | 'followUp';
+export type StaffPortalTargetType = 'report' | 'gateFinding' | 'followUp' | 'meetingBrief';
 
 export type PresentationTone =
   | 'neutral'
@@ -506,6 +506,28 @@ export interface StaffCommandCenterResultDto {
 // ---------------------------------------------------------------------------
 
 export type MeetingBriefState = 'draft' | 'needsReview' | 'ready' | 'stale' | 'completed' | 'not_available';
+
+// ---------------------------------------------------------------------------
+// Meeting Brief DTO (Story 5.1)
+// ---------------------------------------------------------------------------
+
+export interface StaffMeetingBriefDto {
+  id: string;
+  assessmentId: string;
+  meetingDate: string | null;
+  objective: string | null;
+  talkingPoints: string | null;
+  sensitiveIssues: string | null;
+  offerNextStep: string | null;
+  followUpIntention: string | null;
+  finalAgendaNotes: string | null;
+  prepChecklist: string | null;
+  status: MeetingBriefState;
+  linkedReportId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type FollowUpState = 'open' | 'completed' | 'deferred' | 'reassigned' | 'not_available';
 export type CommercialNextStepStatus = 'noAction' | 'nurture' | 'discussOffer' | 'sendFollowUp' | 'createFutureOpportunity' | 'not_available';
 export type ErrorCode = 'not_found' | 'permission_denied' | 'stale_data' | 'degraded';
