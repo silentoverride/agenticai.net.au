@@ -64,12 +64,12 @@ development_status:
   3-4-activity-memory-and-audit-history: done
   3-5-client-profile-continuity-layout: done
   epic-3-retrospective: optional
-  epic-4: in-progress
+  epic-4: done
   4-1-follow-up-commitment-model-and-actions: done
   4-2-followupeditor-on-client-profile: done
   4-3-follow-ups-from-review-and-other-source-contexts: done
   4-4-due-and-overdue-follow-up-surfacing: done
-  4-5-follow-up-audit-receipts-and-failure-states: ready-for-dev
+  4-5-follow-up-audit-receipts-and-failure-states: done
   epic-4-retrospective: optional
   epic-5: backlog
   5-1-calendly-access-and-meeting-brief-notes: backlog
