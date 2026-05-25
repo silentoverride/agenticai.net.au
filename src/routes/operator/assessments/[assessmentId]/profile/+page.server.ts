@@ -4,11 +4,12 @@ import { getDb } from '$lib/server/db';
 import { getClientProfileSnapshot } from '$lib/server/staff-portal/read-models/get-client-profile-snapshot';
 import { deriveWhatMattersNow } from '$lib/server/staff-portal/read-models/derive-what-matters-now';
 import { findFollowUpsByAssessment } from '$lib/server/staff-portal/repositories/follow-up.repository';
+import { findMeetingBriefByAssessment } from '$lib/server/staff-portal/repositories/meeting-brief.repository';
+import { getCalendlyConfig } from '$lib/server/staff-portal/services/calendly.service';
 import { getLinkedReportContext } from '$lib/server/staff-portal/read-models/get-linked-report-context';
 import { getLinkedGateFindings } from '$lib/server/staff-portal/read-models/get-linked-gate-findings';
 import { getClientAuditHistory } from '$lib/server/staff-portal/read-models/get-client-audit-history';
 import { getClientActivityHistory } from '$lib/server/staff-portal/read-models/get-client-activity-history';
-import { findFollowUpsByAssessment } from '$lib/server/staff-portal/repositories/follow-up.repository';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, platform, params }) => {
@@ -83,9 +84,15 @@ export const load: PageServerLoad = async ({ locals, platform, params }) => {
       : [];
 
     // 7. Follow-ups (Story 4.2)
-    const followUps = profileResult.hasData
-      ? await findFollowUpsByAssessment(db, assessmentId)
-      : [];
+    // (fetched above on line 38 for What Matters Now input)
+
+    // 8. Meeting Brief (Story 5.1)
+    const meetingBrief = profileResult.hasData
+      ? await findMeetingBriefByAssessment(db, assessmentId)
+      : null;
+    const calendly = profileResult.hasData
+      ? await getCalendlyConfig(db)
+      : { calendlyLink: null };
 
     return {
       profile: profileResult,
@@ -95,6 +102,8 @@ export const load: PageServerLoad = async ({ locals, platform, params }) => {
       auditHistory,
       activityHistory,
       followUps,
+      meetingBrief,
+      calendly,
       assessmentId
     };
   } catch (err) {
