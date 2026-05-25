@@ -7,7 +7,8 @@ export const STAFF_ACTION_IDS = [
   'escalateFinding',
   'approveReport',
   'rejectReport',
-  'requestRegeneration'
+  'requestRegeneration',
+  'requestClarification'
 ] as const;
 
 export const STAFF_TARGET_TYPES = ['report', 'gateFinding'] as const;
