@@ -2,11 +2,11 @@
   /**
    * ClientProfile — Desktop-first composed Client Profile layout.
    *
-   * Renders all sections from Epics 3.1–3.4 in a coherent view:
+   * Renders all sections from Epics 3.1–3.4 and 4.1–4.2 in a coherent view:
    *   - Client info header + What Matters Now panel
    *   - Linked Reports + Linked Gate Findings (desktop: 2-column)
+   *   - Follow-ups with editor (Epic 4)
    *   - Recent Activity + Audit History
-   *   - Placeholder sections for Epics 4 & 5
    *
    * Uses only repo-owned CSS custom properties. No Tailwind, shadcn, or kits.
    */
@@ -24,8 +24,10 @@
     StaffLinkedGateFindingDto,
     StaffAuditEventDto,
     StaffActivityEventDto,
+    StaffFollowUpDto,
     PrimaryTreatment
   } from '$lib/staff-portal/dto';
+  import FollowUpEditor from './FollowUpEditor.svelte';
 
   let {
     profile,
@@ -33,7 +35,9 @@
     linkedReports,
     linkedFindings,
     auditHistory,
-    activityHistory
+    activityHistory,
+    followUps = [],
+    assessmentId = ''
   }: {
     profile: StaffClientProfileResultDto;
     whatMattersNow: StaffWhatMattersNowDto | null;
@@ -41,6 +45,8 @@
     linkedFindings: StaffLinkedGateFindingDto[];
     auditHistory: StaffAuditEventDto[];
     activityHistory: StaffActivityEventDto[];
+    followUps?: StaffFollowUpDto[];
+    assessmentId?: string;
   } = $props();
 
   // ── Helpers ──
@@ -67,6 +73,69 @@
     };
     return labels[t] ?? t;
   }
+
+  // ── Follow-up state ──
+
+  let showFollowUpForm = $state(false);
+  let followUpList = $state<StaffFollowUpDto[]>(followUps);
+
+  async function handleCreateFollowUp(data: {
+    title: string; description: string | null; ownerId: string | null;
+    dueDate: string | null; source: string; clientVisiblePromise: boolean;
+    consequenceOfInaction: string | null; notes: string | null;
+  }) {
+    const res = await fetch(`/api/operator/assessments/${assessmentId}/follow-ups`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+      const result: { success: boolean; followUp?: StaffFollowUpDto } = await res.json();
+      if (result.success && result.followUp) {
+        followUpList = [result.followUp, ...followUpList];
+        showFollowUpForm = false;
+      }
+    }
+  }
+
+  async function handleUpdateFollowUpStatus(followUpId: string, actionData: {
+    action: 'completeFollowUp' | 'deferFollowUp' | 'reassignFollowUp';
+    reason?: string; newOwnerId?: string;
+  }) {
+    const body: Record<string, unknown> = {
+      action: actionData.action,
+      idempotencyKey: crypto.randomUUID()
+    };
+    if (actionData.reason) body.reason = actionData.reason;
+    if (actionData.newOwnerId) body.newOwnerId = actionData.newOwnerId;
+
+    const res = await fetch(`/api/operator/assessments/${assessmentId}/follow-ups/${followUpId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      const result: { success: boolean; followUp?: StaffFollowUpDto } = await res.json();
+      if (result.success && result.followUp) {
+        followUpList = followUpList.map((f) =>
+          f.id === followUpId ? result.followUp! : f
+        );
+      }
+    }
+  }
+
+  // ── Unsaved-changes guard ──
+
+  $effect(() => {
+    if (showFollowUpForm) {
+      const handler = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved follow-up changes.';
+      };
+      window.addEventListener('beforeunload', handler);
+      return () => window.removeEventListener('beforeunload', handler);
+    }
+  });
 </script>
 
 <div class="client-profile" data-testid="client-profile">
@@ -326,10 +395,43 @@
 
     <!-- Placeholder Sections for Epics 4 & 5 -->
     <div class="placeholder-grid">
-      <section class="section placeholder" data-testid="placeholder-followups" aria-label="Follow-ups">
-        <h2 class="section-title">Follow-ups</h2>
-        <p class="placeholder-text">Follow-up tracking is coming in a future update (Epic 4).</p>
-        <span class="placeholder-badge">Coming soon</span>
+      <section class="section" data-testid="followups-section" aria-label="Follow-ups">
+        <div class="section-header">
+          <h2 class="section-title">Follow-ups</h2>
+          <button
+            type="button"
+            class="btn btn-sm btn-primary"
+            onclick={() => showFollowUpForm = true}
+            data-testid="btn-add-follow-up"
+            tabindex="0"
+          >+ Add Follow-up</button>
+        </div>
+
+        {#if showFollowUpForm}
+          <FollowUpEditor
+            followUp={null}
+            onSave={handleCreateFollowUp}
+            onCancel={() => showFollowUpForm = false}
+            onUpdateStatus={() => {}}
+            assessmentId={assessmentId}
+          />
+        {/if}
+
+        {#if followUpList.length === 0}
+          <p class="empty-note">No follow-ups yet.</p>
+        {:else}
+          <div class="follow-up-list">
+            {#each followUpList as fu (fu.id)}
+              <FollowUpEditor
+                followUp={fu}
+                onSave={() => {}}
+                onCancel={() => {}}
+                onUpdateStatus={(d) => handleUpdateFollowUpStatus(fu.id, d)}
+                assessmentId={assessmentId}
+              />
+            {/each}
+          </div>
+        {/if}
       </section>
 
       <section class="section placeholder" data-testid="placeholder-meeting-briefs" aria-label="Meeting Briefs">
@@ -652,6 +754,42 @@
   .audit-detail { color: var(--color-ink); }
   .audit-note { font-style: italic; margin: 0.15rem 0; color: var(--color-muted); }
   .audit-actor { font-family: monospace; font-size: 0.6rem; color: var(--color-muted-2); }
+
+  /* ── Follow-up section ── */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .btn-sm {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-sm:focus-visible {
+    outline: 2px solid var(--color-focus, #3b82f6);
+    outline-offset: 2px;
+  }
+
+  .btn-sm.btn-primary {
+    background: var(--color-primary, #1d4ed8);
+    color: #fff;
+  }
+
+  .btn-sm.btn-primary:hover { opacity: 0.9; }
+
+  .follow-up-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
   /* ── Placeholders ── */
   .placeholder-grid {

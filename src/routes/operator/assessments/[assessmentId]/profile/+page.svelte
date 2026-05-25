@@ -3,6 +3,8 @@
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
+
+  let assessmentId = $derived(data.assessmentId ?? '');
 </script>
 
 <svelte:head>
@@ -18,4 +20,6 @@
   linkedFindings={data.linkedFindings}
   auditHistory={data.auditHistory}
   activityHistory={data.activityHistory}
+  followUps={data.followUps}
+  assessmentId={assessmentId}
 />
