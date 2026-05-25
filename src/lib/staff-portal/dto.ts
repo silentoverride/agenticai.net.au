@@ -366,3 +366,83 @@ export const RISK_SIGNAL_PRESENTATION: Record<RiskSignal, StatePresentationMetad
   high: { label: 'High risk', tone: 'warning', accessibleLabel: 'High risk signal', description: 'High risk signal present.', remediationHint: 'Escalate if evidence is incomplete.', testId: 'risk-high' },
   blocked: { label: 'Blocked', tone: 'danger', accessibleLabel: 'Blocked risk signal', description: 'A blocking risk exists.', remediationHint: 'Resolve blockers before approval.', testId: 'risk-blocked' }
 };
+
+// ---------------------------------------------------------------------------
+// Review Queue & Workspace DTOs (Story 1.3)
+// ---------------------------------------------------------------------------
+
+export interface StaffReportReviewQueueItemDto {
+  assessmentId: string;
+  clientName: string;
+  reportState: ReportState;
+  humanReviewState: HumanReviewState;
+  blockerSummary: string | null;
+  owner: string | null;
+  ageDays: number;
+  dueDate: string | null;
+  nextSafeAction: StaffActionDescriptor;
+  priorityReason: string;
+  consequenceOfInaction: string | null;
+}
+
+export interface StaffAssessmentReviewDto {
+  assessmentId: string;
+  clientName: string;
+  reportState: ReportState;
+  humanReviewState: HumanReviewState;
+  reportContext: StaffReportContextDto;
+  linkedGateFindings: StaffGateFindingDto[];
+  artifactHistory: StaffArtifactVersionDto[];
+  availableActions: StaffActionDescriptor[];
+  statePresentation: StatePresentationMetadata;
+  blockedReasons: StaffBlockedReasonDto[];
+}
+
+export interface StaffReportContextDto {
+  businessName: string;
+  owner: string | null;
+  journeyStage: string | null;
+  riskFlags: string[];
+  valueFlags: string[];
+}
+
+export interface StaffGateFindingDto {
+  id: string;
+  type: string;
+  verdict: string;
+  confidence: number | null;
+  severity: string | null;
+  reasoning: string | null;
+  details: string | null;
+  flaggedReportSection: string | null;
+  relatedIntakeEvidence: string | null;
+  suggestedInspectionSteps: string | null;
+  state: GateFindingState;
+  decisionNotes: string | null;
+  riskSignal: RiskSignalPresentationDto;
+}
+
+export interface RiskSignalPresentationDto {
+  tone: PresentationTone;
+  label: string;
+  description: string;
+  testId: string;
+}
+
+export interface StaffArtifactVersionDto {
+  versionId: string;
+  type: 'original' | 'edited' | 'regenerated' | 'historical';
+  createdAt: string;
+  label: string;
+  available: boolean;
+  url?: string;
+}
+
+export interface StaffBlockedReasonDto {
+  reason: BlockedReason;
+  label: string;
+  tone: PresentationTone;
+  description: string;
+  remediationHint: string;
+  testId: string;
+}

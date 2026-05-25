@@ -3,7 +3,7 @@ import { getDb } from '$lib/server/db';
 
 const OPERATOR_ROLES = new Set(['operator', 'admin']);
 
-export async function requireOperator(locals: App.Locals, db?: D1Database): Promise<void> {
+export async function requireOperator(locals: App.Locals, db?: D1Database): Promise<string> {
   const auth = locals.auth();
 
   if (!auth.userId) {
@@ -17,6 +17,8 @@ export async function requireOperator(locals: App.Locals, db?: D1Database): Prom
   if (!role || !OPERATOR_ROLES.has(role)) {
     throw error(403, 'Operator access required');
   }
+
+  return role;
 }
 
 async function getD1Role(db: D1Database, userId: string): Promise<string | null> {

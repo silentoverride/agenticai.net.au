@@ -33,23 +33,35 @@
     } | null;
   } = $props();
 
-  let messages = $state<ChatMessage[]>(savedState?.messages || []);
-  let currentQuestionIndex = $state(savedState?.currentQuestionIndex ?? 0);
+  // Destructure savedState into plain values to avoid capturing a reactive reference
+  // svelte-ignore state_referenced_locally
+  const s = savedState ?? {};
+  const initMessages = (s as any).messages ?? [];
+  const initIndex = (s as any).currentQuestionIndex ?? 0;
+  const initFollowUp = (s as any).followUpAsked ?? false;
+  const initCurrentFollowUp = (s as any).currentFollowUp;
+  const initLastQuestionId = (s as any).lastQuestionId ?? '';
+  const initAnswers = (s as any).answers ?? [];
+  // svelte-ignore state_referenced_locally
+  const isResumedSession = !!savedState;
+
+  let messages = $state<ChatMessage[]>(initMessages);
+  let currentQuestionIndex = $state(initIndex);
   let inputText = $state('');
   let isTyping = $state(false);
   let chatContainer: HTMLDivElement;
   let inputEl: HTMLInputElement;
-  let followUpAsked = $state(savedState?.followUpAsked ?? false);
-  let currentFollowUp = $state<string | undefined>(savedState?.currentFollowUp);
-  let lastQuestionId = $state(savedState?.lastQuestionId ?? '');
-  let answers = $state<Array<{ questionId: string; question: string; answer: string; followUpAnswer?: string }>>(savedState?.answers || []);
+  let followUpAsked = $state(initFollowUp);
+  let currentFollowUp = $state<string | undefined>(initCurrentFollowUp);
+  let lastQuestionId = $state(initLastQuestionId);
+  let answers = $state<Array<{ questionId: string; question: string; answer: string; followUpAnswer?: string }>>(initAnswers);
   let intakeScript: typeof import('$lib/assessment/intake-script').INTAKE_SCRIPT = [];
 
   // Load intake script questions
   $effect(() => {
     import('$lib/assessment/intake-script').then(mod => {
       intakeScript = mod.INTAKE_SCRIPT;
-      if (intakeScript.length > 0 && messages.length === 0 && !savedState) {
+      if (intakeScript.length > 0 && messages.length === 0 && !isResumedSession) {
         askQuestion(0);
       }
     });

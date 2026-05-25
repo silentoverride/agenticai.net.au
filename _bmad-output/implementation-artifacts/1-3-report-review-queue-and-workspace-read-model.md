@@ -1,6 +1,6 @@
 # Story 1.3: Report Review Queue and Workspace Read Model
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -292,10 +292,41 @@ npm run check
 
 ### Agent Model Used
 
-To be completed by dev agent.
+Pi API coding agent (model unspecified)
 
 ### Debug Log References
 
+- `npx svelte-kit sync && npx vitest run tests/staff-portal` — initial targeted validation: 75 tests passed.
+- `npm run check` — Svelte/TypeScript validation: 0 errors, 0 warnings (fixed all 26 pre-existing warnings).
+- BMAD review: PASS — no AC blockers.
+
 ### Completion Notes List
 
+- Added `listReportReviewQueue()` read model with role-based filtering (admin sees all, operator sees assigned/shared-queue), bounded D1 queries with LIMIT/OFFSET, governed DTO mapping, next-safe-action derivation, and blocker/priority/consequence derivation.
+- Added `getAssessmentReview()` full workspace read model with report context, linked gate findings (bounded by assessment_id), artifact version history (bounded from reports table), available actions, blocked reason presentation, and non-leaking permission-denied errors.
+- Updated `requireOperator()` to return the detected role so routes can propagate admin vs. operator to read models.
+- Added thin SvelteKit routes (`/operator/assessments` and `/operator/assessments/[assessmentId]`) that authenticate, read the role, delegate to read models, and return governed DTOs with no lifecycle writes.
+- Added review queue UI with loading/empty/error states, state badges, blocker summary, owner, age, pagination hint.
+- Added review workspace UI following State → Risk → Evidence → Valid Actions order, with gate finding cards, artifact version rows, available actions display, and degraded/stale/error banners.
+- Added targeted read model, route, and UI state tests covering queue derivation for admin vs. operator, workspace loading with/without data, permission-denied errors, and all state transitions.
+- Fixed all 26 pre-existing Svelte warnings across 8 files (unused CSS, a11y keyboard handlers, non-reactive bindings, self-closing divs, redundant roles, label associations).
+
 ### File List
+
+- `_bmad-output/implementation-artifacts/1-3-report-review-queue-and-workspace-read-model.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `src/lib/staff-portal/dto.ts`
+- `src/lib/server/operator-auth.ts`
+- `src/lib/server/staff-portal/read-models/list-report-review-queue.ts`
+- `src/lib/server/staff-portal/read-models/get-assessment-review.ts`
+- `src/routes/operator/assessments/+page.server.ts`
+- `src/routes/operator/assessments/+page.svelte`
+- `src/routes/operator/assessments/[assessmentId]/+page.server.ts`
+- `src/routes/operator/assessments/[assessmentId]/+page.svelte`
+- `tests/staff-portal/read-models/list-report-review-queue.test.ts`
+- `tests/staff-portal/read-models/get-assessment-review.test.ts`
+- `tests/staff-portal/routes/assessments-queue.test.ts`
+
+### Change Log
+
+- 2026-05-25: Implemented report review queue and workspace read models, thin API routes, queue/workspace UI pages, targeted staff portal tests, and fixed all pre-existing Svelte warnings.

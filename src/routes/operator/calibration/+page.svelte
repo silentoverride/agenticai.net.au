@@ -156,8 +156,8 @@
           />
         </div>
         <div class="control-group">
-          <label>Filter by Tags</label>
-          <div class="tag-list">
+          <label for="tag-filter">Filter by Tags</label>
+          <div class="tag-list" id="tag-filter">
             {#each allTags as tag}
               <button
                 class="tag-btn"

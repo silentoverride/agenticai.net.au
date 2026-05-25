@@ -4,24 +4,24 @@
 
 <div class="skeleton-container">
   <div class="skeleton-header">
-    <div class="skeleton-block title-block" />
-    <div class="skeleton-block subtitle-block" />
+    <div class="skeleton-block title-block"></div>
+    <div class="skeleton-block subtitle-block"></div>
   </div>
   <div class="skeleton-section">
-    <div class="skeleton-block h2-block" />
-    <div class="skeleton-block text-block" />
-    <div class="skeleton-block text-block short" />
+    <div class="skeleton-block h2-block"></div>
+    <div class="skeleton-block text-block"></div>
+    <div class="skeleton-block text-block short"></div>
   </div>
   <div class="skeleton-section">
-    <div class="skeleton-block h2-block" />
-    <div class="skeleton-card" />
-    <div class="skeleton-card" />
+    <div class="skeleton-block h2-block"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
   </div>
   <div class="skeleton-section">
-    <div class="skeleton-block h2-block" />
-    <div class="skeleton-card wide" />
-    <div class="skeleton-card wide" />
-    <div class="skeleton-card wide" />
+    <div class="skeleton-block h2-block"></div>
+    <div class="skeleton-card wide"></div>
+    <div class="skeleton-card wide"></div>
+    <div class="skeleton-card wide"></div>
   </div>
 </div>
 

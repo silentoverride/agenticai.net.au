@@ -29,7 +29,7 @@
     children?: Snippet;
   } = $props();
 
-  let sheetEl: HTMLDivElement;
+  let sheetEl = $state<HTMLDivElement>();
   let mounted = $state(false);
 
   $effect(() => {
@@ -64,8 +64,7 @@
     onkeydown={handleKeydown}
     {...restProps}
   >
-    <!-- Backdrop -->
-    <div class="sheet-backdrop" class:sheet-backdrop-open={open} onclick={close}></div>
+    <div class="sheet-backdrop" class:sheet-backdrop-open={open} onclick={close} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); close(); } }} role="button" tabindex="-1" aria-label="Close"></div>
 
     <!-- Panel -->
     <div

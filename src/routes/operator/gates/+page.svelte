@@ -158,7 +158,7 @@
     {:else if gates.length === 0}
       <p class="empty-text">No gate evaluations found{activeGateType || activeVerdict ? ' matching filters' : ''}.</p>
     {:else}
-      <table class="gates-table" role="table">
+      <table class="gates-table">
         <thead>
           <tr>
             <th>Assessment ID</th>

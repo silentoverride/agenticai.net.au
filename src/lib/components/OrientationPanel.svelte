@@ -33,8 +33,7 @@
 </script>
 
 <Dialog bind:open>
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="orientation-panel" onclick={(e) => e.stopPropagation()}>
+  <div class="orientation-panel" onclick={(e) => e.stopPropagation()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); }} role="presentation">
     <div class="orientation-header">
       <div class="orientation-icon" aria-hidden="true">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
