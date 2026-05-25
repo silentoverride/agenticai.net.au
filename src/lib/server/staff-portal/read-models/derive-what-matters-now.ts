@@ -8,7 +8,8 @@ import type {
   HumanReviewState,
   MeetingBriefState,
   FollowUpState,
-  CommercialNextStepStatus
+  CommercialNextStepStatus,
+  StaffFollowUpDto
 } from '$lib/staff-portal/dto';
 import { REPORT_STATES, HUMAN_REVIEW_STATES } from '../domain/states';
 
@@ -18,6 +19,12 @@ import { REPORT_STATES, HUMAN_REVIEW_STATES } from '../domain/states';
 
 export interface DeriveWhatMattersNowInput {
   profile: StaffClientProfileSnapshotDto | null;
+  /**
+   * The most urgent open follow-up for this client, if any.
+   * Providing this enables the derivation to show due/overdue details
+   * instead of a generic "open follow-up items" message.
+   */
+  mostUrgentFollowUp?: StaffFollowUpDto | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -41,7 +48,7 @@ const PRECEDENCE: Record<PrimaryTreatment, number> = {
 export function deriveWhatMattersNow(
   input: DeriveWhatMattersNowInput
 ): StaffWhatMattersNowDto {
-  const { profile } = input;
+  const { profile, mostUrgentFollowUp } = input;
 
   // No profile → nothing matters now
   if (!profile) {
@@ -80,7 +87,7 @@ export function deriveWhatMattersNow(
 
   // --- 4. Follow-up domain (when available) ---
   if (profile.followUpState !== 'not_available') {
-    const followUpCandidate = evaluateFollowUpDomain(profile.followUpState);
+    const followUpCandidate = evaluateFollowUpDomain(profile.followUpState, mostUrgentFollowUp);
     if (followUpCandidate) candidates.push(followUpCandidate);
   }
 
@@ -309,23 +316,97 @@ function evaluateMeetingDomain(
 }
 
 function evaluateFollowUpDomain(
-  followUpState: FollowUpState
+  followUpState: FollowUpState,
+  mostUrgentFollowUp?: StaffFollowUpDto | null
 ): TreatmentCandidate | null {
-  if (followUpState === 'open') {
+  if (followUpState !== 'open') return null;
+
+  // If we have the most urgent follow-up details, surface them
+  if (mostUrgentFollowUp) {
+    const now = Date.now();
+    const dueDate = mostUrgentFollowUp.dueDate ? new Date(mostUrgentFollowUp.dueDate) : null;
+    const isOverdue = dueDate !== null && dueDate.getTime() < now;
+    const dueSoon = dueDate !== null && !isOverdue &&
+      (dueDate.getTime() - now) <= 7 * 24 * 60 * 60 * 1000;
+
+    const blockerName = mostUrgentFollowUp.title;
+    const ownerName = mostUrgentFollowUp.ownerId;
+    const consequence = mostUrgentFollowUp.consequenceOfInaction;
+
+    if (isOverdue) {
+      return {
+        treatment: 'at_risk',
+        precedence: PRECEDENCE.at_risk,
+        blockerName: `Overdue: ${blockerName}`,
+        blockerType: 'follow_up',
+        nextValidAction: 'Resolve follow-up',
+        nextActionRoute: null,
+        ownerName,
+        dueDate: mostUrgentFollowUp.dueDate,
+        consequenceOfInaction: consequence || 'Follow-up commitment is overdue.',
+        sourceDomain: 'follow_up'
+      };
+    }
+
+    if (dueSoon) {
+      return {
+        treatment: 'at_risk',
+        precedence: PRECEDENCE.at_risk,
+        blockerName: `Due soon: ${blockerName}`,
+        blockerType: 'follow_up',
+        nextValidAction: 'Complete follow-up',
+        nextActionRoute: null,
+        ownerName,
+        dueDate: mostUrgentFollowUp.dueDate,
+        consequenceOfInaction: consequence || 'Client commitment due this week.',
+        sourceDomain: 'follow_up'
+      };
+    }
+
+    // Has a future due date
+    if (dueDate !== null) {
+      return {
+        treatment: 'at_risk',
+        precedence: PRECEDENCE.at_risk + 1,
+        blockerName: `Follow-up: ${blockerName}`,
+        blockerType: 'follow_up',
+        nextValidAction: 'Review follow-up',
+        nextActionRoute: null,
+        ownerName,
+        dueDate: mostUrgentFollowUp.dueDate,
+        consequenceOfInaction: consequence || 'Client commitment should not be missed.',
+        sourceDomain: 'follow_up'
+      };
+    }
+
+    // No due date set
     return {
-      treatment: 'at_risk',
-      precedence: PRECEDENCE.at_risk,
-      blockerName: 'Open follow-up items',
+      treatment: 'draft_stale',
+      precedence: PRECEDENCE.draft_stale,
+      blockerName: `Follow-up: ${blockerName}`,
       blockerType: 'follow_up',
-      nextValidAction: 'Review follow-ups',
+      nextValidAction: 'Set due date',
       nextActionRoute: null,
-      ownerName: null,
+      ownerName,
       dueDate: null,
-      consequenceOfInaction: 'Client commitments may be missed.',
+      consequenceOfInaction: consequence || 'Follow-up without a deadline may slip.',
       sourceDomain: 'follow_up'
     };
   }
-  return null;
+
+  // Fallback: generic open follow-up items message
+  return {
+    treatment: 'at_risk',
+    precedence: PRECEDENCE.at_risk,
+    blockerName: 'Open follow-up items',
+    blockerType: 'follow_up',
+    nextValidAction: 'Review follow-ups',
+    nextActionRoute: null,
+    ownerName: null,
+    dueDate: null,
+    consequenceOfInaction: 'Client commitments may be missed.',
+    sourceDomain: 'follow_up'
+  };
 }
 
 function evaluateCommercialDomain(

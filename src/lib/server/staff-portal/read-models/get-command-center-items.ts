@@ -189,6 +189,7 @@ export async function getCommandCenterItems(
   const rows = await input.db.queryAll<CommandCenterQueryRow>(dataSql, ...filterParams, limit, offset);
 
   // Transform rows through governed state mapping, then filter out passive metrics
+  // --- Report items ---
   const candidates: StaffCommandCenterItemDto[] = [];
 
   for (const row of rows) {
@@ -228,16 +229,115 @@ export async function getCommandCenterItems(
     });
   }
 
-  // Sort by priority rank then age
+  // --- Follow-up items ---
+  // Query due/overdue follow-ups (open only) to surface alongside reports.
+  const followUpSql = `
+    SELECT
+      fu.id,
+      fu.assessment_id,
+      fu.title,
+      fu.owner_id,
+      fu.due_date,
+      fu.source,
+      fu.client_visible_promise,
+      fu.consequence_of_inaction,
+      ao.customer_name,
+      ao.company
+    FROM follow_ups fu
+    LEFT JOIN assessment_orders ao ON ao.session_id = fu.assessment_id
+    WHERE fu.status = 'open'
+    ORDER BY
+      CASE
+        WHEN fu.due_date IS NOT NULL AND fu.due_date < datetime('now') THEN 1
+        WHEN fu.due_date IS NOT NULL THEN 2
+        ELSE 3
+      END,
+      fu.due_date ASC
+    LIMIT ? OFFSET ?
+  `;
+
+  const followUpRows = await input.db.queryAll<{
+    id: string;
+    assessment_id: string;
+    title: string;
+    owner_id: string | null;
+    due_date: string | null;
+    source: string;
+    client_visible_promise: number;
+    consequence_of_inaction: string | null;
+    customer_name: string | null;
+    company: string | null;
+  }>(followUpSql, limit, offset);
+
+  const now = new Date();
+  for (const fw of followUpRows) {
+    const isOverdue = fw.due_date !== null && new Date(fw.due_date) < now;
+    const dueSoon = fw.due_date !== null && !isOverdue &&
+      (new Date(fw.due_date).getTime() - now.getTime()) <= 7 * 24 * 60 * 60 * 1000;
+
+    let priorityRank: number;
+    let lifecycleState: string;
+    let priorityReason: string;
+
+    if (isOverdue) {
+      priorityRank = 6;
+      lifecycleState = 'overdue';
+      priorityReason = 'Overdue — requires immediate attention';
+    } else if (dueSoon) {
+      priorityRank = 10;
+      lifecycleState = 'due-soon';
+      priorityReason = 'Due soon — action needed this week';
+    } else if (fw.due_date !== null) {
+      priorityRank = 20;
+      lifecycleState = 'due-future';
+      priorityReason = 'Has a future due date';
+    } else {
+      priorityRank = 30;
+      lifecycleState = 'open';
+      priorityReason = 'Open — no due date set';
+    }
+
+    candidates.push({
+      workItemId: fw.id,
+      workItemType: 'followUp',
+      clientName: fw.customer_name ?? fw.company ?? 'Unknown',
+      lifecycleState,
+      owner: fw.owner_id ?? null,
+      dueDate: fw.due_date,
+      ageDays: 0,
+      priorityReason,
+      consequenceOfInaction: fw.consequence_of_inaction ??
+        (isOverdue ? 'Client commitment is overdue.' : null),
+      priorityRank,
+      nextSafeAction: {
+        id: 'completeFollowUp',
+        targetType: 'followUp',
+        label: 'Complete follow-up',
+        enabled: true,
+        requiredRole: 'operator',
+        requiresReasonCode: false,
+        requiresNote: false,
+        requiredAuditMetadata: [],
+        testId: 'staff-action-complete-follow-up',
+        consequence: 'Commitment remains unresolved.',
+        remediationHint: 'Complete or defer the follow-up.'
+      }
+    });
+  }
+
+  // Sort by priority rank then title for determinism
   candidates.sort((a, b) => {
     if (a.priorityRank !== b.priorityRank) return a.priorityRank - b.priorityRank;
-    return a.ageDays - b.ageDays;
+    return (a.clientName ?? '').localeCompare(b.clientName ?? '');
   });
+
+  // Combined total for pagination: reports (from DB count) + follow-ups
+  const combinedTotal = total + followUpRows.length;
 
   return {
     items: candidates,
-    total,
-    hasMore: offset + candidates.length < total
+    total: combinedTotal,
+    hasMore: offset + candidates.length < combinedTotal
   };
 }
 
