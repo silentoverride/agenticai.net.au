@@ -1,6 +1,6 @@
 # Story 1.5: Whole Report Guarded Decisions
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
