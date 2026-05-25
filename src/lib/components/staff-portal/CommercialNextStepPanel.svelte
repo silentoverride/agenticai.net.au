@@ -1,8 +1,8 @@
 <script lang="ts">
   /**
    * CommercialNextStepPanel — Staff-entered commercial next step with status,
-   * owner, notes, follow-up continuity validation, audit receipts, and
-   * confirmation for risky changes.
+   * owner, notes, follow-up continuity validation, audit receipts,
+   * confirmation for risky changes, responsive layout, and accessibility.
    */
 
   import type {
@@ -12,8 +12,8 @@
     CommercialDisplayState
   } from '$lib/staff-portal/dto';
   import { COMMERCIAL_NEXT_STEP_STATUSES, COMMERCIAL_DISPLAY_STATES } from '$lib/server/staff-portal/domain/commercial-next-step-states';
-  import { isHighIntentStatus } from '$lib/server/staff-portal/services/commercial-followup-requirement.service';
-  import { requiresConfirmation } from '$lib/server/staff-portal/services/commercial-audit.service';
+  import { isHighIntentStatus } from '$lib/staff-portal/commercial-utils';
+  import { requiresConfirmation } from '$lib/staff-portal/commercial-utils';
 
   // ── Props ──
 
@@ -126,7 +126,26 @@
     pendingSave = false;
   }
 
+  // ── Keyboard handlers ──
+
+  function onConfirmKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      showConfirmation = false;
+    }
+  }
+
+  function onOverlayClick(e: MouseEvent) {
+    if ((e.target as HTMLElement).classList.contains('confirm-overlay')) {
+      showConfirmation = false;
+    }
+  }
+
+  // ── Save logic ──
+
   async function doSave() {
+    // Duplicate-submit guard
+    if (saveStatus === 'saving') return;
+
     saveStatus = 'saving';
     saveError = null;
 
@@ -245,7 +264,7 @@
               data-testid="cs-followup-note"
             ></textarea>
             <p class="continuity-hint">
-              Status “{STATUS_LABELS[editStatus]}” requires follow-up continuity.
+              Status "{STATUS_LABELS[editStatus]}" requires follow-up continuity.
               Provide a note or <button class="link-btn" onclick={() => { followUpNote = 'CONFIRMED_NO_FOLLOWUP'; }} data-testid="cs-confirm-no-followup">confirm no follow-up needed</button>.
             </p>
           </div>
@@ -257,7 +276,7 @@
 
         <div class="edit-actions">
           <button class="btn btn-secondary" onclick={cancelEditing} disabled={saveStatus === 'saving'}>Cancel</button>
-          <button class="btn btn-primary" onclick={save} disabled={saveStatus === 'saving'} data-testid="cs-save-btn">
+          <button class="btn btn-primary" onclick={save} disabled={saveStatus === 'saving'} aria-busy={saveStatus === 'saving'} data-testid="cs-save-btn">
             {saveStatus === 'saving' ? 'Saving…' : 'Save'}
           </button>
         </div>
@@ -290,8 +309,8 @@
       </div>
 
       {#if showReceipt && lastReceipt}
-        <div class="receipt-banner" data-testid="cs-receipt" role="status">
-          <span class="receipt-icon">✓</span>
+        <div class="receipt-banner" data-testid="cs-receipt" role="status" aria-live="polite">
+          <span class="receipt-icon" aria-hidden="true">✓</span>
           <span class="receipt-text">Saved. Action: {lastReceipt.action} | Ref: <code>{lastReceipt.id.slice(0, 8)}</code></span>
           <button class="receipt-dismiss" onclick={dismissReceipt} aria-label="Dismiss">×</button>
         </div>
@@ -309,8 +328,17 @@
   {/if}
 
   {#if showConfirmation}
-    <div class="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-      <div class="confirm-dialog">
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="confirm-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+      onclick={onOverlayClick}
+      onkeydown={onConfirmKeydown}
+    >
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div class="confirm-dialog" onclick={(e: MouseEvent) => e.stopPropagation()} onkeydown={(e: KeyboardEvent) => e.stopPropagation()}>
         <h3 id="confirm-title" class="confirm-title">Confirm commercial change</h3>
         <p class="confirm-text">
           You are changing from <strong>{commercialStep?.status ?? 'none'}</strong>
@@ -392,6 +420,7 @@
     min-width: 4rem;
     font-weight: 600;
     color: var(--color-muted);
+    flex-shrink: 0;
   }
 
   .field-row dd {
@@ -474,6 +503,7 @@
     border-radius: var(--radius-sm);
     font-size: 0.8125rem;
     max-width: 16rem;
+    box-sizing: border-box;
   }
 
   .field-input {
@@ -482,6 +512,7 @@
     border-radius: var(--radius-sm);
     font-size: 0.8125rem;
     max-width: 20rem;
+    box-sizing: border-box;
   }
 
   .field-textarea {
@@ -491,6 +522,8 @@
     font-size: 0.8125rem;
     min-height: 4rem;
     resize: vertical;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .edit-actions {
@@ -517,7 +550,10 @@
 
   .receipt-icon { font-weight: 700; font-size: 0.875rem; }
 
-  .receipt-text { flex: 1; }
+  .receipt-text {
+    flex: 1;
+    word-break: break-word;
+  }
 
   .receipt-dismiss {
     background: none;
@@ -527,6 +563,7 @@
     color: #15803d;
     padding: 0 0.25rem;
     line-height: 1;
+    flex-shrink: 0;
   }
 
   /* ── Meta & actions ── */
@@ -545,6 +582,7 @@
     align-items: center;
     justify-content: center;
     z-index: 100;
+    padding: 1rem;
   }
 
   .confirm-dialog {
@@ -553,8 +591,11 @@
     border-radius: var(--radius-md);
     padding: 1.25rem;
     max-width: 28rem;
-    width: 90%;
+    width: 100%;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
   }
 
   .confirm-title { font-size: 1rem; font-weight: 600; margin: 0 0 0.5rem; }
@@ -565,6 +606,7 @@
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
+    flex-wrap: wrap;
   }
 
   /* ── Buttons ── */
@@ -575,6 +617,7 @@
     font-weight: 500;
     cursor: pointer;
     border: 1px solid transparent;
+    white-space: nowrap;
   }
 
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -585,11 +628,85 @@
     border-color: var(--color-primary, #2563eb);
   }
 
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--color-primary, #2563eb);
+    outline-offset: 2px;
+  }
+
   .btn-secondary {
     background: var(--color-panel-soft);
     color: var(--color-text);
     border-color: var(--color-line);
   }
 
+  .btn-secondary:focus-visible {
+    outline: 2px solid var(--color-line);
+    outline-offset: 2px;
+  }
+
   .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .section-header {
+      flex-wrap: wrap;
+    }
+
+    .field-select,
+    .field-input {
+      max-width: 100%;
+      font-size: 16px; /* prevent iOS zoom */
+    }
+
+    .field-textarea {
+      font-size: 16px;
+    }
+
+    .field-row {
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .field-row dt {
+      min-width: auto;
+    }
+
+    .edit-actions {
+      flex-direction: column;
+    }
+
+    .edit-actions .btn {
+      width: 100%;
+      text-align: center;
+    }
+
+    .confirm-actions {
+      flex-direction: column;
+    }
+
+    .confirm-actions .btn {
+      width: 100%;
+      text-align: center;
+    }
+
+    .step-meta {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .receipt-banner {
+      flex-wrap: wrap;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .step-card {
+      padding: 0.75rem;
+    }
+
+    .confirm-dialog {
+      padding: 1rem;
+    }
+  }
 </style>

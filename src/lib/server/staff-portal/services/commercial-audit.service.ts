@@ -5,6 +5,7 @@ import {
   findStaffActionAuditEventByIdempotency,
   staffActionReceiptFromEvent
 } from '$lib/server/staff-portal/repositories/staff-audit.repository';
+import { requiresConfirmation as requiresConfirmationCheck } from '$lib/staff-portal/commercial-utils';
 
 /**
  * Records an audit event when a commercial next step's status or owner changes.
@@ -98,14 +99,5 @@ export function requiresConfirmation(
   previousOwner: string | null,
   newOwner: string | null
 ): boolean {
-  // Dropping from an active/high-intent status to noAction
-  if (previousStatus !== 'noAction' && newStatus === 'noAction') {
-    return true;
-  }
-  // Changing owner while on a high-intent status
-  const highIntent: ReadonlySet<CommercialNextStepStatus> = new Set(['discussOffer', 'sendFollowUp']);
-  if (highIntent.has(previousStatus) && previousOwner !== newOwner) {
-    return true;
-  }
-  return false;
+  return requiresConfirmationCheck(previousStatus, newStatus, previousOwner, newOwner);
 }
