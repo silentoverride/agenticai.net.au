@@ -97,7 +97,7 @@ export class OpenAiGpt55JudgeProvider implements JudgeGateProvider {
         { role: 'user', content }
       ],
       temperature,
-      max_tokens: maxTokens,
+      max_completion_tokens: maxTokens,
       response_format: { type: 'json_object' }
     };
 
