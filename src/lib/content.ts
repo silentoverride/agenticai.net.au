@@ -78,7 +78,7 @@ export const upsells = [
   },
   {
     title: 'Knowledge system',
-    text: 'Create an internal assistant or custom GPT that answers from company documents and repeated decisions.'
+    text: 'Give your agents a memory layer: company docs, decisions, and systems ingested into a managed world model with knowledge graph context and semantic retrieval.'
   },
   {
     title: 'Speed-to-lead agent',

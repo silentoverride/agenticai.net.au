@@ -211,14 +211,14 @@
       <p>These are not included in the $1,200 assessment fee. They are separate engagements your consultant can scope if the report identifies a larger opportunity worth pursuing.</p>
 
     </div>
-    <div class="grid offer-grid">
+    <ul class="offer-list">
       {#each upsells as offer}
-        <article class="card">
-          <h3>{offer.title}</h3>
+        <li>
+          <strong>{offer.title}</strong>
           <p>{offer.text}</p>
-        </article>
+        </li>
       {/each}
-    </div>
+    </ul>
   </section>
 
   <section class="section faq-section">
