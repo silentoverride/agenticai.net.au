@@ -11,6 +11,8 @@ const REPORTS_DIR = env.REPORTS_DIR || './app_data/reports';
 // ---------------------------------------------------------------------------
 
 export async function upsertUser(clerkId: string, email: string, name?: string, phone?: string, role?: string): Promise<DbUser | null> {
+  const roleWasProvided = role != null;
+
   return withDb('upsertUser', null, async db => {
     return db.queryOne<DbUser>(`
       INSERT INTO users (clerk_id, email, name, phone, role)
@@ -19,9 +21,9 @@ export async function upsertUser(clerkId: string, email: string, name?: string, 
         email = excluded.email,
         name = COALESCE(excluded.name, users.name),
         phone = COALESCE(excluded.phone, users.phone),
-        role = COALESCE(excluded.role, users.role)
+        role = CASE WHEN ? THEN excluded.role ELSE users.role END
       RETURNING *
-    `, clerkId, email, name || null, phone || null, role || 'client');
+    `, clerkId, email, name || null, phone || null, role || 'client', roleWasProvided ? 1 : 0);
   });
 }
 
