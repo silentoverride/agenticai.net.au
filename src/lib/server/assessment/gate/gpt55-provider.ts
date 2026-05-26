@@ -56,7 +56,7 @@ function mapReasoningEffort(effort?: 'low' | 'medium' | 'high'): string | undefi
 function getApiConfig() {
   const apiKey = env.OPENAI_API_KEY;
   const baseUrl = env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
-  const model = env.GPT55_MODEL || 'gpt-5.5-preview';
+  const model = env.GPT55_MODEL || 'gpt-5.5';
 
   return { apiKey, baseUrl, model };
 }
@@ -101,7 +101,7 @@ export class OpenAiGpt55JudgeProvider implements JudgeGateProvider {
       response_format: { type: 'json_object' }
     };
 
-    // Only add reasoning_effort if the model supports it (gpt-5.5-preview+)
+    // Only add reasoning_effort if the model supports it (gpt-5.5+)
     if (reasoningEffort && this.modelId.includes('gpt-5.5')) {
       body.reasoning_effort = reasoningEffort;
     }

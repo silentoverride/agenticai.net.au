@@ -42,7 +42,7 @@ export interface GateContext {
  * Currently: OpenAI GPT-5.5 via direct fetch.
  */
 export interface JudgeGateProvider {
-  /** The model identifier (e.g., "gpt-5.5-preview", "kimi-k2.6"). */
+  /** The model identifier (e.g., "gpt-5.5", "kimi-k2.6"). */
   readonly modelId: string;
 
   /**
