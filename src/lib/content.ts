@@ -78,7 +78,7 @@ export const upsells = [
   },
   {
     title: 'Knowledge system',
-    text: 'Give your agents a memory layer: company docs, decisions, and systems ingested into a managed world model with knowledge graph context and semantic retrieval.'
+    text: 'Build a memory layer for your agents: company documents, decisions, and systems become a managed world model with knowledge graph context, semantic retrieval, and memory that improves over time.'
   },
   {
     title: 'Speed-to-lead agent',
