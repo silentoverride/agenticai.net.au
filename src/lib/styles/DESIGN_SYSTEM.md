@@ -39,7 +39,7 @@ import { Sheet } from '$lib/components/ui/sheet';
 
 - Toggle via `.theme-toggle` button (already in header)
 - Theme stored in `localStorage` as `'theme'`
-- Respects `prefers-color-scheme` on first visit
+- Defaults to light mode on first visit
 - Applied via `data-theme` attribute on `<html>`
 
 ## Premium Moments (UX-DR6)

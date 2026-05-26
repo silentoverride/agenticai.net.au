@@ -58,10 +58,7 @@
   const isAdmin = $derived(userRole === 'admin');
 
   onMount(() => {
-    const storedTheme = localStorage.getItem('theme');
-    darkMode = storedTheme
-      ? storedTheme === 'dark'
-      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    darkMode = localStorage.getItem('theme') === 'dark';
     applyTheme();
   });
 

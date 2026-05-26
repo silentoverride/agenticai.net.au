@@ -64,8 +64,7 @@
  *
  * Set via:
  * 1. localStorage 'theme' key (user preference)
- * 2. prefers-color-scheme media query (system preference)
- * 3. Default to 'light'
+ * 2. Default to 'light'
  *
  * ## Premium Moments (UX-DR6)
  * Premium moments use enhanced styling for upsell/cross-sell elements:
