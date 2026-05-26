@@ -19,7 +19,7 @@
   // ── Props ──
 
   let {
-    followUp: _followUp,
+    followUp,
     onSave,
     onCancel,
     onUpdateStatus,
@@ -52,7 +52,7 @@
   // ── Local state ──
 
   function fromFollowUp<T>(getter: (f: StaffFollowUpDto | null) => T): T {
-    return getter(_followUp);
+    return getter(followUp);
   }
 
   let title = $state(fromFollowUp(f => f?.title ?? ''));

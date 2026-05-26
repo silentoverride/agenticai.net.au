@@ -1,5 +1,6 @@
-import { describe, expect, it, beforeEach, beforeAll } from 'vitest';
+import { describe, expect, it, beforeEach } from 'vitest';
 import { createMemoryDb } from '../test-db';
+import { deriveWhatMattersNow } from '$lib/server/staff-portal/read-models/derive-what-matters-now';
 import type { StaffFollowUpDto } from '$lib/staff-portal/dto';
 
 const SCHEMA = `
@@ -264,9 +265,6 @@ describe('detectOverdueFollowUps', () => {
     expect(Array.isArray(result.errors)).toBe(true);
   });
 });
-
-import { describe, expect, it, beforeAll } from 'vitest';
-import { deriveWhatMattersNow } from '$lib/server/staff-portal/read-models/derive-what-matters-now';
 
 describe('deriveWhatMattersNow with overdue follow-ups', () => {
   const baseProfile = {

@@ -46,7 +46,7 @@
     {hasMore}
     {loading}
     {error}
-    {onRefresh}
+    onRefresh={refresh}
   />
 </div>
 

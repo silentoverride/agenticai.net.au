@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { checkMeetingBriefStaleness } from '$lib/server/staff-portal/services/meeting-brief-staleness';
+import type { MeetingBriefState, StaffMeetingBriefDto } from '$lib/staff-portal/dto';
 
 describe('meeting-brief-staleness', () => {
   function makeBrief(overrides: Partial<{
@@ -13,11 +14,11 @@ describe('meeting-brief-staleness', () => {
     followUpIntention: string | null;
     finalAgendaNotes: string | null;
     prepChecklist: string | null;
-    status: string;
+    status: MeetingBriefState;
     linkedReportId: string | null;
     createdAt: string;
     updatedAt: string;
-  }> = {}) {
+  }> = {}): StaffMeetingBriefDto {
     const now = new Date();
     return {
       id: 'mb-001',

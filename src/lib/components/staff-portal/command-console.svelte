@@ -123,7 +123,7 @@
   <!-- Loading state -->
   {#if loading && items.length === 0}
     <div class="state-section loading" role="status" aria-label="Loading work items" data-testid="console-loading">
-      <Progress value={null} />
+      <Progress />
       <p>Loading work items...</p>
     </div>
   {/if}

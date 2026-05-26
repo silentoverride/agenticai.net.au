@@ -1,5 +1,5 @@
 import type { AsyncDb } from '$lib/server/db';
-import type { CommercialNextStepStatus, StaffCommercialNextStepDto, StaffActionReceiptDto } from '$lib/staff-portal/dto';
+import type { CommercialNextStepStatus, StaffActionReceiptDto } from '$lib/staff-portal/dto';
 import {
   insertStaffActionAuditEvent,
   findStaffActionAuditEventByIdempotency,
@@ -42,18 +42,6 @@ export async function recordCommercialNextStepChange(
   const statusChanged = input.previousStatus !== input.newStatus;
   const ownerChanged = input.previousOwner !== input.newOwner;
 
-  // Build from/to state descriptions
-  const fromParts: string[] = [];
-  const toParts: string[] = [];
-
-  fromParts.push(`status:${input.previousStatus}`);
-  toParts.push(`status:${input.newStatus}`);
-  fromParts.push(`owner:${input.previousOwner ?? 'unassigned'}`);
-  toParts.push(`owner:${input.newOwner ?? 'unassigned'}`);
-
-  const fromState = fromParts.join('|');
-  const toState = toParts.join('|');
-
   // Build metadata with explicit change flags
   const metadata = {
     statusChanged,
@@ -72,8 +60,8 @@ export async function recordCommercialNextStepChange(
     targetId: input.commercialStepId,
     actorId: input.actorId,
     action: 'changeCommercialStep',
-    fromState,
-    toState,
+    fromState: input.previousStatus,
+    toState: input.newStatus,
     reasonCode: statusChanged ? 'status_change' : ownerChanged ? 'owner_change' : 'no_change',
     reason: input.reason ?? null,
     requestHash: '', // caller sets this if needed

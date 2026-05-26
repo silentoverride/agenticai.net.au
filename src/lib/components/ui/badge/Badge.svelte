@@ -16,7 +16,7 @@
     variant?: 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'danger';
     class?: string;
     children?: Snippet;
-  } = $props();
+  } & import('svelte/elements').HTMLAttributes<HTMLSpanElement> = $props();
 </script>
 
 <span class="badge badge-{variant} {className}" {...restProps}>

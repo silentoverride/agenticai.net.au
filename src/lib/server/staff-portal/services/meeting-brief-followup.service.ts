@@ -41,8 +41,7 @@ export async function createFollowUpFromMeetingBrief(
       ownerId: null,
       dueDate: dueDate ?? null,
       source: 'meeting_brief',
-      linkedMeetingBriefId: meetingBriefId,
-      createdBy: actorId
+      linkedMeetingBriefId: meetingBriefId
     });
 
     // Record audit event

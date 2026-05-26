@@ -45,7 +45,8 @@
     meetingBrief = null,
     staleWarning = null,
     calendlyLink = null,
-    assessmentId = ''
+    assessmentId = '',
+    commercialStep = null
   }: {
     profile: StaffClientProfileResultDto;
     whatMattersNow: StaffWhatMattersNowDto | null;

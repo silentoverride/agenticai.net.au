@@ -47,6 +47,13 @@
 
   let apiUrl = $derived(`/api/operator/assessments/${assessmentId}/commercial-next-step`);
 
+  type SaveCommercialStepResult = {
+    success: boolean;
+    commercialStep?: StaffCommercialNextStepDto | null;
+    receipt?: StaffActionReceiptDto | null;
+    error?: { message?: string };
+  };
+
   // ── Derived ──
 
   let isHighIntentChange = $derived(
@@ -171,9 +178,9 @@
         body: JSON.stringify(body)
       });
 
-      const data = await res.json();
+      const data = await res.json() as SaveCommercialStepResult;
       if (data.success) {
-        commercialStep = data.commercialStep;
+        commercialStep = data.commercialStep ?? null;
         lastReceipt = data.receipt ?? null;
         showReceipt = true;
         saveStatus = 'success';

@@ -37,6 +37,11 @@
   let followUpApiPath = $derived(`/api/operator/assessments/${assessmentId}/follow-ups`);
   let followUpError = $state<string | null>(null);
 
+  type ApiResult = {
+    success: boolean;
+    error?: { message?: string };
+  };
+
   // ── Helpers ──
 
   function formatDate(iso: string): string {
@@ -64,7 +69,7 @@
         body: JSON.stringify(body)
       });
 
-      const data = await res.json();
+      const data = await res.json() as ApiResult;
       if (data.success) {
         markReadyStatus = 'success';
         exceptionReason = '';
@@ -120,7 +125,7 @@
         })
       });
 
-      const data = await res.json();
+      const data = await res.json() as ApiResult;
       if (data.success) {
         followUpExpanded = false;
         window.location.reload();

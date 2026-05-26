@@ -737,20 +737,20 @@ export interface StaffFollowUpDto {
 export interface CreateFollowUpInput {
   assessmentId: string;
   title: string;
-  description?: string;
-  ownerId?: string;
-  dueDate?: string;
+  description?: string | null;
+  ownerId?: string | null;
+  dueDate?: string | null;
   source: FollowUpSource;
   clientVisiblePromise?: boolean;
-  consequenceOfInaction?: string;
-  notes?: string;
-  linkedReportId?: string;
-  linkedGateFindingId?: string;
-  linkedMeetingBriefId?: string;
-  linkedCommercialStepId?: string;
-  supportIssueRef?: string;
-  adminTaskRef?: string;
-  delayedJourneyState?: string;
+  consequenceOfInaction?: string | null;
+  notes?: string | null;
+  linkedReportId?: string | null;
+  linkedGateFindingId?: string | null;
+  linkedMeetingBriefId?: string | null;
+  linkedCommercialStepId?: string | null;
+  supportIssueRef?: string | null;
+  adminTaskRef?: string | null;
+  delayedJourneyState?: string | null;
 }
 
 export interface UpdateFollowUpActionInput {

@@ -17,7 +17,9 @@ export const STAFF_ACTIONS = {
   REQUEST_CLARIFICATION: 'requestClarification',
   COMPLETE_FOLLOW_UP: 'completeFollowUp',
   DEFER_FOLLOW_UP: 'deferFollowUp',
-  REASSIGN_FOLLOW_UP: 'reassignFollowUp'
+  REASSIGN_FOLLOW_UP: 'reassignFollowUp',
+  CHANGE_MEETING_BRIEF_STATUS: 'changeMeetingBriefStatus',
+  CHANGE_COMMERCIAL_STEP: 'changeCommercialStep'
 } as const satisfies Record<string, StaffPortalActionId>;
 
 export const ACTION_AUDIT_REQUIREMENTS: Record<StaffPortalActionId, RequiredAuditMetadata[]> = {
@@ -31,7 +33,9 @@ export const ACTION_AUDIT_REQUIREMENTS: Record<StaffPortalActionId, RequiredAudi
   requestClarification: ['operatorId', 'note', 'reasonCode'],
   completeFollowUp: ['operatorId', 'note'],
   deferFollowUp: ['operatorId', 'note', 'reasonCode'],
-  reassignFollowUp: ['operatorId', 'note']
+  reassignFollowUp: ['operatorId', 'note'],
+  changeMeetingBriefStatus: ['operatorId'],
+  changeCommercialStep: ['operatorId']
 };
 
 export const ACTIONS_REQUIRING_REASON_CODE = new Set<StaffPortalActionId>([
