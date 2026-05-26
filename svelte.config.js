@@ -35,7 +35,8 @@ const config = {
           'https://*.clerk.com',
           'https://assets.calendly.com'
         ],
-        'style-src': ['self', 'unsafe-inline'],
+        'style-src': ['self', 'unsafe-inline', 'https://assets.calendly.com'],
+        'style-src-elem': ['self', 'unsafe-inline', 'https://assets.calendly.com'],
         'img-src': ['self', 'data:', 'https:', 'https://img.clerk.com'],
         'font-src': ['self', 'data:'],
         'media-src': ['self', 'blob:', 'data:', 'https://api.retellai.com', 'https://*.retellai.com'],
