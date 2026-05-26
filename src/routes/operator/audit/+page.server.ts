@@ -27,6 +27,8 @@ export const load: PageServerLoad = async ({ locals, platform }) => {
       toState: event.toState,
       reasonCode: event.reasonCode,
       reason: event.reason,
+      requestHash: event.requestHash,
+      idempotencyKey: event.idempotencyKey,
       metadataJson: event.metadataJson,
       createdAt: event.createdAt
     }))

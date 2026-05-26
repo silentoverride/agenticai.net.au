@@ -13,6 +13,8 @@
     toState: string;
     reasonCode: string | null;
     reason: string | null;
+    requestHash: string;
+    idempotencyKey: string;
     metadataJson: string | null;
     createdAt: string;
   }
@@ -34,6 +36,7 @@
   let search = $state('');
   let actionFilter = $state('');
   let targetFilter = $state('');
+  let selectedEvent: AuditEvent | null = $state(null);
 
   const filteredEvents = $derived(events.filter(event => {
     const searchText = search.trim().toLowerCase();
@@ -44,7 +47,9 @@
       event.actorId,
       event.action,
       event.reasonCode ?? '',
-      event.reason ?? ''
+      event.reason ?? '',
+      event.requestHash,
+      event.idempotencyKey
     ].some(value => value.toLowerCase().includes(searchText));
 
     return matchesSearch
@@ -125,6 +130,12 @@
     }
   }
 
+  function handleWindowKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      selectedEvent = null;
+    }
+  }
+
   onMount(() => {
     const timer = setInterval(() => {
       if (live) refreshEvents();
@@ -137,6 +148,8 @@
 <svelte:head>
   <title>Realtime Audit Stream — Admin</title>
 </svelte:head>
+
+<svelte:window onkeydown={handleWindowKeydown} />
 
 <div class="audit-page">
   <header class="page-header">
@@ -209,7 +222,13 @@
       </div>
     {:else}
       {#each filteredEvents as event (event.id)}
-        <article class="audit-event" in:fade>
+        <button
+          type="button"
+          class="audit-event"
+          aria-label={`View details for ${event.action} audit event ${event.id}`}
+          onclick={() => selectedEvent = event}
+          in:fade
+        >
           <div class="event-time">
             <strong>{formatDate(event.createdAt)}</strong>
             <span>{shortId(event.id)}</span>
@@ -218,9 +237,10 @@
             <div class="event-title">
               <span class="action-badge">{event.action}</span>
               <span class="state-change">{event.fromState} → {event.toState}</span>
+              <span class="detail-hint">Click for details</span>
             </div>
             <div class="event-meta">
-              <span>Assessment <a href="/operator/assessments/{event.assessmentId}">{shortId(event.assessmentId)}</a></span>
+              <span>Assessment <strong>{shortId(event.assessmentId)}</strong></span>
               <span>Target {event.targetType}{event.targetId ? ` / ${shortId(event.targetId)}` : ''}</span>
               <span>Actor {shortId(event.actorId)}</span>
             </div>
@@ -231,17 +251,55 @@
               </p>
             {/if}
             {#if event.metadataJson}
-              <details>
-                <summary>Metadata</summary>
-                <pre>{prettyMetadata(event.metadataJson)}</pre>
-              </details>
+              <p class="event-reason">Metadata available — open details to inspect.</p>
             {/if}
           </div>
-        </article>
+        </button>
       {/each}
     {/if}
   </section>
 </div>
+
+{#if selectedEvent}
+  <div class="modal-shell" in:fade>
+    <button class="modal-backdrop" aria-label="Close audit event details" onclick={() => selectedEvent = null}></button>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="audit-event-modal-title">
+      <header class="modal-header">
+        <div>
+          <p class="eyebrow">Audit event detail</p>
+          <h2 id="audit-event-modal-title">{selectedEvent.action}</h2>
+          <p>{selectedEvent.fromState} → {selectedEvent.toState}</p>
+        </div>
+        <button class="close-btn" aria-label="Close audit event details" onclick={() => selectedEvent = null}>×</button>
+      </header>
+
+      <div class="detail-grid">
+        <div><span>Event ID</span><strong>{selectedEvent.id}</strong></div>
+        <div><span>Created</span><strong>{formatDate(selectedEvent.createdAt)}</strong></div>
+        <div><span>Assessment</span><strong>{selectedEvent.assessmentId}</strong></div>
+        <div><span>Actor</span><strong>{selectedEvent.actorId}</strong></div>
+        <div><span>Target type</span><strong>{selectedEvent.targetType}</strong></div>
+        <div><span>Target ID</span><strong>{selectedEvent.targetId ?? '—'}</strong></div>
+        <div><span>Reason code</span><strong>{selectedEvent.reasonCode ?? '—'}</strong></div>
+        <div><span>Idempotency key</span><strong>{selectedEvent.idempotencyKey}</strong></div>
+        <div class="wide"><span>Request hash</span><strong>{selectedEvent.requestHash}</strong></div>
+        <div class="wide"><span>Reason</span><strong>{selectedEvent.reason ?? '—'}</strong></div>
+      </div>
+
+      {#if selectedEvent.metadataJson}
+        <div class="modal-section">
+          <h3>Metadata</h3>
+          <pre>{prettyMetadata(selectedEvent.metadataJson)}</pre>
+        </div>
+      {/if}
+
+      <footer class="modal-actions">
+        <a class="secondary-link" href="/operator/assessments/{selectedEvent.assessmentId}">Open assessment</a>
+        <button class="primary-btn" onclick={() => selectedEvent = null}>Done</button>
+      </footer>
+    </div>
+  </div>
+{/if}
 
 <style>
   .audit-page {
@@ -421,6 +479,16 @@
     border-radius: 1rem;
     padding: 1rem;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+  }
+
+  .audit-event:hover,
+  .audit-event:focus-visible {
+    border-color: #6366f1;
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.12);
+    outline: none;
   }
 
   .event-time {
@@ -460,6 +528,13 @@
     font-weight: 800;
   }
 
+  .detail-hint {
+    margin-left: auto;
+    color: #6366f1;
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
   .event-meta {
     display: flex;
     flex-wrap: wrap;
@@ -469,26 +544,10 @@
     font-size: 0.82rem;
   }
 
-  .event-meta a {
-    color: #2563eb;
-    font-weight: 700;
-    text-decoration: none;
-  }
-
   .event-reason {
     margin: 0.65rem 0 0;
     color: #374151;
     line-height: 1.5;
-  }
-
-  details {
-    margin-top: 0.75rem;
-  }
-
-  summary {
-    cursor: pointer;
-    color: #4b5563;
-    font-weight: 700;
   }
 
   pre {
@@ -519,6 +578,133 @@
     color: #6b7280;
   }
 
+  .modal-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+  }
+
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgba(15, 23, 42, 0.58);
+    cursor: pointer;
+  }
+
+  .modal-card {
+    position: relative;
+    z-index: 1;
+    width: min(760px, 100%);
+    max-height: min(86vh, 820px);
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+    padding: 1.25rem;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .modal-header h2 {
+    margin: 0;
+    color: #111827;
+  }
+
+  .modal-header p:not(.eyebrow) {
+    margin: 0.25rem 0 0;
+    color: #6b7280;
+    font-weight: 700;
+  }
+
+  .close-btn {
+    border: 0;
+    background: #f3f4f6;
+    color: #374151;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .detail-grid div {
+    min-width: 0;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background: #f9fafb;
+  }
+
+  .detail-grid .wide {
+    grid-column: 1 / -1;
+  }
+
+  .detail-grid span {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #6b7280;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .detail-grid strong {
+    display: block;
+    overflow-wrap: anywhere;
+    color: #111827;
+    font-size: 0.9rem;
+  }
+
+  .modal-section {
+    margin-top: 1rem;
+  }
+
+  .modal-section h3 {
+    margin: 0 0 0.5rem;
+    color: #111827;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .secondary-link {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.65rem;
+    padding: 0.6rem 0.85rem;
+    color: #374151;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
   @media (max-width: 860px) {
     .page-header,
     .live-panel {
@@ -528,8 +714,13 @@
 
     .summary-grid,
     .filters,
-    .audit-event {
+    .audit-event,
+    .detail-grid {
       grid-template-columns: 1fr;
+    }
+
+    .modal-actions {
+      flex-direction: column;
     }
   }
 </style>

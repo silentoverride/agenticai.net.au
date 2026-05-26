@@ -31,6 +31,8 @@ export const GET: RequestHandler = async ({ locals, platform, url }) => {
         toState: event.toState,
         reasonCode: event.reasonCode,
         reason: event.reason,
+        requestHash: event.requestHash,
+        idempotencyKey: event.idempotencyKey,
         metadataJson: event.metadataJson,
         createdAt: event.createdAt
       }))
