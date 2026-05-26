@@ -177,6 +177,8 @@
   class="gate-finding-card"
   class:unresolved={isUnresolved}
   data-testid="gate-finding-{finding.id}"
+  role="button"
+  tabindex="0"
   onkeydown={onKeydown}
 >
   <!-- ===== Header: type, verdict, state, risk ===== -->

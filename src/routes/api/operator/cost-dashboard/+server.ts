@@ -1,5 +1,6 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
+import { requireOperator } from '$lib/server/operator-auth';
 
 /**
  * Default cost rates per model (USD per 1M tokens).
@@ -57,6 +58,9 @@ export async function GET(event: RequestEvent) {
   try {
     const env = event.platform?.env as Record<string, unknown> | undefined;
     const db = env?.assessment_db as D1Database | undefined;
+
+    // Require operator/admin role
+    await requireOperator(event.locals, db);
 
     if (!db) {
       return json({ success: false, error: 'D1 binding not available' });

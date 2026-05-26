@@ -11,7 +11,7 @@
     CommercialNextStepStatus,
     CommercialDisplayState
   } from '$lib/staff-portal/dto';
-  import { COMMERCIAL_NEXT_STEP_STATUSES, COMMERCIAL_DISPLAY_STATES } from '$lib/server/staff-portal/domain/commercial-next-step-states';
+  import { COMMERCIAL_NEXT_STEP_STATUSES, COMMERCIAL_DISPLAY_STATES } from '$lib/staff-portal/commercial-utils';
   import { isHighIntentStatus } from '$lib/staff-portal/commercial-utils';
   import { requiresConfirmation } from '$lib/staff-portal/commercial-utils';
 
@@ -296,11 +296,23 @@
         </div>
         <div class="field-row">
           <dt>Owner</dt>
-          <dd>{commercialStep.owner ?? <em class="empty">Not assigned</em>}</dd>
+          <dd>
+            {#if commercialStep.owner}
+              {commercialStep.owner}
+            {:else}
+              <em class="empty">Not assigned</em>
+            {/if}
+          </dd>
         </div>
         <div class="field-row">
           <dt>Notes</dt>
-          <dd>{commercialStep.notes ?? <em class="empty">No notes</em>}</dd>
+          <dd>
+            {#if commercialStep.notes}
+              {commercialStep.notes}
+            {:else}
+              <em class="empty">No notes</em>
+            {/if}
+          </dd>
         </div>
       </dl>
 

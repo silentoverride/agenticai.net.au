@@ -232,7 +232,7 @@
   }
 </script>
 
-<div class="guarded-actions-panel"onkeydown={onKeydown}>
+<div class="guarded-actions-panel" role="region" tabindex="-1" onkeydown={onKeydown}>
   <!-- ===== Approve Report (guarded) ===== -->
   {#if approveAction}
     <div class="approve-section">
@@ -598,10 +598,8 @@
   }
 
   /* ── Accessibility: focus indicators ───────────────── */
-  button:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible,
-  input[type="checkbox"]:focus-visible {
+  input[type="checkbox"]:focus-visible,
+  button:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }

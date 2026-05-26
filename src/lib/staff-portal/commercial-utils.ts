@@ -3,7 +3,27 @@
  * These are pure functions with no server-side dependencies.
  */
 
-import type { CommercialNextStepStatus } from '$lib/staff-portal/dto';
+import type { CommercialNextStepStatus, CommercialDisplayState } from '$lib/staff-portal/dto';
+
+export const COMMERCIAL_NEXT_STEP_STATUSES = {
+  NO_ACTION: 'noAction',
+  NURTURE: 'nurture',
+  DISCUSS_OFFER: 'discussOffer',
+  SEND_FOLLOW_UP: 'sendFollowUp',
+  CREATE_FUTURE_OPPORTUNITY: 'createFutureOpportunity',
+  NOT_AVAILABLE: 'not_available'
+} as const satisfies Record<string, CommercialNextStepStatus>;
+
+export const COMMERCIAL_DISPLAY_STATES = {
+  MISSING: 'missing',
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  NEEDS_FOLLOW_UP: 'needsFollowUp',
+  COMPLETED: 'completed',
+  DEFERRED: 'deferred',
+  CANCELLED: 'cancelled',
+  STALE: 'stale'
+} as const satisfies Record<string, CommercialDisplayState>;
 
 /**
  * The set of commercial statuses that are considered "high intent"

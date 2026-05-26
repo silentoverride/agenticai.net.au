@@ -58,19 +58,13 @@
     </div>
   {:else}
     <nav class="portal-nav">
-      <a href={portalNavUrl(`/portal/${portalAuth.userId}`)}>Dashboard</a>
+      <a href={portalNavUrl(`/portal/${portalAuth.userId}`)}>Client Dashboard</a>
       <a href={portalNavUrl(`/portal/${portalAuth.userId}/reports`)}>Reports</a>
       <a href={portalNavUrl(`/portal/${portalAuth.userId}/receipts`)}>Receipts</a>
       <a href={portalNavUrl(`/portal/${portalAuth.userId}/profile`)}>Profile</a>
       <a href="/services" class="nav-cta">Start Assessment</a>
-      {#if isOperator}
-        <span class="nav-separator"></span>
-        <a href="/operator/dashboard" class="nav-operator-link">📊 Operator Dashboard</a>
-        <a href="/operator/gates" class="nav-operator-link">🔬 Gates</a>
-        <a href="/operator/human-assist" class="nav-operator-link">💬 Human Assist</a>
-        <a href="/operator/calibration" class="nav-operator-link">⚙️ Calibration</a>
-      {/if}
       <div class="portal-nav-right">
+        <span class="portal-role-badge">{isOperator ? userRole : 'client'}</span>
         <span>{isDevBypass ? 'Dev User' : (clerk.user?.firstName || clerk.user?.emailAddresses?.[0]?.emailAddress)}</span>
         {#if !isDevBypass}
           <button onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })} class="portal-signout">Sign Out</button>
@@ -141,19 +135,6 @@
     background: #0052cc;
     border-bottom: none;
   }
-  .nav-separator {
-    width: 1px;
-    height: 1.5rem;
-    background: #d0d0d0;
-    margin: 0 0.25rem;
-  }
-  .nav-operator-link {
-    font-size: 0.875rem;
-    opacity: 0.85;
-  }
-  .nav-operator-link:hover {
-    opacity: 1;
-  }
   .portal-nav-right {
     margin-left: auto;
     display: flex;
@@ -173,6 +154,18 @@
   }
   .portal-signout:hover {
     background: #2a2a4e;
+  }
+  .portal-role-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: #f0f0f0;
+    color: #888;
+    border: 1px solid #ddd;
   }
   .portal-content {
     max-width: 1200px;

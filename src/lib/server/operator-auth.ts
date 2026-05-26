@@ -3,21 +3,37 @@ import { getDb } from '$lib/server/db';
 
 const OPERATOR_ROLES = new Set(['operator', 'admin']);
 
+function logAuthEvent(event: 'attempt' | 'success' | 'failure', userId: string | null, role: string | null, reason?: string) {
+  console.log(JSON.stringify({
+    audit: 'operator-auth',
+    event,
+    userId,
+    role,
+    reason,
+    timestamp: new Date().toISOString(),
+  }));
+}
+
 export async function requireOperator(locals: App.Locals, db?: D1Database): Promise<string> {
   const auth = locals.auth();
 
   if (!auth.userId) {
+    logAuthEvent('failure', null, null, 'not_authenticated');
     throw error(401, 'Not authenticated');
   }
+
+  logAuthEvent('attempt', auth.userId, null);
 
   const role = db
     ? await getD1Role(db, auth.userId)
     : await getLocalRole(auth.userId);
 
   if (!role || !OPERATOR_ROLES.has(role)) {
+    logAuthEvent('failure', auth.userId, role, 'forbidden');
     throw error(403, 'Operator access required');
   }
 
+  logAuthEvent('success', auth.userId, role);
   return role;
 }
 

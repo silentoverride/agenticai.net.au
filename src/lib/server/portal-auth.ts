@@ -10,6 +10,7 @@ import { error } from '@sveltejs/kit';
 import { resolveUser } from './auth';
 import { assertSchema, getDb, isDatabaseAvailable } from './db';
 import { getUser, upsertUser } from './portal';
+import { applyPendingStaffRole } from './staff-invite';
 import type { ResolvedUser } from './auth';
 
 export type PortalAuthContext = ResolvedUser;
@@ -44,7 +45,10 @@ export async function requirePortalAuth(
     } else {
       await upsertUser(user.userId, user.email, user.name || undefined);
 
-      // Check access after upsert
+      // Check if this user has a pending staff invitation and apply the role
+      await applyPendingStaffRole(getDb(), user.userId, user.email);
+
+      // Re-fetch to check role after potential staff-invite update
       const dbUser = await getUser(user.userId);
       if (dbUser?.role === 'revoked') {
         throw error(403, 'Portal access revoked. Please contact support.');

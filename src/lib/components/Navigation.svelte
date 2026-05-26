@@ -5,6 +5,7 @@
 
   const clerk = useClerkContext();
 
+  // Public site links (shown when not signed in or signed in as client)
   const links = [
     { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
@@ -13,7 +14,48 @@
     { href: '/contact', label: 'Contact' }
   ];
 
-  let darkMode = false;
+  // Staff portal links (shown when signed in as operator/admin)
+  const staffLinks = [
+    { href: '/operator/dashboard', label: 'Dashboard' },
+    { href: '/operator/assessments', label: 'Command Console' },
+    { href: '/operator/gates', label: 'Gates' },
+    { href: '/operator/human-assist', label: 'Human Assist' },
+    { href: '/operator/audit', label: 'Audit' },
+    { href: '/operator/calibration', label: 'Calibration' },
+    { href: '/operator/cost-dashboard', label: 'Cost' }
+  ];
+
+  let darkMode = $state(false);
+  let userRole = $state('');
+  let roleLoaded = $state(false);
+  let roleError = $state(false);
+
+  // Fetch the user's role when they are signed in
+  $effect(() => {
+    if (clerk.auth.userId != null && !roleLoaded) {
+      fetch('/api/portal/user')
+        .then(r => r.json())
+        .then((data: unknown) => {
+          const d = data as { role?: string };
+          if (d.role) {
+            userRole = d.role;
+          }
+          roleLoaded = true;
+        })
+        .catch(() => {
+          roleError = true;
+          roleLoaded = true;
+        });
+    } else if (clerk.auth.userId == null) {
+      // Reset when the user signs out
+      roleLoaded = false;
+      roleError = false;
+      userRole = '';
+    }
+  });
+
+  const isStaff = $derived(userRole === 'operator' || userRole === 'admin');
+  const isAdmin = $derived(userRole === 'admin');
 
   onMount(() => {
     const storedTheme = localStorage.getItem('theme');
@@ -39,9 +81,20 @@
     <img src="/logo.svg" alt="Agentic AI" loading="eager" decoding="sync" fetchpriority="high" />
   </a>
   <nav aria-label="Main navigation">
-    {#each links as link}
-      <a href={link.href}>{link.label}</a>
-    {/each}
+    {#if isStaff}
+      <!-- Staff portal navigation -->
+      {#each staffLinks as link}
+        <a href={link.href}>{link.label}</a>
+      {/each}
+      {#if isAdmin}
+        <a href="/operator/staff">Staff</a>
+      {/if}
+    {:else}
+      <!-- Public site navigation -->
+      {#each links as link}
+        <a href={link.href}>{link.label}</a>
+      {/each}
+    {/if}
   </nav>
   <div class="header-actions">
     <button
@@ -62,16 +115,28 @@
         </svg>
       {/if}
     </button>
-    <CallAssessmentButton label="Call Annie" className="nav-cta" showError={false} />
-    {#if clerk.auth.userId != null}
+    {#if isStaff}
+      <!-- Staff actions -->
+      <span class="staff-badge">{userRole}</span>
+      <button
+        class="nav-signout"
+        onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })}
+      >
+        Sign Out
+      </button>
+    {:else if clerk.auth.userId != null}
+      <!-- Signed-in client actions -->
+      <CallAssessmentButton label="Call Annie" className="nav-cta" showError={false} />
       <a href={`/portal/${clerk.auth.userId}`} class="portal-link">Portal</a>
       <button class="nav-signout" onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })}>Sign Out</button>
     {:else}
+      <!-- Public visitor actions -->
+      <CallAssessmentButton label="Call Annie" className="nav-cta" showError={false} />
       <button
         class="nav-signin"
         onclick={() => clerk.clerk?.openSignIn({
-          fallbackRedirectUrl: '/portal',
-          forceRedirectUrl: '/portal'
+          fallbackRedirectUrl: '/dashboard',
+          forceRedirectUrl: '/dashboard'
         })}
       >
         Sign In

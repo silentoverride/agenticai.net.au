@@ -632,10 +632,7 @@
 
   /* ── Accessibility: focus indicators ── */
   button:focus-visible,
-  a:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible,
-  input:focus-visible {
+  a:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
     border-radius: 4px;

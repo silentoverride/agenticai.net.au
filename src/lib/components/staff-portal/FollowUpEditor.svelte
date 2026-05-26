@@ -51,14 +51,15 @@
 
   // ── Local state ──
 
-  let title = $state(followUp?.title ?? '');
-  let description = $state(followUp?.description ?? '');
-  let ownerId = $state(followUp?.ownerId ?? '');
-  let dueDate = $state(followUp?.dueDate ?? '');
-  let source = $state<FollowUpSource>(followUp?.source ?? 'client_profile');
-  let clientVisiblePromise = $state(followUp?.clientVisiblePromise ?? false);
-  let consequenceOfInaction = $state(followUp?.consequenceOfInaction ?? '');
-  let notes = $state(followUp?.notes ?? '');
+  const _followUp = followUp;
+  let title = $state(_followUp?.title ?? '');
+  let description = $state(_followUp?.description ?? '');
+  let ownerId = $state(_followUp?.ownerId ?? '');
+  let dueDate = $state(_followUp?.dueDate ?? '');
+  let source = $state<FollowUpSource>(_followUp?.source ?? 'client_profile');
+  let clientVisiblePromise = $state(_followUp?.clientVisiblePromise ?? false);
+  let consequenceOfInaction = $state(_followUp?.consequenceOfInaction ?? '');
+  let notes = $state(_followUp?.notes ?? '');
 
   // Defer/Reassign transient state
   let showDeferDialog = $state(false);

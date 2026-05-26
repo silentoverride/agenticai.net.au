@@ -89,7 +89,7 @@
   // ── Follow-up state ──
 
   let showFollowUpForm = $state(false);
-  let followUpList = $state<StaffFollowUpDto[]>(followUps);
+  let followUpList = $state<StaffFollowUpDto[]>([...followUps]);
 
   async function handleCreateFollowUp(data: {
     title: string; description: string | null; ownerId: string | null;
@@ -815,15 +815,6 @@
     font-size: 0.8125rem;
     margin: 0.35rem 0;
     line-height: 1.5;
-  }
-
-  .mb-field strong {
-    color: var(--color-ink-2);
-  }
-
-  .mb-missing em {
-    color: var(--color-muted);
-    font-style: italic;
   }
 
   .mb-sensitive {

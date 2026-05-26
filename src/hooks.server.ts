@@ -12,6 +12,12 @@ import { withClerkHandler } from 'svelte-clerk/server';
 import { setD1Binding } from '$lib/server/db';
 import type { Handle } from '@sveltejs/kit';
 
+const PRIVATE_PREFIXES = ['/operator/', '/api/operator/'];
+
+function isPrivateRoute(path: string): boolean {
+  return PRIVATE_PREFIXES.some(prefix => path.startsWith(prefix));
+}
+
 const PUBLIC_API_PREFIXES = [
   '/api/create-retell-web-call',
   '/api/create-assessment-checkout',
@@ -38,5 +44,13 @@ export const handle: Handle = async ({ event, resolve }) => {
   if (isPublicApi(event.url.pathname)) {
     return resolve(event);
   }
-  return clerkHandler({ event, resolve });
+
+  const response = await clerkHandler({ event, resolve });
+
+  // Add noindex headers to all private /operator/ routes
+  if (isPrivateRoute(event.url.pathname)) {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  }
+
+  return response;
 };

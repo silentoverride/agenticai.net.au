@@ -171,6 +171,21 @@ function initSchema(db: Database.Database) {
       ON staff_action_audit_events(action);
     CREATE INDEX IF NOT EXISTS idx_staff_action_audit_events_created_at
       ON staff_action_audit_events(created_at);
+
+    CREATE TABLE IF NOT EXISTS staff_invitations (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL,
+      role TEXT NOT NULL CHECK(role IN ('operator', 'admin')),
+      clerk_invitation_id TEXT NOT NULL UNIQUE,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'revoked')),
+      invited_by TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      accepted_at TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_staff_invitations_email ON staff_invitations(email);
+    CREATE INDEX IF NOT EXISTS idx_staff_invitations_status ON staff_invitations(status);
+    CREATE INDEX IF NOT EXISTS idx_staff_invitations_clerk_id ON staff_invitations(clerk_invitation_id);
   `);
 }
 
@@ -255,7 +270,7 @@ export function setD1Binding(db: D1Database | undefined) {
 /** Verify required tables exist. Only checks once per process. */
 export async function assertSchema(db: AsyncDb): Promise<void> {
   if (schemaChecked) return;
-  const required = ['users', 'reports', 'receipts', 'pipeline_status', 'transcripts', 'processed_events', 'staff_action_audit_events'];
+  const required = ['users', 'reports', 'receipts', 'pipeline_status', 'transcripts', 'processed_events', 'staff_action_audit_events', 'staff_invitations'];
   for (const table of required) {
     const row = await db.queryOne<{ name: string }>(
       `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
