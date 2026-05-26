@@ -62,7 +62,7 @@ export interface JudgeGateProvider {
 export interface GateEvaluationOptions {
   /** Reasoning effort level (controls how much the model "thinks"). */
   reasoningEffort?: 'low' | 'medium' | 'high';
-  /** Temperature for generation (default: 0.0 for deterministic). */
+  /** Temperature for generation when supported by the provider/model. */
   temperature?: number;
   /** Maximum tokens for the response. */
   maxTokens?: number;

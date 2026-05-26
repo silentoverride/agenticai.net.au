@@ -86,7 +86,6 @@ export class OpenAiGpt55JudgeProvider implements JudgeGateProvider {
 
     const endpoint = `${baseUrl}/chat/completions`;
     const reasoningEffort = mapReasoningEffort(opts?.reasoningEffort);
-    const temperature = opts?.temperature ?? 0.0;
     const maxTokens = opts?.maxTokens ?? 1024;
     const timeoutMs = opts?.timeoutMs ?? 30000;
 
@@ -96,7 +95,6 @@ export class OpenAiGpt55JudgeProvider implements JudgeGateProvider {
         { role: 'system', content: systemPrompt },
         { role: 'user', content }
       ],
-      temperature,
       max_completion_tokens: maxTokens,
       response_format: { type: 'json_object' }
     };
