@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { useClerkContext } from 'svelte-clerk';
+  import { useClerkContext } from 'svelte-clerk/client';
 
   const clerk = useClerkContext();
 

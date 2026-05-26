@@ -2,7 +2,7 @@
   import Navigation from '$lib/components/Navigation.svelte';
   import Footer from '$lib/components/Footer.svelte';
   import '../styles.css';
-  import { ClerkProvider } from 'svelte-clerk';
+  import ClerkProvider from '$lib/components/ClerkProvider.svelte';
   import { PUBLIC_CLERK_PUBLISHABLE_KEY } from '$env/static/public';
   import { PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN } from '$env/static/public';
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import { onMount } from 'svelte';
-  import { useClerkContext } from 'svelte-clerk';
+  import { useClerkContext } from 'svelte-clerk/client';
 
   const clerk = useClerkContext();
 

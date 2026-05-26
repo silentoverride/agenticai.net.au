@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { useClerkContext } from 'svelte-clerk';
+  import { useClerkContext } from 'svelte-clerk/client';
   import { portalGet } from '$lib/portal-client';
   import { usePortalAuth } from '$lib/portal-context.svelte';
   import type { PortalReport, PortalReceipt } from '$lib/types';

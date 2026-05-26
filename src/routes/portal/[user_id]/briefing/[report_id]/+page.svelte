@@ -31,7 +31,7 @@
 
   // Use portal auth to trigger load
   import { usePortalAuth } from '$lib/portal-context.svelte';
-  import { useClerkContext } from 'svelte-clerk';
+  import { useClerkContext } from 'svelte-clerk/client';
   const portalAuth = usePortalAuth();
   const clerk = useClerkContext();
 

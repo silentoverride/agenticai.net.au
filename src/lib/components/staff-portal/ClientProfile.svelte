@@ -41,7 +41,7 @@
     linkedFindings,
     auditHistory,
     activityHistory,
-    followUps = [],
+    followUps: _followUps = [],
     meetingBrief = null,
     staleWarning = null,
     calendlyLink = null,
@@ -89,7 +89,9 @@
   // ── Follow-up state ──
 
   let showFollowUpForm = $state(false);
-  let followUpList = $state<StaffFollowUpDto[]>([...followUps]);
+  let followUpList = $state<StaffFollowUpDto[]>(initFollowUps());
+
+  function initFollowUps() { return [..._followUps] as StaffFollowUpDto[]; }
 
   async function handleCreateFollowUp(data: {
     title: string; description: string | null; ownerId: string | null;

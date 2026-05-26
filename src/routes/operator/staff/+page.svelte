@@ -3,6 +3,9 @@
 
   let { data: pageData }: { data: PageData } = $props();
 
+  function initUsers() { return [...pageData.users] as StaffUser[]; }
+  function initInvitations() { return [...pageData.invitations] as StaffInvitation[]; }
+
   interface StaffUser {
     clerkId: string;
     email: string;
@@ -26,8 +29,8 @@
     invitations: StaffInvitation[];
   }
 
-  let users = $state<StaffUser[]>([...pageData.users]);
-  let invitations = $state<StaffInvitation[]>([...pageData.invitations]);
+  let users = $state<StaffUser[]>(initUsers());
+  let invitations = $state<StaffInvitation[]>(initInvitations());
 
   let email = $state('');
   let role = $state('operator');

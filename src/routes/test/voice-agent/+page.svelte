@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
 
-  import { RetellWebClient } from 'retell-client-js-sdk';
+  import type { RetellWebClient } from 'retell-client-js-sdk';
 
   // Test scenario steps
   const TEST_SCENARIO = [

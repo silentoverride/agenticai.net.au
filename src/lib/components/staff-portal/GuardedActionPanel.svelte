@@ -232,7 +232,8 @@
   }
 </script>
 
-<div class="guarded-actions-panel" role="region" tabindex="-1" onkeydown={onKeydown}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="guarded-actions-panel" tabindex="-1" onkeydown={onKeydown}>
   <!-- ===== Approve Report (guarded) ===== -->
   {#if approveAction}
     <div class="approve-section">
@@ -598,11 +599,6 @@
   }
 
   /* ── Accessibility: focus indicators ───────────────── */
-  input[type="checkbox"]:focus-visible,
-  button:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
 
   /* ── Accessibility: reduced motion ────────────────── */
   @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { useClerkContext } from 'svelte-clerk';
+  import { useClerkContext } from 'svelte-clerk/client';
 
   const clerk = useClerkContext();
   const user = $derived(clerk.user);

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { useClerkContext } from 'svelte-clerk';
-  import { SignIn, SignUp } from 'svelte-clerk';
+  import { useClerkContext } from 'svelte-clerk/client';
+  import { SignIn, SignUp } from 'svelte-clerk/client';
   import { page } from '$app/state';
   import { setPortalAuth } from '$lib/portal-context.svelte';
   import { portalGet, portalNavUrl } from '$lib/portal-client';
@@ -50,9 +50,9 @@
       <p>Sign {isSignUp ? 'up' : 'in'} to view your AI Business Assessment reports and receipts.</p>
       <div class="portal-signin">
         {#if isSignUp}
-          <SignUp fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard" />
+          <SignUp path={page.url.pathname} fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard" />
         {:else}
-          <SignIn fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard" />
+          <SignIn path={page.url.pathname} fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard" />
         {/if}
       </div>
     </div>

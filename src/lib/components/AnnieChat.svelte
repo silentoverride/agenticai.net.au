@@ -13,7 +13,7 @@
    */
 
   import type { ChatMessage } from '$lib/assessment/intake-script';
-  import { TOTAL_QUESTIONS } from '$lib/assessment/intake-script';
+  import { TOTAL_QUESTIONS, INTAKE_SCRIPT } from '$lib/assessment/intake-script';
   import { fade } from 'svelte/transition';
 
   let {
@@ -55,16 +55,14 @@
   let currentFollowUp = $state<string | undefined>(initCurrentFollowUp);
   let lastQuestionId = $state(initLastQuestionId);
   let answers = $state<Array<{ questionId: string; question: string; answer: string; followUpAnswer?: string }>>(initAnswers);
-  let intakeScript: typeof import('$lib/assessment/intake-script').INTAKE_SCRIPT = [];
+  let intakeScript: typeof INTAKE_SCRIPT = [];
 
   // Load intake script questions
   $effect(() => {
-    import('$lib/assessment/intake-script').then(mod => {
-      intakeScript = mod.INTAKE_SCRIPT;
-      if (intakeScript.length > 0 && messages.length === 0 && !isResumedSession) {
-        askQuestion(0);
-      }
-    });
+    intakeScript = INTAKE_SCRIPT;
+    if (intakeScript.length > 0 && messages.length === 0 && !isResumedSession) {
+      askQuestion(0);
+    }
   });
 
   // Save session state to localStorage on each update

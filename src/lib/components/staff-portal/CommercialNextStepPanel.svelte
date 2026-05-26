@@ -344,6 +344,7 @@
     <div
       class="confirm-overlay"
       role="dialog"
+      tabindex="-1"
       aria-modal="true"
       aria-labelledby="confirm-title"
       onclick={onOverlayClick}

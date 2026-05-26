@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { useClerkContext } from 'svelte-clerk';
+  import { useClerkContext } from 'svelte-clerk/client';
 
   let { children, data }: { children: import('svelte').Snippet; data: { role: string } } = $props();
   let role = $derived(data.role);

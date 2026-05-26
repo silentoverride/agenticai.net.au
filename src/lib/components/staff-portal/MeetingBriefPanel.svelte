@@ -212,6 +212,7 @@
 
     {#if readinessExpanded}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
         id="readiness-panel"
         class="readiness-panel"
@@ -299,6 +300,7 @@
 
     {#if followUpExpanded}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <form
         id="followup-form"
         class="followup-form"

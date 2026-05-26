@@ -19,7 +19,7 @@
   // ── Props ──
 
   let {
-    followUp,
+    followUp: _followUp,
     onSave,
     onCancel,
     onUpdateStatus,
@@ -51,15 +51,18 @@
 
   // ── Local state ──
 
-  const _followUp = followUp;
-  let title = $state(_followUp?.title ?? '');
-  let description = $state(_followUp?.description ?? '');
-  let ownerId = $state(_followUp?.ownerId ?? '');
-  let dueDate = $state(_followUp?.dueDate ?? '');
-  let source = $state<FollowUpSource>(_followUp?.source ?? 'client_profile');
-  let clientVisiblePromise = $state(_followUp?.clientVisiblePromise ?? false);
-  let consequenceOfInaction = $state(_followUp?.consequenceOfInaction ?? '');
-  let notes = $state(_followUp?.notes ?? '');
+  function fromFollowUp<T>(getter: (f: StaffFollowUpDto | null) => T): T {
+    return getter(_followUp);
+  }
+
+  let title = $state(fromFollowUp(f => f?.title ?? ''));
+  let description = $state(fromFollowUp(f => f?.description ?? ''));
+  let ownerId = $state(fromFollowUp(f => f?.ownerId ?? ''));
+  let dueDate = $state(fromFollowUp(f => f?.dueDate ?? ''));
+  let source = $state<FollowUpSource>(fromFollowUp(f => f?.source ?? 'client_profile'));
+  let clientVisiblePromise = $state(fromFollowUp(f => f?.clientVisiblePromise ?? false));
+  let consequenceOfInaction = $state(fromFollowUp(f => f?.consequenceOfInaction ?? ''));
+  let notes = $state(fromFollowUp(f => f?.notes ?? ''));
 
   // Defer/Reassign transient state
   let showDeferDialog = $state(false);
