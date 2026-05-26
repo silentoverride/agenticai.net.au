@@ -56,10 +56,25 @@
   let loading = $state(false);
   let error = $state('');
   let expandedCase: string | null = $state(null);
+  const GATE_TYPES = ['quick-wins-verification', 'major-project-verification', 'report-review'];
+  const PROGRESS_MESSAGES = [
+    'Preparing golden test cases…',
+    'Sending gate evaluations to GPT-5.5…',
+    'Checking verdicts against expected results…',
+    'Collecting confidence scores and reasoning…',
+    'Building the calibration summary…'
+  ];
+
   let config = $state({
     promptVersion: 'v1',
     includeUsage: true
   });
+  let progressPercent = $state(0);
+  let progressMessage = $state('');
+  let progressElapsedSeconds = $state(0);
+  let progressTotalEvaluations = $state(0);
+  let progressEstimatedEvaluations = $state(0);
+  let progressTimer: ReturnType<typeof setInterval> | undefined;
 
   async function loadMetadata() {
     try {
@@ -80,16 +95,52 @@
     }
   }
 
+  function selectedCaseIds(): string[] | undefined {
+    return selectedTags.length > 0
+      ? testCases.filter(c => selectedTags.some(t => c.tags.includes(t))).map(c => c.id)
+      : undefined;
+  }
+
+  function startProgress(caseCount: number) {
+    stopProgress();
+    const startedAt = Date.now();
+    progressTotalEvaluations = Math.max(caseCount * GATE_TYPES.length, 1);
+    progressEstimatedEvaluations = 0;
+    progressElapsedSeconds = 0;
+    progressPercent = 5;
+    progressMessage = PROGRESS_MESSAGES[0];
+
+    progressTimer = setInterval(() => {
+      progressElapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+      const estimatedSeconds = Math.max(10, Math.ceil(progressTotalEvaluations / 12) * 8);
+      progressPercent = Math.min(95, Math.round(5 + (progressElapsedSeconds / estimatedSeconds) * 90));
+      progressEstimatedEvaluations = Math.min(
+        progressTotalEvaluations,
+        Math.floor((progressPercent / 100) * progressTotalEvaluations)
+      );
+      progressMessage = PROGRESS_MESSAGES[Math.min(
+        PROGRESS_MESSAGES.length - 1,
+        Math.floor(progressElapsedSeconds / 5)
+      )];
+    }, 500);
+  }
+
+  function stopProgress() {
+    if (progressTimer) {
+      clearInterval(progressTimer);
+      progressTimer = undefined;
+    }
+  }
+
   async function runCalibration() {
     loading = true;
     error = '';
     report = null;
 
-    try {
-      const caseIds = selectedTags.length > 0
-        ? testCases.filter(c => selectedTags.some(t => c.tags.includes(t))).map(c => c.id)
-        : undefined;
+    const caseIds = selectedCaseIds();
+    startProgress(caseIds?.length ?? testCases.length);
 
+    try {
       const res = await fetch('/api/operator/calibration/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -110,6 +161,7 @@
     } catch (e) {
       error = 'Calibration request failed';
     } finally {
+      stopProgress();
       loading = false;
     }
   }
@@ -183,6 +235,31 @@
       </div>
     </CardContent>
   </Card>
+
+  {#if loading}
+    <Card>
+      <CardContent>
+        <div class="progress-panel" in:fade>
+          <div class="progress-header">
+            <div>
+              <strong>{progressMessage}</strong>
+              <p>
+                Running {progressTotalEvaluations} gate evaluations across selected cases.
+                Elapsed: {progressElapsedSeconds}s.
+              </p>
+            </div>
+            <span>{progressPercent}%</span>
+          </div>
+          <div class="progress-track" aria-label="Calibration progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progressPercent}>
+            <div class="progress-fill" style={`width: ${progressPercent}%`}></div>
+          </div>
+          <p class="progress-note">
+            Estimated {progressEstimatedEvaluations}/{progressTotalEvaluations} evaluations in progress or complete. Final results will appear when the calibration request finishes.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  {/if}
 
   {#if error}
     <div class="error-banner" in:fade>
@@ -356,6 +433,48 @@
 
   .actions {
     margin-top: 1rem;
+  }
+
+  .progress-panel {
+    margin-top: 1rem;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .progress-header strong {
+    color: var(--color-ink);
+  }
+
+  .progress-header p,
+  .progress-note {
+    margin: 0.25rem 0 0;
+    color: var(--color-ink-muted);
+    font-size: 0.8125rem;
+  }
+
+  .progress-header span {
+    font-weight: 700;
+    color: var(--color-accent);
+  }
+
+  .progress-track {
+    height: 0.625rem;
+    margin-top: 0.85rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-page-muted, #f3f4f6);
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--color-accent), #7c3aed);
+    transition: width 0.4s ease;
   }
 
   .error-banner {
