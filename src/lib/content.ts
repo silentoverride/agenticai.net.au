@@ -81,8 +81,8 @@ export const upsells = [
     text: 'Build a memory layer for your agents: company documents, decisions, and systems become a managed world model with knowledge graph context, semantic retrieval, and memory that improves over time.'
   },
   {
-    title: 'Speed-to-lead agent',
-    text: 'Respond to enquiries while the team is busy, answer FAQs, qualify interest, and push qualified leads to booking.'
+    title: 'Custom Agents',
+    text: 'Build task-specific AI agents that understand your workflows, use your tools, follow your rules, and hand work to people when judgment is needed.'
   }
 ];
 
