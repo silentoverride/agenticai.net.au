@@ -13,6 +13,28 @@ import { GOLDEN_TEST_CASES } from './golden-cases';
 import { DEFAULT_CALIBRATION_CONFIG, type CalibrationConfig, type CalibrationRunReport, type CalibrationRunSummary, type GoldenCaseResult, type GoldenGateResult } from './types';
 import type { GateVerdict } from '../types';
 
+const CALIBRATION_CONCURRENCY = 12;
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex++;
+      results[currentIndex] = await mapper(items[currentIndex]);
+    }
+  }
+
+  const workerCount = Math.min(concurrency, items.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
+}
+
 /**
  * Options for running a calibration batch.
  */
@@ -44,64 +66,71 @@ export async function runCalibration(
     : GOLDEN_TEST_CASES;
 
   const runId = crypto.randomUUID();
-  const startTime = Date.now();
-  const caseResults: GoldenCaseResult[] = [];
+  const tasks = cases.flatMap((testCase, caseIndex) =>
+    allGateTypes.map((gateType, gateIndex) => ({ testCase, caseIndex, gateType, gateIndex }))
+  );
 
-  for (const testCase of cases) {
-    const gateResults: GoldenGateResult[] = [];
+  const gateTaskResults = await mapWithConcurrency(tasks, CALIBRATION_CONCURRENCY, async task => {
+    const { testCase, caseIndex, gateType, gateIndex } = task;
+    let gateResult: GoldenGateResult;
 
-    for (const gateType of allGateTypes) {
-      try {
-        const gateStartTime = Date.now();
-        const result = await runGate({
-          assessmentId: `calibration-${runId}`,
-          content: testCase.transcript,
-          gateType,
-          retryCount: 0,
-          mode: 'shadow',
-          includeUsage: config.includeUsage,
-          promptVersion: config.promptVersion,
-          ...options.gateOptions
-        });
-        const evaluationTimeMs = Date.now() - gateStartTime;
+    try {
+      const gateStartTime = Date.now();
+      const result = await runGate({
+        assessmentId: `calibration-${runId}`,
+        content: testCase.transcript,
+        gateType,
+        retryCount: 0,
+        mode: 'shadow',
+        includeUsage: config.includeUsage,
+        promptVersion: config.promptVersion,
+        ...options.gateOptions
+      });
+      const evaluationTimeMs = Date.now() - gateStartTime;
 
-        const expectedVerdict: GateVerdict = testCase.expectedVerdicts[gateType] ?? 'approve';
+      const expectedVerdict: GateVerdict = testCase.expectedVerdicts[gateType] ?? 'approve';
 
-        gateResults.push({
-          gateType,
-          verdict: result.verdict,
-          expectedVerdict,
-          passed: result.verdict === expectedVerdict,
-          confidence: result.confidence,
-          reasoning: result.reasoning,
-          evaluationTimeMs,
-          promptVersion: config.promptVersion,
-          tokenUsage: result.usage
-        });
-      } catch (err) {
-        gateResults.push({
-          gateType,
-          verdict: 'block' as GateVerdict,
-          expectedVerdict: testCase.expectedVerdicts[gateType] ?? 'approve',
-          passed: false,
-          confidence: 0,
-          reasoning: `Gate evaluation error: ${err instanceof Error ? err.message : String(err)}`,
-          evaluationTimeMs: 0,
-          promptVersion: config.promptVersion
-        });
-      }
+      gateResult = {
+        gateType,
+        verdict: result.verdict,
+        expectedVerdict,
+        passed: result.verdict === expectedVerdict,
+        confidence: result.confidence,
+        reasoning: result.reasoning,
+        evaluationTimeMs,
+        promptVersion: config.promptVersion,
+        tokenUsage: result.usage
+      };
+    } catch (err) {
+      gateResult = {
+        gateType,
+        verdict: 'block' as GateVerdict,
+        expectedVerdict: testCase.expectedVerdicts[gateType] ?? 'approve',
+        passed: false,
+        confidence: 0,
+        reasoning: `Gate evaluation error: ${err instanceof Error ? err.message : String(err)}`,
+        evaluationTimeMs: 0,
+        promptVersion: config.promptVersion
+      };
     }
 
-    const overallPassed = gateResults.every(r => r.passed);
-    caseResults.push({
+    return { caseIndex, gateIndex, gateResult };
+  });
+
+  const gateResultsByCase = cases.map(() => new Array<GoldenGateResult>(allGateTypes.length));
+  for (const { caseIndex, gateIndex, gateResult } of gateTaskResults) {
+    gateResultsByCase[caseIndex][gateIndex] = gateResult;
+  }
+
+  const caseResults: GoldenCaseResult[] = cases.map((testCase, index) => {
+    const gateResults = gateResultsByCase[index].filter((result): result is GoldenGateResult => result != null);
+    return {
       testCaseId: testCase.id,
       testCaseName: testCase.name,
       gateResults,
-      overallPassed
-    });
-  }
-
-  const totalEvaluationTimeMs = Date.now() - startTime;
+      overallPassed: gateResults.every(r => r.passed)
+    };
+  });
 
   // Build summary
   const summary = buildSummary(caseResults);
