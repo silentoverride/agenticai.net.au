@@ -2,6 +2,48 @@
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import { processSteps, reportSections, services, upsells } from '$lib/content';
   import { faqItems } from '$lib/data/faq';
+
+  const reportBuildSteps = [
+    {
+      label: '01',
+      title: 'Conversation captured',
+      text: 'Annie turns the 20–30 minute assessment conversation into a complete transcript.',
+      output: 'Raw business context'
+    },
+    {
+      label: '02',
+      title: 'Findings extracted',
+      text: 'Specialised AI agents identify pain points, repeated work, handoffs, and workflow gaps.',
+      output: 'Structured findings'
+    },
+    {
+      label: '03',
+      title: 'Opportunities ranked',
+      text: 'Recommendations are matched to tools, estimated for value, and sorted by effort versus impact.',
+      output: 'Prioritised quick wins'
+    },
+    {
+      label: '04',
+      title: 'Presentation generated',
+      text: 'Presenton turns the structured analysis into a polished presentation deck for review.',
+      output: 'Editable report deck'
+    }
+  ];
+
+  const reportAgentTasks = [
+    'Clean and structure the transcript for consistent analysis',
+    'Extract workflow friction, repeated tasks, and business goals',
+    'Match pain points to practical AI tools and process changes',
+    'Map each recommendation by effort, impact, and likely value',
+    'Separate self-serve quick wins from larger AI opportunities'
+  ];
+
+  const presentonFeatures = [
+    'Open-source presentation generation with API support',
+    'Custom templates and themes for consistent report design',
+    'Editable PPTX and PDF-ready presentation outputs',
+    'Deck structure ready for the optional follow-up consultation'
+  ];
 </script>
 
 <svelte:head>
@@ -46,103 +88,85 @@
 
   </section>
 
-  <section class="section">
-    <div class="section-heading">
+  <section class="section report-build-section">
+    <div class="section-heading report-build-heading">
       <p class="eyebrow">How the report is built</p>
-      <h2>AI processes the findings. RevealDeck formats the report.</h2>
-
+      <h2>From Annie conversation to finished report in four stages</h2>
       <p>
-        When Annie's conversation ends, the transcript is automatically handed off to a report-building pipeline.
-        No manual formatting. No waiting for a consultant to write it up. The report is ready in 48 hours.
+        Once the assessment conversation ends, the pipeline moves from transcript to analysis to a Presenton-generated report deck.
+        The high-level flow is simple, while the detail underneath stays available when you want to inspect it.
       </p>
     </div>
 
-    <div class="report-build-grid">
-      <article class="report-build-step">
-        <div class="report-build-header">
-          <span class="step-tag">Step 01</span>
-          <h3>AI processes the transcript</h3>
+    <div class="report-build-flow" aria-label="Report build process">
+      {#each reportBuildSteps as step, index}
+        <article class="report-flow-card">
+          <div class="flow-card-topline">
+            <span class="flow-number">{step.label}</span>
+            {#if index < reportBuildSteps.length - 1}
+              <span class="flow-connector" aria-hidden="true">→</span>
+            {/if}
+          </div>
+          <h3>{step.title}</h3>
+          <p>{step.text}</p>
+          <div class="flow-output">
+            <span>Output</span>
+            <strong>{step.output}</strong>
+          </div>
+        </article>
+      {/each}
+    </div>
+
+    <div class="report-build-details">
+      <article class="report-detail-card primary-detail">
+        <div>
+          <span class="step-tag">Inside the analysis</span>
+          <h3>Specialised AI agents turn the transcript into useful findings</h3>
           <p>
-            A series of specialised AI agents — each with one job — works through the raw transcript in sequence,
-            extracting pain points, researching tools, and producing a structured assessment document.
+            Each agent has a narrow job, so the report is assembled in a predictable order instead of becoming
+            one large, hard-to-follow AI response.
           </p>
         </div>
-        <div class="skills-pipeline">
-          <div class="skill-item">
-            <b>01</b>
-            <div>
-              <strong>Clean and structure</strong>
-              <p>The raw transcript is formatted into a consistent, readable document for downstream agents.</p>
-            </div>
-          </div>
-          <div class="skill-item">
-            <b>02</b>
-            <div>
-              <strong>Identify pain points</strong>
-              <p>Key workflow problems, repeated tasks, and friction points are extracted and categorised from the conversation.</p>
-            </div>
-          </div>
-          <div class="skill-item">
-            <b>03</b>
-            <div>
-              <strong>Research AI tools</strong>
-              <p>Each pain point is matched to specific off-the-shelf tools from AI directories — with cost and setup context.</p>
-            </div>
-          </div>
-          <div class="skill-item">
-            <b>04</b>
-            <div>
-              <strong>Effort vs impact matrix</strong>
-              <p>Every recommendation is mapped on a 2×2 grid so quick wins — low effort, high impact — are obvious.</p>
-            </div>
-          </div>
-          <div class="skill-item">
-            <b>05</b>
-            <div>
-              <strong>Financial impact estimate</strong>
-              <p>Hours saved per week, assumed hourly rate, tool costs, and annual net value are calculated for each recommendation.</p>
-            </div>
-          </div>
-        </div>
-        <div class="pipeline-output">
-          <span>Output</span>
-          <p>A structured document containing all assessment content — ready to be formatted into the final report.</p>
-        </div>
+        <ol class="analysis-list">
+          {#each reportAgentTasks as task, index}
+            <li>
+              <span>{index + 1}</span>
+              <p>{task}</p>
+            </li>
+          {/each}
+        </ol>
       </article>
 
-      <article class="report-build-step revealdeck-step">
-        <div class="report-build-header">
-          <span class="step-tag">Step 02</span>
-          <h3>RevealDeck renders the interactive report</h3>
+      <article class="report-detail-card delivery-detail">
+        <div>
+          <span class="step-tag">Final delivery</span>
+          <h3>Presenton turns the findings into a polished presentation</h3>
           <p>
-            The structured analysis is rendered as an interactive slide deck in the client portal — a browser-based
-            RevealDeck presentation with 12 slides covering pain points, quick wins, impact-effort analysis, tool
-            recommendations, financial estimates, and details for booking your optional 30-minute complimentary consultation.
+            The structured analysis becomes an editable report deck, ready to review on your own,
+            export as needed, or screen-share during the optional follow-up consultation.
           </p>
         </div>
-        <ul class="revealdeck-features">
-          <li>
-            <strong>Interactive slides</strong>
-            <span>Navigate the report slide by slide with transitions and speaker notes — no download required.</span>
-          </li>
-          <li>
-            <strong>Consistent structure</strong>
-            <span>Every client receives the same professional 12-slide structure: title, executive summary, opportunity matrix, recommendations, quick-win action plan, financial impact, and next steps.</span>
-          </li>
-          <li>
-            <strong>Portal access</strong>
-            <span>The report lives permanently in the client portal at agenticai.net.au/portal — accessible on any device with Clerk authentication.</span>
-          </li>
-          <li>
-            <strong>Screen-share ready</strong>
-            <span>The follow-up call walks through the report slide by slide, making recommendations easy to discuss.</span>
-          </li>
+        <ul class="delivery-list">
+          {#each presentonFeatures as feature}
+            <li>{feature}</li>
+          {/each}
         </ul>
-        <div class="revealdeck-note">
-          <div class="note-mark" aria-hidden="true">AI</div>
-          <p>Reports are stored durably in Cloudflare R2 and displayed via RevealDeck in the client portal. No PPTX or PDF generation — native web format.</p>
-        </div>
       </article>
+    </div>
+
+    <div class="report-build-summary" aria-label="Report delivery summary">
+      <div>
+        <strong>48 hours</strong>
+        <span>Typical report turnaround</span>
+      </div>
+      <div>
+        <strong>12 slides</strong>
+        <span>Consistent Presenton deck structure</span>
+      </div>
+      <div>
+        <strong>Portal access</strong>
+        <span>Readable on any device</span>
+      </div>
     </div>
   </section>
 

@@ -14,12 +14,12 @@ export const faqItems: FaqItem[] = [
 		id: 'included',
 		question: 'What does the $1,200 include?',
 		answer:
-			`The AI Business Assessment includes a 20–30 minute conversation with Annie, analysis of your workflows and bottlenecks, tool recommendations matched to your gaps, quick-win actions, financial impact estimates, a polished RevealDeck report (PDF-exportable), permanent portal access, and an optional complimentary 30-minute follow-up consultation after you receive the report. It's a one-time fee — no subscriptions, no hidden costs.` },
+			`The AI Business Assessment includes a 20–30 minute conversation with Annie, analysis of your workflows and bottlenecks, tool recommendations matched to your gaps, quick-win actions, financial impact estimates, a polished Presenton-generated report deck, permanent portal access, and an optional complimentary 30-minute follow-up consultation after you receive the report. It's a one-time fee — no subscriptions, no hidden costs.` },
 	{
 		id: 'timeline',
 		question: 'How long does the report take?',
 		answer:
-			`Reports are typically ready within 48 hours of payment. The pipeline runs automatically after Stripe confirms payment, producing your tailored RevealDeck report. During busy periods this may extend to 72 hours. If you're on a tight deadline, mention it during the call and we'll prioritise.` },
+			`Reports are typically ready within 48 hours of payment. The pipeline runs automatically after Stripe confirms payment, producing your tailored Presenton-generated report deck. During busy periods this may extend to 72 hours. If you're on a tight deadline, mention it during the call and we'll prioritise.` },
 	{
 		id: 'after',
 		question: 'What happens after the assessment?',
@@ -29,7 +29,7 @@ export const faqItems: FaqItem[] = [
 		id: 'share',
 		question: 'Can I share the report with my team?',
 		answer:
-			`Yes. Your RevealDeck report can be downloaded as a PDF, printed, screenshotted, or forwarded by email. You can also request additional portal accounts for team members at no extra cost. For enterprise teams (10+), we offer white-label reports with your company branding.` },
+			`Yes. Your Presenton-generated report deck can be exported, printed, screenshotted, or forwarded by email. You can also request additional portal accounts for team members at no extra cost. For enterprise teams (10+), we offer white-label reports with your company branding.` },
 	{
 		id: 'implement',
 		question: 'Do you implement larger AI solutions?',
@@ -54,7 +54,7 @@ export const faqItems: FaqItem[] = [
 		id: 'consultant',
 		question: 'How is this different from hiring a consultant?',
 		answer:
-			`Faster (48 hours vs 2–4 weeks), cheaper ($1,200 vs $5,000–$15,000), and more structured. The assessment uses an AI-driven discovery conversation, automated tool research across 200+ platforms, and produces an interactive RevealDeck with charts, quick wins, and clear next steps. Traditional consulting suits deep organisational change; our assessment is ideal when you need a clear, ranked action plan quickly.` },
+			`Faster (48 hours vs 2–4 weeks), cheaper ($1,200 vs $5,000–$15,000), and more structured. The assessment uses an AI-driven discovery conversation, automated tool research across 200+ platforms, and produces a Presenton-generated report deck with charts, quick wins, and clear next steps. Traditional consulting suits deep organisational change; our assessment is ideal when you need a clear, ranked action plan quickly.` },
 	{
 		id: 'industry',
 		question: 'What if Annie doesn\'t understand my industry?',

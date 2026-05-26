@@ -18,7 +18,7 @@ The AI Business Assessment is a structured 20–30 minute conversation with Anni
 - **Quick-win action plan** — practical first moves your team can trial without committing to a larger build
 - **Financial impact analysis** — estimated hours saved per week, annual value, and tool cost comparison
 - **Larger opportunity signals** — possible larger AI solution areas, clearly marked as separate next steps rather than included deliverables
-- **RevealDeck report** — a polished, shareable slide deck (PDF-exportable) that you can present to your team, board, or investors
+- **Presenton-generated report deck** — a polished, shareable presentation that you can export, present to your team, or use in the follow-up consultation
 - **Portal access** — your report lives in your private client portal at [agenticai.net.au/portal](https://agenticai.net.au/portal), accessible anytime
 - **30-minute follow-up consultation** — an optional complimentary session with our team to walk through the report and discuss possible next steps
 
@@ -33,7 +33,7 @@ The report is typically ready within **48 hours** of payment confirmation.
 Here's the timeline:
 1. **Call completes** — Annie conducts the 20–30 minute intake (same day you book)
 2. **Payment confirmed** — Stripe processes your payment securely
-3. **Analysis pipeline runs** — our system extracts structured data from the call, researches tools, runs LLM analysis, and generates your RevealDeck report (usually 30–60 minutes, queued automatically)
+3. **Analysis pipeline runs** — our system extracts structured data from the call, researches tools, runs LLM analysis, and generates your Presenton report deck (usually 30–60 minutes, queued automatically)
 4. **Quality check** — a human reviews the report for accuracy and completeness
 5. **Delivered to portal** — you receive an email notification with a link to your report
 6. **Follow-up booked** — at your convenience, book the complimentary 30-minute consultation
@@ -46,7 +46,7 @@ During busy periods, this may extend to 72 hours. If you're on a tight deadline,
 
 After the assessment, you can:
 
-- Use the RevealDeck report to action the quick wins yourself or with your existing team
+- Use the Presenton-generated report deck to action the quick wins yourself or with your existing team
 - Share the report with internal stakeholders or existing providers
 - Book the complimentary 30-minute follow-up consultation to walk through the findings
 - If the report identifies a larger AI solution opportunity, ask us to scope that as a separate engagement
@@ -59,7 +59,7 @@ There's no pressure or obligation to proceed with any implementation work. Large
 
 Yes — the report is designed to be shared.
 
-Your RevealDeck report can be:
+Your Presenton-generated report deck can be:
 - **Viewed** by anyone with the portal link (if you choose to share your login — we recommend keeping it private)
 - **Downloaded as PDF** using the "Download PDF" button in your portal
 - **Printed or screenshotted** for presentations, board meetings, or investor decks
@@ -169,7 +169,7 @@ The AI Business Assessment is faster, cheaper, and more structured than a tradit
 | **Time to deliverable** | 2–4 weeks of back-and-forth | 48 hours from call to report |
 | **Cost** | $5,000–$15,000+ | $1,200 flat fee |
 | **Discovery process** | Multiple meetings, surveys, emails | Single 20–30 minute structured call |
-| **Deliverable format** | Word doc or PowerPoint (often generic) | Interactive RevealDeck report with charts, quick wins, and tool cards |
+| **Deliverable format** | Word doc or PowerPoint (often generic) | Presenton-generated report deck with charts, quick wins, and tool cards |
 | **Tool research** | Manual; consultant's personal knowledge | Automated research across 200+ tools + Perplexity AI for current pricing |
 | **Larger solution work** | Usually requires a separate proposal | Optional and scoped separately after the report |
 | **Updates** | Static document | Portal-accessible anytime; report can be regenerated with new data |
