@@ -116,11 +116,11 @@ describe('Role-Based Access', () => {
   }
 
   it('allows users with operator role', async () => {
-    await expect(requireOperator(mockLocals('user_1'), mockDb('operator'))).resolves.toBeUndefined();
+    await expect(requireOperator(mockLocals('user_1'), mockDb('operator'))).resolves.toBe('operator');
   });
 
   it('allows users with admin role', async () => {
-    await expect(requireOperator(mockLocals('user_1'), mockDb('admin'))).resolves.toBeUndefined();
+    await expect(requireOperator(mockLocals('user_1'), mockDb('admin'))).resolves.toBe('admin');
   });
 
   it('rejects authenticated non-operators', async () => {

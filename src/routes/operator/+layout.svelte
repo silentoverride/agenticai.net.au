@@ -28,8 +28,8 @@
       <a href="/operator/human-assist" data-nav="human-assist">💬 Human Assist</a>
       <a href="/operator/calibration" data-nav="calibration">⚙️ Calibration</a>
       <a href="/operator/cost-dashboard" data-nav="cost-dashboard">💰 Cost</a>
-      <a href="/operator/audit" data-nav="audit">📜 Audit</a>
       {#if role === 'admin'}
+        <a href="/operator/audit" data-nav="audit">📜 Audit</a>
         <a href="/operator/staff" data-nav="staff">👥 Staff</a>
       {/if}
     </div>

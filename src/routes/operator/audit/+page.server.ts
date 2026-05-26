@@ -1,41 +1,34 @@
-import { error, fail } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
+import { getDb, setD1Binding } from '$lib/server/db';
 import { requireOperator } from '$lib/server/operator-auth';
-import { getDb } from '$lib/server/db';
-import { getAuditTrail } from '$lib/server/staff-portal/read-models/get-client-audit-history';
+import { findRecentAuditEvents } from '$lib/server/staff-portal/repositories/staff-audit.repository';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, platform, url }) => {
-  const role = await requireOperator(locals, platform?.env.assessment_db) as 'operator' | 'admin';
+export const load: PageServerLoad = async ({ locals, platform }) => {
+  const d1 = platform?.env.assessment_db;
+  if (d1) setD1Binding(d1);
 
-  // Only admins can access the broader Audit Trail
+  const role = await requireOperator(locals, d1);
   if (role !== 'admin') {
-    throw error(403, 'Only admins can access the audit trail.');
+    throw error(403, 'Only admins can view the audit stream');
   }
 
-  const auth = locals.auth();
-  const userId = auth.userId;
-  if (!userId) {
-    throw error(401, 'Not authenticated');
-  }
-
-  const db = getDb();
-
-  const limit = Math.min(Number(url.searchParams.get('limit')) || 50, 200);
-  const offset = Number(url.searchParams.get('offset')) || 0;
-
-  const result = await getAuditTrail({
-    db,
-    actorId: userId,
-    role,
-    limit,
-    offset
-  });
+  const events = await findRecentAuditEvents(getDb(), 100);
 
   return {
-    events: result.events,
-    total: result.total,
-    hasMore: result.hasMore,
-    limit,
-    offset
+    events: events.map(event => ({
+      id: event.id,
+      assessmentId: event.assessmentId,
+      targetType: event.targetType,
+      targetId: event.targetId,
+      actorId: event.actorId,
+      action: event.action,
+      fromState: event.fromState,
+      toState: event.toState,
+      reasonCode: event.reasonCode,
+      reason: event.reason,
+      metadataJson: event.metadataJson,
+      createdAt: event.createdAt
+    }))
   };
 };

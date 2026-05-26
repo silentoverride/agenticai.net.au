@@ -143,6 +143,19 @@ export function staffActionReceiptFromEvent(event: StaffActionAuditEvent): Staff
   };
 }
 
+export async function findRecentAuditEvents(
+  db: AsyncDb,
+  limit = 100
+): Promise<StaffActionAuditEvent[]> {
+  const rows = await db.queryAll<StaffActionAuditEventRow>(
+    `SELECT * FROM staff_action_audit_events
+     ORDER BY created_at DESC, id DESC
+     LIMIT ?`,
+    limit
+  );
+  return rows.map(mapStaffActionAuditEventRow);
+}
+
 /** Query all audit events for a given assessment, ordered newest first. */
 export async function findAuditEventsByAssessment(
   db: AsyncDb,
