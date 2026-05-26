@@ -34,7 +34,7 @@
   </section>
 
   <section class="section">
-    <div class="section-heading">
+    <div class="section-heading section-heading-split">
       <p class="eyebrow">Point of view</p>
       <h2>AI should make daily operations easier to run</h2>
       <p>
