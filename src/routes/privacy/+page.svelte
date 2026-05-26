@@ -32,8 +32,8 @@
       <h2>How we use information</h2>
       <p>
         We use assessment information to understand your workflows, prepare your AI Business Assessment
-        report, identify implementation opportunities, communicate with you, process payments, maintain
-        records, improve our services, and meet legal obligations.
+        report, identify quick wins and possible separately scoped AI solution opportunities, communicate
+        with you, process payments, maintain records, improve our services, and meet legal obligations.
       </p>
     </article>
 

@@ -44,7 +44,7 @@
       </div>
       <div>
         <h2 class="orientation-title">Before you start</h2>
-        <p class="orientation-subtitle">Your free AI business assessment</p>
+        <p class="orientation-subtitle">Your AI Business Assessment conversation</p>
       </div>
       <button class="orientation-close" onclick={handleCancel} aria-label="Close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -58,9 +58,9 @@
       <section class="orientation-section">
         <h3>What happens next</h3>
         <p>
-          Annie, our AI assistant, will guide you through a short conversation about your
-          business — about 15 minutes. She will ask about your workflows, tools, daily
-          bottlenecks, and goals so we can tailor the assessment to your situation.
+          Annie, our AI assistant, will guide you through a focused conversation about your
+          business — about 20–30 minutes. She will ask about your workflows, tools, daily
+          bottlenecks, and goals so we can tailor the assessment report to your situation.
         </p>
       </section>
 
@@ -76,7 +76,7 @@
             <p>
               This is an AI-generated informational assessment, not professional advice.
               Recommendations are based on the information you provide and should be reviewed
-              with your team before implementation. Always consult qualified professionals
+              with your team before you act on them. Always consult qualified professionals
               for legal, financial, or compliance decisions.
             </p>
           </div>

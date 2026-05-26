@@ -551,7 +551,7 @@
             <div class="need-help fragment">
               <div class="need-help-icon">❓</div>
               <h3 class="need-help-title">Need Help Getting Started?</h3>
-              <p class="need-help-text">Book a complimentary 30-minute session and we'll walk you through implementation.</p>
+              <p class="need-help-text">Book a complimentary 30-minute session and we'll walk you through the report and possible next steps.</p>
               <div class="need-help-cta">
                 <CalendlyButton />
               </div>

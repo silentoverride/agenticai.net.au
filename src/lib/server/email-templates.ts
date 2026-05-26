@@ -200,7 +200,7 @@ export function reportReadyTemplate(opts: {
 
 <p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
   We have completed the AI Business Assessment for <strong>${company}</strong>. 
-  The report identifies operational bottlenecks, AI tool fits, and a practical implementation roadmap ranked by impact and effort.
+  The report identifies operational bottlenecks, practical quick wins, AI tool fits, and larger AI solution opportunities clearly marked as separate next steps.
 </p>
 
 ${reportUrl ? `
@@ -219,7 +219,7 @@ ${reportUrl ? `
 
 <h3 style="margin:32px 0 12px 0; font-size:17px; font-weight:600; color:${BRAND_PRIMARY};">Complimentary 30-minute consultation</h3>
 <p style="margin:0 0 16px 0; font-size:15px; color:${BRAND_TEXT};">
-  Want to walk through the report live and discuss implementation? Book a complimentary 30-minute session with one of our consultants.
+  Want to walk through the report live and discuss recommendations or possible next steps? Book a complimentary 30-minute session with one of our consultants.
 </p>
 
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:28px 0;">
@@ -259,7 +259,7 @@ ${reportUrl}
 ` : 'Your report is available in your client portal. We will send a separate link once it is generated.'}
 
 COMPLIMENTARY 30-MINUTE CONSULTATION
-Want to walk through the report live and discuss implementation? Book a complimentary 30-minute session with one of our consultants:
+Want to walk through the report live and discuss recommendations or possible next steps? Book a complimentary 30-minute session with one of our consultants:
 ${CALENDLY_URL}
 
 WHAT HAPPENS NEXT
@@ -346,7 +346,7 @@ export function receiptTemplate(opts: {
         </tr>
         <tr>
           <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:6px;">Description</td>
-          <td style="font-size:14px; color:${BRAND_TEXT}; padding-bottom:6px;">AI Business Assessment — workflow intake, analysis, opportunity report, quick wins, and implementation roadmap</td>
+          <td style="font-size:14px; color:${BRAND_TEXT}; padding-bottom:6px;">AI Business Assessment — Annie conversation, workflow analysis, 48-hour opportunity report, quick wins, and optional 30-minute consultation</td>
         </tr>
         <tr>
           <td style="font-size:14px; color:${BRAND_MUTED}; padding-bottom:6px;">Quantity</td>
@@ -397,7 +397,7 @@ Invoice number: ${invoiceNumber}
 Issue date: ${issuedDate}
 Payment status: Paid via Stripe
 
-Description: AI Business Assessment — workflow intake, analysis, opportunity report, quick wins, and implementation roadmap
+Description: AI Business Assessment — Annie conversation, workflow analysis, 48-hour opportunity report, quick wins, and optional 30-minute consultation
 Quantity: 1
 Subtotal excluding GST: ${money(subtotalCents, currency)}
 GST 10%: ${money(gstCents, currency)}
@@ -449,7 +449,7 @@ export function welcomeTemplate(opts: {
       <span style="display:inline-block; width:24px; height:24px; background:${BRAND_PRIMARY}; color:#fff; border-radius:50%; text-align:center; line-height:24px; font-size:12px; font-weight:700;">2</span>
     </td>
     <td style="padding:0 0 12px 8px; font-size:15px; color:${BRAND_TEXT};">
-      <strong>Analysis</strong> — we map your workflows, pain points, and AI tool fits.
+      <strong>Analysis</strong> — we map your workflows, pain points, quick wins, and AI tool fits.
     </td>
   </tr>
   <tr>
@@ -457,7 +457,7 @@ export function welcomeTemplate(opts: {
       <span style="display:inline-block; width:24px; height:24px; background:${BRAND_PRIMARY}; color:#fff; border-radius:50%; text-align:center; line-height:24px; font-size:12px; font-weight:700;">3</span>
     </td>
     <td style="padding-left:8px; font-size:15px; color:${BRAND_TEXT};">
-      <strong>Report delivery</strong> — you receive a presentation‑style report within 48 hours.
+      <strong>Report delivery</strong> — you receive a presentation‑style report within 48 hours, then you can book a complimentary 30-minute consultation if you want to review it with us.
     </td>
   </tr>
 </table>
@@ -481,8 +481,8 @@ Thank you for booking an AI Business Assessment for ${company}.
 
 WHAT HAPPENS NEXT
 1. Intake call — our voice agent will call you within 24 hours (20–30 min).
-2. Analysis — we map your workflows, pain points, and AI tool fits.
-3. Report delivery — you receive a presentation-style report within 48 hours.
+2. Analysis — we map your workflows, pain points, quick wins, and AI tool fits.
+3. Report delivery — you receive a presentation-style report within 48 hours, then you can book a complimentary 30-minute consultation if you want to review it with us.
 
 If you need to reschedule or have questions, reply to this email.
 

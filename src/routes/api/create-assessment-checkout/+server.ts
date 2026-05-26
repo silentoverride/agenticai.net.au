@@ -77,7 +77,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
   params.set('line_items[0][price_data][product_data][name]', 'AI Business Assessment');
   params.set(
     'line_items[0][price_data][product_data][description]',
-    'Agentic AI workflow intake, analysis, opportunity report, quick wins, and implementation roadmap.'
+    'Agentic AI Annie conversation, workflow analysis, 48-hour opportunity report, quick wins, and optional 30-minute consultation.'
   );
   params.set('metadata[source]', body.source || '');
   params.set('metadata[assessment_fee_aud]', '1200.00');

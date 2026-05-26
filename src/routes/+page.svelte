@@ -124,9 +124,9 @@
 
 <svelte:head>
   <title>AI Business Assessment for Australian SMBs — Agentic AI</title>
-  <meta name="description" content="Agentic AI reviews your workflows, tools, and daily bottlenecks, then delivers a practical report showing which AI tools, automations, and agents are worth implementing first." />
+  <meta name="description" content="Agentic AI runs a 20–30 minute Annie intake, then delivers a practical AI Business Assessment report within 48 hours plus an optional no-charge follow-up consultation." />
   <meta property="og:title" content="AI Business Assessment for Australian SMBs" />
-  <meta property="og:description" content="Find where AI can save your business time. Practical report, quick wins, implementation roadmap." />
+  <meta property="og:description" content="Find where AI can save your business time. Annie intake, 48-hour report, quick wins, and optional no-charge consultation." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://agenticai.net.au" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -150,7 +150,7 @@
       <div class="intake-header-content">
         <span class="eyebrow">AI Business Assessment</span>
         <h2>Chat with Annie</h2>
-        <p>Answer a few questions about your business. This takes about 15 minutes.</p>
+        <p>Answer questions about your business with Annie. This takes about 20–30 minutes.</p>
       </div>
     </div>
     <div class="intake-chat-wrap">
@@ -197,8 +197,8 @@
       <p class="eyebrow">AI business assessment</p>
       <h1>Find where AI can save your business time</h1>
       <p>
-        Agentic AI reviews your workflows, tools, and daily bottlenecks, then delivers a practical report
-        showing which AI tools, automations, and agents are worth implementing first.
+        Agentic AI reviews your workflows, tools, and daily bottlenecks through a 20–30 minute
+        conversation with Annie, then delivers a practical report within 48 hours.
       </p>
       <div class="actions">
         <button class="button primary" onclick={() => phase = 'orientation'}>
@@ -220,7 +220,7 @@
         <div class="map-header">
           <div>
             <span>Assessment output</span>
-            <strong>Workflow diagnosis and first-move roadmap</strong>
+            <strong>Workflow diagnosis and quick-win report</strong>
           </div>
           <div class="map-status">Ready in 48 hours</div>
         </div>
@@ -291,7 +291,7 @@
   <section class="section">
     <div class="section-heading">
       <p class="eyebrow">The offer</p>
-      <h2>A clear AI roadmap for your actual business</h2>
+      <h2>A clear AI assessment for your actual business</h2>
     </div>
     <ServiceGrid />
   </section>
@@ -319,7 +319,7 @@
       <h2>Specific recommendations, ranked by return</h2>
       <p>
         The assessment turns an intake conversation into a decision-ready report: pain points, quick wins,
-        recommended tools, effort versus impact, implementation steps, and ROI estimates.
+        recommended tools, effort versus impact, estimated value, and optional next steps.
       </p>
       <ul class="feature-list">
         {#each reportSections as section}
@@ -349,8 +349,9 @@
 
   <section class="section">
     <div class="section-heading">
-      <p class="eyebrow">Implementation menu</p>
-      <h2>Turn the report into working systems</h2>
+      <p class="eyebrow">Separate services</p>
+      <h2>Additional AI solutions after the assessment</h2>
+      <p>These larger builds are not part of the $1,200 assessment fee. They are separate services we can scope after you have reviewed your report.</p>
     </div>
     <div class="grid offer-grid">
       {#each upsells as offer}

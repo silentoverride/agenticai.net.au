@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import type { RequestHandler } from './$types';
 
 const MOCK_TRANSCRIPT = `
-Interviewer: Hi, I'm calling from Agentic AI. We're offering free AI Business Assessments 
+Interviewer: Hi, I'm calling from Agentic AI. We're running AI Business Assessment conversations
 to help small businesses find quick wins with automation. Do you have 20 minutes?
 
 Business Owner: Sure, I run a small digital marketing agency. We have about 8 people.

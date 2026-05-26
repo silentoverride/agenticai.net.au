@@ -72,7 +72,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
   params.set('line_items[0][price_data][product_data][name]', 'AI Business Assessment');
   params.set(
     'line_items[0][price_data][product_data][description]',
-    'Agentic AI workflow intake, analysis, opportunity report, quick wins, and implementation roadmap.'
+    'Agentic AI Annie conversation, workflow analysis, 48-hour opportunity report, quick wins, and optional 30-minute consultation.'
   );
   params.set('metadata[source]', payload.source || 'annie-chat-intake');
   params.set('metadata[session_id]', payload.sessionId);

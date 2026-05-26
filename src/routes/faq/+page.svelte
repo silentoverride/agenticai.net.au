@@ -10,9 +10,9 @@
 
 <svelte:head>
 	<title>FAQ — AI Business Assessment | Agentic AI</title>
-	<meta name="description" content="Common questions about our AI Business Assessment: pricing, timeline, deliverables, data privacy, and implementation." />
+	<meta name="description" content="Common questions about our AI Business Assessment: pricing, Annie conversation, 48-hour report, consultation, deliverables, and data privacy." />
 	<meta property="og:title" content="FAQ — AI Business Assessment | Agentic AI" />
-	<meta property="og:description" content="Common questions about our AI Business Assessment: pricing, timeline, deliverables, data privacy, and implementation." />
+	<meta property="og:description" content="Common questions about our AI Business Assessment: pricing, Annie conversation, 48-hour report, consultation, deliverables, and data privacy." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://agenticai.net.au/faq" />
 	<meta name="twitter:card" content="summary" />

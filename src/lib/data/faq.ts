@@ -14,7 +14,7 @@ export const faqItems: FaqItem[] = [
 		id: 'included',
 		question: 'What does the $1,200 include?',
 		answer:
-			`The AI Business Assessment includes a 20–30 minute discovery call with Annie, a workflow audit, tool recommendations matched to your gaps, an implementation roadmap, financial impact analysis, a polished RevealDeck report (PDF-exportable), permanent portal access, and a complimentary 30-minute follow-up consultation. It's a one-time fee — no subscriptions, no hidden costs.` },
+			`The AI Business Assessment includes a 20–30 minute conversation with Annie, analysis of your workflows and bottlenecks, tool recommendations matched to your gaps, quick-win actions, financial impact estimates, a polished RevealDeck report (PDF-exportable), permanent portal access, and an optional complimentary 30-minute follow-up consultation after you receive the report. It's a one-time fee — no subscriptions, no hidden costs.` },
 	{
 		id: 'timeline',
 		question: 'How long does the report take?',
@@ -24,7 +24,7 @@ export const faqItems: FaqItem[] = [
 		id: 'after',
 		question: 'What happens after the assessment?',
 		answer:
-			`You have four paths: (A) Self-implementation using the report and roadmap. (B) Done-with-you implementation — we guide setup and configuration. (C) Done-for-you — our team implements everything end-to-end. (D) Start with quick wins only, then return for deeper phases later. There's no obligation to proceed with implementation — the report is yours to keep.` },
+			`After receiving the report, you can use it to action the quick wins yourself, share it with your team or existing providers, or book the complimentary 30-minute follow-up consultation. If the report identifies a larger AI solution opportunity, we can scope that as a separate engagement — there is no obligation to proceed.` },
 	{
 		id: 'share',
 		question: 'Can I share the report with my team?',
@@ -32,9 +32,9 @@ export const faqItems: FaqItem[] = [
 			`Yes. Your RevealDeck report can be downloaded as a PDF, printed, screenshotted, or forwarded by email. You can also request additional portal accounts for team members at no extra cost. For enterprise teams (10+), we offer white-label reports with your company branding.` },
 	{
 		id: 'implement',
-		question: 'Do you implement the recommendations?',
+		question: 'Do you implement larger AI solutions?',
 		answer:
-			`Yes — implementation is available as a separate engagement, not included in the $1,200 assessment fee. We scope the work in your complimentary 30-minute follow-up call and provide a fixed-price or retainer proposal. Typical timelines: quick wins 1–2 weeks, Phase 1 core automations 4–6 weeks, full roadmap 3–6 months.` },
+			`Yes — larger AI solutions and done-for-you implementation are available as separate engagements, not included in the $1,200 assessment fee. The assessment report may identify these opportunities, and the complimentary follow-up call can be used to decide whether any are worth scoping separately.` },
 	{
 		id: 'who',
 		question: 'Who is the assessment for?',
@@ -54,7 +54,7 @@ export const faqItems: FaqItem[] = [
 		id: 'consultant',
 		question: 'How is this different from hiring a consultant?',
 		answer:
-			`Faster (48 hours vs 2–4 weeks), cheaper ($1,200 vs $5,000–$15,000), and more structured. The assessment uses an AI-driven discovery call, automated tool research across 200+ platforms, and produces an interactive RevealDeck with charts and roadmaps. Traditional consulting suits deep organisational change; our assessment is ideal when you need a clear, ranked action plan quickly.` },
+			`Faster (48 hours vs 2–4 weeks), cheaper ($1,200 vs $5,000–$15,000), and more structured. The assessment uses an AI-driven discovery conversation, automated tool research across 200+ platforms, and produces an interactive RevealDeck with charts, quick wins, and clear next steps. Traditional consulting suits deep organisational change; our assessment is ideal when you need a clear, ranked action plan quickly.` },
 	{
 		id: 'industry',
 		question: 'What if Annie doesn\'t understand my industry?',
@@ -69,7 +69,7 @@ export const faqItems: FaqItem[] = [
 		id: 'start',
 		question: 'How do I get started?',
 		answer:
-			`Click "Start AI Business Assessment" on our homepage or services page. This opens a browser-based voice call with Annie — no download required. The call takes 20–30 minutes. After verbal approval and payment, your report is generated automatically and delivered to your portal within 48 hours.` }
+			`Click "Start AI Business Assessment" on our homepage or services page. This opens a browser-based conversation with Annie — no download required. The conversation takes 20–30 minutes. After the assessment is confirmed and paid, your report is generated automatically and delivered to your portal within 48 hours.` }
 ];
 
 export const faqCategories = Array.from(new Set(faqItems.map((i) => i.category).filter(Boolean))) as string[];

@@ -53,9 +53,9 @@
     <RevealDeck {analysis} company={report?.company ?? undefined} />
 
     <div class="consultation-cta">
-      <h3>Ready to talk implementation?</h3>
+      <h3>Ready to talk next steps?</h3>
       <p>
-        Book your complimentary 30-minute follow-up session to walk through the report and discuss how we can implement the recommendations.
+        Book your complimentary 30-minute follow-up session to walk through the report, clarify quick wins, and discuss any larger AI solution opportunities separately.
       </p>
       <div class="calendly-wrap">
         <CalendlyButton />

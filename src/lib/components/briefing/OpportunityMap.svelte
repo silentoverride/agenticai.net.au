@@ -171,7 +171,7 @@
               {/if}
               <div class="detail-row">
                 <strong>Recommended next step:</strong>
-                <span>Book a consultation to discuss implementation</span>
+                <span>Book a consultation to discuss next steps</span>
               </div>
               <div class="calendly-wrapper">
                 <CalendlyButton label="Book Consultation to Discuss" />

@@ -5,24 +5,24 @@
 </script>
 
 <svelte:head>
-  <title>Services — AI Assessment & Implementation | Agentic AI</title>
-  <meta name="description" content="AI assessment first, implementation second. We inspect your workflows, identify where hours leak, and recommend the simplest AI tools and automations to remove the friction." />
+  <title>Services — AI Business Assessment | Agentic AI</title>
+  <meta name="description" content="Start with a 20–30 minute Annie conversation, receive your AI Business Assessment report within 48 hours, then choose whether to book a no-charge follow-up consultation." />
 </svelte:head>
 
 <main>
   <section class="page-hero">
     <p class="eyebrow">Services</p>
-    <h1>AI assessment first, implementation second</h1>
+    <h1>AI Business Assessment, then optional next steps</h1>
     <p>
-      The assessment gives you a clear view of where AI can save time or create revenue. Implementation
-      work is scoped only after the highest-value opportunities are visible.
+      The assessment gives you a clear view of where AI can save time or create revenue. Larger AI solution
+      work is separate from the $1,200 assessment fee and is only scoped after the report is complete.
     </p>
   </section>
 
   <section class="section">
     <div class="section-heading">
       <p class="eyebrow">How the assessment works</p>
-      <h2>From intake call to action plan</h2>
+      <h2>From Annie conversation to report and consultation</h2>
 
     </div>
     <div class="process-grid">
@@ -52,7 +52,7 @@
       <h2>AI processes the findings. RevealDeck formats the report.</h2>
 
       <p>
-        When Annie's call ends, the transcript is automatically handed off to a report-building pipeline.
+        When Annie's conversation ends, the transcript is automatically handed off to a report-building pipeline.
         No manual formatting. No waiting for a consultant to write it up. The report is ready in 48 hours.
       </p>
     </div>
@@ -117,7 +117,7 @@
           <p>
             The structured analysis is rendered as an interactive slide deck in the client portal — a browser-based
             RevealDeck presentation with 12 slides covering pain points, quick wins, impact-effort analysis, tool
-            recommendations, financial estimates, and includes a 30min complimentary consultation to review your report with you.
+            recommendations, financial estimates, and details for booking your optional 30-minute complimentary consultation.
           </p>
         </div>
         <ul class="revealdeck-features">
@@ -127,7 +127,7 @@
           </li>
           <li>
             <strong>Consistent structure</strong>
-            <span>Every client receives the same professional 12-slide structure: title, executive summary, opportunity matrix, recommendations, roadmap, financial impact, and next steps.</span>
+            <span>Every client receives the same professional 12-slide structure: title, executive summary, opportunity matrix, recommendations, quick-win action plan, financial impact, and next steps.</span>
           </li>
           <li>
             <strong>Portal access</strong>
@@ -152,7 +152,7 @@
       <h2>What you receive after the assessment</h2>
       <p>
         The output is designed for business owners who want a decision, not a lecture. It identifies
-        the best first moves, estimates the value, and makes implementation feel manageable.
+        the best first moves, estimates the value, and separates quick wins from larger AI solution opportunities.
       </p>
       <ul class="feature-list">
         {#each reportSections as section}
@@ -174,16 +174,17 @@
       </article>
       <article>
         <span>03</span>
-        <strong>Implementation path</strong>
-        <p>Self-serve quick wins and scoped done-for-you builds.</p>
+        <strong>Next steps</strong>
+        <p>Self-serve quick wins and larger AI opportunities clearly marked as separate services.</p>
       </article>
     </div>
   </section>
 
   <section class="section">
     <div class="section-heading">
-      <p class="eyebrow">Done-for-you options</p>
-      <h2>Common builds that follow the report</h2>
+      <p class="eyebrow">Separate services</p>
+      <h2>Additional Agentic AI services after the report</h2>
+      <p>These are not included in the $1,200 assessment fee. They are separate engagements your consultant can scope if the report identifies a larger opportunity worth pursuing.</p>
 
     </div>
     <div class="grid offer-grid">
@@ -224,7 +225,7 @@
     <div class="cta-box">
       <h2>Ready to see where AI can save your business time?</h2>
 
-      <p>Book a free AI Business Assessment call with Annie and get a practical report within 48 hours.</p>
+      <p>Start your 20–30 minute Annie conversation and receive a practical AI Business Assessment report within 48 hours.</p>
       <CallAssessmentButton label="Start AI Business Assessment" source="services-cta" />
     </div>
   </section>

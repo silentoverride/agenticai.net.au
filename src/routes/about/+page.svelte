@@ -4,9 +4,9 @@
     <h1>Practical AI guidance for small business operators</h1>
     <p>
       Agentic AI helps owners and lean teams translate the AI tool landscape into specific, useful
-      changes for their own workflows. The work starts with how the business already runs, then
-      identifies where AI, automation, or agents can remove repeated effort without creating another
-      complicated project for the team to manage.
+      decisions for their own workflows. The assessment starts with how the business already runs,
+      then identifies practical quick wins and larger opportunities without pretending every answer
+      needs a custom AI build.
     </p>
   </section>
 
@@ -15,8 +15,8 @@
       <h2>Built for clarity before complexity</h2>
       <p>
         Most small businesses do not need a generic AI strategy or a custom model. They need a clear
-        assessment of where time is being lost, which proven tools can help, and what is worth building
-        next.
+        assessment of where time is being lost, which proven tools can help, and which larger opportunities
+        might be worth scoping separately later.
       </p>
       <p>
         The assessment-first approach keeps the conversation grounded in commercial outcomes: hours
@@ -78,8 +78,8 @@
         It is to make the next decision smaller, clearer, and easier to act on.
       </p>
       <p>
-        After the assessment, you can self-implement the simple wins, ask your existing providers to
-        help, or scope a done-for-you build. The report is useful either way.
+        After the assessment, you can act on the simple wins yourself, ask your existing providers to
+        help, or use the no-charge follow-up consultation to discuss whether a separately scoped build makes sense. The report is useful either way.
       </p>
       <div class="actions">
         <a class="button primary" href="/contact">Book an Assessment</a>

@@ -1,27 +1,19 @@
 export const services = [
   {
     title: 'AI Business Assessment',
-    text: 'A structured review of your workflows, tools, team handoffs, and daily bottlenecks, delivered as a practical AI opportunity report.'
+    text: 'A structured 20–30 minute conversation with Annie, our AI assistant, about your workflows, tools, team handoffs, daily bottlenecks, and goals.'
   },
   {
     title: '48-Hour Opportunity Report',
-    text: 'Clear recommendations, quick wins, effort versus impact prioritisation, tool options, implementation steps, and estimated financial return.'
+    text: 'A practical report delivered within 48 hours with pain points, quick wins, effort-versus-impact prioritisation, tool options, estimated value, and larger AI opportunities clearly marked as separate next steps.'
   },
   {
-    title: 'Quick-Win Implementation Plan',
-    text: 'A short action plan that shows what to change first, which tools to trial, and how to avoid turning AI adoption into another project.'
+    title: 'Quick-Win Action Plan',
+    text: 'A short action plan showing the changes, tools, and process improvements your team can trial first without committing to a larger build.'
   },
   {
-    title: 'Automation Builds',
-    text: 'Zapier, Make, CRM, reporting, document, and task-management automations that remove repetitive steps from proven workflows.'
-  },
-  {
-    title: 'Knowledge Assistants',
-    text: 'Custom GPTs and internal AI agents trained on your documents, FAQs, processes, and customer information so answers are easier to find.'
-  },
-  {
-    title: 'Speed-to-Lead Agents',
-    text: 'AI-assisted lead response systems that answer common questions quickly, qualify enquiries, and help book the next step.'
+    title: 'No-Charge Follow-Up Consultation',
+    text: 'After receiving the report, you can elect to book a complimentary 30-minute consultation to walk through the findings and discuss possible next steps.'
   }
 ];
 
@@ -38,8 +30,8 @@ export const useCases = [
 
 export const processSteps = [
   {
-    title: 'Interview',
-    text: 'A focused intake call maps what the business does, which tools are used, where time goes, and what currently causes the most friction.'
+    title: 'Conversation',
+    text: 'Annie, our AI assistant, guides a focused 20–30 minute conversation about what the business does, which tools are used, where time goes, and what currently causes the most friction.'
   },
   {
     title: 'Analyse',
@@ -51,11 +43,11 @@ export const processSteps = [
   },
   {
     title: 'Report',
-    text: 'You receive a professional report with specific tools, implementation notes, a quick-win plan, and estimated value of the time saved.'
+    text: 'You receive a professional report within 48 hours with tool options, a quick-win action plan, estimated value, and larger AI opportunities separated from the assessment offer.'
   },
   {
-    title: 'Implement',
-    text: 'The follow-up call turns the report into a decision: self-implement the simple wins or scope a done-for-you build.'
+    title: 'Consult',
+    text: 'After receiving the report, you can book a no-charge 30-minute follow-up consultation to review the findings and discuss possible next steps.'
   }
 ];
 
@@ -70,9 +62,9 @@ export const reportSections = [
   'Executive summary of the biggest workflow constraints',
   'Effort versus impact matrix for every recommendation',
   'Specific tools matched to each pain point',
-  '4-day quick-win implementation plan',
+  'Quick-win action plan your team can trial first',
   'Estimated hours saved and financial impact',
-  'Larger implementation opportunities for later'
+  'Larger AI solution opportunities clearly marked as separate next steps'
 ];
 
 export const upsells = [
@@ -102,7 +94,7 @@ export const testimonials = [
     rating: 5
   },
   {
-    quote: 'I was sceptical about AI until I saw the report. Annie identified three automations we could implement immediately — no coding, no big budget, just practical improvements.',
+    quote: 'I was sceptical about AI until I saw the report. Annie identified three practical quick wins we could action immediately — no coding, no big budget, just useful improvements.',
     name: 'Marcus Webb',
     role: 'Managing Director, Webb & Co Advisory',
     rating: 5
@@ -118,11 +110,11 @@ export const testimonials = [
 export const faqItems = [
   {
     q: 'How long does the assessment take?',
-    a: 'The Annie AI intake conversation takes about 15 minutes. You answer questions about your business, tools, and workflows at your own pace. If you need to step away, your progress is saved and you can resume later.'
+    a: 'The Annie AI intake conversation takes about 20–30 minutes. You answer questions about your business, tools, and workflows at your own pace. If you need to step away, your progress is saved and you can resume later.'
   },
   {
     q: 'What do I get at the end?',
-    a: 'A professional report with specific AI and automation recommendations ranked by effort and impact. Each recommendation includes estimated time savings, tool options, and implementation steps.'
+    a: 'A professional report delivered within 48 hours with specific quick wins, tool options, effort-versus-impact rankings, estimated time savings, and larger AI opportunities clearly marked as separate next steps. You can also book a no-charge 30-minute follow-up consultation after receiving the report.'
   },
   {
     q: 'Do I need technical knowledge?',
@@ -133,7 +125,7 @@ export const faqItems = [
     a: 'Yes. Your intake transcript and report are stored securely and never shared. You can request deletion at any time by emailing privacy@agenticai.net.au.'
   },
   {
-    q: 'Is the assessment really free?',
-    a: 'Yes, the AI intake and assessment report are completely free with no obligation. If you decide to implement any recommendations, we can discuss implementation services separately.'
+    q: 'Is the follow-up consultation free?',
+    a: 'Yes. The AI Business Assessment is $1,200 AUD, and the optional 30-minute follow-up consultation after your report is included at no extra charge. Any larger AI solution or done-for-you work is scoped and quoted separately.'
   }
 ];

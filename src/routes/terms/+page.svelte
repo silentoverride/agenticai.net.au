@@ -12,9 +12,10 @@
     <article>
       <h2>Service</h2>
       <p>
-        The AI Business Assessment is a discovery and advisory report. It reviews information you
-        provide about your business workflows, tools, bottlenecks, and goals, then identifies practical
-        AI, automation, and process-improvement opportunities.
+        The AI Business Assessment is a discovery and advisory report. It includes a 20–30 minute
+        conversation with Annie, reviews information you provide about your business workflows, tools,
+        bottlenecks, and goals, then identifies practical quick wins and possible AI, automation, and
+        process-improvement opportunities.
       </p>
     </article>
 
@@ -22,7 +23,8 @@
       <h2>Price and payment</h2>
       <p>
         The assessment fee is $1,200.00 AUD. Payment is collected before the intake transcript is queued
-        for report processing. Payment is processed by Stripe.
+        for report processing. Payment is processed by Stripe. The fee includes the assessment report and
+        an optional complimentary 30-minute follow-up consultation after the report is delivered.
       </p>
     </article>
 
@@ -30,8 +32,8 @@
       <h2>Report scope</h2>
       <p>
         The report may include pain points, quick wins, effort versus impact, tool recommendations,
-        estimated value, and possible implementation paths. It does not include done-for-you
-        implementation unless separately quoted and accepted.
+        estimated value, and possible larger AI solution opportunities. It does not include done-for-you
+        implementation or larger scoped AI solutions unless separately quoted and accepted.
       </p>
     </article>
 

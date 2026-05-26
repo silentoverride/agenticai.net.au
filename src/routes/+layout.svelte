@@ -13,7 +13,7 @@
   <title>Agentic AI</title>
   <meta
     name="description"
-    content="Agentic AI helps small businesses find where AI tools, automation, and agents can save time first through a practical AI Business Assessment."
+    content="Agentic AI helps small businesses find where AI can save time through a 20–30 minute Annie conversation, 48-hour report, and optional no-charge consultation."
   />
   {#if PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN}
     <script

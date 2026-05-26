@@ -10,18 +10,19 @@ When updating, edit this file only, then re-upload to Retell and redeploy the si
 
 ## 1. What does the $1,200 AUD assessment include?
 
-The AI Business Assessment is a structured 20–30 minute discovery call followed by a comprehensive, tailored report. Here's what's included:
+The AI Business Assessment is a structured 20–30 minute conversation with Annie followed by a tailored report within 48 hours. Here's what's included:
 
-- **Discovery interview** with our AI intake specialist, Annie, covering your workflows, tools, pain points, and automation opportunities
+- **Discovery conversation** with Annie, our AI assistant, covering your workflows, tools, pain points, and goals
 - **Workflow audit** — we map where your team loses time to manual, repeated tasks
 - **Tool recommendations** — specific AI and automation tools matched to your workflow gaps, with pricing and setup complexity
-- **Implementation roadmap** — a phased plan showing what to do first, what comes next, and realistic timelines
+- **Quick-win action plan** — practical first moves your team can trial without committing to a larger build
 - **Financial impact analysis** — estimated hours saved per week, annual value, and tool cost comparison
+- **Larger opportunity signals** — possible larger AI solution areas, clearly marked as separate next steps rather than included deliverables
 - **RevealDeck report** — a polished, shareable slide deck (PDF-exportable) that you can present to your team, board, or investors
 - **Portal access** — your report lives in your private client portal at [agenticai.net.au/portal](https://agenticai.net.au/portal), accessible anytime
-- **30-minute follow-up consultation** — book a complimentary session with our team to discuss implementation, prioritise your roadmap, and get answers to technical questions
+- **30-minute follow-up consultation** — an optional complimentary session with our team to walk through the report and discuss possible next steps
 
-The $1,200 is a one-time fee. No subscriptions, no hidden costs, no lock-in.
+The $1,200 is a one-time fee for the assessment. No subscriptions, no hidden costs, no lock-in. Larger AI solutions or done-for-you implementation are quoted separately if you choose to explore them.
 
 ---
 
@@ -43,21 +44,14 @@ During busy periods, this may extend to 72 hours. If you're on a tight deadline,
 
 ## 3. What happens after the assessment?
 
-After the assessment, you have four paths:
+After the assessment, you can:
 
-### Path A: Self-implementation (most common)
-Use the RevealDeck report and implementation roadmap to roll out the recommendations yourself or with your existing team. The report includes tool names, pricing, setup steps, and links to documentation. Approximately 60% of clients choose this path.
+- Use the RevealDeck report to action the quick wins yourself or with your existing team
+- Share the report with internal stakeholders or existing providers
+- Book the complimentary 30-minute follow-up consultation to walk through the findings
+- If the report identifies a larger AI solution opportunity, ask us to scope that as a separate engagement
 
-### Path B: Done-with-you implementation
-Work alongside our team to implement the roadmap. We provide guided setup, configuration support, integration assistance, and training for your staff. Pricing is scoped after the assessment based on complexity.
-
-### Path C: Done-for-you implementation
-Our team implements everything end-to-end — tool selection, setup, integration, data migration, staff training, and handover. This is typically for businesses with no internal technical capacity.
-
-### Path D: Start with quick wins only
-Implement the 4-day quick wins outlined in the report first, then return later for deeper phases when you're ready. This lowers upfront cost and risk.
-
-There's no pressure or obligation to proceed with any implementation work. The report is yours to keep regardless.
+There's no pressure or obligation to proceed with any implementation work. Larger AI solutions are not included in the $1,200 assessment fee. The report is yours to keep regardless.
 
 ---
 
@@ -77,23 +71,11 @@ For enterprise teams (10+ people), we offer a white-label version of the report 
 
 ---
 
-## 5. Do you implement the recommendations?
+## 5. Do you implement larger AI solutions?
 
-Yes — implementation is available, but it's **not included** in the $1,200 assessment fee. Think of the assessment as a paid discovery phase that gives you a clear action plan. Implementation is a separate engagement.
+Yes — larger AI solutions and done-for-you implementation are available as separate engagements, but they are **not included** in the $1,200 assessment fee. The assessment report may identify areas of the business where a larger scoped AI solution could help, and the complimentary follow-up call can be used to decide whether any of those opportunities are worth scoping.
 
-Here's how implementation works:
-
-1. **Review the report together** — In your complimentary 30-minute follow-up, we walk through the roadmap, answer questions, and scope the work
-2. **Receive a proposal** — We provide a fixed-price or retainer proposal based on your roadmap, team size, and technical complexity
-3. **Begin implementation** — Our team works in weekly sprints with regular check-ins
-4. **Handover and training** — Once implemented, we train your team and document everything
-
-Typical implementation timelines:
-- **Quick wins only**: 1–2 weeks
-- **Phase 1 (core automations)**: 4–6 weeks
-- **Full roadmap**: 3–6 months
-
-We're an Australian-based consultancy with experience across trades, professional services, e-commerce, SaaS, and healthcare. All work is quoted upfront — no time-and-materials surprises.
+If you choose to explore a larger solution, we provide a separate proposal based on your goals, team size, workflow complexity, and technical requirements. All work is quoted upfront — no time-and-materials surprises.
 
 ---
 
@@ -187,9 +169,9 @@ The AI Business Assessment is faster, cheaper, and more structured than a tradit
 | **Time to deliverable** | 2–4 weeks of back-and-forth | 48 hours from call to report |
 | **Cost** | $5,000–$15,000+ | $1,200 flat fee |
 | **Discovery process** | Multiple meetings, surveys, emails | Single 20–30 minute structured call |
-| **Deliverable format** | Word doc or PowerPoint (often generic) | Interactive RevealDeck report with charts, roadmap, and tool cards |
+| **Deliverable format** | Word doc or PowerPoint (often generic) | Interactive RevealDeck report with charts, quick wins, and tool cards |
 | **Tool research** | Manual; consultant's personal knowledge | Automated research across 200+ tools + Perplexity AI for current pricing |
-| **Implementation** | Usually requires a separate proposal | Roadmap included; implementation optional and scoped post-report |
+| **Larger solution work** | Usually requires a separate proposal | Optional and scoped separately after the report |
 | **Updates** | Static document | Portal-accessible anytime; report can be regenerated with new data |
 
 **When to choose a traditional consultant:**
@@ -203,7 +185,7 @@ The AI Business Assessment is faster, cheaper, and more structured than a tradit
 - You need to present a business case to stakeholders quickly
 - You want to test one phase before committing to a larger engagement
 
-Many clients use our assessment as the first step, then engage us or a traditional consultant for deeper implementation.
+Many clients use our assessment as the first step, then decide whether to self-action the quick wins or scope a larger solution separately.
 
 ---
 
@@ -252,8 +234,8 @@ The fastest way is to click **"Start AI Business Assessment"** on our homepage, 
 ### What happens after
 - Payment link sent via SMS/email
 - Payment confirmed → report generated automatically
-- 48 hours later: email notification with portal link
-- Book your complimentary 30-minute follow-up anytime
+- Within 48 hours: email notification with portal link
+- Book your complimentary 30-minute follow-up anytime after receiving the report
 
 ---
 
