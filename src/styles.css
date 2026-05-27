@@ -1335,7 +1335,8 @@ h3 {
   padding: 1.45rem 1.6rem;
 }
 
-.service-row h2 {
+.service-row h2,
+.service-row h3 {
   font-size: 1.55rem;
   max-width: none;
 }

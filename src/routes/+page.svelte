@@ -348,14 +348,14 @@
   </section>
 
   <section class="section">
-    <div class="section-heading section-heading-split">
+    <div class="section-heading">
       <p class="eyebrow">Beyond the assessment</p>
       <h2>Strategic AI opportunities identified in your report</h2>
-      <p>The assessment may highlight areas where AI-focused systems and processes could improve operations, reduce manual work, or strengthen how business knowledge is captured and used. These implementation opportunities are separate from the assessment report and are not included in the $1,200 assessment fee. If you decide to progress any of these areas, Agentic AI can help scope, design, and implement tailored solutions across process optimisation, workflow automation, knowledge and AI memory systems, and custom AI agents.</p>
+      <p>The assessment may highlight separate implementation opportunities. If you decide to progress them, Agentic AI can help scope, design, and build tailored solutions across process optimisation, workflow automation, knowledge systems, and custom AI agents.</p>
     </div>
-    <div class="grid offer-grid">
+    <div class="services-list">
       {#each upsells as offer}
-        <article class="card">
+        <article class="service-row">
           <h3>{offer.title}</h3>
           <p>{offer.text}</p>
         </article>
