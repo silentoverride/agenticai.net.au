@@ -1,5 +1,5 @@
 # generated: 2026-05-25T06:32:15+10:00
-# last_updated: 2026-05-29T16:30:00+10:00
+# last_updated: 2026-05-29T17:00:00+10:00
 # project: agenticai-net-au
 # project_key: NOKEY
 # tracking_system: file-system
@@ -91,8 +91,12 @@ development_status:
   8-1-tool-research-retrieval-contract: done
   8-2-retrieval-failure-diagnostics: done
   8-3-retrieval-architecture-decision-record: done
-  epic-9: in-progress
+  epic-9: done
   9-1-structure-first-drafting: done
   9-2-multi-artifact-report-output: done
   9-3-pretty-but-wrong-detection: done
-  9-4-evidence-traceability: backlog
+  9-4-evidence-traceability: done
+  epic-10: backlog
+  10-1-karpathy-triplet-diagnostic: in-progress
+  10-2-metric-gaming-pre-mortem: backlog
+  10-3-trace-infrastructure-audit: backlog
