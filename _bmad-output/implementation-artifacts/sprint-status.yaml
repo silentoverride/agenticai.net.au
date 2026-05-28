@@ -1,5 +1,5 @@
-# generated: 2026-05-25T06:32:15+10:00
-# last_updated: 2026-05-29T17:00:00+10:00
+# generated: 2026-05-29T18:00:00+10:00
+# last_updated: 2026-05-29T18:00:00+10:00
 # project: agenticai-net-au
 # project_key: NOKEY
 # tracking_system: file-system
@@ -33,70 +33,57 @@
 # - Stories can be worked in parallel if team capacity allows
 # - Developer typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+#
+# PHASE NOTE:
+# ===========
+# Staff Portal phase (Epics 1-5) — fresh sprint tracking.
+# Previous pipeline/assessment phase (Epics 1-10 legacy) completed.
+# Epics sourced from: _bmad-output/planning-artifacts/epics.md (Staff Portal rewrite)
 
-generated: 2026-05-25T06:32:15+10:00
+generated: 2026-05-29T18:00:00+10:00
+last_updated: 2026-05-29T18:00:00+10:00
 project: agenticai-net-au
 project_key: NOKEY
 tracking_system: file-system
 story_location: /home/loki/projects.io/agenticai.net.au/_bmad-output/implementation-artifacts
 
 development_status:
-  epic-1: done
-  1-1-governed-staff-portal-state-foundation: done
-  1-2-audit-and-idempotent-action-persistence: done
-  1-3-report-review-queue-and-workspace-read-model: done
-  1-4-gate-finding-decision-actions: done
-  1-5-whole-report-guarded-decisions: done
-  1-6-decision-receipt-and-audit-timeline-surfaces: done
-  1-7-safe-review-ui-accessibility-and-responsive-behaviour: done
+  # === Epic 1: Safety Spine & Brownfield State Mapping ===
+  epic-1: in-progress
+  1-1-canonical-state-types-brownfield-mapper: ready-for-dev
+  1-2-governed-state-d1-tables: backlog
+  1-3-transition-enforcement-eligibility-matrix: backlog
+  1-4-audit-event-contract-idempotency: backlog
+  1-5-command-center-priority-derivation-vitest-safety-spine: backlog
   epic-1-retrospective: optional
-  epic-2: done
-  2-1-command-center-priority-read-model: done
-  2-2-command-console-and-priority-work-item-rows: done
-  2-3-role-based-queue-visibility: done
-  2-4-command-center-navigation-and-recovery: done
+
+  # === Epic 2: Command Center & Client Profile ===
+  epic-2: backlog
+  2-1-design-token-system-base-component-library: backlog
+  2-2-command-center-queue: backlog
+  2-3-client-profile-workspace: backlog
+  2-4-navigation-shell-auth-enforcement: backlog
   epic-2-retrospective: optional
-  epic-3: done
-  3-1-client-profile-snapshot-read-model: done
-  3-2-what-matters-now-panel: done
-  3-3-linked-reports-and-gate-findings-context: done
-  3-4-activity-memory-and-audit-history: done
-  3-5-client-profile-continuity-layout: done
+
+  # === Epic 3: Human Review & Audit Trail ===
+  epic-3: backlog
+  3-1-report-review-workspace: backlog
+  3-2-gate-finding-review-resolution: backlog
+  3-3-whole-report-decision-guarded-action: backlog
+  3-4-audit-timeline-trail: backlog
   epic-3-retrospective: optional
-  epic-4: done
-  4-1-follow-up-commitment-model-and-actions: done
-  4-2-followupeditor-on-client-profile: done
-  4-3-follow-ups-from-review-and-other-source-contexts: done
-  4-4-due-and-overdue-follow-up-surfacing: done
-  4-5-follow-up-audit-receipts-and-failure-states: done
+
+  # === Epic 4: Follow-ups, Meeting Briefs & Commercial Next Step ===
+  epic-4: backlog
+  4-1-follow-up-lifecycle-management: backlog
+  4-2-meeting-brief-notes-freshness: backlog
+  4-3-commercial-next-step-management: backlog
   epic-4-retrospective: optional
-  epic-5: done
-  5-1-calendly-access-and-meeting-brief-notes: done
-  5-2-meeting-brief-readiness-and-stale-state-guardrails: done
-  5-3-meetingbriefpanel-and-meeting-follow-ups: done
-  5-4-commercial-next-step-model-and-panel: done
-  5-5-commercial-follow-up-requirement-and-audit: done
-  5-6-meeting-and-commercial-responsive-accessibility: done
+
+  # === Epic 5: Admin Oversight, Hardening & Accessibility ===
+  epic-5: backlog
+  5-1-admin-oversight-views: backlog
+  5-2-accessibility-verification-test-hooks: backlog
+  5-3-playwright-e2e-safety-spine-tests: backlog
+  5-4-observability-structured-logging: backlog
   epic-5-retrospective: optional
-  epic-6: done
-  6-1-intake-quality-audit: done
-  6-2-intake-question-redesign: done
-  6-3-intake-completion-criteria: done
-  epic-7: done
-  7-1-pipeline-action-surface-audit: done
-  7-2-gate-architecture-review: done
-  7-3-gate-judge-prompt-design: done
-  7-4-gate-evaluation-suites: done
-  epic-8: done
-  8-1-tool-research-retrieval-contract: done
-  8-2-retrieval-failure-diagnostics: done
-  8-3-retrieval-architecture-decision-record: done
-  epic-9: done
-  9-1-structure-first-drafting: done
-  9-2-multi-artifact-report-output: done
-  9-3-pretty-but-wrong-detection: done
-  9-4-evidence-traceability: done
-  epic-10: backlog
-  10-1-karpathy-triplet-diagnostic: done
-  10-2-metric-gaming-pre-mortem: done
-  10-3-trace-infrastructure-audit: ready-for-dev
