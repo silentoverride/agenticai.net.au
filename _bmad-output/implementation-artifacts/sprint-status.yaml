@@ -103,11 +103,11 @@ development_status:
   epic-6-retrospective: optional
 
   # === Epic 7: Pipeline Gate Hardening [JLA Workflow Family] ===
-  epic-7: in-progress
-  7-1-pipeline-action-surface-audit: ready-for-dev
-  7-2-gate-architecture-review: ready-for-dev
-  7-3-gate-judge-prompt-design: ready-for-dev
-  7-4-gate-evaluation-suites: backlog
+  epic-7: done
+  7-1-pipeline-action-surface-audit: done
+  7-2-gate-architecture-review: done
+  7-3-gate-judge-prompt-design: done
+  7-4-gate-evaluation-suites: done
   epic-7-retrospective: optional
 
   # === Epic 8: Pipeline Retrieval Contracts [RRC Workflow Family] ===
