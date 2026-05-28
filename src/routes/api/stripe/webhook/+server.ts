@@ -258,33 +258,59 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
         // JLA-005: intake quality pre-check before committing pipeline resources
         const qualityCheck = checkIntakeSufficiency(transcript);
-        if (!qualityCheck.sufficient) {
-          console.warn('[stripe-webhook:voice] Intake quality check failed — enqueuing anyway (shadow mode)', {
+        if (qualityCheck.quality === 'incomplete' || qualityCheck.quality === 'invalid') {
+          console.warn('[stripe-webhook:voice] Intake quality insufficient', {
             callId: retellCallId,
             sessionId: session.id,
+            quality: qualityCheck.quality,
             gaps: qualityCheck.gaps,
             metrics: qualityCheck.metrics,
             recommendation: qualityCheck.recommendation
           });
-        }
-
-        const queue = platform?.env?.assessment_queue;
-        try {
-          await enqueueReportJob(queue, {
-            receivedAt: record.receivedAt,
-            source: 'retell-voice-agent',
-            callId: retellCallId,
-            sessionId: session.id,
-            customerName,
-            customerEmail,
-            customerPhone,
-            company,
-            transcript
-          });
-          pipelineEnqueued = true;
-        } catch (err) {
-          console.error('Failed to enqueue report job — event will NOT be marked processed', { error: err, sessionId: session.id });
-          return text('Pipeline enqueue failed', { status: 500 });
+          if (env.INTAKE_QUALITY_BLOCK === 'true') {
+            await setPipelineStatus(session.id, { status: 'human_assist', error: qualityCheck.recommendation });
+            // Pipeline NOT enqueued — operator reviews in Staff Portal
+          } else {
+            // Shadow mode: enqueue anyway
+            const queue = platform?.env?.assessment_queue;
+            try {
+              await enqueueReportJob(queue, {
+                receivedAt: record.receivedAt,
+                source: 'retell-voice-agent',
+                callId: retellCallId,
+                sessionId: session.id,
+                customerName,
+                customerEmail,
+                customerPhone,
+                company,
+                transcript
+              });
+              pipelineEnqueued = true;
+            } catch (err) {
+              console.error('Failed to enqueue report job', { error: err, sessionId: session.id });
+              return text('Pipeline enqueue failed', { status: 500 });
+            }
+          }
+        } else {
+          // Quality check passed (sufficient or adequate) — enqueue
+          const queue = platform?.env?.assessment_queue;
+          try {
+            await enqueueReportJob(queue, {
+              receivedAt: record.receivedAt,
+              source: 'retell-voice-agent',
+              callId: retellCallId,
+              sessionId: session.id,
+              customerName,
+              customerEmail,
+              customerPhone,
+              company,
+              transcript
+            });
+            pipelineEnqueued = true;
+          } catch (err) {
+            console.error('Failed to enqueue report job', { error: err, sessionId: session.id });
+            return text('Pipeline enqueue failed', { status: 500 });
+          }
         }
 
         // Transcript is intentionally kept in D1 for retry resilience — do NOT delete it
@@ -357,31 +383,56 @@ export const POST: RequestHandler = async ({ request, platform }) => {
       // Map Annie chat question keys to the questionId format checkIntakeSufficiency expects
       const structuredAnswers = transcriptObject.map(a => ({ questionId: a.question, answer: a.answer }));
       const qualityCheck = checkIntakeSufficiency(transcript, structuredAnswers);
-      if (!qualityCheck.sufficient) {
-        console.warn('[stripe-webhook:annie] Intake quality check failed — enqueuing anyway (shadow mode)', {
+      if (qualityCheck.quality === 'incomplete' || qualityCheck.quality === 'invalid') {
+        console.warn('[stripe-webhook:annie] Intake quality insufficient', {
           sessionId: intakeSessionId,
+          quality: qualityCheck.quality,
           gaps: qualityCheck.gaps,
           metrics: qualityCheck.metrics,
           recommendation: qualityCheck.recommendation
         });
-      }
-
-      try {
-        await enqueueReportJob(queue, {
-          receivedAt: record.receivedAt,
-          source: 'annie-chat-intake',
-          sessionId: intakeSessionId,
-          customerName,
-          customerEmail,
-          company,
-          transcript,
-          transcriptObject
-        });
-        pipelineEnqueued = true;
-        console.info('[webhook] Annie intake pipeline enqueued', { sessionId: intakeSessionId });
-      } catch (err) {
-        console.error('Failed to enqueue Annie intake report job', { error: err, sessionId: intakeSessionId });
-        return text('Pipeline enqueue failed', { status: 500 });
+        if (env.INTAKE_QUALITY_BLOCK === 'true') {
+          await setPipelineStatus(intakeSessionId, { status: 'human_assist', error: qualityCheck.recommendation });
+          // Pipeline NOT enqueued — operator reviews in Staff Portal
+        } else {
+          // Shadow mode: enqueue anyway
+          try {
+            await enqueueReportJob(queue, {
+              receivedAt: record.receivedAt,
+              source: 'annie-chat-intake',
+              sessionId: intakeSessionId,
+              customerName,
+              customerEmail,
+              company,
+              transcript,
+              transcriptObject
+            });
+            pipelineEnqueued = true;
+            console.info('[webhook] Annie intake pipeline enqueued (shadow mode)', { sessionId: intakeSessionId });
+          } catch (err) {
+            console.error('Failed to enqueue Annie intake report job', { error: err, sessionId: intakeSessionId });
+            return text('Pipeline enqueue failed', { status: 500 });
+          }
+        }
+      } else {
+        // Quality check passed (sufficient or adequate) — enqueue normally
+        try {
+          await enqueueReportJob(queue, {
+            receivedAt: record.receivedAt,
+            source: 'annie-chat-intake',
+            sessionId: intakeSessionId,
+            customerName,
+            customerEmail,
+            company,
+            transcript,
+            transcriptObject
+          });
+          pipelineEnqueued = true;
+          console.info('[webhook] Annie intake pipeline enqueued', { sessionId: intakeSessionId, quality: qualityCheck.quality });
+        } catch (err) {
+          console.error('Failed to enqueue Annie intake report job', { error: err, sessionId: intakeSessionId });
+          return text('Pipeline enqueue failed', { status: 500 });
+        }
       }
     }
 
