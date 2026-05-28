@@ -354,8 +354,9 @@ export const POST: RequestHandler = async ({ request, platform }) => {
       const queue = platform?.env?.assessment_queue;
 
       // JLA-005: intake quality pre-check before committing pipeline resources
-      // For Annie chat, we have structured answers — pass them for better accuracy
-      const qualityCheck = checkIntakeSufficiency(transcript, transcriptObject);
+      // Map Annie chat question keys to the questionId format checkIntakeSufficiency expects
+      const structuredAnswers = transcriptObject.map(a => ({ questionId: a.question, answer: a.answer }));
+      const qualityCheck = checkIntakeSufficiency(transcript, structuredAnswers);
       if (!qualityCheck.sufficient) {
         console.warn('[stripe-webhook:annie] Intake quality check failed — enqueuing anyway (shadow mode)', {
           sessionId: intakeSessionId,
