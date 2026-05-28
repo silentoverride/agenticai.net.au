@@ -1,6 +1,6 @@
 # Story 2.1: Command Center Priority Read Model
 
-Status: review
+Status: done
 
 ## Story
 

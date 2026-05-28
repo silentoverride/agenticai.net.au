@@ -1,6 +1,6 @@
 # Story 2.2: Command Console and Priority Work Item Rows
 
-Status: review
+Status: done
 
 ## Story
 

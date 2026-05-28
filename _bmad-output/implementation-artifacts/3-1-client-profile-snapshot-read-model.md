@@ -1,6 +1,6 @@
 # Story 3.1: Client Profile Snapshot Read Model
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

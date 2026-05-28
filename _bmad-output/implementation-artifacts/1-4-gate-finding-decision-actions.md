@@ -1,6 +1,6 @@
 # Story 1.4: Gate Finding Decision Actions
 
-Status: in-progress
+Status: done
 
 ## Story
 
