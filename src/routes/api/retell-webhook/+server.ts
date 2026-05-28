@@ -4,7 +4,7 @@ import { apiError } from '$lib/server/api-error';
 import { createAssessmentReportJob } from '$lib/server/assessment/retell-job';
 import { storeTranscript } from '$lib/server/assessment/transcript-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
-import { getPipelineStatusByCallId } from '$lib/server/assessment/pipeline-store';
+import { getPipelineStatusByCallId, setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { checkIntakeSufficiency } from '$lib/server/assessment/intake-quality-check';
 import { verifyRetellSignature } from '$lib/server/retell';
 import { RetellWebhookSchema } from '$lib/server/validation';
@@ -100,14 +100,20 @@ export const POST: RequestHandler = async ({ request, platform }) => {
   if (job.paymentStatus === 'paid' || job.paymentStatus === 'complete') {
     // JLA-005: intake quality pre-check before committing pipeline resources
     const qualityCheck = checkIntakeSufficiency(job.transcript);
-    if (!qualityCheck.sufficient) {
-      console.warn('[retell-webhook] Intake quality check failed — enqueuing anyway (shadow mode)', {
+    if (qualityCheck.quality === 'incomplete' || qualityCheck.quality === 'invalid') {
+      console.warn('[retell-webhook] Intake quality insufficient', {
         callId: job.callId,
+        quality: qualityCheck.quality,
         gaps: qualityCheck.gaps,
         metrics: qualityCheck.metrics,
         recommendation: qualityCheck.recommendation
       });
-      // TODO: when INTAKE_QUALITY_BLOCK=true, skip enqueue and set status to human_assist
+      if (env.INTAKE_QUALITY_BLOCK === 'true') {
+        // Blocking mode: skip pipeline, set to human_assist for operator review
+        await setPipelineStatus(job.callId!, { status: 'human_assist', error: qualityCheck.recommendation });
+        return new Response(null, { status: 200 });
+      }
+      // Shadow mode: log + enqueue anyway
     }
 
     const queue = platform?.env?.assessment_queue;

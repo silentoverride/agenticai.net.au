@@ -1,6 +1,15 @@
 /**
  * Annie Intake Script — structured question tree for business context capture.
  *
+ * INTAKE DEFINITION OF DONE (Compact):
+ * The intake is SUFFICIENT when: all 7 blocking questions (business_overview,
+ * current_tools, pain_points, workflow_details, concrete_metrics, process_consistency,
+ * budget) have substantive answers (>10 chars each), at least one known tool name
+ * is present, a specific pain point with temporal anchor is detected, and the
+ * transcript exceeds 400 characters. The intake is ADEQUATE (pipeline runs with
+ * estimated budget) when everything passes except the budget signal. The intake
+ * is INCOMPLETE when any hard gate fails — do not trigger the pipeline.
+ *
  * Each question has:
  * - id: unique question identifier
  * - topic: the category (business_overview, tools, pain_points, etc.)
@@ -314,6 +323,38 @@ export const INTAKE_SCRIPT: IntakeQuestion[] = [
 
 /** Total number of intake questions. */
 export const TOTAL_QUESTIONS = INTAKE_SCRIPT.length;
+
+/**
+ * BLOCKING_QUESTION_IDS — question IDs that feed BLOCKING gate criteria.
+ * If these aren't answered with substance, the report-review gate WILL block.
+ * Derived from the gate criteria traceability header above.
+ */
+export const BLOCKING_QUESTION_IDS = [
+  'business_overview',   // → QW-A1, MP-A2, RR-A0
+  'current_tools',       // → QW-A1, QW-E2, RR-TC1, RR-TC2, RR-TC3
+  'pain_points',         // → QW-A1, QW-E1, MP-A1, RR-A0
+  'workflow_details',    // → QW-E1, QW-E3, RR-A0
+  'concrete_metrics',    // → QW-E1, QW-E3, RR-A0
+  'process_consistency', // → QW-E1, RR-A0
+  'budget',              // → MP-E1
+];
+
+/**
+ * ANNIE_GUARDRAILS — conversation rules prepended to Annie's system prompt.
+ * These enforce intake quality at the agent level before the pipeline runs.
+ */
+export const ANNIE_GUARDRAILS = [
+  'Get specific numbers: hours per week, staff count, dollar figures, volume metrics. "A lot" or "too much" is not an answer — probe until you have a number, even a rough one.',
+  'Never accept a vague answer without one follow-up probe. If the customer says "we use spreadsheets," ask which ones, how many, and what goes in them. If they say "we want to be more efficient," ask for the last time inefficiency cost them something specific.',
+  'The blocking questions (Q1-Q5, Q7, Q8) MUST receive substantive answers before you move to taste questions (Q6, Q9, Q10). If a blocking question gets a short answer, use the follow-ups.',
+  'If the customer gives three consecutive short or disengaged answers (under 20 words each), pause and check in: "I want to make sure I am asking the right questions — should we adjust?"',
+  'Never invent, assume, or fill in gaps. If a customer says "I am not sure about budget," record that honestly — do not estimate for them. The pipeline handles missing budget differently from guessed budget.',
+  'If you are unsure whether you understood a detail correctly, restate it back in your own words and ask if that is right before moving on.',
+  'When you hear a concrete number or named tool, confirm it explicitly: "So HubSpot and Xero, and about 15 hours a week on manual reporting — did I get that right?"',
+  'If a customer seems rushed or distracted, offer to focus on the 3-4 most important questions rather than powering through all 10 poorly.',
+  'The budget question (Q8) is required. Do not skip it even if the customer seems uncomfortable — frame it as: "A ballpark like a couple hundred or up to a thousand per month is more than enough to work with."',
+  'The timeline question (Q10) captures urgency. Do not accept "just exploring" without asking what would move this up their priority list — that is a valuable signal for the report.',
+];
 
 /**
  * Get a follow-up probe question based on keywords in the user's answer.
