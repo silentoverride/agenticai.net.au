@@ -1,6 +1,6 @@
 # Story 4.1: Follow-up Commitment Model and Actions
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -29,44 +29,44 @@ FR32, FR35, FR36, FR37, FR38, FR39; NFR1, NFR2; UX-DR8, UX-DR24
 
 ## Tasks / Subtasks
 
-- [ ] Create follow-up migration
-  - [ ] Create `migrations/0018_staff_portal_follow_ups.sql`
-  - [ ] Create `follow_ups` table with: id, assessment_id, title, description, owner_id, due_date, source, source_object_type, source_object_id, status, client_visible_promise, consequence_of_inaction, notes, linked_report_id, linked_gate_finding_id, linked_meeting_brief_id, linked_commercial_step_id, support_issue_ref, admin_task_ref, delayed_journey_state, created_at, updated_at
-  - [ ] Add migration to local SQLite test schema initialization
+- [x] Create follow-up migration
+  - [x] Create `migrations/0018_staff_portal_follow_ups.sql`
+  - [x] Create `follow_ups` table with: id, assessment_id, title, description, owner_id, due_date, source, source_object_type, source_object_id, status, client_visible_promise, consequence_of_inaction, notes, linked_report_id, linked_gate_finding_id, linked_meeting_brief_id, linked_commercial_step_id, support_issue_ref, admin_task_ref, delayed_journey_state, created_at, updated_at
+  - [x] Add migration to local SQLite test schema initialization
 
-- [ ] Create follow-up DTOs and domain types
-  - [ ] Add `FollowUpStatus` union to `src/lib/staff-portal/dto.ts`: 'open' | 'completed' | 'deferred' | 'reassigned'
-  - [ ] Add `FollowUpSource` union: 'client_profile' | 'human_review' | 'meeting_brief' | 'commercial_next_step' | 'support_issue' | 'admin_task' | 'delayed_journey'
-  - [ ] Add `StaffFollowUpDto` with all fields from migration, camelCase, serializable
-  - [ ] Add `CreateFollowUpInput` and `UpdateFollowUpInput` DTOs
-  - [ ] Add follow-up actions to `StaffPortalActionId`: 'completeFollowUp', 'deferFollowUp', 'reassignFollowUp'
-  - [ ] Add `FOLLOW_UP_ACTION_PRESENTATION` and `FOLLOW_UP_STATE_PRESENTATION` maps
+- [x] Create follow-up DTOs and domain types
+  - [x] Add `FollowUpStatus` union to `src/lib/staff-portal/dto.ts`: 'open' | 'completed' | 'deferred' | 'reassigned'
+  - [x] Add `FollowUpSource` union: 'client_profile' | 'human_review' | 'meeting_brief' | 'commercial_next_step' | 'support_issue' | 'admin_task' | 'delayed_journey'
+  - [x] Add `StaffFollowUpDto` with all fields from migration, camelCase, serializable
+  - [x] Add `CreateFollowUpInput` and `UpdateFollowUpInput` DTOs
+  - [x] Add follow-up actions to `StaffPortalActionId`: 'completeFollowUp', 'deferFollowUp', 'reassignFollowUp'
+  - [x] Add `FOLLOW_UP_ACTION_PRESENTATION` and `FOLLOW_UP_STATE_PRESENTATION` maps
 
-- [ ] Create follow-up domain state and action rules
-  - [ ] Create `src/lib/server/staff-portal/domain/follow-up-states.ts`
-  - [ ] Define valid transitions and blocked reasons
-  - [ ] Define `getAvailableFollowUpActions(...)` following the pattern from `get-available-actions.ts`
+- [x] Create follow-up domain state and action rules
+  - [x] Create `src/lib/server/staff-portal/domain/follow-up-states.ts`
+  - [x] Define valid transitions and blocked reasons
+  - [x] Define `getAvailableFollowUpActions(...)` following the pattern from `get-available-actions.ts`
 
-- [ ] Create follow-up repository
-  - [ ] Create `src/lib/server/staff-portal/repositories/follow-up.repository.ts`
-  - [ ] CRUD: `insertFollowUp`, `updateFollowUp`, `findFollowUpById`, `findFollowUpsByAssessment`, `findFollowUpsByOwner`
-  - [ ] Bounded queries with LIMIT, no N+1
+- [x] Create follow-up repository
+  - [x] Create `src/lib/server/staff-portal/repositories/follow-up.repository.ts`
+  - [x] CRUD: `insertFollowUp`, `updateFollowUp`, `findFollowUpById`, `findFollowUpsByAssessment`, `findFollowUpsByOwner`
+  - [x] Bounded queries with LIMIT, no N+1
 
-- [ ] Create commitFollowUpAction service
-  - [ ] Create `src/lib/server/staff-portal/services/commit-follow-up-action.ts`
-  - [ ] Re-checks auth, state, idempotency, creates audit event, returns receipt
-  - [ ] Follow the `commitStaffAction(...)` pattern
+- [x] Create commitFollowUpAction service
+  - [x] Create `src/lib/server/staff-portal/services/commit-follow-up-action.ts`
+  - [x] Re-checks auth, state, idempotency, creates audit event, returns receipt
+  - [x] Follow the `commitStaffAction(...)` pattern
 
-- [ ] Write comprehensive tests
-  - [ ] Create `tests/staff-portal/repositories/follow-up.repository.test.ts`
-  - [ ] Create `tests/staff-portal/services/commit-follow-up-action.test.ts`
-  - [ ] Test: create follow-up with all optional links
-  - [ ] Test: transition open → completed, deferred with reason, reassigned
-  - [ ] Test: invalid transitions rejected
-  - [ ] Test: audit event created on transition
-  - [ ] Test: idempotency prevents duplicate audit events
-  - [ ] Test: validation errors visible on missing required fields
-  - [ ] Test: DTO shape, camelCase, no server imports
+- [x] Write comprehensive tests
+  - [x] Create `tests/staff-portal/repositories/follow-up.repository.test.ts`
+  - [x] Create `tests/staff-portal/services/commit-follow-up-action.test.ts`
+  - [x] Test: create follow-up with all optional links
+  - [x] Test: transition open → completed, deferred with reason, reassigned
+  - [x] Test: invalid transitions rejected
+  - [x] Test: audit event created on transition
+  - [x] Test: idempotency prevents duplicate audit events
+  - [x] Test: validation errors visible on missing required fields
+  - [x] Test: DTO shape, camelCase, no server imports
 
 ## Dev Notes
 
