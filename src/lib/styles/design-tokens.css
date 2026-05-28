@@ -1,0 +1,256 @@
+/*
+ * Staff Portal Design Tokens — Status · Risk · Readiness · Action-Intent
+ *
+ * 4 semantic axes mapped to CSS custom properties.
+ * Designed for WCAG 2.1 AA contrast ratios (≥4.5:1 on #f4f5f7 background).
+ * Light mode tokens; pair with [data-theme="dark"] overrides for dark mode.
+ * ---------------------------------------------------------------------------
+ */
+
+:root {
+  /* -----------------------------------------------------------------------
+   * AXIS 1 — Status
+   * Maps to PresentationTone values used in *_PRESENTATION maps.
+   * --------------------------------------------------------------------- */
+  --status-neutral-text: #4a5568;
+  --status-neutral-bg: #edf2f7;
+  --status-neutral-border: #cbd5e0;
+  --status-neutral-icon: #718096;
+
+  --status-attention-text: #744210;
+  --status-attention-bg: #fefcbf;
+  --status-attention-border: #f6e05e;
+  --status-attention-icon: #d69e2e;
+
+  --status-warning-text: #7b341e;
+  --status-warning-bg: #fff3cd;
+  --status-warning-border: #ffc107;
+  --status-warning-icon: #e67700;
+
+  --status-danger-text: #9b2c2c;
+  --status-danger-bg: #fed7d7;
+  --status-danger-border: #fc8181;
+  --status-danger-icon: #c53030;
+
+  --status-success-text: #22543d;
+  --status-success-bg: #c6f6d5;
+  --status-success-border: #68d391;
+  --status-success-icon: #2f855a;
+
+  --status-audit-text: #44337a;
+  --status-audit-bg: #e9d8fd;
+  --status-audit-border: #b794f4;
+  --status-audit-icon: #6b46c1;
+
+  --status-disabled-text: #a0aec0;
+  --status-disabled-bg: #e2e8f0;
+  --status-disabled-border: #cbd5e0;
+  --status-disabled-icon: #cbd5e0;
+
+  /* -----------------------------------------------------------------------
+   * AXIS 2 — Risk
+   * Maps to RiskSignal values.
+   * --------------------------------------------------------------------- */
+  --risk-none-text: var(--status-neutral-text);
+  --risk-none-bg: var(--status-neutral-bg);
+  --risk-none-border: var(--status-neutral-border);
+
+  --risk-low-text: var(--status-neutral-text);
+  --risk-low-bg: var(--status-neutral-bg);
+  --risk-low-border: var(--status-neutral-border);
+
+  --risk-medium-text: var(--status-attention-text);
+  --risk-medium-bg: var(--status-attention-bg);
+  --risk-medium-border: var(--status-attention-border);
+
+  --risk-high-text: var(--status-warning-text);
+  --risk-high-bg: var(--status-warning-bg);
+  --risk-high-border: var(--status-warning-border);
+
+  --risk-blocked-text: var(--status-danger-text);
+  --risk-blocked-bg: var(--status-danger-bg);
+  --risk-blocked-border: var(--status-danger-border);
+
+  /* -----------------------------------------------------------------------
+   * AXIS 3 — Readiness
+   * Indicates operational readiness states.
+   * --------------------------------------------------------------------- */
+  --readiness-available-text: var(--status-success-text);
+  --readiness-available-bg: var(--status-success-bg);
+  --readiness-available-border: var(--status-success-border);
+
+  --readiness-pending-text: var(--status-attention-text);
+  --readiness-pending-bg: var(--status-attention-bg);
+  --readiness-pending-border: var(--status-attention-border);
+
+  --readiness-unavailable-text: var(--status-disabled-text);
+  --readiness-unavailable-bg: var(--status-disabled-bg);
+  --readiness-unavailable-border: var(--status-disabled-border);
+
+  --readiness-stale-text: var(--status-warning-text);
+  --readiness-stale-bg: var(--status-warning-bg);
+  --readiness-stale-border: var(--status-warning-border);
+
+  /* -----------------------------------------------------------------------
+   * AXIS 4 — Action Intent
+   * Semantic colors for staff actions and decision buttons.
+   * --------------------------------------------------------------------- */
+  --action-approve-text: #fff;
+  --action-approve-bg: #2f855a;
+  --action-approve-border: #276749;
+  --action-approve-hover-bg: #276749;
+
+  --action-reject-text: #fff;
+  --action-reject-bg: #c53030;
+  --action-reject-border: #9b2c2c;
+  --action-reject-hover-bg: #9b2c2c;
+
+  --action-neutral-text: #2d3748;
+  --action-neutral-bg: #edf2f7;
+  --action-neutral-border: #cbd5e0;
+  --action-neutral-hover-bg: #e2e8f0;
+
+  --action-escalate-text: #fff;
+  --action-escalate-bg: #6b46c1;
+  --action-escalate-border: #553c9a;
+  --action-escalate-hover-bg: #553c9a;
+
+  --action-claim-text: #fff;
+  --action-claim-bg: #2b5c9e;
+  --action-claim-border: #234b82;
+  --action-claim-hover-bg: #234b82;
+
+  --action-override-text: var(--status-audit-text);
+  --action-override-bg: var(--status-audit-bg);
+  --action-override-border: var(--status-audit-border);
+  --action-override-hover-bg: #d6bcfa;
+
+  --action-danger-text: var(--action-reject-text);
+  --action-danger-bg: var(--action-reject-bg);
+  --action-danger-border: var(--action-reject-border);
+  --action-danger-hover-bg: var(--action-reject-hover-bg);
+
+  /* -----------------------------------------------------------------------
+   * Typography Scale
+   * --------------------------------------------------------------------- */
+  --ai-font-size-page-title: 1.5rem;       /* 24px */
+  --ai-font-size-section-title: 1.125rem;  /* 18px */
+  --ai-font-size-body: 0.9375rem;          /* 15px */
+  --ai-font-size-small-meta: 0.8125rem;    /* 13px */
+  --ai-font-weight-page-title: 700;
+  --ai-font-weight-section-title: 600;
+  --ai-font-weight-body: 400;
+  --ai-font-weight-small-meta: 400;
+  --ai-line-height-page-title: 1.3;
+  --ai-line-height-section-title: 1.35;
+  --ai-line-height-body: 1.5;
+  --ai-line-height-small-meta: 1.4;
+
+  /* -----------------------------------------------------------------------
+   * Spacing Scale
+   * --------------------------------------------------------------------- */
+  --ai-space-xs: 4px;
+  --ai-space-sm: 8px;
+  --ai-space-md: 12px;
+  --ai-space-lg: 16px;
+  --ai-space-xl: 24px;
+  --ai-space-2xl: 32px;
+  --ai-space-3xl: 48px;
+
+  /* -----------------------------------------------------------------------
+   * Staff Portal base — shared UI tokens
+   * --------------------------------------------------------------------- */
+  --portal-surface-bg: #ffffff;
+  --portal-surface-border: #e2e8f0;
+  --portal-radius-sm: 6px;
+  --portal-radius-md: 8px;
+  --portal-radius-lg: 12px;
+  --portal-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --portal-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --portal-font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  --portal-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Focus ring — shared across all actionable elements */
+  --portal-focus-ring: 0 0 0 3px rgba(74, 108, 247, 0.4);
+}
+
+/* -----------------------------------------------------------------------
+ * Dark mode tokens (UX-DR17)
+ * --------------------------------------------------------------------- */
+
+[data-theme="dark"] {
+  --status-neutral-text: #cbd5e0;
+  --status-neutral-bg: #2d3748;
+  --status-neutral-border: #4a5568;
+  --status-neutral-icon: #a0aec0;
+
+  --status-attention-text: #faf089;
+  --status-attention-bg: #744210;
+  --status-attention-border: #b7791f;
+  --status-attention-icon: #ecc94b;
+
+  --status-warning-text: #fbd38d;
+  --status-warning-bg: #7b341e;
+  --status-warning-border: #dd6b20;
+  --status-warning-icon: #f6ad55;
+
+  --status-danger-text: #fcb5b5;
+  --status-danger-bg: #822222;
+  --status-danger-border: #a83232;
+  --status-danger-icon: #fc8181;
+
+  --status-success-text: #9ae6b4;
+  --status-success-bg: #22543d;
+  --status-success-border: #48bb78;
+  --status-success-icon: #68d391;
+
+  --status-audit-text: #d6bcfa;
+  --status-audit-bg: #44337a;
+  --status-audit-border: #9f7aea;
+  --status-audit-icon: #b794f4;
+
+  --status-disabled-text: #718096;
+  --status-disabled-bg: #2d3748;
+  --status-disabled-border: #4a5568;
+  --status-disabled-icon: #4a5568;
+
+  --portal-surface-bg: #1a202c;
+  --portal-surface-border: #2d3748;
+  --portal-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --portal-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+
+  /* Re-chain risk/readiness/action to dark status tokens */
+  --risk-none-text: var(--status-neutral-text);
+  --risk-none-bg: var(--status-neutral-bg);
+  --risk-none-border: var(--status-neutral-border);
+  --risk-low-text: var(--status-neutral-text);
+  --risk-low-bg: var(--status-neutral-bg);
+  --risk-low-border: var(--status-neutral-border);
+  --risk-medium-text: var(--status-attention-text);
+  --risk-medium-bg: var(--status-attention-bg);
+  --risk-medium-border: var(--status-attention-border);
+  --risk-high-text: var(--status-warning-text);
+  --risk-high-bg: var(--status-warning-bg);
+  --risk-high-border: var(--status-warning-border);
+  --risk-blocked-text: var(--status-danger-text);
+  --risk-blocked-bg: var(--status-danger-bg);
+  --risk-blocked-border: var(--status-danger-border);
+
+  --readiness-available-text: var(--status-success-text);
+  --readiness-available-bg: var(--status-success-bg);
+  --readiness-available-border: var(--status-success-border);
+  --readiness-pending-text: var(--status-attention-text);
+  --readiness-pending-bg: var(--status-attention-bg);
+  --readiness-pending-border: var(--status-attention-border);
+  --readiness-unavailable-text: var(--status-disabled-text);
+  --readiness-unavailable-bg: var(--status-disabled-bg);
+  --readiness-unavailable-border: var(--status-disabled-border);
+  --readiness-stale-text: var(--status-warning-text);
+  --readiness-stale-bg: var(--status-warning-bg);
+  --readiness-stale-border: var(--status-warning-border);
+
+  --action-neutral-text: #e2e8f0;
+  --action-neutral-bg: #2d3748;
+  --action-neutral-border: #4a5568;
+  --action-neutral-hover-bg: #4a5568;
+}
