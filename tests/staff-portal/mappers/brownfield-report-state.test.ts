@@ -94,4 +94,60 @@ describe('mapBrownfieldReportState', () => {
     expect(conflict.approved).toBe(false);
     expect(conflict.blockedReasons).toContain('conflictingRecords');
   });
+
+  describe('null/undefined handling', () => {
+    it('does not throw on empty input object', () => {
+      expect(() => mapBrownfieldReportState({})).not.toThrow();
+    });
+
+    it('returns unavailable for empty input object', () => {
+      const result = mapBrownfieldReportState({});
+      expect(result.state).toBe('unavailable');
+      expect(result.approved).toBe(false);
+      expect(result.risk).toBe('blocked');
+      expect(result.blockedReasons).toContain('missingArtifact');
+    });
+
+    it('handles null pipelineStatus without throwing', () => {
+      const result = mapBrownfieldReportState(reportFacts({ pipelineStatus: null }));
+      expect(result.state).toBe('generated');
+      expect(result.approved).toBe(false);
+    });
+
+    it('handles undefined pipelineStatus without throwing', () => {
+      const result = mapBrownfieldReportState(reportFacts({ pipelineStatus: undefined }));
+      expect(result.state).toBe('generated');
+    });
+
+    it('handles null humanAssistStatus without throwing', () => {
+      const result = mapBrownfieldReportState(reportFacts({ humanAssistStatus: null }));
+      expect(result.humanReviewState).toBe('none');
+    });
+
+    it('handles null approvalEvidence without throwing', () => {
+      const result = mapBrownfieldReportState(reportFacts({ approvalEvidence: null }));
+      expect(result.state).toBe('generated');
+      expect(result.blockedReasons).toContain('approvalEvidenceRequired');
+    });
+
+    it('handles undefined unresolvedBlockingFindings without throwing', () => {
+      const result = mapBrownfieldReportState(reportFacts({ unresolvedBlockingFindings: undefined }));
+      expect(result.state).toBe('generated');
+    });
+
+    it('handles all-null input without throwing', () => {
+      const result = mapBrownfieldReportState({
+        pipelineStatus: null,
+        humanAssistStatus: null,
+        artifactPresent: undefined,
+        approvalEvidence: null,
+        unresolvedBlockingFindings: undefined,
+        stale: undefined,
+        conflict: undefined
+      });
+      expect(result.state).toBe('unavailable');
+      expect(result.approved).toBe(false);
+      expect(result.humanReviewState).toBe('none');
+    });
+  });
 });

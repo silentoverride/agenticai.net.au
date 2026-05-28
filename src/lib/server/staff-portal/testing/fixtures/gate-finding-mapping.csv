@@ -1,0 +1,16 @@
+gateVerdict,humanAssistStatus,approvalEvidence,overrideReason,conflict,expectedState,expectedRisk,expectedBlockedReasons
+block,,false,,false,open,blocked,unresolvedBlockingFinding
+retry,,false,,false,open,blocked,unresolvedBlockingFinding
+human_assist,,false,,false,escalatedFurther,medium,
+escalate,,false,,false,escalatedFurther,medium,
+approve,,false,,false,open,blocked,approvalEvidenceRequired
+approve,,true,,false,resolved,none,
+,pending,false,,false,escalatedFurther,medium,
+,in_review,false,,false,inReview,medium,
+,approved,true,,false,resolved,none,
+,approved,false,,false,conflict,blocked,"approvalEvidenceRequired,conflictingRecords"
+,rejected,false,,false,escalatedFurther,medium,
+,edited,false,,false,overriddenWithReason,none,
+,,false,acceptable risk,false,overriddenWithReason,none,
+,,false,,true,conflict,blocked,conflictingRecords
+warn,,false,,false,open,none,
