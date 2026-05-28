@@ -20,6 +20,7 @@ import {
   type StaffActionAuditEvent
 } from '../repositories/staff-audit.repository';
 import { lookupStaffActionIdempotency } from '../repositories/staff-idempotency.repository';
+import { createLogger } from './logger';
 
 export interface CommitStaffActionInput {
   db: AsyncDb;
@@ -67,8 +68,28 @@ interface UserRoleRow {
 }
 
 export async function commitStaffAction(input: CommitStaffActionInput): Promise<StaffActionMutationResultDto> {
+  const log = createLogger(undefined, input.actorId ?? undefined);
+  log.transitionAttempt({
+    assessmentId: input.assessmentId,
+    action: input.action,
+    targetType: input.targetType,
+    targetId: input.targetId ?? undefined,
+    expectedState: input.expectedState,
+    reasonCode: input.reasonCode,
+  });
+
   const actor = await loadActor(input.db, input.actorId);
-  if (!actor) return failure('permissionDenied', 'Operator access required');
+  if (!actor) {
+    log.transitionRejected({
+      assessmentId: input.assessmentId,
+      action: input.action,
+      targetType: input.targetType,
+      targetId: input.targetId ?? undefined,
+      errorCode: 'permissionDenied',
+      detail: 'Operator access required',
+    });
+    return failure('permissionDenied', 'Operator access required');
+  }
 
   const requestHash = await hashCanonicalRequest(input);
   const idempotency = await lookupStaffActionIdempotency(input.db, {
@@ -79,18 +100,47 @@ export async function commitStaffAction(input: CommitStaffActionInput): Promise<
   });
 
   if (idempotency.status === 'sameRequest') {
+    log.idempotencyHit({
+      assessmentId: input.assessmentId,
+      action: input.action,
+      idempotencyKey: input.idempotencyKey,
+    });
     return successFromEvent(idempotency.event);
   }
   if (idempotency.status === 'conflict') {
+    log.transitionRejected({
+      assessmentId: input.assessmentId,
+      action: input.action,
+      targetType: input.targetType,
+      errorCode: 'duplicateAction',
+      detail: 'Idempotency key conflict',
+    });
     return failure('duplicateAction', 'Idempotency key has already been used for a different action request');
   }
 
   const current = await (input.loadCurrentTarget ?? loadCurrentTarget)(input);
   const currentState = current.state.state;
   if (current.targetType === 'gateFinding' && current.targetExists === false) {
+    log.transitionRejected({
+      assessmentId: input.assessmentId,
+      action: input.action,
+      targetType: input.targetType,
+      targetId: input.targetId ?? undefined,
+      errorCode: 'blockedAction',
+      detail: 'Target gate finding was not found',
+    });
     return failure('blockedAction', 'Target gate finding was not found', currentState);
   }
   if (currentState !== input.expectedState) {
+    log.staleSubmission({
+      assessmentId: input.assessmentId,
+      action: input.action,
+      targetType: input.targetType,
+      targetId: input.targetId ?? undefined,
+      expectedState: input.expectedState,
+      actualState: currentState,
+      detail: `Expected ${input.expectedState}, actual ${currentState}`,
+    });
     return failure('staleState', 'Current state no longer matches the expected state', currentState);
   }
   if (input.expectedVersion !== undefined && current.version != null && String(input.expectedVersion) !== String(current.version)) {
@@ -109,14 +159,43 @@ export async function commitStaffAction(input: CommitStaffActionInput): Promise<
     : getAvailableActions({ targetType: 'gateFinding', state: current.state, actor: actorContext, providedAuditMetadata });
   const descriptor = actions.find((action) => action.id === input.action && action.targetType === input.targetType);
 
-  if (!descriptor) return failure('blockedAction', 'Action is not available for this target', currentState);
+  if (!descriptor) {
+    log.transitionRejected({
+      assessmentId: input.assessmentId,
+      action: input.action,
+      targetType: input.targetType,
+      errorCode: 'blockedAction',
+      detail: 'Action is not available for this target',
+    });
+    return failure('blockedAction', 'Action is not available for this target', currentState);
+  }
   if (!descriptor.enabled) {
     if (descriptor.blockedReason === 'notAssigned' || descriptor.blockedReason === 'permissionDenied') {
+      log.permissionDenied({
+        assessmentId: input.assessmentId,
+        action: input.action,
+        targetType: input.targetType,
+        detail: `Blocked reason: ${descriptor.blockedReason}`,
+      });
       return failure('permissionDenied', 'You are not allowed to perform this action', currentState);
     }
     if (descriptor.blockedReason === 'auditMetadataRequired') {
+      log.transitionRejected({
+        assessmentId: input.assessmentId,
+        action: input.action,
+        targetType: input.targetType,
+        errorCode: 'validationFailed',
+        detail: 'Required audit metadata is missing',
+      });
       return failure('validationFailed', 'Required audit metadata is missing', currentState);
     }
+    log.transitionRejected({
+      assessmentId: input.assessmentId,
+      action: input.action,
+      targetType: input.targetType,
+      errorCode: 'blockedAction',
+      detail: `Action blocked: ${descriptor.blockedReason ?? 'unknown'}`,
+    });
     return failure('blockedAction', 'Action is blocked for the current state', currentState);
   }
 
@@ -141,7 +220,15 @@ export async function commitStaffAction(input: CommitStaffActionInput): Promise<
   try {
     const event = await insertStaffActionAuditEvent(input.db, eventInput);
     return successFromEvent(event);
-  } catch {
+  } catch (auditErr) {
+    log.auditWriteFailure({
+      assessmentId: input.assessmentId,
+      action: input.action,
+      targetType: input.targetType,
+      targetId: input.targetId ?? undefined,
+      error: auditErr instanceof Error ? auditErr.message : String(auditErr),
+      detail: 'Failed to insert audit event',
+    });
     const raced = await lookupStaffActionIdempotency(input.db, {
       actorId: actor.id,
       assessmentId: input.assessmentId,
