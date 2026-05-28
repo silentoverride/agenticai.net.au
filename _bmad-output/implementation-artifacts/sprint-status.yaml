@@ -93,6 +93,6 @@ development_status:
   8-3-retrieval-architecture-decision-record: done
   epic-9: in-progress
   9-1-structure-first-drafting: done
-  9-2-multi-artifact-report-output: review
-  9-3-pretty-but-wrong-detection: backlog
+  9-2-multi-artifact-report-output: done
+  9-3-pretty-but-wrong-detection: in-progress
   9-4-evidence-traceability: backlog
