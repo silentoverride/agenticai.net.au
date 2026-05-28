@@ -1,5 +1,5 @@
 # generated: 2026-05-25T06:32:15+10:00
-# last_updated: 2026-05-28T10:00:00+10:00
+# last_updated: 2026-05-29T10:00:00+10:00
 # project: agenticai-net-au
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-25T06:32:15+10:00
-last_updated: 2026-05-28
+last_updated: 2026-05-29
 project: agenticai-net-au
 project_key: NOKEY
 tracking_system: file-system
@@ -83,3 +83,8 @@ development_status:
   6-1-intake-quality-audit: done
   6-2-intake-question-redesign: done
   6-3-intake-completion-criteria: done
+  epic-7: in-progress
+  7-1-pipeline-action-surface-audit: ready-for-dev
+  7-2-gate-architecture-review: backlog
+  7-3-gate-judge-prompt-design: backlog
+  7-4-gate-evaluation-suites: backlog
