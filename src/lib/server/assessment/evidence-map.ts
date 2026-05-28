@@ -50,6 +50,12 @@ export interface EvidenceClaim {
   hours_per_week: number | null;
   /** Estimated annual cost, if a financial claim. */
   estimated_annual_cost_aud: number | null;
+  /** OFEWG-009: Tool research source for this claim (null if transcript-only). */
+  tool_source_type?: 'futurepedia' | 'taaft' | 'perplexity' | null;
+  /** OFEWG-009: Specific tool/catalog entry name. */
+  tool_source_name?: string | null;
+  /** OFEWG-009: Source URL for verification. */
+  tool_source_url?: string | null;
 }
 
 /** Gaps where the report needs information but the transcript doesn't contain it. */
@@ -79,6 +85,9 @@ export interface EvidenceMap {
   /** Timestamp of extraction. */
   extracted_at: string;
 }
+
+// Re-export traceability types from the pure module (no env dependency)
+export { buildTraceabilityMatrix, type TraceabilityMatrix, type TraceabilityEntry, type ClaimSourceType } from './traceability';
 
 // ============================================================================
 // Evidence Extraction
@@ -263,6 +272,13 @@ export function formatEvidenceMapForPrompt(evidenceMap: EvidenceMap, budgetSigna
     if (c.hours_per_week) parts.push(`  - Hours/week: ${c.hours_per_week}`);
     if (c.estimated_annual_cost_aud) parts.push(`  - Annual cost: $${c.estimated_annual_cost_aud} AUD`);
     parts.push(`  - Evidence: "${c.transcript_evidence[0] || 'no direct quote'}"`);
+    // OFEWG-009: Tool research provenance
+    if (c.tool_source_name) {
+      const sourceDetail = c.tool_source_url
+        ? `${c.tool_source_name} (${c.tool_source_url})`
+        : c.tool_source_name;
+      parts.push(`  - Tool source: ${sourceDetail} [${c.tool_source_type || 'unknown'}]`);
+    }
     return parts.join('\n');
   };
 
