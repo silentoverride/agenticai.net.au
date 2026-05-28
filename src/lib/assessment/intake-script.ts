@@ -1,10 +1,23 @@
 /**
  * Annie Intake Script — structured question tree for business context capture.
  *
+ * REDESIGNED (2026-05-28): Post-AICC-002 audit. Changes from v1:
+ *   - Compound Q1 broken into sequential sub-questions
+ *   - Guardrails section added (matching voice script constraints)
+ *   - Quality bar annotations per question (minimum specificity standards)
+ *   - Budget question now separates "comfortable" from "maximum"
+ *   - AI readiness moved earlier to allow adaptation of subsequent questions
+ *   - Timeline question adds "waiting for trigger" classification
+ *   - Pipeline stage mappings documented per question
+ *   - Definition of done: intake is complete when Q1-Q5 have substantive answers
+ *
  * Each question has:
  * - id: unique question identifier
  * - topic: the category (business_overview, tools, pain_points, etc.)
  * - question: the text Annie asks
+ * - qualityBar: what makes an answer "good enough" vs "needs re-probing"
+ * - feedsPipelines: which downstream pipeline stages consume this answer
+ * - feedsGateCriteria: which gate criteria this answer supports (BLOCKING marked)
  * - followUps: probing questions asked based on user response keywords
  * - required: whether this is a required question
  *
@@ -13,66 +26,43 @@
  */
 
 // ============================================================================
-// Evidence Requirements → Gate Criteria → Intake Questions
+// Guardrails — What Annie Must NEVER Do
 // ============================================================================
-//
-// The pipeline produces an Evidence Map with these claim types:
-//   pain_point | workflow_detail | metric | tool_usage | business_context |
-//   customer_channel | budget_signal
-//
-// Each gate criterion needs specific evidence types. Each intake question
-// is designed to produce at least one evidence type for at least one gate.
-//
-// LEGEND:
-//   ● BLOCKING — this criterion can BLOCK the pipeline
-//   ◐ TASTE — this criterion affects the taste score (no block)
-//   ○ INFORM — gate-internal judgment, not driven by intake
-//
-// GATE CRITERION         | EVIDENCE TYPE        | INTAKE Q    | SEVERITY
-// ───────────────────────┼──────────────────────┼─────────────┼──────────
-// QW-A1   Stated need     | pain_point           | Q1, Q2, Q3  | ● BLOCKING
-// QW-A2   Scope match     | pain_point           | (gate judgment) | ○
-// QW-E1   Traceability    | pain_point, metric   | Q3, Q4, Q5  | ● BLOCKING
-// QW-E2   Tool grounding  | tool_usage           | Q2          | ● BLOCKING
-// QW-E3   Number ground.  | metric               | Q4, Q5      | ● BLOCKING
-// QW-R1   Over-promise    | (gate judgment)      | —           | ○
-// QW-R2   Regulated risk  | (gate judgment)      | —           | ○
-// MP-A1   Problem exist.  | pain_point           | Q1, Q3      | ● BLOCKING
-// MP-A2   Scale match     | business_context     | Q1          | ◐ TASTE
-// MP-E1   Budget align.   | budget_signal        | Q8          | ● BLOCKING
-// MP-E2   Timeline align. | business_context     | Q10         | ◐ TASTE
-// MP-E3   Capability      | tool_usage, context  | Q2, Q9      | ◐ TASTE
-// MP-R1   Cost promise    | (gate judgment)      | —           | ○
-// MP-R2   Category        | (gate judgment)      | —           | ○
-// RR-A0   Evidence trace  | ALL                  | ALL         | ● BLOCKING
-// RR-A0b  Gap handling    | workflow_detail      | Q7          | ◐ TASTE
-// RR-T1   Evidence ground | pain_point, metric   | Q3, Q4, Q5  | ◐ TASTE
-// RR-T2   Recomm. cred.   | tool_usage           | Q2, Q7      | ◐ TASTE
-// RR-T3   Client spec.    | customer_channel     | Q1, Q6      | ◐ TASTE
-// RR-T4   Financial hon.  | metric               | Q4, Q5, Q8  | ◐ TASTE
-// RR-T5   AU Market fit   | business_context     | Q1 (implicit AU) | ◐
-// RR-TC1  Tool citation   | tool_usage           | Q2          | ● BLOCKING
-// RR-TC2  Desc accuracy   | tool_usage           | Q2          | ● BLOCKING
-// RR-TC3  Pricing acc.    | tool_usage           | Q2          | ● BLOCKING
-//
-// INTAKE QUESTION ORDER is front-loaded with ● BLOCKING criteria:
-//   Q1 business_overview  → business_context (1 BLOCKING, 3 TASTE)
-//   Q2 current_tools       → tool_usage        (3 BLOCKING, 2 TASTE)
-//   Q3 pain_points         → pain_point        (3 BLOCKING, 1 TASTE)
-//   Q4 workflow_details    → workflow_detail   (2 BLOCKING, 2 TASTE)
-//   Q5 concrete_metrics    → metric            (2 BLOCKING, 2 TASTE)
-//   Q6 customer_channels   → customer_channel  (1 TASTE)
-//   Q7 process_consistency → workflow_detail   (1 BLOCKING, 2 TASTE)
-//   Q8 budget              → budget_signal     (2 BLOCKING)
-//   Q9 ai_readiness        → business_context  (2 TASTE)
-//   Q10 timeline           → business_context  (1 TASTE)
+
+/**
+ * These guardrails apply to ALL intake interactions regardless of channel.
+ * They constrain the LLM generating Annie's responses to prevent:
+ * - Regulated topic drift (tax, legal, financial, medical advice)
+ * - Sensitive data collection (passwords, API keys, bank details)
+ * - Premature tool recommendations during intake
+ * - Outcome promises or guarantees
+ */
+export const ANNIE_GUARDRAILS = [
+  'Do not recommend specific tools or products during intake.',
+  'Do not diagnose or advise on legal, medical, financial, tax, or compliance issues.',
+  'Do not ask for passwords, API keys, bank details, credit card numbers, or sensitive customer records.',
+  'If the caller shares sensitive information, ask them to describe the workflow without sharing private details.',
+  'Do not criticise the caller\'s current process. Frame gaps as opportunities.',
+  'If the caller asks for pricing or scope, say the assessment team can confirm after reviewing the transcript.',
+  'If the caller asks whether AI can "solve everything," explain the assessment will separate practical quick wins from ideas that are not worth doing.',
+  'Do not promise specific savings, revenue increases, conversion rates, or compliance outcomes.',
+  'If the caller mentions a regulated topic (tax strategy, legal compliance, financial advice, medical diagnosis), acknowledge it and explain that Annie cannot advise on that area — redirect to the relevant workflow or tool aspect only.',
+  'Do not collect personally identifiable information beyond name, email, phone, company name, and role. If additional PII appears in the conversation, do not record it in the intake data.'
+];
+
+// ============================================================================
+// Types
 // ============================================================================
 
 export interface IntakeQuestion {
   id: string;
   topic: string;
   question: string;
-  /** Gate criteria this question feeds (for traceability). */
+  /** What makes an answer "good enough" vs "needs re-probing." */
+  qualityBar: string;
+  /** Which pipeline stages consume this answer. */
+  feedsPipelines: string[];
+  /** Which gate criteria this answer supports (● = BLOCKING). */
   feedsGateCriteria: string[];
   followUps?: Array<{
     keywords: string[];
@@ -89,6 +79,8 @@ export interface IntakeProgress {
     answer: string;
     followUpAnswer?: string;
     timestamp: string;
+    /** Whether this answer meets the quality bar for sufficiency. */
+    meetsQualityBar?: boolean;
   }>;
   completed: boolean;
   createdAt: string;
@@ -102,218 +94,251 @@ export interface ChatMessage {
   isTyping?: boolean;
 }
 
-/** The full intake script. Annie presents questions in order, with probing follow-ups. */
+// ============================================================================
+// Intake Script — 8 Questions (redesigned from original 6)
+// ============================================================================
+
 export const INTAKE_SCRIPT: IntakeQuestion[] = [
+  // --- Q1: Business Overview (split from original compound question) ---
   {
     id: 'business_overview',
     topic: 'Business Overview',
-    // Feeds: QW-A1 (stated need), MP-A2 (scale match), RR-A0 (traceability), RR-T3 (specificity), RR-T5 (AU fit)
-    // Gate needs: industry vertical, team size (FT/PT/contractor breakdown), owner role, operating duration, AU confirmation
-    question: "To start — what does your business do, and what industry are you in? Tell me your role, how many people work there (rough split between full-time, part-time, and contractors if that applies), and how long you've been operating.",
+    question: "Let's start with the basics. What does your business do, and who do you primarily serve?",
+    qualityBar: 'Answer must name: (1) the industry or sector, (2) the primary customer or client type, (3) what the business actually produces or delivers. "We do events" is insufficient — re-probe for specifics.',
+    feedsPipelines: ['evidence extraction (business context)', 'LLM analysis (industry-specific recommendations)'],
+    feedsGateCriteria: ['● QW-A1 Stated need', '● MP-A2 Business context', 'RR-T7 Appropriateness'],
     followUps: [
       {
-        keywords: ['team', 'employee', 'staff', 'people', 'freelancer', 'solo'],
-        probe: "Got it — and how is the team structured? Clear departments with dedicated roles, or more of an 'everyone pitches in' setup?"
+        keywords: ['startup', 'new', 'just started', 'recently', 'founded', 'launched'],
+        probe: "How has the first few months been? What's been the biggest challenge in getting established?"
       },
       {
-        keywords: ['startup', 'new', 'just started', 'recently', 'founded'],
-        probe: "Early days then. What's been the steepest learning curve so far — finding customers, managing cash flow, or just keeping everything organized?"
-      },
-      {
-        keywords: ['trade', 'construction', 'plumbing', 'electrical', 'building', 'service'],
-        probe: "Tradie business — that's really relevant for what tools make sense. Are you mostly on the tools yourself these days, or more running the business side?"
+        keywords: ['growing', 'scaling', 'expanding', 'growth', 'hiring'],
+        probe: "What's driving the growth — more customers, bigger projects, or new offerings?"
       }
     ],
-    feedsGateCriteria: ['QW-A1', 'MP-A2', 'RR-A0', 'RR-T3', 'RR-T5'],
     required: true
   },
+
+  // --- Q1b: Role & Team (was part of original compound Q1) ---
   {
-    id: 'current_tools',
-    topic: 'Current Tooling & Tech Stack',
-    // Feeds: QW-A1 (stated need), QW-E2 (tool grounding), RR-TC1–TC3 (tool citation), MP-E3 (capability), RR-T2 (credibility)
-    // Gate needs: exact tool names (for citation verification), satisfaction signals, integration gaps, manual workarounds
-    question: "What software and tools does your business actually use day-to-day? Name them if you can — CRM, accounting, scheduling, email, spreadsheets, whatever's part of your daily workflow. And be honest: which ones do you actually like using, and which ones drive people up the wall?",
+    id: 'role_and_team',
+    topic: 'Role & Team',
+    question: "What's your role in the business, and how many people are on the team? Include employees, contractors, virtual assistants, or regular external partners.",
+    qualityBar: 'Answer must include: (1) a named role ("owner," "operations manager," "founder"), (2) a team count (specific number or range). "A few people" is insufficient — probe for actual count.',
+    feedsPipelines: ['tool research (team-size-appropriate tools)', 'LLM analysis (capacity context)'],
+    feedsGateCriteria: ['● MP-A2 Business context', '● RR-TC3 Pricing accuracy (team-size tiers)'],
     followUps: [
       {
-        keywords: ['none', 'not really', 'manual', 'spreadsheet', 'excel', 'google sheets', 'pen', 'paper'],
-        probe: "So things are pretty manual. What's the most time-consuming task you're doing by hand that you know should be automated by now?"
-      },
-      {
-        keywords: ['xero', 'quickbooks', 'myob', 'jobber', 'simpro', 'servicem8', 'tradify', 'fergus'],
-        probe: "You're using some solid tools already. Do they talk to each other, or are you copying data between them?"
-      },
-      {
-        keywords: ['zapier', 'make', 'integromat', 'automation', 'api', 'integration'],
-        probe: "You're already wiring things together — that's a great sign. Are there any connections that feel fragile or break more often than they should?"
-      },
-      {
-        keywords: ['hate', 'frustrating', 'terrible', 'awful', 'slow', 'clunky', 'outdated'],
-        probe: "That one clearly bothers you. Is it the tool itself that's the problem, or more that it doesn't fit how you actually work?"
+        keywords: ['team', 'employee', 'staff', 'people', 'freelancer', 'solo', 'contractor', 'va'],
+        probe: "How is the team structured? Clear departments or do people wear multiple hats?"
       }
     ],
-    feedsGateCriteria: ['QW-A1', 'QW-E2', 'RR-TC1', 'RR-TC2', 'RR-TC3', 'MP-E3', 'RR-T2'],
     required: true
   },
+
+  // --- Q1c: Operating History (was part of original compound Q1) ---
   {
-    id: 'pain_points',
-    topic: 'Pain Points & Bottlenecks',
-    // Feeds: QW-A1 (stated need), QW-E1 (traceability), MP-A1 (problem existence), RR-A0, RR-T1 (evidence grounding)
-    // Gate needs: specific, quotable frustration statements, frequency, impact, who feels it most
-    question: "What's the thing in your business that makes you think 'there has to be a better way'? Not a general frustration — I'm looking for something specific that happened this week or last week that ate up time it shouldn't have.",
-    followUps: [
-      {
-        keywords: ['reporting', 'reports', 'data', 'analytics', 'dashboard'],
-        probe: "Walk me through the last report you put together — where did the data come from, how many steps, how long did it take?"
-      },
-      {
-        keywords: ['email', 'inbox', 'messages', 'communication', 'slack', 'teams'],
-        probe: "Is it the volume that's the problem, or more that things get lost and slip through the cracks? Can you remember the last time something important got missed?"
-      },
-      {
-        keywords: ['customer', 'client', 'lead', 'enquiry', 'support', 'service'],
-        probe: "How are enquiries handled right now — is there one person who owns it, or is it whoever grabs the phone first?"
-      },
-      {
-        keywords: ['every day', 'constantly', 'always', 'daily', 'every week'],
-        probe: "So this is a recurring headache, not a one-off. Is it worse at certain times — end of month, busy season, staff leave?"
-      }
-    ],
-    feedsGateCriteria: ['QW-A1', 'QW-E1', 'MP-A1', 'RR-A0', 'RR-T1'],
+    id: 'operating_history',
+    topic: 'Operating History',
+    question: "How long has the business been operating, and what are the main ways customers or clients first come in?",
+    qualityBar: 'Answer must include: (1) business age (years or "since YYYY"), (2) at least one named customer acquisition channel.',
+    feedsPipelines: ['LLM analysis (business maturity context)', 'evidence extraction (lead channels)'],
+    feedsGateCriteria: ['● MP-A2 Business context', 'RR-T1 Completeness'],
     required: true
   },
-  {
-    id: 'workflow_details',
-    topic: 'Workflow Deep Dive',
-    // Feeds: QW-E1 (traceability), QW-E3 (number grounding), RR-A0 (traceability), RR-T1 (evidence grounding), RR-T4 (financial honesty)
-    // Gate needs: task names, hours per task with provenance, who performs it, frequency pattern, seasonal variation
-    question: "Let's get specific — this is what makes the numbers in your report accurate. Walk me through your 2-3 most time-consuming recurring tasks. For each one: roughly how many hours per week, who handles it, and is this consistent week to week or does it spike at certain times?",
-    followUps: [
-      {
-        keywords: ['invoicing', 'billing', 'invoice', 'accounts', 'payments', 'receivable'],
-        probe: "Is it just creating and sending invoices, or does it include chasing late payments and reconciling? Those are different time sinks and we should separate them."
-      },
-      {
-        keywords: ['scheduling', 'roster', 'shifts', 'booking', 'appointment', 'calendar'],
-        probe: "And is most of the time spent on the initial scheduling, or on handling changes, cancellations, and rescheduling?"
-      },
-      {
-        keywords: ['varies', 'depends', 'season', 'busy', 'quiet', 'spike', 'surge'],
-        probe: "Good to know — during your busiest period, does that time roughly double, or is it more like 50% more?"
-      }
-    ],
-    feedsGateCriteria: ['QW-E1', 'QW-E3', 'RR-A0', 'RR-T1', 'RR-T4'],
-    required: true
-  },
-  {
-    id: 'concrete_metrics',
-    topic: 'Quantifying the Impact',
-    // Feeds: QW-E1 (traceability), QW-E3 (number grounding), RR-A0 (traceability), RR-T1 (evidence grounding), RR-T4 (financial honesty)
-    // Gate needs: hours/week, dollar cost per incident, volume numbers, revenue impact — any number the report can anchor to
-    question: "Now the numbers — even rough ones help. For your biggest time-waster: roughly how many hours per week? What does it actually cost when it goes wrong — lost revenue, overtime hours, missed deadlines, customers lost? And any volume numbers you can share — leads per week, invoices per month, jobs per day?",
-    followUps: [
-      {
-        keywords: ['not sure', 'don\'t know', 'hard to say', 'depends', 'varies'],
-        probe: "No problem — that's actually useful to know. Has anyone ever tried to measure it, or is this a 'nobody's ever tracked it' situation?"
-      },
-      {
-        keywords: ['thousand', 'hundred', 'dollar', '$', 'cost', 'losing', 'loss', 'revenue'],
-        probe: "That's helpful — and is that something you can see in your accounts, or more of a gut-feel number you've worked out over time?"
-      }
-    ],
-    feedsGateCriteria: ['QW-E1', 'QW-E3', 'RR-A0', 'RR-T1', 'RR-T4'],
-    required: true
-  },
-  {
-    id: 'customer_channels',
-    topic: 'Customer Channels',
-    // Feeds: RR-T3 (client specificity)
-    // Gate needs: channel names with volume splits, conversion quality, after-hours handling — enables channel-specific tool matching
-    question: "Where do your customers actually come from? Phone calls, your website, email, walk-ins, word of mouth, social media — roughly what percentage comes through each channel, and which channel tends to bring your best customers?",
-    followUps: [
-      {
-        keywords: ['phone', 'call', 'calling', 'mobile', 'ring'],
-        probe: "And when someone calls outside business hours or you can't pick up — voicemail, text back later, or do you think you lose some of those?"
-      },
-      {
-        keywords: ['website', 'online', 'form', 'chat', 'contact', 'google'],
-        probe: "Are people finding you through Google searches, or more through your social media and word of mouth?"
-      },
-      {
-        keywords: ['word of mouth', 'referral', 'recommendation', 'friend', 'repeat'],
-        probe: "Referral and repeat business is gold — but hard to scale. Do you have any system for staying in touch with past customers, or is it more 'they'll call when they need us'?"
-      }
-    ],
-    feedsGateCriteria: ['RR-A0', 'RR-T3'],
-    required: true
-  },
-  {
-    id: 'process_consistency',
-    topic: 'Process Consistency',
-    // Feeds: QW-E1 (traceability), RR-A0b (gap handling), RR-T2 (recommendation credibility)
-    // Gate needs: documented vs ad-hoc signal, enforcement level, tooling for processes — determines whether automation or standardization comes first
-    question: "For the key workflows you just described — is there a written-down process everyone follows, or does each person have their own way? And if there is a process, is it in a tool or system somewhere, or more of a 'this is how we've always done it' understanding?",
-    followUps: [
-      {
-        keywords: ['documented', 'written', 'standard', 'same', 'consistent', 'process', 'procedure', 'checklist', 'system'],
-        probe: "Good — and be honest: do people actually follow it day to day, or does the real-world version drift from what's on paper?"
-      },
-      {
-        keywords: ['own way', 'different', 'varies', 'depends', 'each', 'individual', 'no process'],
-        probe: "That's really common and it's important context — it actually changes what kind of tool or system we'd recommend. Is the variation a problem for you, or more of a 'we're small enough that it works fine' thing?"
-      }
-    ],
-    feedsGateCriteria: ['QW-E1', 'RR-A0', 'RR-A0b', 'RR-T2'],
-    required: true
-  },
-  {
-    id: 'budget',
-    topic: 'Budget & Investment',
-    // Feeds: MP-E1 (budget alignment), RR-T4 (financial honesty)
-    // Gate needs: monthly investment range covering both tools AND implementation, past spend signal
-    question: "What feels like a comfortable monthly investment for improving how your business runs — including both software tools and any setup or support you might need? A ballpark like 'a couple hundred' or 'up to a thousand' is more than enough to work with.",
-    feedsGateCriteria: ['MP-E1', 'RR-T4'],
-    required: true
-  },
+
+  // --- Q2: AI Readiness (moved from Q4 to allow adaptation) ---
   {
     id: 'ai_readiness',
     topic: 'AI Readiness & Experience',
-    // Feeds: MP-E3 (capability alignment), RR-T2 (recommendation credibility)
-    // Gate needs: specific tools used, depth of use (experimentation vs workflow integration), team sentiment
-    question: "Quick pulse check: have you or anyone on your team used AI tools before — ChatGPT, Claude, Copilot, or anything built into your existing software? And are you using them regularly as part of your workflow, or more experimenting here and there?",
+    question: "Have you or your team used any AI tools before? ChatGPT, Claude, Copilot, or any AI-powered features in your existing software? Be honest — there's no wrong answer.",
+    qualityBar: 'Answer must include: yes/no + if yes, at least one named tool or feature. "We tried some stuff" is insufficient — probe for what was tried and the outcome.',
+    feedsPipelines: ['LLM analysis (AI sophistication calibration)', 'tool research (sophistication-appropriate tools)'],
+    feedsGateCriteria: ['RR-T7 Appropriateness (TASTE)'],
     followUps: [
       {
-        keywords: ['yes', 'chatgpt', 'claude', 'copilot', 'used', 'tried', 'regularly', 'daily'],
-        probe: "What's been the most useful thing you've used it for? And anything you tried that was more trouble than it was worth?"
+        keywords: ['yes', 'chatgpt', 'claude', 'copilot', 'used', 'tried', 'experiment'],
+        probe: "What has your experience been like? Specific things you found useful or frustrating?"
       },
       {
-        keywords: ['no', 'not really', 'haven\'t', 'avoid', 'wary', 'unsure', 'experiment'],
-        probe: "Fair enough. Is there a particular concern holding you back, or has it just not been a priority yet?"
+        keywords: ['no', 'not really', "haven't", 'avoid', 'wary', 'unsure', 'concerned'],
+        probe: "That's completely understandable. What's the main hesitation — cost, complexity, data privacy, or just haven't had time?"
       }
     ],
-    feedsGateCriteria: ['MP-E3', 'RR-T2'],
     required: true
   },
+
+  // --- Q3: Current Tools (unchanged structure, added quality bar and pipeline mapping) ---
+  {
+    id: 'current_tools',
+    topic: 'Current Tooling & Tech Stack',
+    question: "What tools and software does your business use day-to-day? Think about CRM, project management, accounting, communication platforms, email, scheduling, reporting, and anything else you rely on regularly.",
+    qualityBar: 'Answer must name at least one specific software product (not just a category). "We use Google Workspace and spreadsheets" is borderline — probe for any additional tools. "Just email and Excel" with no named products is insufficient — probe for hidden tools.',
+    feedsPipelines: ['tool research (gap analysis)', 'evidence extraction (tool inventory)'],
+    feedsGateCriteria: ['● QW-A1 Stated need', '● QW-E2 Tool grounding', '● RR-TC1 Tool citation', '● RR-TC3 Pricing accuracy'],
+    followUps: [
+      {
+        keywords: ['none', 'not really', 'manual', 'spreadsheet', 'excel', 'google sheets', 'pen', 'paper'],
+        probe: "So things are fairly manual at the moment. What's the most time-consuming manual task you wish was automated?"
+      },
+      {
+        keywords: ['zapier', 'make', 'integromat', 'automation', 'api', 'n8n'],
+        probe: "You're already using automation — great. Are there any workflows that still feel clunky or require too many steps?"
+      },
+      {
+        keywords: ['xero', 'quickbooks', 'myob', 'jobber', 'simpro', 'servicem8', 'tradify', 'fergus',
+                   'hubspot', 'salesforce', 'monday', 'asana', 'trello', 'notion', 'airtable',
+                   'slack', 'teams', 'calendly', 'stripe', 'square', 'shopify', 'mailchimp',
+                   'activecampaign', 'canva', 'eventpro', 'dubsado', 'honeybook'],
+        probe: "You've got a solid stack. Are any of those tools not being used to their full potential, or do you have tools the team pays for but doesn't use properly?"
+      }
+    ],
+    required: true
+  },
+
+  // --- Q4: Pain Points & Bottlenecks (unchanged core, added quality bar) ---
+  {
+    id: 'pain_points',
+    topic: 'Pain Points & Bottlenecks',
+    question: "What frustrates you most about your current workflow? Where do you feel like time or money is being wasted? Give me a specific, recent example if you can.",
+    qualityBar: 'Answer must include: (1) a named workflow or task, (2) a frequency ("every day," "weekly," "every Monday"), (3) a time or money impact (even approximate). "Admin takes too long" without frequency or impact is insufficient — probe for a recent example.',
+    feedsPipelines: ['evidence extraction (pain point claims)', 'LLM analysis (Quick Win generation)', 'tool research (pain-point-specific tool queries)'],
+    feedsGateCriteria: ['● QW-A1 Stated need', '● QW-E1 Traceability', '● QW-E3 Number grounding', '● MP-A1 Problem existence', '● RR-A0 Evidence traceability'],
+    followUps: [
+      {
+        keywords: ['reporting', 'reports', 'data', 'analytics', 'dashboard', 'numbers'],
+        probe: "Walk me through the actual steps. What tools or spreadsheets are open when you're doing those reports, and about how long does it take?"
+      },
+      {
+        keywords: ['email', 'inbox', 'messages', 'communication', 'slack', 'teams', 'overload'],
+        probe: "Is it the volume, the sorting, or the follow-up that's the problem? About how many messages are we talking about?"
+      },
+      {
+        keywords: ['customer', 'client', 'lead', 'enquiry', 'support', 'service', 'response'],
+        probe: "Walk me through what happens after a new enquiry comes in. Who handles it, how fast, and where does it sometimes go wrong?"
+      },
+      {
+        keywords: ['manual', 'copy', 'paste', 'double', 'retype', 'spreadsheet', 'data entry'],
+        probe: "Which specific step in that manual process takes the most time? If you had to guess, how many hours a week does that one step consume?"
+      }
+    ],
+    required: true
+  },
+
+  // --- Q5: Concrete Impact (NEW — replaces original vague Q4/Q5 with quantifiable focus) ---
+  {
+    id: 'concrete_impact',
+    topic: 'Business Impact & Numbers',
+    question: "Let's put some numbers on this. Of the frustrations you mentioned, which one has the biggest impact — in time lost, missed revenue, or team stress? Give me your best estimate — rough numbers are fine.",
+    qualityBar: 'Answer must include at least one quantifiable estimate: hours per week lost, approximate revenue impact, or specific team capacity cost. "It costs us a lot" is insufficient — probe: "Ballpark — an extra hour a week, or an extra day?"',
+    feedsPipelines: ['evidence extraction (quantified claims)', 'LLM analysis (financial impact calculation)', 'budget detection (willingness-to-pay signal)'],
+    feedsGateCriteria: ['● QW-E1 Traceability', '● QW-E3 Number grounding', '● MP-A1 Problem existence', '● RR-A0 Evidence traceability', '● RR-T4 Financial honesty'],
+    followUps: [
+      {
+        keywords: ['hours', 'hour', 'per week', 'per day', 'minutes', 'time', 'saving'],
+        probe: "If you could get that time back, what would you spend it on instead?"
+      },
+      {
+        keywords: ['revenue', 'money', 'dollars', 'sales', 'lost', 'missed', 'cost'],
+        probe: "Roughly what's an average customer or booking worth to the business? What would one extra per month mean?"
+      },
+      {
+        keywords: ['stress', 'frustration', 'team', 'staff', 'burnout', 'turnover'],
+        probe: "Is this affecting anyone's ability to do their actual job, or causing people to work extra hours they shouldn't?"
+      }
+    ],
+    required: true
+  },
+
+  // --- Q6: Budget (redesigned — separates comfortable from maximum) ---
+  {
+    id: 'budget',
+    topic: 'Budget & Investment',
+    question: "Two questions on budget. First, what's a comfortable monthly investment you'd make without hesitation for the right solution? And second, what's your absolute maximum if the opportunity was clearly worth it?",
+    qualityBar: 'Answer must include two numbers or ranges — comfortable AND maximum. If only one number given, probe for the other. "A few hundred" without specifying which tier is ambiguous — clarify: "Does a few hundred mean around $200, or closer to $500?"',
+    feedsPipelines: ['budget detection (comfortable vs max)', 'tool research (budget-appropriate tools)', 'LLM analysis (recommendation sequencing)'],
+    feedsGateCriteria: ['● MP-E1 Budget alignment', '● RR-TC3 Pricing accuracy'],
+    followUps: [
+      {
+        keywords: ['unsure', 'not sure', 'depends', 'flexible', 'whatever'],
+        probe: "No problem. Most of the tools we recommend start around $20-50/month, and the more comprehensive ones run $100-300/month. Does that range feel about right?"
+      },
+      {
+        keywords: ['hundred', 'thousand', 'dollar', 'budget', 'limited', 'small'],
+        probe: "Got it. And if a tool could clearly save you 5+ hours a week, would the budget conversation change?"
+      }
+    ],
+    required: true
+  },
+
+  // --- Q7: Timeline & Urgency (redesigned — adds "waiting for trigger") ---
   {
     id: 'timeline',
     topic: 'Timeline & Urgency',
-    question: "And lastly — how urgent is this for you? Are you looking for quick wins this month, planning improvements over the next quarter, or just exploring what's possible?",
+    question: "Last question on timing. How urgent is this for you right now — and is there a specific trigger or event that would make it more urgent?",
+    qualityBar: 'Answer must include a timeframe (this month / this quarter / next 6 months / exploring) AND whether there is a trigger event. "We\'re just looking" without context is insufficient — probe for what prompted the look.',
+    feedsPipelines: ['LLM analysis (roadmap phase sequencing)', 'Quick Win vs Deeper Opportunity prioritization'],
+    feedsGateCriteria: ['RR-T6 Prioritization (TASTE)'],
     followUps: [
       {
-        keywords: ['urgent', 'asap', 'this month', 'now', 'immediately', 'quick'],
-        probe: "What's driving the urgency — a specific pain point that's getting worse, or a growth opportunity you want to capture?"
+        keywords: ['urgent', 'asap', 'this month', 'now', 'immediately', 'quick', 'yesterday'],
+        probe: "What's driving the urgency — a specific pain point getting worse, or a growth opportunity you want to capture?"
       },
       {
-        keywords: ['quarter', 'next few', 'planning', 'exploring', 'sometime'],
-        probe: "No rush at all. Is there a particular trigger that would move this up your priority list?"
+        keywords: ['quarter', 'next few', 'planning', 'this year', 'roadmap'],
+        probe: "Makes sense to plan ahead. Is there a particular trigger — end of quarter, new client, team hire — that would move this up your priority list?"
+      },
+      {
+        keywords: ['exploring', 'sometime', 'curious', 'looking', 'options', 'research'],
+        probe: "Exploring is a great place to start. Was there something specific that prompted you to look into this now — a recommendation, an article, a competitor move, or just a growing sense that something needs to change?"
       }
     ],
-    feedsGateCriteria: ['MP-E2'],
     required: true
+  },
+
+  // --- Q8: Open-Ended Close (NEW — captures anything missed) ---
+  {
+    id: 'open_close',
+    topic: 'Anything Else',
+    question: "Before we wrap up, is there anything important about your business, your workflows, or your goals that I didn't ask about? Sometimes the most valuable insight is the one nobody thought to ask.",
+    qualityBar: 'No minimum requirement — this is an open-ended capture question. But if the user mentions a new pain point, tool, or constraint, apply the same quality bar from the relevant earlier question.',
+    feedsPipelines: ['evidence extraction (catch-all)', 'LLM analysis (additional context)'],
+    feedsGateCriteria: ['RR-T2 Completeness (TASTE)'],
+    required: false
   }
 ];
 
 /** Total number of intake questions. */
 export const TOTAL_QUESTIONS = INTAKE_SCRIPT.length;
+
+/** Questions that feed BLOCKING gate criteria and MUST have substantive answers before pipeline trigger. */
+export const BLOCKING_QUESTION_IDS = [
+  'business_overview',   // Q1: feeds QW-A1, MP-A2, RR-T7
+  'role_and_team',       // Q1b: feeds MP-A2, RR-TC3
+  'operating_history',   // Q1c: feeds MP-A2, RR-T1
+  'current_tools',       // Q3: feeds QW-A1, QW-E2, RR-TC1, RR-TC3
+  'pain_points',         // Q4: feeds QW-A1, QW-E1, QW-E3, MP-A1, RR-A0
+  'concrete_impact',     // Q5: feeds QW-E1, QW-E3, MP-A1, RR-A0, RR-T4
+  'budget'               // Q6: feeds MP-E1, RR-TC3
+  // Note: ai_readiness (Q2) and timeline (Q7) feed TASTE criteria only,
+  // so they are not required for pipeline trigger but improve report quality.
+];
+
+/**
+ * Definition of done: intake is complete when at minimum:
+ * - Transcript length ≥ 400 characters
+ * - All 7 BLOCKING questions answered with substance (length > 10 chars)
+ * - At least one specific, named tool detected
+ * - At least one pain point with temporal anchor detected
+ * - Budget signal detected (comfortable or maximum)
+ *
+ * See src/lib/server/assessment/intake-quality-check.ts for the runtime check.
+ */
+
+// ============================================================================
+// Follow-up Logic (unchanged from v1)
+// ============================================================================
 
 /**
  * Get a follow-up probe question based on keywords in the user's answer.
