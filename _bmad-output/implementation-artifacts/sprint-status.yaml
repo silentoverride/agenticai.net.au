@@ -96,10 +96,10 @@ development_status:
   epic-5-retrospective: optional
 
   # === Epic 6: Pipeline Intake Quality [AICC Workflow Family] ===
-  epic-6: in-progress
-  6-1-intake-quality-audit: ready-for-dev
-  6-2-intake-question-redesign: ready-for-dev
-  6-3-intake-completion-criteria: ready-for-dev
+  epic-6: done
+  6-1-intake-quality-audit: done
+  6-2-intake-question-redesign: done
+  6-3-intake-completion-criteria: done
   epic-6-retrospective: optional
 
   # === Epic 7: Pipeline Gate Hardening [JLA Workflow Family] ===

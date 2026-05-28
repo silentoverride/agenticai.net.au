@@ -1,6 +1,6 @@
 # Story 6.3: Intake Completion Criteria (AICC-003)
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

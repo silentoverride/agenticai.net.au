@@ -1,6 +1,6 @@
 # Story 6.2: Intake Question Redesign (AICC-001)
 
-Status: review
+Status: done
 
 ## Story
 
