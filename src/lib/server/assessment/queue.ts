@@ -11,7 +11,7 @@
 
 import type { AssessmentReportJob } from './types';
 import { runReportPipeline } from './pipeline';
-import { setPipelineStatus } from './pipeline-store';
+import { setPipelineStatus, getPipelineStatus } from './pipeline-store';
 
 /** Send a job to the queue. Returns true if queued, false if inline fallback. */
 export async function enqueueReportJob(
@@ -54,9 +54,37 @@ export async function enqueueReportJob(
 /** Run the pipeline inline — used as fallback or by the queue consumer. */
 export async function runPipelineInline(job: AssessmentReportJob): Promise<void> {
   const sessionId = job.sessionId || job.callId!;
+
+  // Idempotency guard: skip if pipeline already completed or in progress.
+  // Prevents duplicate processing from queue retries or double webhooks.
+  const existing = await getPipelineStatus(sessionId);
+  if (existing && (existing.status === 'completed' || existing.status === 'running_llm')) {
+    console.info(`[queue:inline] Pipeline already processed, skipping duplicate`, {
+      sessionId,
+      existingStatus: existing.status
+    });
+    return;
+  }
+
   try {
     await setPipelineStatus(sessionId, { status: 'queued' });
     const result = await runReportPipeline(job);
+
+    if (result.blocked) {
+      // Pipeline was blocked by a quality gate — report saved but email not sent.
+      // Operator must review and manually release or discard.
+      await setPipelineStatus(sessionId, {
+        status: 'human_assist',
+        reportId: result.savedReport?.id,
+        error: result.blockReason
+      });
+      console.info(`[queue:inline] Pipeline blocked by gate (sessionId=${sessionId})`, {
+        blockedBy: result.blockedBy,
+        reason: result.blockReason
+      });
+      return;
+    }
+
     await setPipelineStatus(sessionId, {
       status: 'completed',
       reportId: result.savedReport?.id

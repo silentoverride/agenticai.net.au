@@ -4,10 +4,12 @@
    * Offers to resume from where they left off, or start fresh.
    */
 
+  import { TOTAL_QUESTIONS } from '$lib/assessment/intake-script';
+
   let {
     sessionId = '',
     lastQuestionIndex = 0,
-    totalQuestions = 6,
+    totalQuestions = TOTAL_QUESTIONS,
     expiresInSeconds = 86400,
     onResume = () => {},
     onStartFresh = () => {}

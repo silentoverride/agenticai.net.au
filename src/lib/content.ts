@@ -12,7 +12,7 @@ export const services = [
     text: 'A short action plan showing the changes, tools, and process improvements your team can trial first without committing to a larger build.'
   },
   {
-    title: 'No-Charge Follow-Up Consultation',
+    title: 'Follow-Up Consultation',
     text: 'After receiving the report, you can elect to book a complimentary 30-minute consultation to walk through the findings and discuss possible next steps.'
   }
 ];

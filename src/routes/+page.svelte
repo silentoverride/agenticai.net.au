@@ -405,7 +405,7 @@
             </svg>
           </summary>
           <div class="faq-answer">
-            <p>{item.a}</p>
+            <p>{@html '<!--email_off-->'}{item.a}{@html '<!--/email_off-->'}</p>
           </div>
         </details>
       {/each}

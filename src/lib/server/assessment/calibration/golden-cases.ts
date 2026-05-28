@@ -1,15 +1,11 @@
 /**
- * Golden Test Cases — curated input/output pairs for gate calibration.
+ * Golden Test Cases v2 — curated input/output pairs for gate calibration.
  *
- * Each case simulates a real assessment scenario and specifies the expected
- * gate verdict. Operators run gates against these to verify behavior and
- * tune prompts/thresholds.
- *
- * To add a new test case:
- * 1. Create a realistic transcript snippet
- * 2. Determine the expected verdict per gate type
- * 3. Tag the case appropriately
- * 4. Add it to the GOLDEN_TEST_CASES array
+ * Updated for judge-layer gate prompts with:
+ * - Evidence-map expectations (coverage thresholds)
+ * - Budget-ratio boundary testing
+ * - Pretty-But-Wrong detection (6 failure patterns)
+ * - Buzzword boundary testing (ALLOW when substance + language coexist)
  */
 
 import type { GoldenTestCase } from './types';
@@ -29,7 +25,8 @@ Customer: I'd estimate we're losing about $15,000 a year in late payments becaus
     expectedVerdicts: {
       'quick-wins-verification': GateVerdict.APPROVE,
       'major-project-verification': GateVerdict.APPROVE,
-      'report-review': GateVerdict.APPROVE
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.APPROVE
     },
     minConfidence: 0.7,
     tags: ['quick-win', 'happy-path'],
@@ -49,7 +46,8 @@ Customer: We use Xero, Microsoft Office, and a practice management tool called S
     expectedVerdicts: {
       'quick-wins-verification': GateVerdict.BLOCK,
       'major-project-verification': GateVerdict.APPROVE,
-      'report-review': GateVerdict.RETRY
+      'report-review': GateVerdict.RETRY,
+      'pbw-detector': GateVerdict.APPROVE
     },
     minConfidence: 0.6,
     tags: ['quick-win', 'hallucination', 'edge-case'],
@@ -70,7 +68,8 @@ Customer: I'd like something that can be set up in a few days, not months.`,
     expectedVerdicts: {
       'quick-wins-verification': GateVerdict.APPROVE,
       'major-project-verification': GateVerdict.BLOCK,
-      'report-review': GateVerdict.RETRY
+      'report-review': GateVerdict.RETRY,
+      'pbw-detector': GateVerdict.APPROVE
     },
     minConfidence: 0.6,
     tags: ['major-project', 'budget', 'edge-case'],
@@ -78,7 +77,7 @@ Customer: I'd like something that can be set up in a few days, not months.`,
   },
 
   // ==========================================================================
-  // REPORT REVIEW — QUALITY CHECK
+  // REPORT REVIEW — CONTRADICTORY STATEMENTS
   // ==========================================================================
   {
     id: 'rr-001',
@@ -90,7 +89,8 @@ Customer: We're not looking to hire more staff — we want to work with what we 
     expectedVerdicts: {
       'quick-wins-verification': GateVerdict.APPROVE,
       'major-project-verification': GateVerdict.APPROVE,
-      'report-review': GateVerdict.RETRY
+      'report-review': GateVerdict.RETRY,
+      'pbw-detector': GateVerdict.APPROVE
     },
     minConfidence: 0.5,
     tags: ['report-review', 'quality', 'edge-case'],
@@ -110,7 +110,8 @@ Customer: We're a small team but we handle about 50 "placements" per month.`,
     expectedVerdicts: {
       'quick-wins-verification': GateVerdict.HUMAN_ASSIST,
       'major-project-verification': GateVerdict.HUMAN_ASSIST,
-      'report-review': GateVerdict.APPROVE
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.APPROVE
     },
     tags: ['human-assist', 'ambiguous', 'edge-case'],
     notes: 'Industry-specific terms like "packaging" and "placements" are ambiguous — could be logistics, recruitment, or manufacturing.'
@@ -133,7 +134,8 @@ Customer: I'm moderately comfortable with technology but my team less so — tra
     expectedVerdicts: {
       'quick-wins-verification': GateVerdict.APPROVE,
       'major-project-verification': GateVerdict.APPROVE,
-      'report-review': GateVerdict.APPROVE
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.APPROVE
     },
     minConfidence: 0.8,
     tags: ['happy-path', 'full-pipeline'],
@@ -151,7 +153,8 @@ Customer: I'm moderately comfortable with technology but my team less so — tra
     expectedVerdicts: {
       'quick-wins-verification': GateVerdict.BLOCK,
       'major-project-verification': GateVerdict.BLOCK,
-      'report-review': GateVerdict.BLOCK
+      'report-review': GateVerdict.BLOCK,
+      'pbw-detector': GateVerdict.BLOCK
     },
     tags: ['edge-case', 'empty'],
     notes: 'Minimal content should block — insufficient evidence for any recommendation.'
@@ -171,11 +174,213 @@ Customer: Budget is flexible — probably $10-20k for the initial phase.`,
     expectedVerdicts: {
       'quick-wins-verification': GateVerdict.APPROVE,
       'major-project-verification': GateVerdict.APPROVE,
-      'report-review': GateVerdict.APPROVE
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.APPROVE
     },
     minConfidence: 0.6,
     tags: ['edge-case', 'technical'],
     notes: 'Technical customer with clear budget and pain points — gates should handle technical language appropriately.'
+  },
+
+  // ==========================================================================
+  // v2: PRETTY-BUT-WRONG — INDUSTRY MISFIRE
+  // ==========================================================================
+  {
+    id: 'pbw-001',
+    name: 'Pretty-But-Wrong — Industry Misfire (trade vs. office)',
+    description: 'Trade business gets office-productivity recommendations — PBW detector must flag.',
+    transcript: `Customer: I run an electrical contracting business with 8 electricians.
+Customer: We use ServiceM8 for job scheduling and Xero for invoicing.
+Customer: Our biggest headache is quoting — we lose jobs because quotes take too long to prepare.
+Customer: We also struggle with tracking material costs across different job sites.
+Customer: Budget is around $500/month for new software.`,
+    expectedVerdicts: {
+      'quick-wins-verification': GateVerdict.APPROVE,
+      'major-project-verification': GateVerdict.APPROVE,
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.BLOCK
+    },
+    minConfidence: 0.7,
+    tags: ['pbw-detector', 'industry-misfire', 'edge-case'],
+    notes: 'If report recommends Notion, Slack, knowledge management, or office productivity tools for a trade business, PBW should BLOCK. Correct: quoting automation, material cost tracking, estimating tools.'
+  },
+
+  // ==========================================================================
+  // v2: PRETTY-BUT-WRONG — TOOL WORSHIP
+  // ==========================================================================
+  {
+    id: 'pbw-002',
+    name: 'Pretty-But-Wrong — Tool Worship (tools without process)',
+    description: 'Customer with no documented processes gets tool recommendations with no process advice.',
+    transcript: `Customer: We're a boutique marketing agency with 6 people.
+Customer: Everything is in our heads — there are no documented processes.
+Customer: We use Gmail, Google Drive, and Canva. That's pretty much it.
+Customer: We lose track of client requests because they come through email, WhatsApp, and phone.
+Customer: I know we need systems but I don't know where to start.`,
+    expectedVerdicts: {
+      'quick-wins-verification': GateVerdict.APPROVE,
+      'major-project-verification': GateVerdict.RETRY,
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.BLOCK
+    },
+    minConfidence: 0.6,
+    tags: ['pbw-detector', 'tool-worship', 'edge-case'],
+    notes: 'Recommending 5+ tools without process design advice when customer has no documented processes should trigger PBW BLOCK.'
+  },
+
+  // ==========================================================================
+  // v2: PRETTY-BUT-WRONG — SCALE MISMATCH
+  // ==========================================================================
+  {
+    id: 'pbw-003',
+    name: 'Pretty-But-Wrong — Scale Mismatch (Excel to AI agents)',
+    description: 'Solo operator using Excel gets AI agent orchestration recommendations.',
+    transcript: `Customer: I'm a freelance graphic designer working from home.
+Customer: I use Excel to track my projects and invoices.
+Customer: I spend too much time on admin — maybe 5 hours a week.
+Customer: My budget is tight — maybe $50/month for tools.
+Customer: It's just me, no team.`,
+    expectedVerdicts: {
+      'quick-wins-verification': GateVerdict.APPROVE,
+      'major-project-verification': GateVerdict.BLOCK,
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.BLOCK
+    },
+    minConfidence: 0.7,
+    tags: ['pbw-detector', 'scale-mismatch', 'edge-case'],
+    notes: 'A solo freelancer with $50/month budget should NOT get AI agent orchestration, custom dashboards, or API integrations. Both major-project-verification (budget) and PBW (scale mismatch) should BLOCK.'
+  },
+
+  // ==========================================================================
+  // v2: PRETTY-BUT-WRONG — GENERIC PLATITUDES
+  // ==========================================================================
+  {
+    id: 'pbw-004',
+    name: 'Pretty-But-Wrong — Generic Platitudes',
+    description: 'Report contains advice that applies to any business, not this specific one.',
+    transcript: `Customer: We're a catering company with 12 staff. Our biggest problem is last-minute cancellations — we lose about $2,000 a month from cancelled events.
+Customer: We also struggle with dietary requirement tracking — we've had two allergic reactions this year.
+Customer: We use Google Sheets for everything and it's falling apart.`,
+    expectedVerdicts: {
+      'quick-wins-verification': GateVerdict.RETRY,
+      'major-project-verification': GateVerdict.APPROVE,
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.BLOCK
+    },
+    minConfidence: 0.6,
+    tags: ['pbw-detector', 'generic-platitudes', 'edge-case'],
+    notes: 'If report says "implement automation to save time" without addressing cancellations or dietary tracking, PBW should BLOCK.'
+  },
+
+  // ==========================================================================
+  // v2: MAJOR PROJECT — BUDGET RATIO BOUNDARY (RETRY zone)
+  // ==========================================================================
+  {
+    id: 'mp-002',
+    name: 'Major Project — Budget ratio at 3x boundary (RETRY zone)',
+    description: 'Customer states $5k budget, recommendation costs $14k — just under 3x threshold.',
+    transcript: `Customer: We have $5,000 budgeted for process improvement this year.
+Customer: Our order fulfillment takes 3 days when competitors do same-day.
+Customer: We're a wholesale distributor with 15 warehouse staff.
+Customer: I think we need a warehouse management system but not sure what's realistic.`,
+    expectedVerdicts: {
+      'quick-wins-verification': GateVerdict.APPROVE,
+      'major-project-verification': GateVerdict.RETRY,
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.APPROVE
+    },
+    minConfidence: 0.5,
+    tags: ['major-project', 'budget', 'edge-case', 'boundary'],
+    notes: 'A $14k recommendation against a $5k budget is 2.8x — within RETRY zone (<3x). Gate should suggest scaling down. $15k (3x) would be BLOCK.'
+  },
+
+  // ==========================================================================
+  // v2: MISSING REAL PAIN
+  // ==========================================================================
+  {
+    id: 'rr-002',
+    name: 'PBW — Missing the customer\'s primary pain point',
+    description: 'Customer spends 60% of transcript on invoicing pain, but report barely mentions it.',
+    transcript: `Customer: Our invoicing process is killing us — I can't stress this enough.
+Customer: We spend maybe 15 hours a week just on creating and tracking invoices.
+Customer: Customers pay late because our invoices are confusing — we have a 45-day average payment time.
+Customer: I've tried Xero but we couldn't figure out the setup.
+Customer: Also, our email follow-ups to clients are a bit slow — maybe 24h response time.`,
+    expectedVerdicts: {
+      'quick-wins-verification': GateVerdict.RETRY,
+      'major-project-verification': GateVerdict.APPROVE,
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.BLOCK
+    },
+    minConfidence: 0.6,
+    tags: ['pbw-detector', 'missing-real-pain', 'edge-case'],
+    notes: 'If report leads with email response time and barely mentions invoicing automation despite 15h/week + 45-day payment delay, PBW should BLOCK.'
+  },
+
+  // ==========================================================================
+  // v2: EVIDENCE COVERAGE — BELOW 40% THRESHOLD
+  // ==========================================================================
+  {
+    id: 'ev-001',
+    name: 'Evidence Coverage — Below 40%',
+    description: 'Sparse transcript produces report with <40% evidence coverage.',
+    transcript: `Customer: We run a small retail shop.
+Customer: Things are okay but could be better.
+Customer: We use some software.
+Customer: Budget is flexible.`,
+    expectedVerdicts: {
+      'quick-wins-verification': GateVerdict.BLOCK,
+      'major-project-verification': GateVerdict.BLOCK,
+      'report-review': GateVerdict.BLOCK,
+      'pbw-detector': GateVerdict.BLOCK
+    },
+    minConfidence: 0.8,
+    tags: ['edge-case', 'evidence-coverage', 'empty'],
+    notes: 'Transcript with no concrete workflow/tool/pain point statements — all gates should BLOCK.'
+  },
+
+  // ==========================================================================
+  // v2: AUTOMATING CHAOS — ALL GATES PASS, REPORT STILL WRONG
+  // ==========================================================================
+  {
+    id: 'chaos-001',
+    name: 'Automating Chaos — Standardize-first pattern missed',
+    description: 'Real estate agency with rich transcript and inconsistent processes. Report recommends automation without standardization.',
+    transcript: `Customer: I own a real estate agency with 14 staff.
+Customer: Our biggest problem is lead follow-up — we're too slow, clients go elsewhere.
+Customer: Each agent has their own way of following up, some use email templates, some call, some text.
+Customer: Contract generation is manual — each agent maintains their own templates.
+Customer: Commission calculations are a nightmare because two agents use different spreadsheet structures.
+Customer: We use PropertyMate for listings and Xero for accounting.
+Customer: Budget isn't an issue — maybe $2,000/month for the right systems.`,
+    expectedVerdicts: {
+      'quick-wins-verification': GateVerdict.APPROVE,
+      'major-project-verification': GateVerdict.APPROVE,
+      'report-review': GateVerdict.RETRY,
+      'pbw-detector': GateVerdict.BLOCK
+    },
+    minConfidence: 0.6,
+    tags: ['pbw-detector', 'automating-chaos', 'edge-case'],
+    notes: 'This transcript clearly signals process inconsistency ("each agent has their own way," "different spreadsheet structures"). A report that recommends automating lead response, contract generation, or commission calculations WITHOUT first recommending standardization should trigger PBW BLOCK (automating chaos pattern). Quick-wins and major-projects may APPROVE because there IS transcript evidence for each pain point — but PBW should catch that the process foundation is missing. Report-review should also RETRY because the taste dimension T2 (Recommendation Credibility) should flag this as standardize-first, not automate-first.'
+  },
+  {
+    id: 'pbw-005',
+    name: 'Pretty-But-Wrong — Buzzword boundary (allowable professional language)',
+    description: 'Report uses professional language but is substantively specific — should ALLOW.',
+    transcript: `Customer: We're a digital marketing agency with 20 staff.
+Customer: We use HubSpot, Slack, Adobe Creative Suite, and Google Workspace.
+Customer: Our reporting takes 8 hours a week — pulling data from different platforms, formatting spreadsheets.
+Customer: We need automated reporting with client-facing dashboards.
+Customer: Budget is $1,000-2,000 per month for the right solution.`,
+    expectedVerdicts: {
+      'quick-wins-verification': GateVerdict.APPROVE,
+      'major-project-verification': GateVerdict.APPROVE,
+      'report-review': GateVerdict.APPROVE,
+      'pbw-detector': GateVerdict.APPROVE
+    },
+    minConfidence: 0.7,
+    tags: ['pbw-detector', 'boundary', 'happy-path'],
+    notes: 'Professional language + specific recommendations = ALLOW. Tests that PBW does not over-block on legitimate business language.'
   }
 ];
 

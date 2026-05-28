@@ -1,13 +1,16 @@
-import type { AssessmentReportJob, PipelineResult, SavedReport } from './types';
+import type { AssessmentReportJob, PipelineResult, SavedReport, BudgetSignal } from './types';
 import { analyzeTranscript } from './llm-analysis';
 import { parseAndValidateAnalysis, createDefaultAnalysis } from './analysis-types';
 import type { StructuredAnalysis } from './analysis-types';
-import { lookupToolsForTranscript, enrichAnalysisWithTools } from './tool-lookup';
+import { lookupToolsForTranscript, enrichAnalysisWithTools, formatToolsForPrompt, filterToolsByMVTD } from './tool-lookup';
 import { saveReportUnified, isR2Available } from './report-store-r2';
 import { sendReportReadyEmail } from './emails';
 import { findOrCreateUserFromStripe, linkReportToUser, upsertReportMetadata } from '$lib/server/portal';
 import { runGate } from './gate/runner';
 import { isGateActive, getGateMode } from './gate/gate-mode';
+import { extractBudgetSignal } from './budget-detection';
+import { extractEvidenceMap, formatEvidenceMapForPrompt } from './evidence-map';
+import type { EvidenceMap } from './evidence-map';
 
 // ============================================================================
 // Stage Functions — independently callable pipeline stages
@@ -15,26 +18,67 @@ import { isGateActive, getGateMode } from './gate/gate-mode';
 // stage router (workers/stages/) or composed via runReportPipeline().
 // ============================================================================
 
-/** Stage 0: Tool Research — lookup AI tools relevant to transcript context. */
+/** Stage 0: Tool Research — lookup AI tools relevant to transcript context.
+ *  Also runs PRE-3 budget detection to tag tools with pricing alignment. */
 export async function stageToolResearch(
   transcript: string,
-  db?: D1Database | null
-): Promise<import('./tool-lookup').AITool[]> {
+  db?: D1Database | null,
+  budgetSignal?: BudgetSignal
+): Promise<{ tools: import('./tool-lookup').AITool[]; budgetSignal: BudgetSignal }> {
   let tools: import('./tool-lookup').AITool[] = [];
   try {
-    tools = await lookupToolsForTranscript(transcript, db);
-    console.info(`[pipeline:stage:tool-research] Complete`, { toolsFound: tools.length });
+    tools = await lookupToolsForTranscript(transcript, db, budgetSignal);
+
+    // Apply MVTD filter — only tools with all critical fields pass to LLM + gates
+    const { stats } = filterToolsByMVTD(tools);
+    console.info(`[pipeline:stage:tool-research] MVTD quality assessment`, stats);
+
+    console.info(`[pipeline:stage:tool-research] Complete`, {
+      toolsFound: tools.length,
+      hasBudgetSignal: budgetSignal?.source !== 'none' && (budgetSignal?.confidence ?? 0) > 0
+    });
   } catch (error) {
     const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
     console.warn(`[pipeline:stage:tool-research] Failed (continuing without tools):`, details);
   }
-  return tools;
+  return { tools, budgetSignal: budgetSignal ?? { min: null, max: null, confidence: 0, source: 'none', raw_text: null } };
 }
 
-/** Stage 1: LLM Analysis — generate structured analysis from transcript + tools. */
+/** Stage 0.5: Evidence Extraction — extract structured claims from transcript before report generation. */
+export async function stageEvidenceExtraction(
+  transcript: string,
+  budgetSignal?: BudgetSignal
+): Promise<EvidenceMap> {
+  const start = Date.now();
+  let evidenceMap: EvidenceMap;
+  try {
+    evidenceMap = await extractEvidenceMap(transcript, budgetSignal);
+    console.info(`[pipeline:stage:evidence-extraction] Complete`, {
+      total: evidenceMap.coverage.total_claims,
+      direct: evidenceMap.coverage.direct_claims,
+      coverage: `${Math.round(evidenceMap.coverage.coverage_rate * 100)}%`,
+      gaps: evidenceMap.gaps.length,
+      durationMs: Date.now() - start
+    });
+  } catch (error) {
+    const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+    console.warn(`[pipeline:stage:evidence-extraction] Failed (continuing without evidence map):`, details);
+    evidenceMap = {
+      claims: [],
+      coverage: { total_claims: 0, direct_claims: 0, inferred_claims: 0, speculative_claims: 0, coverage_rate: 0 },
+      gaps: [{ field: 'unknown', gate_impact: 'Evidence extraction failed', recommended_handling: 'Flag for operator review' }],
+      extracted_at: new Date().toISOString()
+    };
+  }
+  return evidenceMap;
+}
+
+/** Stage 1: LLM Analysis — generate structured analysis from evidence map + tools + transcript. */
 export async function stageLlmAnalysis(
   job: AssessmentReportJob,
-  tools: import('./tool-lookup').AITool[]
+  tools: import('./tool-lookup').AITool[],
+  evidenceMap: EvidenceMap,
+  budgetSignal?: BudgetSignal
 ): Promise<{ analysis: string; structured: StructuredAnalysis }> {
   const ANALYSIS_TIMEOUT_MS = 600_000; // 10 minutes (NFR7)
   let analysis: string;
@@ -43,7 +87,7 @@ export async function stageLlmAnalysis(
     // Run analysis with timeout
     const startTime = Date.now();
     analysis = await runWithTimeout(
-      () => analyzeTranscript(job, tools),
+      () => analyzeTranscript(job, tools, evidenceMap, budgetSignal),
       ANALYSIS_TIMEOUT_MS,
       'LLM analysis exceeded 10-minute timeout'
     );
@@ -289,30 +333,63 @@ export async function runReportPipeline(
     transcriptLength: job.transcript.length
   });
 
-  // Stage 0: Tool Research
-  const tools = await stageToolResearch(job.transcript, opts?.db);
-
-  // Gate Checkpoint: quick-wins-verification (wired shadow mode)
-  await runGateCheckpoint({
-    stage: 'quick-wins-verification',
-    content: job.transcript,
-    assessmentId: sessionId,
-    db: opts?.db ?? undefined
+  // Stage 0: Tool Research + Budget Detection (PRE-3)
+  const budgetSignal = extractBudgetSignal(job.transcript, job);
+  console.info(`${logPrefix} PRE-3 budget detection`, {
+    source: budgetSignal.source,
+    min: budgetSignal.min,
+    max: budgetSignal.max,
+    confidence: budgetSignal.confidence
   });
+  const { tools } = await stageToolResearch(job.transcript, opts?.db, budgetSignal);
 
-  // Stage 1: LLM Analysis + enrichment
-  const { analysis, structured } = await stageLlmAnalysis(job, tools);
+  // Stage 0.5: Evidence Extraction (structured claims for report foundation)
+  const evidenceMap = await stageEvidenceExtraction(job.transcript, budgetSignal);
+
+  // Stage 1: LLM Analysis — built from evidence map, not raw transcript
+  const { analysis, structured } = await stageLlmAnalysis(job, tools, evidenceMap, budgetSignal);
 
   // Note: structured analysis persisted to R2 via stageSaveReport below.
   // D1 persistence via user_reports table is handled in stageLinkReport.
 
-  // Gate Checkpoint: major-project-verification
-  await runGateCheckpoint({
+  // Gate Checkpoint: quick-wins-verification — evaluates generated Quick Wins against transcript evidence
+  // Moved after LLM Analysis (JLA-005 P0 fix: gate was positioned before analysis but expected report content)
+  const qwResult = await runGateCheckpoint({
+    stage: 'quick-wins-verification',
+    content: analysis,
+    assessmentId: sessionId,
+    db: opts?.db ?? undefined
+  });
+  if (qwResult.blocked && !qwResult.shadowMode) {
+    console.warn(`${logPrefix} Pipeline blocked by quick-wins-verification gate`);
+    return {
+      queued: false,
+      blocked: true,
+      blockReason: `Pipeline blocked by quality gate: quick-wins-verification`,
+      blockedBy: { gateType: 'quick-wins-verification', verdict: qwResult.verdict ?? 'unknown', confidence: 0 },
+      destination: 'none',
+      emailSent: false
+    };
+  }
+
+  // Gate Checkpoint: major-project-verification — evaluates Deeper Opportunities
+  const mpResult = await runGateCheckpoint({
     stage: 'major-project-verification',
     content: analysis,
     assessmentId: sessionId,
     db: opts?.db ?? undefined
   });
+  if (mpResult.blocked && !mpResult.shadowMode) {
+    console.warn(`${logPrefix} Pipeline blocked by major-project-verification gate`);
+    return {
+      queued: false,
+      blocked: true,
+      blockReason: `Pipeline blocked by quality gate: major-project-verification`,
+      blockedBy: { gateType: 'major-project-verification', verdict: mpResult.verdict ?? 'unknown', confidence: 0 },
+      destination: 'none',
+      emailSent: false
+    };
+  }
 
   // Stage 2: Save Report
   const saved = await stageSaveReport(job, analysis, r2Bucket);
@@ -320,13 +397,36 @@ export async function runReportPipeline(
   // Stage 3: Link Report
   await stageLinkReport(saved, job);
 
-  // Gate Checkpoint: report-review
-  await runGateCheckpoint({
+  // Gate Checkpoint: report-review (includes taste scoring + PBW detection)
+  // Inject evidence map + researched tools + prior gate results so the judge can cross-reference claims
+  // JLA-005 P1 fix: prior gate results reduce redundant re-verification
+  const priorGateResults = `\n\n---\n## Prior Gate Results\n\n` +
+    `### Quick Wins Verification\nVerdict: ${qwResult.verdict ?? 'unknown'} | Action: ${qwResult.blocked ? 'BLOCK' : 'PASS'}\n\n` +
+    `### Major Project Verification\nVerdict: ${mpResult.verdict ?? 'unknown'} | Action: ${mpResult.blocked ? 'BLOCK' : 'PASS'}\n`;
+  const reviewContent = analysis +
+    formatEvidenceMapForPrompt(evidenceMap, budgetSignal) +
+    formatToolsForPrompt(tools, budgetSignal) +
+    priorGateResults;
+  const rrResult = await runGateCheckpoint({
     stage: 'report-review',
-    content: analysis,
+    content: reviewContent,
     assessmentId: sessionId,
     db: opts?.db ?? undefined
   });
+  if (rrResult.blocked && !rrResult.shadowMode) {
+    console.warn(`${logPrefix} Pipeline blocked by report-review gate — email delivery prevented`, {
+      verdict: rrResult.verdict
+    });
+    return {
+      queued: false,
+      blocked: true,
+      blockReason: `Report blocked by quality gate: report-review`,
+      blockedBy: { gateType: 'report-review', verdict: rrResult.verdict ?? 'unknown', confidence: 0 },
+      savedReport: saved,
+      destination: isR2Available(r2Bucket) ? 'r2' : 'local',
+      emailSent: false
+    };
+  }
 
   // Stage 4: Email Delivery
   const emailResult = await stageEmailDelivery(saved, job);

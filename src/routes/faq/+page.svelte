@@ -33,7 +33,7 @@
 				<span class="faq-icon" aria-hidden="true">{openIndex === index ? '−' : '+'}</span>
 			</summary>
 			<div class="faq-answer">
-				<p>{item.answer}</p>
+				<p>{@html '<!--email_off-->'}{item.answer}{@html '<!--/email_off-->'}</p>
 			</div>
 		</details>
 	{/each}

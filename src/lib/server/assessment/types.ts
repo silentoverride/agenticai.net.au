@@ -330,6 +330,16 @@ export interface PipelineResult {
   destination: string;
   emailSent?: boolean;
   emailId?: string;
+  /** Whether the pipeline was blocked by a gate (non-shadow mode). */
+  blocked?: boolean;
+  /** Human-readable reason for blocking (which gate, why). */
+  blockReason?: string;
+  /** The gate that blocked the pipeline, if any. */
+  blockedBy?: {
+    gateType: string;
+    verdict: string;
+    confidence: number;
+  };
 }
 
 // ============================================================================
@@ -412,3 +422,30 @@ export interface AnalysisData {
     actions: string[];
   }[];
 }
+
+// ============================================================================
+// Budget Detection (PRE-3 eval)
+// ============================================================================
+
+/** Budget signal extracted from the intake transcript. */
+export interface BudgetSignal {
+  /** Lower bound of detected budget range (monthly AUD). null if only max detected. */
+  min: number | null;
+  /** Upper bound of detected budget range (monthly AUD). null if only min detected. */
+  max: number | null;
+  /** How confident the detection is (0-1). */
+  confidence: number;
+  /** Where the signal came from. */
+  source: BudgetSignalSource;
+  /** The raw text that produced this signal. */
+  raw_text: string | null;
+}
+
+/** How the budget was detected. */
+export type BudgetSignalSource =
+  | 'transcript_explicit'       // e.g., "I'd spend $500/month"
+  | 'transcript_range'          // e.g., "between $300 and $700"
+  | 'transcript_implicit'       // e.g., "we pay $X for software now"
+  | 'retell_metadata'           // extracted from Retell post_call_analysis
+  | 'industry_average'          // industry benchmark fallback
+  | 'none';

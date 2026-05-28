@@ -2,7 +2,38 @@
  * Structured analysis output types for the LLM analysis generation pipeline.
  */
 
-/** Severity levels for identified pain points. */
+// ============================================================================
+// Evidence Provenance Types (Evidence Map Builder — ofewg-009-v1)
+// ============================================================================
+
+/** A single piece of evidence linking a claim to the transcript. */
+export interface EvidenceSnippet {
+  /** The transcript text that supports this claim (direct quote or paraphrase). */
+  quote: string;
+  /** Approximate line number or paragraph index in the transcript. */
+  location_hint: string;
+  /** Strength: 'direct' (customer stated this), 'inferred' (reasonable from context), 'weak' (stretch). */
+  strength: 'direct' | 'inferred' | 'weak';
+}
+
+/** Evidence coverage for a single claim or recommendation. */
+export interface EvidenceMap {
+  /** Transcript excerpts that support this claim. */
+  snippets: EvidenceSnippet[];
+  /** Overall confidence that this claim is grounded in the transcript (0-1). */
+  confidence: number;
+  /** Assessment of coverage: 'well_supported' (≥2 direct snippets), 'partial' (1 direct or ≥2 inferred), 'unsupported' (weak only or empty). */
+  coverage: 'well_supported' | 'partial' | 'unsupported';
+}
+
+/** Create an empty evidence map — used for claims without transcript backing. */
+export function emptyEvidence(): EvidenceMap {
+  return { snippets: [], confidence: 0, coverage: 'unsupported' };
+}
+
+// ============================================================================
+// Core Analysis Types
+// ============================================================================
 export type Severity = 'high' | 'medium' | 'low';
 export type Frequency = 'daily' | 'weekly' | 'monthly';
 export type Effort = 'low' | 'medium' | 'high';
@@ -15,6 +46,8 @@ export interface PainPoint {
   description: string;
   severity: Severity;
   frequency: Frequency;
+  /** Optional: transcript evidence supporting this pain point identification. */
+  evidence?: EvidenceMap;
 }
 
 export interface QuickWin {
@@ -24,6 +57,8 @@ export interface QuickWin {
   impact: Impact;
   estimated_hours_saved_per_week: number;
   recommended_tools?: string[];
+  /** Optional: transcript evidence supporting this quick win recommendation. */
+  evidence?: EvidenceMap;
 }
 
 export interface DeeperOpportunity {
@@ -32,6 +67,8 @@ export interface DeeperOpportunity {
   category: AutomationCategory;
   estimated_setup_cost_aud: number;
   estimated_monthly_value_aud: number;
+  /** Optional: transcript evidence supporting this deeper opportunity. */
+  evidence?: EvidenceMap;
 }
 
 export interface ToolRecommendation {
@@ -69,6 +106,38 @@ export interface StructuredAnalysis {
   tool_recommendations: ToolRecommendation[];
   implementation_roadmap: ImplementationPhase[];
   financial_impact: FinancialImpact;
+}
+
+/** Summary of evidence coverage across the entire analysis. */
+export interface EvidenceCoverage {
+  total_claims: number;
+  well_supported: number;
+  partial: number;
+  unsupported: number;
+  coverage_pct: number; // well_supported / total_claims * 100
+}
+
+/** Compute evidence coverage across quick wins and deeper opportunities. */
+export function computeEvidenceCoverage(analysis: StructuredAnalysis): EvidenceCoverage {
+  const claims: EvidenceMap[] = [
+    ...(analysis.quick_wins || []).map(qw => qw.evidence || emptyEvidence()),
+    ...(analysis.deeper_opportunities || []).map(d => d.evidence || emptyEvidence())
+  ];
+
+  const total = claims.length;
+  if (total === 0) return { total_claims: 0, well_supported: 0, partial: 0, unsupported: 0, coverage_pct: 0 };
+
+  const well = claims.filter(c => c.coverage === 'well_supported').length;
+  const part = claims.filter(c => c.coverage === 'partial').length;
+  const unsup = claims.filter(c => c.coverage === 'unsupported').length;
+
+  return {
+    total_claims: total,
+    well_supported: well,
+    partial: part,
+    unsupported: unsup,
+    coverage_pct: Math.round((well / total) * 100)
+  };
 }
 
 /** Required fields that MUST be present in a valid analysis. */

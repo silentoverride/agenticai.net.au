@@ -1,8 +1,10 @@
 import { llmChat } from '../llm';
 import type { LlmResponse } from '../llm';
-import type { AssessmentReportJob } from './types';
+import type { AssessmentReportJob, BudgetSignal } from './types';
 import type { AITool } from './tool-lookup';
+import type { EvidenceMap } from './evidence-map';
 import { formatToolsForPrompt } from './tool-lookup';
+import { formatEvidenceMapForPrompt } from './evidence-map';
 
 /**
  * Filter transcript to keep only user/business-owner utterances
@@ -12,8 +14,15 @@ function filterUserUtterances(transcript: string): string {
   return transcript.replace(/^[ \t]*Agent:.*\n?/gmi, '').trim();
 }
 
-function buildAnalysisMessages(transcript: string, job: AssessmentReportJob, tools?: AITool[]) {
-  const toolsSection = tools?.length ? formatToolsForPrompt(tools) : '';
+function buildAnalysisMessages(
+  transcript: string,
+  job: AssessmentReportJob,
+  tools?: AITool[],
+  evidenceMap?: EvidenceMap,
+  budgetSignal?: BudgetSignal
+) {
+  const toolsSection = tools?.length ? formatToolsForPrompt(tools, budgetSignal) : '';
+  const evidenceSection = evidenceMap?.claims.length ? formatEvidenceMapForPrompt(evidenceMap, budgetSignal) : '';
 
   // Filter to user utterances only, removing scripted agent voice
   const userTranscript = filterUserUtterances(transcript);
@@ -22,6 +31,8 @@ function buildAnalysisMessages(transcript: string, job: AssessmentReportJob, too
     {
       role: 'system' as const,
       content: `You are an expert AI Business Assessment analyst. Analyze a business owner interview transcript and produce a structured assessment report in strict JSON format.
+
+${evidenceSection ? 'BUILD THE REPORT FROM THE EVIDENCE MAP BELOW. Every claim in the report must trace back to a claim in the evidence map. Mark inferences as estimates, not facts. Gap items should be handled with the recommended approach — do not invent.' : ''}
 
 Required keys and types:
 - executive_summary: string (2-3 sentences)
@@ -34,10 +45,16 @@ Required keys and types:
 
 Rules:
 - Only recommend real, off-the-shelf tools.
-- Base ALL findings on the transcript. Do not hallucinate.
-- Be conservative with estimates when the transcript is sparse.
-- When tool URLs are provided in the RESEARCHED AI TOOLS section, reference those exact tools and URLs in your recommendations.
-${toolsSection}`,
+- Base ALL findings on the evidence map if provided. Do not hallucinate.
+- Be conservative with estimates when the evidence is sparse.
+- Disaggregate hours-saved claims (show per-workflow breakdown).
+- Use Australian context: AUD, APPs, Fair Work, ATO.
+- Tone: calibrated competence, not vendor enthusiasm.
+- Never use "will save" — always "we estimate."
+- Never recommend regulated-domain actions.
+- Savings < 30 min/week should be mentioned in prose, not annualised as dollars.
+${toolsSection}
+${evidenceSection}`,
     },
     {
       role: 'user' as const,
@@ -53,8 +70,13 @@ TRANSCRIPT END`,
   ];
 }
 
-export async function analyzeTranscript(job: AssessmentReportJob, tools?: AITool[]): Promise<string> {
-  const messages = buildAnalysisMessages(job.transcript, job, tools);
+export async function analyzeTranscript(
+  job: AssessmentReportJob,
+  tools?: AITool[],
+  evidenceMap?: EvidenceMap,
+  budgetSignal?: BudgetSignal
+): Promise<string> {
+  const messages = buildAnalysisMessages(job.transcript, job, tools, evidenceMap, budgetSignal);
 
   async function attempt(retries: number): Promise<LlmResponse> {
     try {

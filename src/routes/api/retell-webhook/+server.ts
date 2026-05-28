@@ -5,6 +5,7 @@ import { createAssessmentReportJob } from '$lib/server/assessment/retell-job';
 import { storeTranscript } from '$lib/server/assessment/transcript-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
 import { getPipelineStatusByCallId } from '$lib/server/assessment/pipeline-store';
+import { checkIntakeSufficiency } from '$lib/server/assessment/intake-quality-check';
 import { verifyRetellSignature } from '$lib/server/retell';
 import { RetellWebhookSchema } from '$lib/server/validation';
 import type { RequestHandler } from './$types';
@@ -97,6 +98,18 @@ export const POST: RequestHandler = async ({ request, platform }) => {
   // If not paid, check if a payment webhook already fired (transcript was missing at that time).
   // If so, the pipeline_status will be 'pending_payment' — catch it up now.
   if (job.paymentStatus === 'paid' || job.paymentStatus === 'complete') {
+    // JLA-005: intake quality pre-check before committing pipeline resources
+    const qualityCheck = checkIntakeSufficiency(job.transcript);
+    if (!qualityCheck.sufficient) {
+      console.warn('[retell-webhook] Intake quality check failed — enqueuing anyway (shadow mode)', {
+        callId: job.callId,
+        gaps: qualityCheck.gaps,
+        metrics: qualityCheck.metrics,
+        recommendation: qualityCheck.recommendation
+      });
+      // TODO: when INTAKE_QUALITY_BLOCK=true, skip enqueue and set status to human_assist
+    }
+
     const queue = platform?.env?.assessment_queue;
     const { queued, inline } = await enqueueReportJob(queue, job);
     if (!queued && !inline) {

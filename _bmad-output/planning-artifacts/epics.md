@@ -276,9 +276,44 @@ Staff can prepare meeting briefs, manage readiness/staleness, access Calendly co
 
 **FRs covered:** FR43, FR44, FR45, FR46, FR47, FR48, FR49, FR50, FR51, FR52, FR53, FR54, FR55, FR56
 
+### Epic 6: Pipeline Intake Quality [AICC Workflow Family]
+Audit and redesign Annie's intake question sequence against the AI Communication Clarity (AICC) six-field framework, ensuring each intake captures goal, context, sources, constraints, quality bar, and definition of done before the downstream pipeline triggers.
+
+**Requirements sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §2 — AI Communication Clarity (AICC-001 through AICC-003)
+
+### Epic 7: Pipeline Gate Hardening [JLA Workflow Family]
+Systematically evaluate and harden the 3 existing pipeline gates using the Judge Layer Architecture (JLA) methodology: audit the pipeline action surface, validate gate architecture, produce testable judge prompts, and generate evaluation suites.
+
+**Requirements sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §1 — Judge Layer Architecture (JLA-001 through JLA-005)
+
+**Cross-reference:** Staff Portal Epic 1 (Safe Report Review) depends on this epic's gates being hardened before staff review UX is built.
+
+### Epic 8: Pipeline Retrieval Contracts [RRC Workflow Family]
+Apply the RAG Retrieval Contracts (RRC) methodology to the tool research phase: produce formal retrieval contracts for Perplexity/Futurepedia/TAAFT queries, diagnose specific failures, and document architectural decisions.
+
+**Requirements sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §3 — RAG Retrieval Contracts (RRC-001 through RRC-003)
+
+### Epic 9: Pipeline Report Structure [HCMW + OFEWG Workflow Families]
+Improve LLM analysis and report generation quality: apply structure-first drafting, extend to multi-artifact output, add pretty-but-wrong detection, and implement evidence traceability.
+
+**Requirements sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §4 + §7 — High-Capability Model Workflows (HCMW-002, HCMW-004) + Office Files Evidence Workflow Guide (OFEWG-009, OFEWG-012)
+
+### Epic 10: Pipeline Auto-Optimization Readiness [AIAS Workflow Family]
+Run prerequisite diagnostics before investing in pipeline auto-optimization: Karpathy Triplet Diagnostic, metric gaming pre-mortem, and trace infrastructure audit.
+
+**Requirements sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §5 — Auto-Improving Agent Safety (AIAS-001 through AIAS-003)
+
 ## Epic 1: Safe Report Review & Audited Decisioning
 
 Staff can review AI assessment reports, inspect Gate Findings, make safe report decisions, and produce audit-backed receipts before anything becomes client-deliverable.
+
+**Pipeline Dependencies (added 2026-05-28):** The 3-gate architecture (quick-wins-verification, major-project-verification, report-review) that feeds this epic's Human Review workspace has never been systematically evaluated for reliability. Per the [assessment-pipeline-workflow-integration-report](../../docs/assessment-pipeline-workflow-integration-report.md), the **Judge Layer Architecture (JLA)** workflow family provides prerequisite pipeline hardening:
+
+- **JLA-001 (Action Surface Audit)** — maps every pipeline action by risk tier. Completing this before Story 1.3 (Report Review Queue) ensures the Staff Portal UI renders the right gate finding types and risk classifications.
+- **JLA-005 (Gate Architecture Review)** — validates whether 3 gates are the right number and at the right boundaries. Completing this before Story 1.4 (Gate Finding Decisions) ensures staff review individual findings that correspond to a validated gate design.
+- **JLA-002 + JLA-003 (Judge Prompts)** — produce testable gate prompts with ALLOW/BLOCK/REVISE/ESCALATE outcomes. These inform Story 1.5 (Whole Report Guarded Decisions) approval checklist design.
+
+These pipeline prerequisites are tracked in **Epic 7 (Pipeline Gate Hardening)** below. Epic 1 stories 1.1-1.7 remain structurally correct — the JLA integration improves the pipeline-side gates before staff review UX is built.
 
 ### Story 1.1: Governed Staff Portal State Foundation
 
@@ -896,3 +931,428 @@ So that lightweight updates do not hide blockers or audit consequences.
 **When** pending, success, recoverable failure, or stale/blocked states occur
 **Then** each response is observable, accessible, duplicate-submit safe, and backed by persisted events where required
 **And** automated tests cover success, validation failure, permission denial, stale state, duplicate submission prevention, receipt display, keyboard-only completion, and screen-reader discoverability.
+
+## Epic 6: Pipeline Intake Quality [AICC Workflow Family]
+
+Audit and redesign Annie's intake question sequence against the AI Communication Clarity (AICC) six-field framework (goal, context, sources, constraints, quality bar, definition of done), ensuring intake quality before the downstream pipeline triggers.
+
+**Sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §2 — AI Communication Clarity (AICC-001 through AICC-003)
+
+**Pipeline context:** Annie (Retell voice + chat) currently asks 10 intake questions. The quality of all downstream pipeline stages depends on how well intake extracts actionable information. This epic audits and redesigns intake without changing the downstream pipeline code.
+
+### Story 6.1: Intake Quality Audit (AICC-002)
+
+As a pipeline developer,
+I want to audit Annie's 10 intake questions against the AICC six-field framework,
+So that gaps and ambiguities in intake are identified before they degrade report quality.
+
+**Requirements sourced from:** AICC-002 Vague Ask Auditor
+
+**Acceptance Criteria:**
+
+**Given** the current 10-question intake sequence and sample intake transcripts
+**When** AICC-002 is applied (the `docs/agentic-workflows/ai-communication-clarity/aicc-002-v1-vague-ask-auditor.md` prompt)
+**Then** each question is assessed against the six fields (goal, context, sources, constraints, quality bar, definition of done)
+**And** the audit produces a gap report identifying missing fields, ambiguous wording, and questions that don't map to downstream pipeline needs.
+
+**Given** the audit identifies a field that intake never captures (e.g., constraints)
+**When** the gap is documented
+**Then** it includes which downstream stage needs that field, what the risk of missing it is, and what intake change would capture it.
+
+### Story 6.2: Intake Question Redesign (AICC-001)
+
+As a pipeline developer,
+I want to redesign Annie's intake questions based on audit findings,
+So that each question maps to a specific downstream pipeline need.
+
+**Requirements sourced from:** AICC-001 Useful Question Builder
+
+**Acceptance Criteria:**
+
+**Given** the AICC-002 audit findings from Story 6.1
+**When** AICC-001 is applied (natural conversation to extract the six fields)
+**Then** a redesigned question sequence is produced where each question maps to a downstream stage (tool research, LLM analysis, report generation)
+**And** questions are ordered from broad context-gathering to specific constraint-elicitation.
+
+**Given** the redesigned intake is assessed against AICC's conversational design principles
+**When** questions are reviewed for natural flow
+**Then** the sequence does not feel robotic or interrogative despite covering all six fields
+**And** voice-adapted phrasing (for Retell) is provided alongside text-adapted phrasing (for chat).
+
+**Given** the pipeline prompts reference intake data
+**When** the question redesign is finalized
+**Then** a field mapping documents intake question → pipeline prompt variable → downstream stage.
+
+### Story 6.3: Intake Completion Criteria (AICC-003)
+
+As a pipeline developer,
+I want a clear definition of what "intake is complete" means,
+So that the pipeline does not trigger prematurely on incomplete intake data.
+
+**Requirements sourced from:** AICC-003 Definition-of-Done Generator
+
+**Acceptance Criteria:**
+
+**Given** the redesigned intake from Story 6.2
+**When** AICC-003 is applied to define completion
+**Then** compact and expanded definitions of done are produced, covering which fields must be present and at what confidence level before pipeline triggering.
+
+**Given** an intake session returns incomplete data
+**When** the pipeline trigger check runs
+**Then** the pipeline does not launch with missing required fields
+**And** Annie is instructed to re-prompt for missing fields rather than the pipeline filling gaps with assumptions.
+
+**Given** the intake completion criteria are implemented
+**When** a sample set of intake transcripts is checked
+**Then** completion is reliably detected and premature triggering is prevented.
+
+---
+
+## Epic 7: Pipeline Gate Hardening [JLA Workflow Family]
+
+Systematically evaluate and harden the 3 existing pipeline gates using the Judge Layer Architecture (JLA) methodology: audit the action surface, validate gate architecture, produce testable judge prompts, and generate evaluation suites.
+
+**Sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §1 — Judge Layer Architecture (JLA-001 through JLA-005)
+
+**Cross-reference:** Staff Portal Epic 1 (Safe Report Review) consumes gate findings from this epic. JLA-001 and JLA-005 should complete before Epic 1 Stories 1.3-1.5.
+
+**Pipeline context:** The pipeline has 3 gates: `quick-wins-verification`, `major-project-verification`, and `report-review`. They were architected as structural checkpoints but never systematically evaluated for reliability.
+
+### Story 7.1: Pipeline Action Surface Audit (JLA-001)
+
+As a pipeline safety reviewer,
+I want a complete map of every action the pipeline can take classified by risk tier,
+So that judge placement and criteria are based on a full risk picture, not assumptions.
+
+**Requirements sourced from:** JLA-001 Action Surface Audit
+
+**Acceptance Criteria:**
+
+**Given** the full pipeline codebase (Annie intake, Perplexity tool research calls, LLM analysis generation, D1/R2 writes, SendGrid emails, gate evaluation)
+**When** JLA-001 is applied (the `docs/agentic-workflows/judge-layer-architecture/jla-001-v1-action-surface-audit.md` prompt)
+**Then** every action the pipeline can take is catalogued and classified into risk tiers: read-only, reversible writes, external side effects, and high-risk actions
+**And** the audit identifies which actions currently bypass any gate evaluation entirely.
+
+**Given** the action surface map exists
+**When** gate placement is subsequently reviewed (Story 7.2)
+**Then** each gate's scope is informed by the risk-tier map
+**And** any high-risk actions not covered by a gate are flagged for judge placement.
+
+### Story 7.2: Gate Architecture Review (JLA-005)
+
+As a pipeline architect,
+I want an architecture review of the 3-gate design,
+So that we confirm the gates are the right number, at the right boundaries, and using the right judge types before investing in prompt writing.
+
+**Requirements sourced from:** JLA-005 Judge Architecture Reviewer
+
+**Acceptance Criteria:**
+
+**Given** the action surface audit from Story 7.1 and current gate implementation details
+**When** JLA-005 is applied
+**Then** the review evaluates: (a) whether 3 gates are the right number, (b) whether they are placed at optimal pipeline boundaries, (c) whether specialist judges should replace the current monolithic approach, (d) failure modes if any gate is bypassed, and (e) whether memory provenance is adequate for gate decision context.
+
+**Given** the architecture review recommends changes
+**When** findings are documented
+**Then** each recommendation includes: what should change, why, expected risk reduction, and whether it's a prerequisite or an optimization
+**And** the review confirms or rejects the current 3-gate design before story 7.3 proceeds.
+
+**Given** the review identifies the optimal gate boundaries
+**When** the Staff Portal Epic 1 Human Review workspace is built
+**Then** gate finding types and review flow align with the validated gate architecture.
+
+### Story 7.3: Gate Judge Prompt Design (JLA-002 + JLA-003)
+
+As a pipeline developer,
+I want production-ready judge prompts for each validated gate,
+So that gate decisions use structured criteria rather than implicit quality judgments.
+
+**Requirements sourced from:** JLA-002 Judge Criteria & Action Proposal Designer + JLA-003 Judge Prompt Writer
+
+**Acceptance Criteria:**
+
+**Given** the validated gate architecture from Story 7.2
+**When** JLA-002 is applied to design judge criteria for each gate
+**Then** each gate has explicit criteria across authorization, evidence, exposure/risk, and policy dimensions
+**And** criteria include what the gate must evaluate, what it can ignore, and anti-gaming protections.
+
+**Given** the gate criteria are defined
+**When** JLA-003 is applied to produce judge prompts
+**Then** each prompt uses structured outcomes: ALLOW, BLOCK, REVISE, ESCALATE
+**And** prompts include: role, context window, decision criteria, structured output format, anti-gaming safeguards, and examples of each outcome type.
+
+**Given** a judge prompt is tested against known failure cases
+**When** the prompt is evaluated
+**Then** it correctly BLOCKs reports that should be blocked and ALLOWs reports that should pass
+**And** false-allow and false-block rates are measurable through the evaluation suite in Story 7.4.
+
+### Story 7.4: Gate Evaluation Suites (JLA-004)
+
+As a pipeline quality engineer,
+I want evaluation suites that verify each gate catches its target failure modes,
+So that gate reliability is measurable and improvable over time.
+
+**Requirements sourced from:** JLA-004 Judge Evaluation Suite Generator
+
+**Acceptance Criteria:**
+
+**Given** the judge prompts from Story 7.3
+**When** JLA-004 is applied
+**Then** at least 20 test cases are generated per gate covering all outcome categories: true ALLOW, true BLOCK, false ALLOW (missed problem), false BLOCK (overly strict), ambiguous/boundary, gaming attempt, and ESCALATE-triggering cases.
+
+**Given** the evaluation suite exists
+**When** a gate prompt is modified
+**Then** the suite can be re-run to detect regressions before the prompt change is deployed to production
+**And** results include per-category pass rates and specific case-by-case reasoning.
+
+**Given** an evaluation run produces failing cases
+**When** results are reviewed
+**Then** failing cases include: expected outcome, actual outcome, gate reasoning trace, and suggested prompt modification to address the failure.
+
+---
+
+## Epic 8: Pipeline Retrieval Contracts [RRC Workflow Family]
+
+Apply the RAG Retrieval Contracts (RRC) methodology to the tool research phase: produce formal retrieval contracts for Perplexity/Futurepedia/TAAFT queries, diagnose specific failures, and document architectural decisions.
+
+**Sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §3 — RAG Retrieval Contracts (RRC-001 through RRC-003)
+
+**Pipeline context:** The tool research phase uses Perplexity to query Futurepedia and TAAFT for relevant AI tools. This is a retrieval problem with known failure modes (stale data, wrong retrieval unit, missing provenance).
+
+### Story 8.1: Tool Research Retrieval Contract (RRC-001)
+
+As a pipeline developer,
+I want a formal retrieval contract for the tool research phase,
+So that tool data sources, staleness tolerances, and expected output are explicit and auditable.
+
+**Requirements sourced from:** RRC-001 Retrieval Contract Spec
+
+**Acceptance Criteria:**
+
+**Given** the current tool research implementation (Perplexity → Futurepedia/TAAFT)
+**When** RRC-001 is applied (the `docs/agentic-workflows/rag-retrieval-contracts/rrc-001-v1-retrieval-contract-spec.md` prompt)
+**Then** a formal contract is produced specifying: (a) work object (what is being retrieved), (b) retrieval units (web search results vs. structured catalog entries), (c) authoritative sources with hierarchy (Futurepedia vs. TAAFT), (d) permissions, (e) provenance requirements (which source, when queried), (f) compiled context format, and (g) write-back expectations.
+
+**Given** the retrieval contract is defined
+**When** a Perplexity query returns results
+**Then** results are validated against the contract's source hierarchy and staleness tolerances
+**And** results from non-authoritative sources or stale data are flagged rather than silently accepted.
+
+### Story 8.2: Retrieval Failure Diagnostics (RRC-002)
+
+As a pipeline developer,
+I want to diagnose specific retrieval failures against seven failure modes,
+So that production issues produce minimum viable fixes rather than ad-hoc patches.
+
+**Requirements sourced from:** RRC-002 Retrieval Failure Triage
+
+**Acceptance Criteria:**
+
+**Given** documented tool research failures from production (e.g., Perplexity returning 2023 articles for 2025 tools, conflicting Futurepedia vs. TAAFT results, missing tool recommendations)
+**When** RRC-002 is applied
+**Then** each failure is triaged against the seven failure modes: stale data, non-authoritative source, wrong retrieval unit, missing source, permission gap, provenance gap, and compilation error
+**And** each triaged failure receives a minimum viable fix recommendation.
+
+**Given** a fix is recommended but not implementable within current constraints
+**When** the failure is documented
+**Then** it includes: what the fix would require, what the interim mitigation is, and what triggers the fix becoming implementable.
+
+### Story 8.3: Retrieval Architecture Decision Record (RRC-003)
+
+As a pipeline architect,
+I want an ADR documenting the retrieval system's architectural decisions,
+So that future maintainers understand why the retrieval works as it does.
+
+**Requirements sourced from:** RRC-003 Retrieval Stack ADR
+
+**Acceptance Criteria:**
+
+**Given** the retrieval contract (Story 8.1) and failure diagnostics (Story 8.2)
+**When** RRC-003 is applied
+**Then** an ADR is produced documenting: (a) why Perplexity is the retrieval mechanism, (b) why Futurepedia and TAAFT are the chosen sources, (c) the source hierarchy and staleness policies, (d) alternatives considered and rejected, and (e) known limitations and monitoring expectations.
+
+**Given** the ADR exists
+**When** a new team member or agent needs to understand the retrieval design
+**Then** the ADR provides sufficient context to evaluate changes without tribal knowledge.
+
+---
+
+## Epic 9: Pipeline Report Structure [HCMW + OFEWG Workflow Families]
+
+Improve LLM analysis and report generation quality: apply structure-first drafting (argument before writing), extend to multi-artifact output, add pretty-but-wrong detection, and implement claim-to-source evidence traceability.
+
+**Sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §4 + §7 — High-Capability Model Workflows (HCMW-002, HCMW-004) + Office Files Evidence Workflow Guide (OFEWG-009, OFEWG-012)
+
+**Pipeline context:** The LLM analysis phase currently generates a single assessment report from intake + tool research data. Reports are comprehensive lists rather than argued assessments with evidence. This epic restructures report generation for quality and verifiability.
+
+**Dependencies:** Builds on Epic 7 (Gate Hardening) — better gates catch better-structured reports. Can proceed in parallel after Epic 7 Story 7.2 completes.
+
+### Story 9.1: Structure-First Drafting (HCMW-004)
+
+As a pipeline developer,
+I want the LLM analysis to produce a structural plan before writing the report,
+So that assessment reports are argument-driven rather than list-driven.
+
+**Requirements sourced from:** HCMW-004 Structure-First Draft
+
+**Acceptance Criteria:**
+
+**Given** intake data and tool research results are available for an assessment
+**When** HCMW-004 is applied to the LLM analysis prompt (the `docs/agentic-workflows/high-capability-model-workflows/hcmw-004-v1-structure-first-draft.md` prompt)
+**Then** the LLM first produces a structural plan (thesis/central argument, supporting arguments with evidence placement, counterargument handling, conclusion direction) before writing prose.
+
+**Given** the structural plan is produced
+**When** it is reviewed before the full report is generated
+**Then** the plan can be accepted, revised, or rejected without wasting a full generation
+**And** rejected plans include structured feedback that guides the next attempt.
+
+**Given** the structure-first approach is active
+**When** reports are compared to the previous list-driven approach (A/B evaluation)
+**Then** structured reports show clear argument progression, evidence-anchored claims, and logical conclusions rather than comprehensive-but-incoherent lists.
+
+### Story 9.2: Multi-Artifact Report Output (HCMW-002)
+
+As a pipeline developer,
+I want the report generation phase to produce a complete artifact set,
+So that assessment deliverables are consistent across executive summary, detailed findings, tool matrix, and roadmap.
+
+**Requirements sourced from:** HCMW-002 Multi-Artifact Work Package
+
+**Acceptance Criteria:**
+
+**Given** the structure-first approach from Story 9.1 is in place
+**When** HCMW-002 is applied to report generation (the `docs/agentic-workflows/high-capability-model-workflows/hcmw-002-v1-multi-artifact-work-package.md` prompt)
+**Then** the pipeline produces: executive summary, detailed findings section, tool recommendation matrix, and phased implementation roadmap as distinct artifacts with cross-artifact consistency checks.
+
+**Given** multi-artifact output is generated
+**When** cross-artifact consistency is checked
+**Then** contradictions between artifacts are detected (e.g., tool recommended in matrix but not mentioned in roadmap, timeline in summary different from detailed roadmap)
+**And** detected contradictions are flagged for human review rather than silently delivered.
+
+**Given** the multi-artifact approach is active
+**When** compared to single-report output
+**Then** each artifact is independently usable (executive summary is self-contained for quick reads, detailed findings support deep dives, tool matrix supports procurement decisions).
+
+### Story 9.3: Pretty-But-Wrong Detection (OFEWG-012)
+
+As a pipeline quality engineer,
+I want the report-review gate to catch unsupported claims and untraceable assertions,
+So that confident-sounding but evidence-free prose does not reach clients.
+
+**Requirements sourced from:** OFEWG-012 Pretty-But-Wrong Detector
+
+**Acceptance Criteria:**
+
+**Given** a generated assessment report
+**When** the report-review gate applies OFEWG-012 methodology (adapted from the `docs/agentic-workflows/office-files-evidence-workflow-guide/ofewg-012-v1-pretty-but-wrong-detector.md` prompt)
+**Then** the gate identifies: claims without source attribution, numbers without calculation traceability, charts/graphs described but not backed by data, assumptions presented as facts, and persuasive prose masking insufficient evidence.
+
+**Given** the gate flags unsupported claims
+**When** results are reported
+**Then** each flag includes: the claim, why it's unsupported, what evidence would be needed to support it, and whether the claim is likely correct but unproven or likely incorrect.
+
+**Given** a report with flagged claims reaches the Staff Portal Human Review workspace (Epic 1)
+**When** staff review the report
+**Then** flagged claims are surfaced as Gate Findings with confidence and severity indicators.
+
+### Story 9.4: Evidence Traceability (OFEWG-009)
+
+As a pipeline developer,
+I want every claim in the final report to have a traceable source,
+So that client questions about "why this recommendation" have auditable answers.
+
+**Requirements sourced from:** OFEWG-009 Evidence Map Builder
+
+**Acceptance Criteria:**
+
+**Given** the report generation pipeline produces assessment reports
+**When** OFEWG-009 methodology is applied (adapted from the `docs/agentic-workflows/office-files-evidence-workflow-guide/ofewg-009-v1-evidence-map-builder.md` prompt)
+**Then** a traceability matrix maps: every report claim → source (intake answer #N, Futurepedia result #M, TAAFT entry ID, LLM inference from specific data) → timestamp → confidence level.
+
+**Given** the traceability matrix exists
+**When** a client or staff member asks why a specific tool was recommended
+**Then** the source chain is retrievable: which intake need → which tool research query → which catalog entry → which capability claim.
+
+**Given** a claim has no traceable source
+**When** the evidence map is built
+**Then** it is flagged as "LLM inference only" with a confidence marker
+**And** report-review gate treats unsourced claims as review-required findings.
+
+---
+
+## Epic 10: Pipeline Auto-Optimization Readiness [AIAS Workflow Family]
+
+Run prerequisite diagnostics before investing in automated pipeline optimization: determine whether the pipeline has a modifiable surface, measurable metric, and reasonable experiment cycle time; pre-mortem metric gaming vectors; and audit trace infrastructure for attribution.
+
+**Sourced from:** `docs/assessment-pipeline-workflow-integration-report.md` §5 — Auto-Improving Agent Safety (AIAS-001 through AIAS-003)
+
+**Pipeline context:** Scripts like `bench-pipeline.mjs` and `test-model-variations.mjs` suggest pipeline optimization is being explored. This epic runs diagnostics before investing in autoresearch/auto-optimization loops. AIAS-001 may produce a Blocker Report (most valuable output) if the pipeline is not ready.
+
+### Story 10.1: Karpathy Triplet Diagnostic (AIAS-001)
+
+As a pipeline developer,
+I want to know whether the pipeline is ready for automated optimization,
+So that optimization investment is not wasted on a system that can't actually be improved.
+
+**Requirements sourced from:** AIAS-001 Karpathy Triplet Diagnostic
+
+**Acceptance Criteria:**
+
+**Given** the current pipeline codebase and operational setup
+**When** AIAS-001 is applied (the `docs/agentic-workflows/auto-improving-agent-safety/aias-001-v1-karpathy-triplet-diagnostic.md` prompt)
+**Then** the diagnostic evaluates three questions: (a) What would be modified? (prompts? model selection? gate criteria? tool research queries?), (b) What metric would be optimized? (report quality? generation time? cost per assessment?), (c) What is the experiment cycle time? (time from change to metric reading).
+
+**Given** the diagnostic produces a program.md (system is ready)
+**When** the program is reviewed
+**Then** it specifies the editable surface, optimization metric, experiment budget, safety constraints, and expected cycle time per experiment iteration.
+
+**Given** the diagnostic produces a Blocker Report (system is not ready)
+**When** blockers are documented
+**Then** each blocker includes: what is missing, why it prevents optimization, and what must be built or defined before re-running the diagnostic.
+
+### Story 10.2: Metric Gaming Pre-Mortem (AIAS-002)
+
+As a pipeline quality engineer,
+I want to identify how optimization could game the chosen metric without delivering business value,
+So that the optimization target is hardened against Goodhart's Law before experiments begin.
+
+**Requirements sourced from:** AIAS-002 Metric-Gaming Pre-Mortem
+
+**Acceptance Criteria:**
+
+**Given** the optimization metric from AIAS-001 (or candidate metrics if the system isn't ready)
+**When** AIAS-002 is applied (the `docs/agentic-workflows/auto-improving-agent-safety/aias-002-v1-metric-gaming-pre-mortem.md` prompt)
+**Then** gaming vectors are identified: how could an optimization agent inflate the metric without delivering business value?
+**And** secondary metrics are proposed that would catch gaming behavior.
+
+**Given** gaming vectors are identified for a metric like "report generation speed"
+**When** the pre-mortem completes
+**Then** it includes: gaming scenario (e.g., generating shorter reports, skipping evidence), detection strategy (secondary metrics: report length, claim count, evidence density), and holdout scenarios that would reveal gaming.
+
+**Given** secondary metrics are defined
+**When** the optimization loop runs
+**Then** both primary and secondary metrics are tracked
+**And** primary improvement at the cost of secondary degradation triggers human review.
+
+### Story 10.3: Trace Infrastructure Audit (AIAS-003)
+
+As a pipeline developer,
+I want to audit whether the pipeline's observability supports attribution of improvements to specific changes,
+So that optimization results are trustworthy rather than coincidental.
+
+**Requirements sourced from:** AIAS-003 Trace Infrastructure Audit
+
+**Acceptance Criteria:**
+
+**Given** the pipeline's current logging, metrics, and monitoring setup
+**When** AIAS-003 is applied (the `docs/agentic-workflows/auto-improving-agent-safety/aias-003-v1-trace-infrastructure-audit.md` prompt)
+**Then** the audit evaluates 10 trace requirements: reasoning traces, tool call granularity, session reproducibility, metric attribution, change-to-result linking, failure attribution, A/B comparison support, cost per experiment, regression detection speed, and trend confidence over noise.
+
+**Given** trace gaps are identified
+**When** the audit produces recommendations
+**Then** each gap includes: which requirement is unmet, how it affects trust in optimization results, and minimum infrastructure needed to close the gap.
+
+**Given** trace infrastructure is insufficient for automated optimization
+**When** the audit report is reviewed
+**Then** optimization experiments are gated until trace requirements are met
+**And** a phased trace improvement plan is included with the audit.

@@ -5,6 +5,7 @@ import { sendReceiptEmail, sendPortalInvitationEmail } from '$lib/server/assessm
 import { getTranscript } from '$lib/server/assessment/transcript-store';
 import { getPipelineStatus, setPipelineStatus } from '$lib/server/assessment/pipeline-store';
 import { enqueueReportJob } from '$lib/server/assessment/queue';
+import { checkIntakeSufficiency } from '$lib/server/assessment/intake-quality-check';
 import { saveReceipt, savePendingReceipt, findOrCreateUserFromStripe } from '$lib/server/portal';
 import { isEventProcessed, markEventProcessed } from '$lib/server/stripe/processed-events';
 import { saveTranscriptToDisk } from '$lib/server/assessment/transcript-file-store';
@@ -254,6 +255,19 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         }
 
         await setPipelineStatus(session.id, { status: 'queued', callId: retellCallId });
+
+        // JLA-005: intake quality pre-check before committing pipeline resources
+        const qualityCheck = checkIntakeSufficiency(transcript);
+        if (!qualityCheck.sufficient) {
+          console.warn('[stripe-webhook:voice] Intake quality check failed — enqueuing anyway (shadow mode)', {
+            callId: retellCallId,
+            sessionId: session.id,
+            gaps: qualityCheck.gaps,
+            metrics: qualityCheck.metrics,
+            recommendation: qualityCheck.recommendation
+          });
+        }
+
         const queue = platform?.env?.assessment_queue;
         try {
           await enqueueReportJob(queue, {
@@ -338,6 +352,19 @@ export const POST: RequestHandler = async ({ request, platform }) => {
       }
 
       const queue = platform?.env?.assessment_queue;
+
+      // JLA-005: intake quality pre-check before committing pipeline resources
+      // For Annie chat, we have structured answers — pass them for better accuracy
+      const qualityCheck = checkIntakeSufficiency(transcript, transcriptObject);
+      if (!qualityCheck.sufficient) {
+        console.warn('[stripe-webhook:annie] Intake quality check failed — enqueuing anyway (shadow mode)', {
+          sessionId: intakeSessionId,
+          gaps: qualityCheck.gaps,
+          metrics: qualityCheck.metrics,
+          recommendation: qualityCheck.recommendation
+        });
+      }
+
       try {
         await enqueueReportJob(queue, {
           receivedAt: record.receivedAt,
