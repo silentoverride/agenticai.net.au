@@ -1,6 +1,6 @@
 # Story 6.1: Intake Quality Audit (AICC-002)
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
