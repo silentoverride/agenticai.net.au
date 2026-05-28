@@ -18,6 +18,7 @@
  */
 
 import type { GateDefinition } from './types';
+import { PBW_DETECTOR_SYSTEM_PROMPT } from './pbw-detector';
 
 // ============================================================================
 // Shared Judge Layer Instructions
@@ -390,6 +391,8 @@ Return a valid JSON object:
 /**
  * All registered gate definitions.
  * pbw-detector has been merged into report-review as the Taste + PBW scoring dimensions.
+ * The standalone pbw-detector gate (below) is available as an opt-in additional check
+ * for deeper OFEWG-012 compliance when GATE_PBW_DETECTOR_ENABLED=true.
  */
 export const GATE_DEFINITIONS: GateDefinition[] = [
   {
@@ -421,6 +424,16 @@ export const GATE_DEFINITIONS: GateDefinition[] = [
     enabled: true,
     featureFlag: 'GATE_REPORT_REVIEW_ENABLED',
     killSwitch: 'GATE_REPORT_REVIEW_KILL'
+  },
+  {
+    type: 'pbw-detector',
+    name: 'Pretty-But-Wrong Detector (OFEWG-012) — standalone post-review check',
+    description: 'OFEWG-012 standalone detector: catches reports that pass structural validation but fail commercial reality. 8 detection patterns scored 1-5. Disabled by default — enable with GATE_PBW_DETECTOR_ENABLED=true.',
+    systemPrompt: PBW_DETECTOR_SYSTEM_PROMPT,
+    reasoningEffort: 'medium',
+    enabled: true,
+    featureFlag: 'GATE_PBW_DETECTOR_ENABLED',
+    killSwitch: 'GATE_PBW_DETECTOR_KILL'
   }
 ];
 

@@ -209,7 +209,7 @@ export async function runAllGates(
   content: string,
   options: Omit<GateRunOptions, 'assessmentId' | 'content' | 'gateType'> = {}
 ): Promise<GateRunResult[]> {
-  const gateTypes = ['quick-wins-verification', 'major-project-verification', 'report-review'];
+  const gateTypes = ['quick-wins-verification', 'major-project-verification', 'report-review', 'pbw-detector'];
   const results: GateRunResult[] = [];
 
   // Determine mode for this batch
