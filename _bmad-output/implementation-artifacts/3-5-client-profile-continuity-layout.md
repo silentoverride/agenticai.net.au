@@ -1,6 +1,6 @@
 # Story 3.5: Client Profile Continuity Layout
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

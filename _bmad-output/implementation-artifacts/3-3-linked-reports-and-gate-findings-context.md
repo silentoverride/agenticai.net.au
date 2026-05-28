@@ -1,6 +1,6 @@
 # Story 3.3: Linked Reports and Gate Findings Context
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

@@ -1,6 +1,6 @@
 # Story 3.4: Activity Memory and Audit History
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

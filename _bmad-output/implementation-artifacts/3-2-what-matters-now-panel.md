@@ -1,6 +1,6 @@
 # Story 3.2: What Matters Now Panel (Read Model)
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
