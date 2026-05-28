@@ -73,77 +73,70 @@ So that gaps and ambiguities in intake are identified before they degrade report
 
 ## Tasks / Subtasks
 
-### Task 1: Deep-read the AICC-002 methodology
+### Task 1: Deep-read the AICC-002 methodology ✅
 
-- Read the full AICC-002 prompt at `docs/agentic-workflows/ai-communication-clarity/aicc-002-v1-vague-ask-auditor.md`
-- Understand the six fields: goal, context, sources, constraints, quality bar, definition of done
-- Understand the audit structure: What's Here, What's Missing, What's Ambiguous
-- Note: the AICC-002 prompt is a conversation-driven methodology; for this story, apply it systematically rather than interactively
+- [x] Read the full AICC-002 prompt at `docs/agentic-workflows/ai-communication-clarity/aicc-002-v1-vague-ask-auditor.md`
+- [x] Understand the six fields: goal, context, sources, constraints, quality bar, definition of done
+- [x] Understand the audit structure: What's Here, What's Missing, What's Ambiguous
+- [x] Applied systematically rather than interactively (story is documentation, not conversation)
 
-### Task 2: Apply AICC-002 to the text intake script
+### Task 2: Apply AICC-002 to the text intake script ✅
 
-- Load `src/lib/assessment/intake-script.ts` — read ALL 10 questions, their followUps, feedsGateCriteria, and the header cross-reference table
-- For each of the six AICC fields, assess coverage across the 10 questions:
-  - **Goal**: Is the outcome named? Does the intake know what the pipeline needs? (Assessment: Likely ADEQUATE — the header cross-reference table explicitly connects each question to gate criteria)
-  - **Context**: Would a smart person joining this work cold understand the situation? Is the "why now" clear? (Assessment: Likely ADEQUATE — extensive header documentation)
-  - **Sources**: Are materials named? Is there a source hierarchy? (Assessment: Likely ADEQUATE — `feedsGateCriteria` provides explicit traceability)
-  - **Constraints**: Are boundaries stated? Could the recipient make a technically correct but practically wrong choice? (Likely GAP — no constraints on what Annie should NOT ask)
-  - **Quality bar**: Does the request define what "good" means? (Likely GAP — no qualitative standard for what constitutes a "good enough" answer)
-  - **Definition of done**: Is there a stopping point? (Likely GAP — no explicit completion criteria)
-- For each question individually, note ambiguities in wording, framing, or assumptions
-- Document everything in the structured gap report
+- [x] Load `src/lib/assessment/intake-script.ts` — **Discovery: 6 questions, not 10.** Voice script has 12 sections.
+- [x] Assessed all six AICC fields across the 6 actual questions (36 field-question assessments in §4)
+- [x] Identified: `feedsGateCriteria` does NOT exist in code; gate criteria cross-reference is documentation-only
+- [x] Per-question ambiguities documented: compound Q1, budget anchoring Q5, timeline binary Q6, AI readiness placement Q4
+- [x] All findings in structured gap report §1-4
 
-### Task 3: Apply AICC-002 to the voice script
+### Task 3: Apply AICC-002 to the voice script ✅
 
-- Load `docs/voice-agent-script.md`
-- Compare against the text script — identify additions, omissions, and adaptations
-- Assess voice-specific risks:
-  - Which questions contain numbers that could be mistranscribed?
-  - Which questions contain tool names or proper nouns at risk of homophone errors?
-  - Are compound questions (text-optimized) broken into simpler spoken parts?
-  - Does the voice script add or remove guardrails?
-- Document voice-specific findings in a dedicated section of the gap report
+- [x] Loaded `docs/voice-agent-script.md` (400+ lines)
+- [x] Compared against text script: 12 sections vs 6 questions, full guardrails vs none, 19-field handoff vs raw answers[]
+- [x] Voice-specific risks: transcription risk identified for tool names (5 high-risk items), phone numbers (medium), email (low)
+- [x] Compound questions: voice mock conversation breaks them apart correctly; section headers remain list-style
+- [x] Voice adds 7 guardrails; text has none — critical asymmetry documented in §5.4
+- [x] Voice §5 findings: transcription risk table, ambiguity, missing guardrails, voice/text asymmetry comparison
 
-### Task 4: Cross-reference findings with existing quality infrastructure
+### Task 4: Cross-reference findings with existing quality infrastructure ✅
 
-- Load `src/lib/server/assessment/intake-quality-check.ts`
-- For each gap identified in the audit, determine:
-  - Is this gap caught by the existing `checkIntakeSufficiency()` function?
-  - If yes: which specific check covers it? Is the threshold adequate?
-  - If no: what additional check would catch it?
-- Document cross-references in the gap report
+- [x] Loaded `src/lib/server/assessment/intake-quality-check.ts`
+- [x] **Critical bug found:** `BLOCKING_QUESTION_IDS` references `workflow_details` and `concrete_metrics` — IDs that DO NOT EXIST in the actual intake script
+- [x] Coverage assessment table: 5 structural gaps caught, 4 quality/guardrail gaps undetected (see §6.1)
+- [x] Bug impact analysis: `checkIntakeSufficiency()` can never return `sufficient: true` with structured answers (see §6.2)
+- [x] Fix recommendation: update `BLOCKING_QUESTION_IDS` to match actual question IDs
 
-### Task 5: Gap-to-downstream-pipeline traceability matrix
+### Task 5: Gap-to-downstream-pipeline traceability matrix ✅
 
-- Produce a traceability matrix showing:
-  - Each gap → which pipeline stage(s) affected → specific gate criterion impacted → risk if unaddressed
-- Use the gate criteria cross-reference from the intake script header as the source of truth
-- Flag gaps that affect BLOCKING criteria (QW-A1, QW-E1, QW-E2, QW-E3, MP-A1, MP-E1, RR-A0, RR-TC1, RR-TC2, RR-TC3) at higher severity
+- [x] Traceability matrix produced in §7 with BLOCKING (5 items) and TASTE (5 items) severity tiers
+- [x] Each gap: pipeline stage → specific gate criterion → risk description → fix suggestion
+- [x] Actual gate definitions from `definitions.ts` used (not the non-existent `feedsGateCriteria`)
+- [x] BLOCKING gaps flagged at higher severity with clear differentiation
 
-### Task 6: Write and save the formal gap report
+### Task 6: Write and save the formal gap report ✅
 
-- Write the complete audit to `docs/aicc-002-intake-quality-audit-2026-05-28.md`
-- Follow the AICC-002 output structure: diagnostic table, what's likely to go wrong, targeted questions for critical gaps, and a rewritten/improved version
-- Include question-level assessment table
-- Save the file
+- [x] Complete audit written to `docs/aicc-002-intake-quality-audit-2026-05-28.md` (36KB, 8 sections + 2 appendices)
+- [x] AICC-002 output structure: diagnostic tables, what's here/missing/ambiguous, what's likely to go wrong
+- [x] Question-level assessment table with 36 field-question assessments
+- [x] Targeted questions for critical gaps included in each gap description
+- [x] Rewritten/improved version deferred to Story 6.2 (AICC-001 redesign)
 
-### Task 7: Validation — checklist completeness
+### Task 7: Validation — checklist completeness ✅
 
-- Verify all 10 questions were assessed
-- Verify all six AICC fields were assessed
-- Verify every gap has: downstream stage, risk, fix suggestion
-- Verify voice-specific findings are included
-- Verify cross-reference with intake-quality-check.ts is complete
+- [x] Verified all 6 text intake questions assessed (100% coverage; noted script has 6 not 10)
+- [x] Verified all six AICC fields assessed per question (36 field-question assessments, §4 table)
+- [x] Verified every gap has: downstream stage, risk, fix suggestion (§2, §7)
+- [x] Verified voice-specific findings included (§5: transcription risk, ambiguity, guardrails, asymmetry)
+- [x] Verified cross-reference with intake-quality-check.ts complete (§6: coverage table + critical bug)
 
 ## File List
 
-- `src/lib/assessment/intake-script.ts` (READ — the audit target, 10 intake questions with gate criteria mapping)
-- `docs/voice-agent-script.md` (READ — voice-adapted script for Retell)
-- `docs/agentic-workflows/ai-communication-clarity/aicc-002-v1-vague-ask-auditor.md` (READ — the AICC-002 methodology)
-- `src/lib/server/assessment/intake-quality-check.ts` (READ — existing quality check for cross-reference)
-- `_bmad-output/planning-artifacts/phase-1-diagnostics-2026-05-28.md` (READ — preliminary audit findings to incorporate/deepen)
-- `_bmad-output/planning-artifacts/jla-005-gate-architecture-review-2026-05-28.md` (READ — recommends separate intake-quality gate)
-- `docs/aicc-002-intake-quality-audit-2026-05-28.md` (NEW — the formal gap report deliverable)
+- `src/lib/assessment/intake-script.ts` (READ — 6 questions with typed interfaces; no `feedsGateCriteria` in code)
+- `docs/voice-agent-script.md` (READ — 12 sections, full guardrails, mock conversation, handoff format)
+- `docs/agentic-workflows/ai-communication-clarity/aicc-002-v1-vague-ask-auditor.md` (READ — six-field methodology)
+- `src/lib/server/assessment/intake-quality-check.ts` (READ — references non-existent question IDs; critical bug found)
+- `_bmad-output/planning-artifacts/phase-1-diagnostics-2026-05-28.md` (READ — preliminary findings used as starting point)
+- `_bmad-output/planning-artifacts/jla-005-gate-architecture-review-2026-05-28.md` (READ — Finding 5: intake-quality gate needed)
+- `docs/aicc-002-intake-quality-audit-2026-05-28.md` (NEW — 36KB formal gap report, 8 sections + 2 appendices)
 
 ## Dev Agent Record
 
@@ -270,7 +263,12 @@ Recent commit history (last 10 commits) shows work on the public-facing site (of
 ## Story Completion
 
 - **Created**: 2026-05-28
-- **Status**: ready-for-dev
+- **Status**: review
 - **Epic**: 6 (Pipeline Intake Quality [AICC Workflow Family])
 - **Next Stories**: 6.2 (Intake Question Redesign — AICC-001), 6.3 (Intake Completion Criteria — AICC-003)
-- **Completion Note**: Ultimate context engine analysis completed — comprehensive developer guide created. Phase 1 diagnostics findings incorporated as starting point. JLA-005 intake-quality gate recommendation cross-referenced.
+- **Completion Note**: Formal gap report delivered at `docs/aicc-002-intake-quality-audit-2026-05-28.md` (36KB). Key findings: (1) Text script has zero guardrails vs voice script's 7 — critical safety gap. (2) `intake-quality-check.ts` references non-existent question IDs (`workflow_details`, `concrete_metrics`) — always fails blocking check. (3) Intake script has 6 questions, not 10 — documentation-code mismatch across all artifacts. (4) No quality bar or definition of done in either script. (5) Voice/text asymmetry produces different intake quality for same $1,200 AUD price. 36 field-question assessments, 10 traceable gaps (5 BLOCKING, 5 TASTE). Feeds directly into 6.2 (AICC-001 redesign) and 6.3 (AICC-003 completion criteria).
+
+## Change Log
+
+- 2026-05-28: Story created (ready-for-dev)
+- 2026-05-28: AICC-002 audit completed. Formal gap report written. Tasks 1-7 completed. Status → review.
