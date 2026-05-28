@@ -10,6 +10,8 @@ import { runGate } from './gate/runner';
 import { isGateActive, getGateMode } from './gate/gate-mode';
 import { extractBudgetSignal } from './budget-detection';
 import { extractEvidenceMap, formatEvidenceMapForPrompt } from './evidence-map';
+import { extractArtifacts } from './artifact-extraction';
+import type { AssessmentArtifacts } from './types';
 import type { EvidenceMap } from './evidence-map';
 
 // ============================================================================
@@ -165,14 +167,58 @@ async function runWithTimeout<T>(fn: () => Promise<T>, timeoutMs: number, timeou
   }
 }
 
+/** Stage 1.5: Multi-Artifact Extraction (HCMW-002) —
+ *  decompose StructuredAnalysis into 4 independently usable artifacts
+ *  and validate cross-artifact consistency. */
+export async function stageExtractArtifacts(
+  structured: StructuredAnalysis,
+  company: string
+): Promise<AssessmentArtifacts> {
+  const start = Date.now();
+  let artifacts: AssessmentArtifacts;
+
+  try {
+    artifacts = extractArtifacts(structured, company);
+    const elapsed = Date.now() - start;
+
+    console.info('[pipeline:stage:extract-artifacts] Complete', {
+      artifactCount: 4,
+      executiveSummaryLength: artifacts.executive_summary.summary.length,
+      painPointCount: artifacts.detailed_findings.pain_points.length,
+      quickWinCount: artifacts.detailed_findings.quick_wins.length,
+      toolCount: artifacts.tool_matrix.tools.length,
+      roadmapPhaseCount: artifacts.implementation_roadmap.phases.length,
+      consistencyVerified: artifacts.consistency_report.verified,
+      contradictionCount: artifacts.consistency_report.contradictions.length,
+      warningCount: artifacts.consistency_report.warnings.length,
+      elapsedMs: elapsed
+    });
+
+    if (!artifacts.consistency_report.verified) {
+      console.warn('[pipeline:stage:extract-artifacts] Cross-artifact contradictions detected', {
+        contradictions: artifacts.consistency_report.contradictions.map(c => c.description),
+        warnings: artifacts.consistency_report.warnings.map(w => w.description)
+      });
+    }
+  } catch (error) {
+    const details = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+    console.error('[pipeline:stage:extract-artifacts] Failed:', details);
+    // Non-fatal: pipeline continues without artifacts — analysis.json is still saved
+    throw error;
+  }
+
+  return artifacts;
+}
+
 /** Stage 2: Save Report — persist analysis to R2 (production) or filesystem (dev). */
 export async function stageSaveReport(
   job: AssessmentReportJob,
   analysis: string,
-  r2Bucket: R2Bucket | null
+  r2Bucket: R2Bucket | null,
+  artifacts?: AssessmentArtifacts
 ): Promise<SavedReport> {
   try {
-    const saved = await saveReportUnified(r2Bucket, job, analysis);
+    const saved = await saveReportUnified(r2Bucket, job, analysis, artifacts);
     console.info(`[pipeline:stage:save-report] Saved`, {
       reportId: saved.id,
       destination: isR2Available(r2Bucket) ? 'r2' : 'local'
@@ -366,6 +412,10 @@ export async function runReportPipeline(
   // Stage 1: LLM Analysis — built from evidence map, not raw transcript
   const { analysis, structured } = await stageLlmAnalysis(job, tools, evidenceMap, budgetSignal);
 
+  // Stage 1.5: Multi-Artifact Extraction (HCMW-002) — decompose into 4 artifacts
+  const companyName = job.company || job.customerName || 'Business';
+  const artifacts = await stageExtractArtifacts(structured, companyName);
+
   // Note: structured analysis persisted to R2 via stageSaveReport below.
   // D1 persistence via user_reports table is handled in stageLinkReport.
 
@@ -409,7 +459,7 @@ export async function runReportPipeline(
   }
 
   // Stage 2: Save Report
-  const saved = await stageSaveReport(job, analysis, r2Bucket);
+  const saved = await stageSaveReport(job, analysis, r2Bucket, artifacts);
 
   // Stage 3: Link Report
   await stageLinkReport(saved, job);

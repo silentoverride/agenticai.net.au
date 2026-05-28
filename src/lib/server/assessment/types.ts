@@ -449,3 +449,100 @@ export type BudgetSignalSource =
   | 'retell_metadata'           // extracted from Retell post_call_analysis
   | 'industry_average'          // industry benchmark fallback
   | 'none';
+
+// ============================================================================
+// Multi-Artifact Report Output (HCMW-002)
+// Four independently usable artifacts extracted from the LLM analysis,
+// plus a cross-artifact consistency report.
+// ============================================================================
+
+/** Self-contained executive summary — readable without opening other artifacts. */
+export interface ExecutiveSummaryArtifact {
+  /** Company/assessment this summary is for. */
+  company: string;
+  /** 2-3 paragraph executive summary — self-contained. */
+  summary: string;
+  /** Top 3-5 key findings. */
+  key_findings: string[];
+  /** The single most important recommendation. */
+  top_recommendation: string;
+  /** Financial impact in prose: "We estimate $X weekly / $Y annual value from Z hours saved per week." */
+  financial_impact_summary: string;
+}
+
+/** Detailed findings — pain points, quick wins, deeper opportunities with evidence annotations. */
+export interface DetailedFindingsArtifact {
+  pain_points: import('./analysis-types').PainPoint[];
+  quick_wins: import('./analysis-types').QuickWin[];
+  deeper_opportunities: import('./analysis-types').DeeperOpportunity[];
+  /** Summary of evidence coverage: "X of Y claims have direct transcript evidence." */
+  evidence_summary: string;
+  /** When the source analysis was produced. */
+  generated_at: string;
+}
+
+/** A single tool entry in the tool recommendation matrix. */
+export interface ToolMatrixEntry {
+  name: string;
+  category: string;
+  purpose: string;
+  estimated_monthly_cost_aud: number;
+  setup_complexity: import('./analysis-types').SetupComplexity;
+  /** Hours saved per week attributed to this tool. */
+  estimated_hours_saved_per_week: number;
+  /** Why this tool was selected over alternatives. */
+  selection_rationale: string;
+}
+
+/** Tool recommendation matrix — tabular listing for procurement decisions. */
+export interface ToolMatrixArtifact {
+  tools: ToolMatrixEntry[];
+  /** Total estimated monthly tool cost (sum of all entries). */
+  total_estimated_monthly_cost_aud: number;
+  /** Selection rationale for the overall tool set. */
+  tool_selection_rationale: string;
+}
+
+/** Phased implementation roadmap — actionable execution plan. */
+export interface RoadmapArtifact {
+  phases: import('./analysis-types').ImplementationPhase[];
+  /** Overall timeline summary: "Phase 1 (Weeks 1-2): Quick wins. Phase 2 (Weeks 3-4): Automation. ..." */
+  timeline_summary: string;
+  /** Dependencies between phases: "Phase 2 requires Phase 1 tool setup." */
+  dependencies: string[];
+  /** Risk factors: "If staff resist new tools, Phase 1 adoption may slip to Week 3." */
+  risk_factors: string[];
+}
+
+/** A single consistency issue — contradiction or warning between artifacts. */
+export interface ConsistencyIssue {
+  /** Which check flagged this. */
+  check: string;
+  /** Description of the contradiction or warning. */
+  description: string;
+  /** 'contradiction' (factual conflict) or 'warning' (potential issue). */
+  severity: 'contradiction' | 'warning';
+  /** Which artifacts are involved. */
+  locations: string[];
+}
+
+/** Cross-artifact consistency validation report. */
+export interface ConsistencyReport {
+  /** Whether all checks passed (no contradictions). */
+  verified: boolean;
+  /** Contradictions found — factual conflicts between artifacts. */
+  contradictions: ConsistencyIssue[];
+  /** Warnings — potential issues, not definitive conflicts. */
+  warnings: ConsistencyIssue[];
+  /** Summary of what was checked. */
+  checks_performed: string[];
+}
+
+/** Complete multi-artifact assessment output. */
+export interface AssessmentArtifacts {
+  executive_summary: ExecutiveSummaryArtifact;
+  detailed_findings: DetailedFindingsArtifact;
+  tool_matrix: ToolMatrixArtifact;
+  implementation_roadmap: RoadmapArtifact;
+  consistency_report: ConsistencyReport;
+}

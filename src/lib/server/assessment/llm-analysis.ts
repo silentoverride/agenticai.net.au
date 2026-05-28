@@ -157,6 +157,12 @@ Rules:
 - Never use "will save" — always "we estimate."
 - Never recommend regulated-domain actions.
 - Savings < 30 min/week: mention in prose, do not annualise.
+
+ARTIFACT-READINESS REQUIREMENTS (HCMW-002: each report section must be independently usable as a separate deliverable):
+- executive_summary: Must be self-contained — someone reading ONLY this section should understand the business, the central recommendation, the top 3 findings, and the financial impact. Include the company name.
+- tool_recommendations: Each tool entry MUST include a "purpose" field explaining WHY this specific tool was chosen for THIS business (not just what it does generally). This supports procurement decisions without opening other sections.
+- implementation_roadmap: Each phase must describe what specifically depends on completing prior phases. Include risk notes where setup complexity is high (medium or high tools).
+- financial_impact: All 6 numeric fields must be populated. Zero is acceptable only when truly no data exists (never leave undefined).
 ${toolsSection}
 ${evidenceSection}`,
     },

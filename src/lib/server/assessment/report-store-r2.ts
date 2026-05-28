@@ -8,7 +8,7 @@
  * In local dev or when R2 is down, falls back to the filesystem store.
  */
 
-import type { AssessmentReportJob, SavedReport } from './types';
+import type { AssessmentReportJob, SavedReport, AssessmentArtifacts } from './types';
 
 export type R2SavedReport = SavedReport & { r2Key?: string };
 
@@ -22,7 +22,8 @@ export async function saveReportToR2(
   bucket: R2Bucket,
   job: AssessmentReportJob,
   analysis: string,
-  deckUrl?: string
+  deckUrl?: string,
+  artifacts?: AssessmentArtifacts
 ): Promise<{ id: string; r2Prefix: string }> {
   const id = reportId(job);
   const prefix = `reports/${id}`;
@@ -53,12 +54,73 @@ export async function saveReportToR2(
     });
   }
 
+  // Multi-artifact output (HCMW-002): save each artifact as a separate R2 key
+  if (artifacts) {
+    await saveArtifactsToR2(bucket, prefix, artifacts);
+  }
+
   await bucket.put(`${prefix}/meta.json`, JSON.stringify(meta, null, 2), {
     httpMetadata: { contentType: 'application/json' }
   });
 
-  console.info('Report saved to R2', { id, prefix });
+  console.info('Report saved to R2', { id, prefix, hasArtifacts: !!artifacts });
   return { id, r2Prefix: prefix };
+}
+
+/**
+ * Save multi-artifact output to R2.
+ * Writes each artifact as a separate JSON key under the report prefix.
+ *
+ * R2 keys produced:
+ *   reports/{id}/executive-summary.json
+ *   reports/{id}/detailed-findings.json
+ *   reports/{id}/tool-matrix.json
+ *   reports/{id}/implementation-roadmap.json
+ *   reports/{id}/consistency-report.json
+ */
+export async function saveArtifactsToR2(
+  bucket: R2Bucket,
+  prefix: string,
+  artifacts: AssessmentArtifacts
+): Promise<void> {
+  const artifactKeys: Array<[string, unknown]> = [
+    [`${prefix}/executive-summary.json`, artifacts.executive_summary],
+    [`${prefix}/detailed-findings.json`, artifacts.detailed_findings],
+    [`${prefix}/tool-matrix.json`, artifacts.tool_matrix],
+    [`${prefix}/implementation-roadmap.json`, artifacts.implementation_roadmap],
+    [`${prefix}/consistency-report.json`, artifacts.consistency_report]
+  ];
+
+  await Promise.all(
+    artifactKeys.map(([key, data]) =>
+      bucket.put(key, JSON.stringify(data, null, 2), {
+        httpMetadata: { contentType: 'application/json' }
+      })
+    )
+  );
+
+  console.info('Multi-artifact output saved to R2', {
+    prefix,
+    artifactCount: artifactKeys.length,
+    consistencyVerified: artifacts.consistency_report.verified,
+    contradictionCount: artifacts.consistency_report.contradictions.length,
+    warningCount: artifacts.consistency_report.warnings.length
+  });
+}
+
+/** Read a specific artifact from R2 by type. */
+export async function getArtifactFromR2(
+  bucket: R2Bucket,
+  reportId: string,
+  artifactType: 'executive-summary' | 'detailed-findings' | 'tool-matrix' | 'implementation-roadmap' | 'consistency-report'
+): Promise<unknown | null> {
+  const obj = await bucket.get(`reports/${reportId}/${artifactType}.json`);
+  if (!obj) return null;
+  try {
+    return JSON.parse(await obj.text());
+  } catch {
+    return null;
+  }
 }
 
 /** Read an analysis JSON from R2. */
@@ -110,10 +172,11 @@ export function isR2Available(bucket?: R2Bucket | null): bucket is R2Bucket {
 export async function saveReportUnified(
   bucket: R2Bucket | null,
   job: AssessmentReportJob,
-  analysis: string
+  analysis: string,
+  artifacts?: AssessmentArtifacts
 ): Promise<R2SavedReport> {
   if (isR2Available(bucket)) {
-    const { id, r2Prefix } = await saveReportToR2(bucket, job, analysis);
+    const { id, r2Prefix } = await saveReportToR2(bucket, job, analysis, undefined, artifacts);
     return {
       id,
       dir: '', // no local dir in R2 mode
