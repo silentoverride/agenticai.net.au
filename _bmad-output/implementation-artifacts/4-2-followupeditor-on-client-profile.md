@@ -1,6 +1,6 @@
 # Story 4.2: FollowUpEditor on Client Profile
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
