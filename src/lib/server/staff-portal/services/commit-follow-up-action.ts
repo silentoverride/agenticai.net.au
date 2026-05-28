@@ -15,6 +15,7 @@ import {
   staffActionReceiptFromEvent
 } from '../repositories/staff-audit.repository';
 import { updateFollowUpStatus, findFollowUpById } from '../repositories/follow-up.repository';
+import { createLogger } from './logger';
 
 export interface CommitFollowUpActionResult {
   success: boolean;
@@ -28,11 +29,22 @@ export interface CommitFollowUpActionResult {
   };
 }
 
+type StaffPortalActionId = import('$lib/staff-portal/dto').StaffPortalActionId;
+
 export async function commitFollowUpAction(
   db: AsyncDb,
   input: UpdateFollowUpActionInput
 ): Promise<CommitFollowUpActionResult> {
   const { followUpId, actorId, assessmentId, action, reason, newOwnerId, idempotencyKey } = input;
+  const log = createLogger(undefined, actorId ?? undefined);
+
+  log.transitionAttempt({
+    assessmentId,
+    action: action as StaffPortalActionId,
+    targetType: 'followUp',
+    targetId: followUpId,
+    expectedState: 'any',
+  });
 
   // 1. Check idempotency
   const existingEvent = await findStaffActionAuditEventByIdempotency(db, {
@@ -42,6 +54,11 @@ export async function commitFollowUpAction(
   });
 
   if (existingEvent) {
+    log.idempotencyHit({
+      assessmentId,
+      action: action as StaffPortalActionId,
+      idempotencyKey,
+    });
     // Idempotent retry — return the existing receipt
     const followUp = await findFollowUpById(db, followUpId);
     return {
@@ -55,6 +72,14 @@ export async function commitFollowUpAction(
   const followUp = await findFollowUpById(db, followUpId);
 
   if (!followUp) {
+    log.transitionRejected({
+      assessmentId,
+      action: action as StaffPortalActionId,
+      targetType: 'followUp',
+      targetId: followUpId,
+      errorCode: 'validationFailed',
+      detail: 'Follow-up not found',
+    });
     return {
       success: false,
       error: { code: 'validationFailed', message: 'Follow-up not found.', remediationHint: 'Check the follow-up ID and try again.' }
@@ -71,6 +96,22 @@ export async function commitFollowUpAction(
   const matchingAction = eligibleActions.find((a) => a.action === action);
   if (!matchingAction || !matchingAction.enabled) {
     const reason = matchingAction?.blockedReason;
+    if (reason === 'permissionDenied') {
+      log.permissionDenied({
+        assessmentId,
+        action: action as StaffPortalActionId,
+        targetType: 'followUp',
+        detail: 'Permission denied for follow-up action',
+      });
+    } else {
+      log.transitionRejected({
+        assessmentId,
+        action: action as StaffPortalActionId,
+        targetType: 'followUp',
+        errorCode: 'blockedAction',
+        detail: matchingAction?.blockedReason ?? 'Unknown action',
+      });
+    }
     return {
       success: false,
       error: {
@@ -144,7 +185,7 @@ export async function commitFollowUpAction(
       targetType: 'followUp',
       targetId: followUpId,
       actorId,
-      action: action as import('$lib/staff-portal/dto').StaffPortalActionId,
+      action: action as StaffPortalActionId,
       fromState: followUp.status,
       toState: targetStatus,
       reasonCode: reason ?? undefined,
@@ -154,6 +195,14 @@ export async function commitFollowUpAction(
       createdAt: new Date().toISOString()
     });
   } catch {
+    log.auditWriteFailure({
+      assessmentId,
+      action: action as StaffPortalActionId,
+      targetType: 'followUp',
+      targetId: followUpId,
+      error: 'Database error',
+      detail: 'Failed to persist audit event',
+    });
     return {
       success: false,
       error: {

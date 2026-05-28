@@ -10,6 +10,7 @@
 
 import { withClerkHandler } from 'svelte-clerk/server';
 import { setD1Binding } from '$lib/server/db';
+import { systemLogger } from '$lib/server/staff-portal/services/logger';
 import type { Handle } from '@sveltejs/kit';
 
 const PRIVATE_PREFIXES = ['/operator/', '/api/operator/'];
@@ -50,6 +51,14 @@ export const handle: Handle = async ({ event, resolve }) => {
   // Add noindex headers to all private /operator/ routes
   if (isPrivateRoute(event.url.pathname)) {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  }
+
+  // Log permission denials on private routes
+  if (isPrivateRoute(event.url.pathname) && (response.status === 401 || response.status === 403)) {
+    systemLogger.permissionDenied({
+      detail: `${event.request.method} ${event.url.pathname} → ${response.status}`,
+      metadata: { method: event.request.method, path: event.url.pathname, status: response.status },
+    });
   }
 
   return response;
