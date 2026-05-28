@@ -97,6 +97,6 @@ development_status:
   9-3-pretty-but-wrong-detection: done
   9-4-evidence-traceability: done
   epic-10: backlog
-  10-1-karpathy-triplet-diagnostic: in-progress
-  10-2-metric-gaming-pre-mortem: backlog
+  10-1-karpathy-triplet-diagnostic: done
+  10-2-metric-gaming-pre-mortem: ready-for-dev
   10-3-trace-infrastructure-audit: backlog
