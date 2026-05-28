@@ -75,7 +75,7 @@
  * - Slightly elevated z-index
  */
 
-export const DESIGN_TOKENS_VERSION = '1.0.0';
+export const DESIGN_TOKENS_VERSION = '1.1.0';
 
 /** List all CSS custom property token names for IDE autocomplete reference. */
 export const TOKEN_NAMES = [
@@ -88,3 +88,57 @@ export const TOKEN_NAMES = [
   '--radius', '--radius-sm', '--max-w', '--pad-h',
   '--shadow-sm', '--shadow-panel', '--shadow-lift'
 ] as const;
+
+// ---------------------------------------------------------------------------
+// Staff Portal Design Tokens — src/lib/styles/design-tokens.css
+// Reference: DESIGN_SYSTEM.md
+// ---------------------------------------------------------------------------
+
+/**
+ * Staff Portal semantic token categories.
+ *
+ * These are CSS custom properties defined in `src/lib/styles/design-tokens.css`
+ * under `:root` (light) and `[data-theme="dark"]` (dark). This object mirrors
+ * those tokens for IDE autocomplete in TypeScript contexts. Tokens are never
+ * imported at runtime for styling — CSS custom properties handle all theming.
+ *
+ * Naming convention: `--ai-{category}-{property}` or `--{semanticAxis}-{state}-{property}`
+ */
+export const STAFF_PORTAL_TOKENS = {
+  /** Status axis — workflow state colours (neutral, attention, warning, danger, success, audit, disabled) */
+  status: {
+    text: ['--status-neutral-text', '--status-attention-text', '--status-warning-text', '--status-danger-text', '--status-success-text', '--status-audit-text', '--status-disabled-text'],
+    bg: ['--status-neutral-bg', '--status-attention-bg', '--status-warning-bg', '--status-danger-bg', '--status-success-bg', '--status-audit-bg', '--status-disabled-bg'],
+    border: ['--status-neutral-border', '--status-attention-border', '--status-warning-border', '--status-danger-border', '--status-success-border', '--status-audit-border', '--status-disabled-border'],
+    icon: ['--status-neutral-icon', '--status-attention-icon', '--status-warning-icon', '--status-danger-icon', '--status-success-icon', '--status-audit-icon', '--status-disabled-icon'],
+  },
+  /** Risk axis — severity colours (none, low, medium, high, blocked) */
+  risk: {
+    text: ['--risk-none-text', '--risk-low-text', '--risk-medium-text', '--risk-high-text', '--risk-blocked-text'],
+    bg: ['--risk-none-bg', '--risk-low-bg', '--risk-medium-bg', '--risk-high-bg', '--risk-blocked-bg'],
+    border: ['--risk-none-border', '--risk-low-border', '--risk-medium-border', '--risk-high-border', '--risk-blocked-border'],
+  },
+  /** Readiness axis — operational readiness (available, pending, unavailable, stale) */
+  readiness: {
+    text: ['--readiness-available-text', '--readiness-pending-text', '--readiness-unavailable-text', '--readiness-stale-text'],
+    bg: ['--readiness-available-bg', '--readiness-pending-bg', '--readiness-unavailable-bg', '--readiness-stale-bg'],
+    border: ['--readiness-available-border', '--readiness-pending-border', '--readiness-unavailable-border', '--readiness-stale-border'],
+  },
+  /** Action intent axis — decision button colours (approve, reject, neutral, escalate, claim, override, danger) */
+  actionIntent: {
+    text: ['--action-approve-text', '--action-reject-text', '--action-neutral-text', '--action-escalate-text', '--action-claim-text', '--action-override-text', '--action-danger-text'],
+    bg: ['--action-approve-bg', '--action-reject-bg', '--action-neutral-bg', '--action-escalate-bg', '--action-claim-bg', '--action-override-bg', '--action-danger-bg'],
+    border: ['--action-approve-border', '--action-reject-border', '--action-neutral-border', '--action-escalate-border', '--action-claim-border', '--action-override-border', '--action-danger-border'],
+    hoverBg: ['--action-approve-hover-bg', '--action-reject-hover-bg', '--action-neutral-hover-bg', '--action-escalate-hover-bg', '--action-claim-hover-bg', '--action-override-hover-bg', '--action-danger-hover-bg'],
+  },
+  /** Typography scale */
+  typography: {
+    fontSize: ['--ai-font-size-page-title', '--ai-font-size-section-title', '--ai-font-size-body', '--ai-font-size-small-meta'],
+    fontWeight: ['--ai-font-weight-page-title', '--ai-font-weight-section-title', '--ai-font-weight-body', '--ai-font-weight-small-meta'],
+    lineHeight: ['--ai-line-height-page-title', '--ai-line-height-section-title', '--ai-line-height-body', '--ai-line-height-small-meta'],
+  },
+  /** Spacing scale */
+  spacing: ['--ai-space-xs', '--ai-space-sm', '--ai-space-md', '--ai-space-lg', '--ai-space-xl', '--ai-space-2xl', '--ai-space-3xl'],
+  /** Portal shell tokens */
+  portal: ['--portal-surface-bg', '--portal-surface-border', '--portal-radius-sm', '--portal-radius-md', '--portal-radius-lg', '--portal-shadow-sm', '--portal-shadow-md', '--portal-font-mono', '--portal-font-sans', '--portal-focus-ring'],
+} as const;
