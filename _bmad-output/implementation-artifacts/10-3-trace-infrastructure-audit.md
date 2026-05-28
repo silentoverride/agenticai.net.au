@@ -1,6 +1,6 @@
 # Story 10.3: Trace Infrastructure Audit (AIAS-003)
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

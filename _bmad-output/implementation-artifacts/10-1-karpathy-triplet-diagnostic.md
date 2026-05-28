@@ -1,6 +1,6 @@
 # Story 10.1: Karpathy Triplet Diagnostic (AIAS-001)
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

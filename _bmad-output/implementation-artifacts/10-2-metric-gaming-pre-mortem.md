@@ -1,6 +1,6 @@
 # Story 10.2: Metric Gaming Pre-Mortem (AIAS-002)
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
