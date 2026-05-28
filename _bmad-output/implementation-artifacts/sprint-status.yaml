@@ -86,5 +86,5 @@ development_status:
   epic-7: in-progress
   7-1-pipeline-action-surface-audit: done
   7-2-gate-architecture-review: done
-  7-3-gate-judge-prompt-design: backlog
+  7-3-gate-judge-prompt-design: done
   7-4-gate-evaluation-suites: backlog
