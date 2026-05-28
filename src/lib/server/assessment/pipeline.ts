@@ -1,5 +1,5 @@
 import type { AssessmentReportJob, PipelineResult, SavedReport, BudgetSignal } from './types';
-import { analyzeTranscript } from './llm-analysis';
+import { analyzeTranscriptStructured, analyzeTranscript } from './llm-analysis';
 import { parseAndValidateAnalysis, createDefaultAnalysis } from './analysis-types';
 import type { StructuredAnalysis } from './analysis-types';
 import { lookupToolsForTranscript, enrichAnalysisWithTools, formatToolsForPrompt, filterToolsByMVTD } from './tool-lookup';
@@ -84,17 +84,34 @@ export async function stageLlmAnalysis(
   let analysis: string;
 
   try {
-    // Run analysis with timeout
+    // HCMW-004: Structure-first drafting — 2-phase with graceful fallback
     const startTime = Date.now();
-    analysis = await runWithTimeout(
-      () => analyzeTranscript(job, tools, evidenceMap, budgetSignal),
+    const result = await runWithTimeout(
+      () => analyzeTranscriptStructured(job, tools, evidenceMap, budgetSignal),
       ANALYSIS_TIMEOUT_MS,
       'LLM analysis exceeded 10-minute timeout'
     );
+    analysis = result.analysis;
     const elapsed = Date.now() - startTime;
+
+    // Log plan review decision for auditability
+    if (result.usedStructureFirst && result.plan) {
+      console.info(`[pipeline:stage:llm-analysis] Structure-first plan accepted`, {
+        thesis: result.plan.thesis.slice(0, 100),
+        sections: result.plan.sections.length,
+        usedStructureFirst: true
+      });
+    } else {
+      console.info(`[pipeline:stage:llm-analysis] Structure-first not used — fallback to single-pass`, {
+        reason: result.plan ? 'plan-validation-failed' : 'phase-1-failed',
+        usedStructureFirst: false
+      });
+    }
+
     console.info(`[pipeline:stage:llm-analysis] Complete`, {
       length: analysis.length,
       elapsedMs: elapsed,
+      usedStructureFirst: result.usedStructureFirst,
       withinTimeout: elapsed < ANALYSIS_TIMEOUT_MS
     });
   } catch (error) {

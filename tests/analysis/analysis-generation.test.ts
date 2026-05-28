@@ -177,3 +177,97 @@ async function runWithTimeout<T>(fn: () => Promise<T>, timeoutMs: number, messag
     if (timer) clearTimeout(timer);
   }
 }
+
+// ============================================================================
+// HCMW-004 Structure-First Drafting Tests
+// ============================================================================
+
+import { analyzeTranscriptStructured, analyzeTranscript } from '$lib/server/assessment/llm-analysis';
+import type { AssessmentReportJob } from '$lib/server/assessment/types';
+
+describe('Structure-First Drafting (HCMW-004)', () => {
+  const sampleJob: AssessmentReportJob = {
+    transcript: `Owner: Jane Smith
+
+Agent: Can you tell me about your business?
+Owner: I run a small marketing agency with 5 staff. We spend about 10 hours a week manually pulling reports from Google Analytics and Meta Ads into spreadsheets for clients. It's soul-crushing work. We also lose track of meeting action items because nothing is written down properly.
+
+Agent: What tools do you currently use?
+Owner: We use Google Workspace, Slack, and Canva. No CRM. Everything is in spreadsheets.
+
+Agent: What's your budget for tools?
+Owner: We could spend $200-300 a month on tools that save time.
+
+Agent: What's your timeline?
+Owner: We need this fixed yesterday. The reporting alone costs us $250 a week in owner time.`,
+    callId: 'test-call-001',
+    sessionId: 'test-session-001',
+    customerName: 'Jane Smith',
+    company: 'JSM Marketing',
+    customerEmail: 'jane@jsmmarketing.com'
+  };
+
+  describe('analyzeTranscriptStructured', () => {
+    it('returns analysis with usedStructureFirst flag', async () => {
+      const result = await analyzeTranscriptStructured(sampleJob);
+      expect(result).toHaveProperty('analysis');
+      expect(result).toHaveProperty('usedStructureFirst');
+      expect(typeof result.analysis).toBe('string');
+      expect(typeof result.usedStructureFirst).toBe('boolean');
+      expect(result.analysis.length).toBeGreaterThan(100);
+    }, 600_000); // 10 min timeout for real LLM call
+
+    it('returns a StructuralPlan when phase 1 succeeds', async () => {
+      const result = await analyzeTranscriptStructured(sampleJob);
+      if (result.usedStructureFirst) {
+        expect(result.plan).not.toBeNull();
+        expect(result.plan!.thesis.length).toBeGreaterThan(10);
+        expect(result.plan!.sections.length).toBeGreaterThanOrEqual(5);
+        expect(result.plan!.connectiveLogic.length).toBeGreaterThan(0);
+        expect(result.plan!.evidencePlacement.length).toBeGreaterThan(0);
+      }
+      // Even if fallback was used, we still got analysis
+      expect(result.analysis.length).toBeGreaterThan(100);
+    }, 600_000);
+
+    it('fallback still produces valid JSON analysis', async () => {
+      // Using a minimal transcript that might trigger fallback
+      const minimalJob: AssessmentReportJob = {
+        transcript: 'I run a plumbing business. We need better scheduling.',
+        callId: 'test-fallback-001',
+        sessionId: 'test-fb-001'
+      };
+      const result = await analyzeTranscriptStructured(minimalJob);
+      expect(result.analysis.length).toBeGreaterThan(50);
+      // Should parse as JSON
+      const parsed = JSON.parse(result.analysis);
+      expect(parsed).toHaveProperty('executive_summary');
+      expect(parsed).toHaveProperty('pain_points');
+      expect(parsed).toHaveProperty('quick_wins');
+    }, 600_000);
+  });
+
+  describe('analyzeTranscript (single-pass fallback)', () => {
+    it('produces valid JSON analysis', async () => {
+      const analysis = await analyzeTranscript(sampleJob);
+      const parsed = JSON.parse(analysis);
+      expect(parsed).toHaveProperty('executive_summary');
+      expect(parsed).toHaveProperty('pain_points');
+      expect(parsed).toHaveProperty('quick_wins');
+      expect(parsed).toHaveProperty('financial_impact');
+      // Verify business-specific content
+      expect(parsed.executive_summary).toMatch(/marketing|agency|reporting/i);
+    }, 600_000);
+
+    it('includes financial impact with arithmetic chain', async () => {
+      const analysis = await analyzeTranscript(sampleJob);
+      const parsed = JSON.parse(analysis);
+      const fi = parsed.financial_impact;
+      expect(typeof fi.hours_saved_per_week).toBe('number');
+      expect(typeof fi.hourly_rate_assumed_aud).toBe('number');
+      expect(typeof fi.weekly_value_aud).toBe('number');
+      expect(typeof fi.annual_value_aud).toBe('number');
+      expect(typeof fi.net_annual_value_aud).toBe('number');
+    }, 600_000);
+  });
+});
