@@ -76,6 +76,27 @@ export type StaffPortalActionId =
   | 'changeMeetingBriefStatus'
   | 'changeCommercialStep';
 
+export type StaffAuditEventType =
+  | 'reportStateChanged'
+  | 'gateFindingDecided'
+  | 'followUpStateChanged'
+  | 'meetingBriefStateChanged'
+  | 'cnsStatusChanged'
+  | 'ownershipChanged';
+
+export type StaffAuditReasonCode =
+  | 'qualityChecksPassed'
+  | 'clientReady'
+  | 'needsRework'
+  | 'missingInformation'
+  | 'complianceIssue'
+  | 'contentError'
+  | 'clientRequest'
+  | 'internalDecision'
+  | 'scheduleConflict'
+  | 'staleContext'
+  | 'other';
+
 export interface StatePresentationMetadata {
   label: string;
   tone: PresentationTone;
