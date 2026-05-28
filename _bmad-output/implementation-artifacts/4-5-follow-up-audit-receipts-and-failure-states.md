@@ -1,6 +1,6 @@
 # Story 4.5: Follow-up Audit Receipts and Failure States
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
