@@ -34,4 +34,44 @@ describe('mapGateFindingState', () => {
     expect(result.state).toBe('conflict');
     expect(result.blockedReasons).toContain('conflictingRecords');
   });
+
+  describe('null/undefined handling', () => {
+    it('does not throw on empty input object', () => {
+      expect(() => mapGateFindingState({})).not.toThrow();
+    });
+
+    it('returns open for empty input', () => {
+      const result = mapGateFindingState({});
+      expect(result.state).toBe('open');
+      expect(result.risk).toBe('none');
+    });
+
+    it('handles null gateVerdict without throwing', () => {
+      const result = mapGateFindingState(gateFindingFacts({ gateVerdict: null }));
+      expect(result.state).toBe('open');
+    });
+
+    it('handles null humanAssistStatus without throwing', () => {
+      const result = mapGateFindingState(gateFindingFacts({ humanAssistStatus: null }));
+      expect(result.humanReviewState).toBe('none');
+    });
+
+    it('handles null approvalEvidence without throwing', () => {
+      const result = mapGateFindingState(gateFindingFacts({ approvalEvidence: null }));
+      expect(result.state).toBe('open');
+    });
+
+    it('handles all-null input without throwing', () => {
+      const result = mapGateFindingState({
+        gateVerdict: null,
+        humanAssistStatus: null,
+        approvalEvidence: null,
+        overrideReason: null,
+        stale: undefined,
+        conflict: undefined
+      });
+      expect(result.state).toBe('open');
+      expect(result.humanReviewState).toBe('none');
+    });
+  });
 });
