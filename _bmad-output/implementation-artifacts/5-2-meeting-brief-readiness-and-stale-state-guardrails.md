@@ -1,6 +1,6 @@
 # Story 5.2: Meeting Brief Readiness and Stale-State Guardrails
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
