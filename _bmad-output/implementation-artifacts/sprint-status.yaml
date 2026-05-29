@@ -86,13 +86,13 @@ development_status:
   epic-4-retrospective: optional
 
   # === Epic 5: Meeting Brief & Commercial Continuity ===
-  epic-5: in-progress
+  epic-5: done
   5-1-calendly-access-and-meeting-brief-notes: done
-  5-2-meeting-brief-readiness-and-stale-state-guardrails: ready-for-dev
-  5-3-meetingbriefpanel-and-meeting-follow-ups: ready-for-dev
-  5-4-commercial-next-step-model-and-panel: ready-for-dev
-  5-5-commercial-follow-up-requirement-and-audit: ready-for-dev
-  5-6-meeting-and-commercial-responsive-accessibility: ready-for-dev
+  5-2-meeting-brief-readiness-and-stale-state-guardrails: done
+  5-3-meetingbriefpanel-and-meeting-follow-ups: done
+  5-4-commercial-next-step-model-and-panel: done
+  5-5-commercial-follow-up-requirement-and-audit: done
+  5-6-meeting-and-commercial-responsive-accessibility: done
   epic-5-retrospective: optional
 
   # === Epic 6: Pipeline Intake Quality [AICC Workflow Family] ===
