@@ -1,6 +1,6 @@
 # Story 5.6: Meeting and Commercial Responsive Accessibility
 
-Status: backlog
+Status: done
 
 ## Story
 
