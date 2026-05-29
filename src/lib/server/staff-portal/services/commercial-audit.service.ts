@@ -52,6 +52,17 @@ export async function recordCommercialNextStepChange(
     newOwner: input.newOwner
   };
 
+  // Build toState string that includes owner info when owner changed
+  let toState = input.newStatus;
+  if (ownerChanged && input.newOwner) {
+    toState += `|owner:${input.newOwner}`;
+  }
+
+  let fromState = input.previousStatus;
+  if (ownerChanged && input.previousOwner) {
+    fromState += `|owner:${input.previousOwner}`;
+  }
+
   const now = new Date().toISOString();
   const event = await insertStaffActionAuditEvent(db, {
     id: crypto.randomUUID(),
@@ -60,8 +71,8 @@ export async function recordCommercialNextStepChange(
     targetId: input.commercialStepId,
     actorId: input.actorId,
     action: 'changeCommercialStep',
-    fromState: input.previousStatus,
-    toState: input.newStatus,
+    fromState,
+    toState,
     reasonCode: statusChanged ? 'status_change' : ownerChanged ? 'owner_change' : 'no_change',
     reason: input.reason ?? null,
     requestHash: '', // caller sets this if needed
