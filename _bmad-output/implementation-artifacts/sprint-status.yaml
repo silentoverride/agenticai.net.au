@@ -118,11 +118,11 @@ development_status:
   epic-8-retrospective: optional
 
   # === Epic 9: Pipeline Report Structure [HCMW + OFEWG Workflow Families] ===
-  epic-9: in-progress
+  epic-9: done
   9-1-structure-first-drafting: done
-  9-2-multi-artifact-report-output: ready-for-dev
-  9-3-pretty-but-wrong-detection: ready-for-dev
-  9-4-evidence-traceability: ready-for-dev
+  9-2-multi-artifact-report-output: done
+  9-3-pretty-but-wrong-detection: done
+  9-4-evidence-traceability: done
   epic-9-retrospective: optional
 
   # === Epic 10: Pipeline Auto-Optimization Readiness [AIAS Workflow Family] ===
