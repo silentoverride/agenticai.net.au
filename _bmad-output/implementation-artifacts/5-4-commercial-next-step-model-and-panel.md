@@ -1,6 +1,6 @@
 # Story 5.4: Commercial Next Step Model and Panel
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
