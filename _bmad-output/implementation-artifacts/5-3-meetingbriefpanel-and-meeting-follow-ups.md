@@ -1,6 +1,6 @@
 # Story 5.3: MeetingBriefPanel and Meeting Follow-ups
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
