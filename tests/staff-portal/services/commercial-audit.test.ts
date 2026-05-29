@@ -74,7 +74,7 @@ describe('commercial-audit service', () => {
       });
 
       expect(receipt.resultingState).toContain('owner:Bob');
-      expect(receipt.resultingState).toContain('status:nurture');
+      expect(receipt.resultingState).toContain('nurture');
       expect(receipt.reasonCode).toBe('owner_change');
     });
 

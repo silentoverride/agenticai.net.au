@@ -1,6 +1,12 @@
 # Story 5.1: Calendly Access and Meeting Brief Notes
 
-Status: ready-for-dev
+Status: done
+
+## Implementation Notes
+
+- Fixed pre-existing bug in commercial-audit.service.ts where owner-only changes were not reflected in receipt resultingState
+- Created migration 0024_site_settings.sql for Calendly link storage
+- Created tests/staff-portal/routes/meeting-brief-api.test.ts (8 tests) covering CRUD, transitions, calendly config, DTO shape
 
 ## Story
 
