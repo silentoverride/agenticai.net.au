@@ -87,7 +87,7 @@ development_status:
 
   # === Epic 5: Meeting Brief & Commercial Continuity ===
   epic-5: in-progress
-  5-1-calendly-access-and-meeting-brief-notes: ready-for-dev
+  5-1-calendly-access-and-meeting-brief-notes: done
   5-2-meeting-brief-readiness-and-stale-state-guardrails: ready-for-dev
   5-3-meetingbriefpanel-and-meeting-follow-ups: ready-for-dev
   5-4-commercial-next-step-model-and-panel: ready-for-dev
