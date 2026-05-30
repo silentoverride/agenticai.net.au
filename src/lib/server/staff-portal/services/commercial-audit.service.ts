@@ -1,5 +1,5 @@
 import type { AsyncDb } from '$lib/server/db';
-import type { CommercialNextStepStatus, StaffActionReceiptDto } from '$lib/staff-portal/dto';
+import type { CommercialNextStepStatus, StaffActionReceiptDto, StaffActionState } from '$lib/staff-portal/dto';
 import {
   insertStaffActionAuditEvent,
   findStaffActionAuditEventByIdempotency,
@@ -71,8 +71,8 @@ export async function recordCommercialNextStepChange(
     targetId: input.commercialStepId,
     actorId: input.actorId,
     action: 'changeCommercialStep',
-    fromState,
-    toState,
+    fromState: fromState as StaffActionState,
+    toState: toState as StaffActionState,
     reasonCode: statusChanged ? 'status_change' : ownerChanged ? 'owner_change' : 'no_change',
     reason: input.reason ?? null,
     requestHash: '', // caller sets this if needed

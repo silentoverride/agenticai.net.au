@@ -54,8 +54,8 @@ const SCHEMA = `
     gate_run_id TEXT,
     gate_type TEXT,
     status TEXT DEFAULT 'pending',
-    operator_id TEXT,
-    operator_notes TEXT,
+    staff_id TEXT,
+    staff_notes TEXT,
     edited_content TEXT,
     reviewed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
@@ -139,10 +139,10 @@ describe('getClientProfileSnapshot', () => {
   });
 
   // -----------------------------------------------------------------------
-  // Permission denied for operator on assigned item
+  // Permission denied for staff on assigned item
   // -----------------------------------------------------------------------
 
-  it('returns permission_denied for operator accessing another operator assigned item', async () => {
+  it('returns permission_denied for staff accessing another staff assigned item', async () => {
     const { db, sqlite } = makeDb((s) => {
       s.exec(`
         INSERT INTO pipeline_status (session_id, status, created_at, updated_at)
@@ -151,16 +151,16 @@ describe('getClientProfileSnapshot', () => {
         INSERT INTO assessment_orders (id, session_id, customer_name, company)
         VALUES ('order-3', 'asst-003', 'Gamma LLC', 'Gamma LLC');
 
-        INSERT INTO human_assist_reviews (id, assessment_id, status, operator_id)
-        VALUES ('har-1', 'asst-003', 'in_review', 'operator-bob');
+        INSERT INTO human_assist_reviews (id, assessment_id, status, staff_id)
+        VALUES ('har-1', 'asst-003', 'in_review', 'staff-bob');
       `);
     });
 
     const result = await getClientProfileSnapshot({
       db,
       clientId: 'asst-003',
-      actorId: 'operator-alice',
-      role: 'operator'
+      actorId: 'staff-alice',
+      role: 'staff'
     });
 
     expect(result.hasData).toBe(false);
@@ -172,7 +172,7 @@ describe('getClientProfileSnapshot', () => {
   // Operator can see unassigned (shared-queue) items
   // -----------------------------------------------------------------------
 
-  it('allows operator to see unassigned shared-queue items', async () => {
+  it('allows staff to see unassigned shared-queue items', async () => {
     const { db, sqlite } = makeDb((s) => {
       s.exec(`
         INSERT INTO pipeline_status (session_id, status, created_at, updated_at)
@@ -189,8 +189,8 @@ describe('getClientProfileSnapshot', () => {
     const result = await getClientProfileSnapshot({
       db,
       clientId: 'asst-004',
-      actorId: 'operator-alice',
-      role: 'operator'
+      actorId: 'staff-alice',
+      role: 'staff'
     });
 
     expect(result.hasData).toBe(true);
@@ -202,7 +202,7 @@ describe('getClientProfileSnapshot', () => {
   // Admin can see all items regardless of assignment
   // -----------------------------------------------------------------------
 
-  it('allows admin to see items assigned to another operator', async () => {
+  it('allows admin to see items assigned to another staff', async () => {
     const { db, sqlite } = makeDb((s) => {
       s.exec(`
         INSERT INTO pipeline_status (session_id, status, created_at, updated_at)
@@ -211,8 +211,8 @@ describe('getClientProfileSnapshot', () => {
         INSERT INTO assessment_orders (id, session_id, customer_name, company)
         VALUES ('order-5', 'asst-005', 'Epsilon Ltd', 'Epsilon Ltd');
 
-        INSERT INTO human_assist_reviews (id, assessment_id, status, operator_id)
-        VALUES ('har-2', 'asst-005', 'in_review', 'operator-bob');
+        INSERT INTO human_assist_reviews (id, assessment_id, status, staff_id)
+        VALUES ('har-2', 'asst-005', 'in_review', 'staff-bob');
       `);
     });
 

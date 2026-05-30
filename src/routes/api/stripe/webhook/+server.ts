@@ -269,7 +269,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
           });
           if (env.INTAKE_QUALITY_BLOCK === 'true') {
             await setPipelineStatus(session.id, { status: 'human_assist', error: qualityCheck.recommendation });
-            // Pipeline NOT enqueued — operator reviews in Staff Portal
+            // Pipeline NOT enqueued — staff reviews in Staff Portal
           } else {
             // Shadow mode: enqueue anyway
             const queue = platform?.env?.assessment_queue;
@@ -393,7 +393,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         });
         if (env.INTAKE_QUALITY_BLOCK === 'true') {
           await setPipelineStatus(intakeSessionId, { status: 'human_assist', error: qualityCheck.recommendation });
-          // Pipeline NOT enqueued — operator reviews in Staff Portal
+          // Pipeline NOT enqueued — staff reviews in Staff Portal
         } else {
           // Shadow mode: enqueue anyway
           try {

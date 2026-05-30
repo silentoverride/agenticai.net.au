@@ -47,8 +47,8 @@ const SCHEMA = `
     gate_run_id TEXT,
     gate_type TEXT,
     status TEXT DEFAULT 'pending',
-    operator_id TEXT,
-    operator_notes TEXT,
+    staff_id TEXT,
+    staff_notes TEXT,
     edited_content TEXT,
     reviewed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))

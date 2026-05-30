@@ -3,6 +3,7 @@ import type {
   StaffActionDescriptor,
   StaffCommandCenterItemDto,
   StaffCommandCenterResultDto,
+  StaffRole,
   WorkItemType
 } from '$lib/staff-portal/dto';
 import { mapBrownfieldReportState } from '../mappers/brownfield-report-state';
@@ -16,7 +17,7 @@ import { RISK_SIGNALS, type GovernedReportState } from '../domain/states';
 export interface GetCommandCenterItemsInput {
   db: AsyncDb;
   actorId: string;
-  role: 'admin' | 'operator';
+  role: StaffRole;
   limit?: number;
   offset?: number;
 }
@@ -125,7 +126,7 @@ export async function getCommandCenterItems(
     ? ''
     : 'AND (har.operator_id IS NULL OR har.operator_id = ?)';
 
-  const filterParams: unknown[] = input.role === 'operator' ? [input.actorId] : [];
+  const filterParams: unknown[] = input.role === 'staff' ? [input.actorId] : [];
 
   const countSql = `
     SELECT COUNT(*) AS total FROM (
@@ -314,7 +315,7 @@ export async function getCommandCenterItems(
         targetType: 'followUp',
         label: 'Complete follow-up',
         enabled: true,
-        requiredRole: 'operator',
+        requiredRole: 'staff',
         requiresReasonCode: false,
         requiresNote: false,
         requiredAuditMetadata: [],
@@ -356,13 +357,13 @@ function isPassiveMetric(action: StaffActionDescriptor): boolean {
 
 function buildNextSafeAction(
   state: GovernedReportState,
-  role: 'admin' | 'operator',
+  role: StaffRole,
   actorId: string
 ): StaffActionDescriptor {
   const actions = getAvailableActions({
     targetType: 'report',
     state,
-    actor: { role, operatorId: actorId, assignedOperatorId: null, sharedQueue: true }
+    actor: { role, staffId: actorId, assignedOperatorId: null, sharedQueue: true }
   });
 
   // Find first enabled action, or first non-lifecycle-blocked action, or fallback
@@ -382,7 +383,7 @@ const fallbackDescriptor: StaffActionDescriptor = {
   targetType: 'report',
   label: 'No safe action available',
   enabled: false,
-  requiredRole: 'operator',
+  requiredRole: 'staff',
   blockedReason: 'notReviewable',
   requiresReasonCode: false,
   requiresNote: false,

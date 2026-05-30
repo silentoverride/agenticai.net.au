@@ -14,10 +14,10 @@ describe('getAvailableActions', () => {
     expect(approve).toMatchObject({
       targetType: 'report',
       enabled: false,
-      requiredRole: 'operator',
+      requiredRole: 'staff',
       testId: 'staff-action-approveReport'
     });
-    expect(approve?.requiredAuditMetadata).toContain('operatorId');
+    expect(approve?.requiredAuditMetadata).toContain('staffId');
     expect(approve?.blockedReason).toBeDefined();
   });
 
@@ -27,14 +27,14 @@ describe('getAvailableActions', () => {
       targetType: 'report',
       state,
       actor: actionContext(),
-      providedAuditMetadata: { operatorId: 'operator-1', checklistVersion: 'v1', evidenceId: 'e1', artifactVersion: 1 }
+      providedAuditMetadata: { staffId: 'staffer-1', checklistVersion: 'v1', evidenceId: 'e1', artifactVersion: 1 }
     }).find((action) => action.id === 'approveReport');
 
     expect(approve?.enabled).toBe(false);
     expect(approve?.blockedReason).toBe('unresolvedBlockingFinding');
   });
 
-  it('enforces operator assignment unless admin or shared queue', () => {
+  it('enforces staff assignment unless admin or shared queue', () => {
     const state = mapGateFindingState(gateFindingFacts({ gateVerdict: 'human_assist' }));
     const assignedElsewhere = getAvailableActions({
       targetType: 'gateFinding',
@@ -59,10 +59,10 @@ describe('getAvailableActions', () => {
     expect(actions[0].staleReason).toBe('outOfDateFinding');
   });
 
-  it('accepts only admin and operator as Staff Portal roles', () => {
-    expect(STAFF_ROLES).toEqual(['admin', 'operator']);
+  it('accepts only admin and staff as Staff Portal roles', () => {
+    expect(STAFF_ROLES).toEqual(['admin', 'staff']);
     expect(isStaffRole('admin')).toBe(true);
-    expect(isStaffRole('operator')).toBe(true);
+    expect(isStaffRole('staff')).toBe(true);
     expect(isStaffRole('reviewer')).toBe(false);
     expect(isStaffRole('sales')).toBe(false);
     expect(isStaffRole('manager')).toBe(false);
@@ -73,8 +73,8 @@ describe('getAvailableActions', () => {
     const actions = getAvailableActions({
       targetType: 'gateFinding',
       state,
-      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
-      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+      actor: actionContext({ role: 'staff', staffId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { staffId: 'op-1', note: 'reason', reasonCode: 'done' }
     });
 
     const ids = actions.map((a) => a.id);
@@ -83,7 +83,7 @@ describe('getAvailableActions', () => {
     expect(ids).toContain('overrideFinding');
     expect(ids).toContain('escalateFinding');
 
-    // All should be enabled for open state with assigned operator
+    // All should be enabled for open state with assigned staffer
     expect(actions.every((a) => a.enabled)).toBe(true);
   });
 
@@ -94,8 +94,8 @@ describe('getAvailableActions', () => {
     const actions = getAvailableActions({
       targetType: 'gateFinding',
       state,
-      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
-      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+      actor: actionContext({ role: 'staff', staffId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { staffId: 'op-1', note: 'reason', reasonCode: 'done' }
     });
 
     // Resolved gate finding should have all actions blocked
@@ -109,8 +109,8 @@ describe('getAvailableActions', () => {
     const actions = getAvailableActions({
       targetType: 'gateFinding',
       state,
-      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
-      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+      actor: actionContext({ role: 'staff', staffId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { staffId: 'op-1', note: 'reason', reasonCode: 'done' }
     });
 
     const override = actions.find((a) => a.id === 'overrideFinding');
@@ -136,8 +136,8 @@ describe('getAvailableActions', () => {
     const actions = getAvailableActions({
       targetType: 'report',
       state,
-      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
-      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+      actor: actionContext({ role: 'staff', staffId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { staffId: 'op-1', note: 'reason', reasonCode: 'done' }
     });
     const clarification = actions.find((a) => a.id === 'requestClarification');
     expect(clarification).toBeDefined();
@@ -158,8 +158,8 @@ describe('getAvailableActions', () => {
     const actions = getAvailableActions({
       targetType: 'report',
       state,
-      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
-      providedAuditMetadata: { operatorId: 'op-1', note: 'reason', reasonCode: 'done' }
+      actor: actionContext({ role: 'staff', staffId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { staffId: 'op-1', note: 'reason', reasonCode: 'done' }
     });
     const clarification = actions.find((a) => a.id === 'requestClarification');
     expect(clarification?.enabled).toBe(false);
@@ -175,8 +175,8 @@ describe('getAvailableActions', () => {
     const actions = getAvailableActions({
       targetType: 'report',
       state,
-      actor: actionContext({ role: 'operator', operatorId: 'op-1', assignedOperatorId: 'op-1' }),
-      providedAuditMetadata: { operatorId: 'op-1', checklistVersion: 'v1', evidenceId: 'e1', artifactVersion: 'latest' }
+      actor: actionContext({ role: 'staff', staffId: 'op-1', assignedOperatorId: 'op-1' }),
+      providedAuditMetadata: { staffId: 'op-1', checklistVersion: 'v1', evidenceId: 'e1', artifactVersion: 'latest' }
     });
     const approve = actions.find((a) => a.id === 'approveReport');
     expect(approve?.enabled).toBe(false);

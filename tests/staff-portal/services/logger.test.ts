@@ -13,7 +13,7 @@ describe('Structured Logger', () => {
   });
 
   it('produces valid JSON output for each log level', () => {
-    const log = createLogger('req-1', 'actor-1', 'operator');
+    const log = createLogger('req-1', 'actor-1', 'staff');
 
     log.transitionAttempt({
       assessmentId: 'a1',
@@ -28,7 +28,7 @@ describe('Structured Logger', () => {
     expect(infoJson.level).toBe('info');
     expect(infoJson.requestId).toBe('req-1');
     expect(infoJson.actorId).toBe('actor-1');
-    expect(infoJson.actorRole).toBe('operator');
+    expect(infoJson.actorRole).toBe('staff');
     expect(infoJson.assessmentId).toBe('a1');
     expect(infoJson.action).toBe('approveReport');
     expect(infoJson.targetType).toBe('report');
@@ -87,7 +87,7 @@ describe('Structured Logger', () => {
   it('permissionDenied logs without assessment context', () => {
     const log = createLogger('req-1', 'actor-1');
     log.permissionDenied({
-      detail: 'Access denied for non-operator role',
+      detail: 'Access denied for non-staff role',
     });
 
     expect(consoleWarnSpy).toHaveBeenCalledOnce();

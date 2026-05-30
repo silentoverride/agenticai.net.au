@@ -10,7 +10,7 @@ function profile(overrides?: Partial<StaffClientProfileSnapshotDto>): StaffClien
   return {
     clientId: 'asst-001',
     businessName: 'Acme Corp',
-    ownerName: 'operator-alice',
+    ownerName: 'staff-alice',
     journeyStage: 'assessment_complete',
     riskFlags: [],
     valueFlags: [],
@@ -306,12 +306,12 @@ describe('deriveWhatMattersNow', () => {
   it('propagates owner name from profile', () => {
     const result = deriveWhatMattersNow({
       profile: profile({
-        ownerName: 'operator-bob',
+        ownerName: 'staff-bob',
         reportState: 'escalated'
       })
     });
 
-    expect(result.ownerName).toBe('operator-bob');
+    expect(result.ownerName).toBe('staff-bob');
   });
 
   // -----------------------------------------------------------------------

@@ -51,8 +51,8 @@ const SCHEMA = `
     gate_run_id TEXT,
     gate_type TEXT,
     status TEXT DEFAULT 'pending',
-    operator_id TEXT,
-    operator_notes TEXT,
+    staff_id TEXT,
+    staff_notes TEXT,
     edited_content TEXT,
     reviewed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
@@ -83,9 +83,9 @@ function seedTestData(sqlite: ReturnType<typeof createMemoryDb>['sqlite']) {
       ('gate-2', 'assess-1', 'report-review', 'block', 0.91, 'Report contains conflicting data', '2026-05-20T10:35:00Z'),
       ('gate-3', 'assess-2', 'quick-wins-verification', 'approve', 0.95, 'All checks passed', '2026-05-21T10:30:00Z');
 
-    INSERT INTO human_assist_reviews (id, assessment_id, gate_run_id, status, operator_id) VALUES
+    INSERT INTO human_assist_reviews (id, assessment_id, gate_run_id, status, staff_id) VALUES
       ('review-1', 'assess-1', 'gate-1', 'pending', NULL),
-      ('review-2', 'assess-2', 'gate-3', 'in_review', 'operator-user-1');
+      ('review-2', 'assess-2', 'gate-3', 'in_review', 'staffer-user-1');
   `);
 }
 
@@ -112,14 +112,14 @@ describe('listReportReviewQueue', () => {
     expect(assessmentIds).toContain('assess-4');
   });
 
-  it('returns queue items for operator with permitted work only (unassigned or assigned)', async () => {
-    const result = await listReportReviewQueue({ db, actorId: 'operator-user-1', role: 'operator' });
+  it('returns queue items for staffer with permitted work only (unassigned or assigned)', async () => {
+    const result = await listReportReviewQueue({ db, actorId: 'staffer-user-1', role: 'staff' });
 
     expect(result.items.length).toBeGreaterThan(0);
 
     // Operator should see assess-2 (assigned to them) and any unassigned items
     const assessmentIds = result.items.map((i) => i.assessmentId);
-    expect(assessmentIds).toContain('assess-2'); // assigned to operator-user-1
+    expect(assessmentIds).toContain('assess-2'); // assigned to staffer-user-1
     // All other items are unassigned, so they should also be visible
   });
 

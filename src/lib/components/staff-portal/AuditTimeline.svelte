@@ -41,7 +41,7 @@
 
   onMount(async () => {
     try {
-      const res = await fetch(`/api/operator/assessments/${assessmentId}/audit-events`);
+      const res = await fetch(`/api/staff/assessments/${assessmentId}/audit-events`);
       if (!res.ok) {
         error = `Failed to load audit events (${res.status})`;
         return;

@@ -13,7 +13,7 @@ import { setD1Binding } from '$lib/server/db';
 import { systemLogger } from '$lib/server/staff-portal/services/logger';
 import type { Handle } from '@sveltejs/kit';
 
-const PRIVATE_PREFIXES = ['/operator/', '/api/operator/'];
+const PRIVATE_PREFIXES = ['/staff/', '/api/staff/'];
 
 function isPrivateRoute(path: string): boolean {
   return PRIVATE_PREFIXES.some(prefix => path.startsWith(prefix));
@@ -48,7 +48,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   const response = await clerkHandler({ event, resolve });
 
-  // Add noindex headers to all private /operator/ routes
+  // Add noindex headers to all private /staff/ routes
   if (isPrivateRoute(event.url.pathname)) {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   }

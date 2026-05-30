@@ -45,7 +45,7 @@
   let lastReceipt = $state<StaffActionReceiptDto | null>(null);
   let showReceipt = $state(false);
 
-  let apiUrl = $derived(`/api/operator/assessments/${assessmentId}/commercial-next-step`);
+  let apiUrl = $derived(`/api/staff/assessments/${assessmentId}/commercial-next-step`);
 
   type SaveCommercialStepResult = {
     success: boolean;
@@ -240,7 +240,7 @@
           class="field-input"
           type="text"
           bind:value={editOwner}
-          placeholder="e.g. Sarah (operator)"
+          placeholder="e.g. Sarah (staffer)"
           maxlength="200"
           data-testid="cs-owner-input"
         />

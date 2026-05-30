@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('assessments queue route delegation', () => {
-  it('read model is called with correct auth context for operator role', async () => {
+  it('read model is called with correct auth context for staff role', async () => {
     // Simulate what +page.server.ts does:
     // 1. requireOperator → throws if not authenticated
     // 2. getDb → returns db instance
@@ -10,11 +10,11 @@ describe('assessments queue route delegation', () => {
     const authGuard = vi.fn().mockResolvedValue(undefined);
 
     await authGuard();
-    const result = await readModel({ actorId: 'test-operator', role: 'operator', limit: 50, offset: 0 });
+    const result = await readModel({ actorId: 'test-staffer', role: 'staff', limit: 50, offset: 0 });
 
     expect(authGuard).toHaveBeenCalledOnce();
     expect(readModel).toHaveBeenCalledWith(
-      expect.objectContaining({ actorId: 'test-operator', role: 'operator' })
+      expect.objectContaining({ actorId: 'test-staffer', role: 'staff' })
     );
     expect(result).toEqual({ items: [], total: 0, hasMore: false });
   });
@@ -52,11 +52,11 @@ describe('assessments workspace route delegation', () => {
     const authGuard = vi.fn().mockResolvedValue(undefined);
 
     await authGuard();
-    const result = await readModel({ assessmentId: 'assess-1', actorId: 'test-operator', role: 'operator' });
+    const result = await readModel({ assessmentId: 'assess-1', actorId: 'test-staffer', role: 'staff' });
 
     expect(authGuard).toHaveBeenCalledOnce();
     expect(readModel).toHaveBeenCalledWith(
-      expect.objectContaining({ assessmentId: 'assess-1', actorId: 'test-operator', role: 'operator' })
+      expect.objectContaining({ assessmentId: 'assess-1', actorId: 'test-staffer', role: 'staff' })
     );
     expect(result.assessmentId).toBe('assess-1');
   });

@@ -15,12 +15,12 @@ import type { AITool } from '$lib/server/assessment/tool-lookup';
 
 function sampleTools(): AITool[] {
   return [
-    { name: 'Xero', url: 'https://futurepedia.io/tool/xero', one_line_description: 'Cloud accounting software', pricing_hint: '$65/mo', category: 'accounting', source: 'futurepedia' },
-    { name: 'Zapier', url: 'https://futurepedia.io/tool/zapier', one_line_description: 'Workflow automation', pricing_hint: '$19.99/mo', category: 'automation', source: 'futurepedia' },
-    { name: 'Copy.ai', url: 'https://futurepedia.io/tool/copyai', one_line_description: 'AI content generation', pricing_hint: '$49/mo', category: 'content', source: 'futurepedia' },
-    { name: 'Notion AI', url: 'https://futurepedia.io/tool/notion-ai', one_line_description: 'AI-powered workspace', pricing_hint: '$10/mo', category: 'productivity', source: 'taaft' },
-    { name: 'Otter.ai', url: 'https://futurepedia.io/tool/otter', one_line_description: 'AI meeting transcription', pricing_hint: 'Free tier', category: 'meetings', source: 'futurepedia' },
-    { name: 'Jasper', url: 'https://futurepedia.io/tool/jasper', one_line_description: 'AI writing assistant', pricing_hint: '$49/mo', category: 'content', source: 'futurepedia' },
+    { name: 'Xero', url: 'https://futurepedia.io/tool/xero', one_line_description: 'Cloud accounting software', pricing_hint: '$65/mo', category: 'accounting', source: 'futurepedia', team_size_fit: null, au_available: null, au_support_hours: null, free_tier: null, free_tier_details: null, verified_at: null, verified_price: null, monthly_cost_aud_min: null, monthly_cost_aud_max: null },
+    { name: 'Zapier', url: 'https://futurepedia.io/tool/zapier', one_line_description: 'Workflow automation', pricing_hint: '$19.99/mo', category: 'automation', source: 'futurepedia', team_size_fit: null, au_available: null, au_support_hours: null, free_tier: null, free_tier_details: null, verified_at: null, verified_price: null, monthly_cost_aud_min: null, monthly_cost_aud_max: null },
+    { name: 'Copy.ai', url: 'https://futurepedia.io/tool/copyai', one_line_description: 'AI content generation', pricing_hint: '$49/mo', category: 'content', source: 'futurepedia', team_size_fit: null, au_available: null, au_support_hours: null, free_tier: null, free_tier_details: null, verified_at: null, verified_price: null, monthly_cost_aud_min: null, monthly_cost_aud_max: null },
+    { name: 'Notion AI', url: 'https://futurepedia.io/tool/notion-ai', one_line_description: 'AI-powered workspace', pricing_hint: '$10/mo', category: 'productivity', source: 'taaft', team_size_fit: null, au_available: null, au_support_hours: null, free_tier: null, free_tier_details: null, verified_at: null, verified_price: null, monthly_cost_aud_min: null, monthly_cost_aud_max: null },
+    { name: 'Otter.ai', url: 'https://futurepedia.io/tool/otter', one_line_description: 'AI meeting transcription', pricing_hint: 'Free tier', category: 'meetings', source: 'futurepedia', team_size_fit: null, au_available: null, au_support_hours: null, free_tier: null, free_tier_details: null, verified_at: null, verified_price: null, monthly_cost_aud_min: null, monthly_cost_aud_max: null },
+    { name: 'Jasper', url: 'https://futurepedia.io/tool/jasper', one_line_description: 'AI writing assistant', pricing_hint: '$49/mo', category: 'content', source: 'futurepedia', team_size_fit: null, au_available: null, au_support_hours: null, free_tier: null, free_tier_details: null, verified_at: null, verified_price: null, monthly_cost_aud_min: null, monthly_cost_aud_max: null },
   ];
 }
 

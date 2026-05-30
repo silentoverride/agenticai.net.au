@@ -51,8 +51,8 @@ const SCHEMA = `
     gate_run_id TEXT,
     gate_type TEXT,
     status TEXT DEFAULT 'pending',
-    operator_id TEXT,
-    operator_notes TEXT,
+    staff_id TEXT,
+    staff_notes TEXT,
     edited_content TEXT,
     reviewed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
@@ -80,8 +80,8 @@ function seedTestData(sqlite: ReturnType<typeof createMemoryDb>['sqlite']) {
         'Revenue projections in section 3 conflict with source data in section 5.',
         'gpt-5.5', '2026-05-20T10:35:00Z');
 
-    INSERT INTO human_assist_reviews (id, assessment_id, gate_run_id, status, operator_notes, created_at) VALUES
-      ('review-r1', 'assess-review-1', 'gate-r1', 'pending', 'Awaiting operator assessment', '2026-05-20T10:40:00Z');
+    INSERT INTO human_assist_reviews (id, assessment_id, gate_run_id, status, staff_notes, created_at) VALUES
+      ('review-r1', 'assess-review-1', 'gate-r1', 'pending', 'Awaiting staff assessment', '2026-05-20T10:40:00Z');
   `);
 }
 
@@ -109,8 +109,8 @@ describe('getAssessmentReview', () => {
     const review = await getAssessmentReview({
       db,
       assessmentId: 'assess-review-1',
-      actorId: 'operator-user',
-      role: 'operator'
+      actorId: 'staffer-user',
+      role: 'staff'
     });
 
     expect(review.assessmentId).toBe('assess-review-1');
@@ -136,7 +136,7 @@ describe('getAssessmentReview', () => {
 
     const humanAssistFinding = review.linkedGateFindings.find((f) => f.verdict === 'human_assist');
     expect(humanAssistFinding).toBeDefined();
-    expect(humanAssistFinding!.decisionNotes).toBe('Awaiting operator assessment');
+    expect(humanAssistFinding!.decisionNotes).toBe('Awaiting staff assessment');
 
     // Artifact history
     expect(review.artifactHistory.length).toBe(1);
@@ -159,8 +159,8 @@ describe('getAssessmentReview', () => {
     const review = await getAssessmentReview({
       db: degradedDb,
       assessmentId: 'assess-degraded',
-      actorId: 'operator-user',
-      role: 'operator'
+      actorId: 'staffer-user',
+      role: 'staff'
     });
 
     expect(review.assessmentId).toBe('assess-degraded');
@@ -177,8 +177,8 @@ describe('getAssessmentReview', () => {
       getAssessmentReview({
         db,
         assessmentId: 'nonexistent-id',
-        actorId: 'operator-user',
-        role: 'operator'
+        actorId: 'staffer-user',
+        role: 'staff'
       })
     ).rejects.toThrow('You do not have access to this assessment.');
   });
@@ -187,8 +187,8 @@ describe('getAssessmentReview', () => {
     const review = await getAssessmentReview({
       db,
       assessmentId: 'assess-review-1',
-      actorId: 'operator-user',
-      role: 'operator'
+      actorId: 'staffer-user',
+      role: 'staff'
     });
 
     const json = JSON.parse(JSON.stringify(review));

@@ -23,7 +23,7 @@ export type ActionTarget =
 export type GetAvailableActionsInput = ActionTarget & {
   actor: {
     role: StaffRole;
-    operatorId?: string;
+    staffId?: string;
     assignedOperatorId?: string | null;
     sharedQueue?: boolean;
   };
@@ -86,7 +86,7 @@ function reportActionDrafts(state: GovernedReportState, providedAuditMetadata?: 
       lifecycleBlockedReason: state.approved ? BLOCKED_REASONS.ALREADY_FINALIZED : state.state === REPORT_STATES.UNAVAILABLE ? BLOCKED_REASONS.NOT_REVIEWABLE : undefined,
       staleReason,
       consequence: 'Records that this report is not safe to deliver.',
-      remediationHint: 'Add a rejection reason so the next operator understands the decision.'
+      remediationHint: 'Add a rejection reason so the next staffer understands the decision.'
     },
     {
       id: STAFF_ACTIONS.REQUEST_REGENERATION,
@@ -124,7 +124,7 @@ function gateFindingActionDrafts(state: GovernedGateFindingState): ActionDraft[]
       lifecycleEnabled: open && !staleReason,
       lifecycleBlockedReason: open ? undefined : BLOCKED_REASONS.ALREADY_FINALIZED,
       staleReason,
-      consequence: 'Assigns the finding to the current operator.',
+      consequence: 'Assigns the finding to the current staffer.',
       remediationHint: 'Claim before resolving when the item is in the shared queue.'
     },
     {
@@ -165,7 +165,7 @@ function toDescriptor(draft: ActionDraft, input: GetAvailableActionsInput): Staf
   const missingAuditMetadata = requiredAuditMetadata.some((key) => !input.providedAuditMetadata?.[key]);
   const hasScope = canActOnAssignedItem(input.actor);
   const blockedReason = !hasScope
-    ? (input.actor.role === 'operator' ? BLOCKED_REASONS.NOT_ASSIGNED : BLOCKED_REASONS.PERMISSION_DENIED)
+    ? (input.actor.role === 'staff' ? BLOCKED_REASONS.NOT_ASSIGNED : BLOCKED_REASONS.PERMISSION_DENIED)
     : draft.lifecycleBlockedReason ?? (missingAuditMetadata ? BLOCKED_REASONS.AUDIT_METADATA_REQUIRED : undefined);
 
   return {
@@ -173,7 +173,7 @@ function toDescriptor(draft: ActionDraft, input: GetAvailableActionsInput): Staf
     targetType: draft.targetType,
     label: draft.label,
     enabled: draft.lifecycleEnabled && hasScope && !missingAuditMetadata,
-    requiredRole: draft.requiredRole ?? 'operator',
+    requiredRole: draft.requiredRole ?? 'staff',
     blockedReason,
     staleReason: draft.staleReason,
     requiresReasonCode: ACTIONS_REQUIRING_REASON_CODE.has(draft.id),

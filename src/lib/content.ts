@@ -118,7 +118,7 @@ export const faqItems = [
   },
   {
     q: 'Do I need technical knowledge?',
-    a: 'Not at all. The assessment is designed for business owners and operators who know their workflows but do not need to know how the technology works.'
+    a: 'Not at all. The assessment is designed for business owners and staff who know their workflows but do not need to know how the technology works.'
   },
   {
     q: 'Is my data private?',

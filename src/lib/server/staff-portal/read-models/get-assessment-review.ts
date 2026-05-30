@@ -7,7 +7,8 @@ import type {
   StaffAssessmentReviewDto,
   StaffBlockedReasonDto,
   StaffGateFindingDto,
-  StaffReportContextDto
+  StaffReportContextDto,
+  StaffRole
 } from '$lib/staff-portal/dto';
 import {
   BLOCKED_REASONS,
@@ -27,7 +28,7 @@ export interface GetAssessmentReviewInput {
   db: AsyncDb;
   assessmentId: string;
   actorId: string;
-  role: 'admin' | 'operator';
+  role: StaffRole;
 }
 
 // ---------------------------------------------------------------------------
@@ -186,7 +187,7 @@ export async function getAssessmentReview(
   const availableActions = getAvailableActions({
     targetType: 'report',
     state: governedState,
-    actor: { role, operatorId: actorId, assignedOperatorId: base.review_operator_id, sharedQueue: !base.review_operator_id }
+    actor: { role, staffId: actorId, assignedOperatorId: base.review_operator_id, sharedQueue: !base.review_operator_id }
   });
 
   // 7. State presentation
@@ -218,7 +219,7 @@ export async function getAssessmentReview(
 
 function toGateFindingDto(
   row: GateFindingRow & { flagged_section?: string | null; related_intake_evidence?: string | null; inspection_steps?: string | null; severity?: string | null },
-  actor?: { role: 'admin' | 'operator'; operatorId?: string; assignedOperatorId?: string | null; sharedQueue?: boolean }
+  actor?: { role: StaffRole; operatorId?: string; assignedOperatorId?: string | null; sharedQueue?: boolean }
 ): StaffGateFindingDto {
   const governedState = mapGateFindingState({
     gateVerdict: row.verdict,

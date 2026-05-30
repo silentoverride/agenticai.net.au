@@ -64,7 +64,7 @@ export type AssessmentReportJob = {
 /**
  * Canonical async assessment states.
  * These are the only valid states for the assessment pipeline.
- * Every UI component (user-facing and operator-facing) must use these.
+ * Every UI component (user-facing and staff-facing) must use these.
  */
 export const ASYNC_STATES = {
   QUEUED: 'queued',
@@ -283,7 +283,7 @@ export interface AssessmentBriefing {
  * Ranges:
  *   0001–0009: Reserved — Portal/Epic 1 (users, receipts, transcripts, reports, pipeline_status)
  *   0010–0019: Reserved — Pipeline/Epic 2a (assessment_orders, gate metadata, source artifacts)
- *   0020–0029: Reserved — Epic 2b (gate modes, calibration, operator actions, drift tracking)
+ *   0020–0029: Reserved — Epic 2b (gate modes, calibration, staff actions, drift tracking)
  *   0030–0039: Reserved — Epic 3 (notifications, follow-ups, portal extensions)
  *   0040+:     Future epics
  *

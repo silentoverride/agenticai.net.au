@@ -6,14 +6,14 @@
  */
 
 import { json, error } from '@sveltejs/kit';
-import { requireOperator } from '$lib/server/operator-auth';
+import { requireStaff } from '$lib/server/staff-auth';
 import { getDb } from '$lib/server/db';
 import { commitStaffAction } from '$lib/server/staff-portal/services/commit-staff-action';
 import { staffActionRequestSchema } from '$lib/server/staff-portal/validation/staff-action.schema';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ params, request, locals, platform }) => {
-  await requireOperator(locals, platform?.env.assessment_db);
+  await requireStaff(locals, platform?.env.assessment_db);
   const db = getDb();
 
   const assessmentId = params.assessmentId;

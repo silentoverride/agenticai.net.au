@@ -72,7 +72,7 @@
   <!-- Client / Work label -->
   <div class="row-primary">
     <a
-      href="/operator/assessments/{item.workItemId}"
+      href="/staff/assessments/{item.workItemId}"
       class="client-link"
       data-testid="priority-row-link-{item.workItemId}"
     >
@@ -126,7 +126,7 @@
   <!-- Next safe action -->
   <div class="row-action" data-testid="priority-row-action-{item.workItemId}">
     {#if item.nextSafeAction.enabled}
-      <a href="/operator/assessments/{item.workItemId}">
+      <a href="/staff/assessments/{item.workItemId}">
         <Button variant="primary" size="sm">
           {item.nextSafeAction.label}
         </Button>

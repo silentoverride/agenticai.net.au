@@ -17,7 +17,7 @@ import { getAvailableActions } from '../services/get-available-actions';
 export interface ListReportReviewQueueInput {
   db: AsyncDb;
   actorId: string;
-  role: 'admin' | 'operator';
+  role: 'staff' | 'admin';
   limit?: number;
   offset?: number;
 }
@@ -63,14 +63,14 @@ export async function listReportReviewQueue(
   const limit = Math.min(input.limit ?? 50, 100);
   const offset = input.offset ?? 0;
 
-  // Role-based filtering: admin sees all work; operator sees only what they
+  // Role-based filtering: admin sees all work; staffer sees only what they
   // are assigned to or unassigned items (shared queue)
   const roleFilter = input.role === 'admin'
     ? '' // no filter — admin sees all
     : 'AND (har.operator_id IS NULL OR har.operator_id = ?)';
 
-  // Bind params: for operator, actorId is the operator_id filter; for admin, skip it
-  const filterParams: unknown[] = input.role === 'operator' ? [input.actorId] : [];
+  // Bind params: for staffer, actorId is the operator_id filter; for admin, skip it
+  const filterParams: unknown[] = input.role === 'staff' ? [input.actorId] : [];
 
   const countSql = `
     SELECT COUNT(*) AS total FROM (
@@ -148,7 +148,7 @@ export async function listReportReviewQueue(
 
 function toQueueItem(
   row: QueueQueryRow,
-  role: 'admin' | 'operator',
+  role: 'staff' | 'admin',
   actorId: string
 ): StaffReportReviewQueueItemDto {
   const governedState = mapBrownfieldReportState({
@@ -181,13 +181,13 @@ function toQueueItem(
 
 function buildNextSafeAction(
   state: GovernedReportState,
-  role: 'admin' | 'operator',
+  role: 'staff' | 'admin',
   actorId: string
 ): StaffActionDescriptor {
   const actions = getAvailableActions({
     targetType: 'report',
     state,
-    actor: { role, operatorId: actorId, assignedOperatorId: null, sharedQueue: true }
+    actor: { role, staffId: actorId, assignedOperatorId: null, sharedQueue: true }
   });
   // Pick the first actionable (enabled) action, or the first non-blocked action
   return actions.find((a) => a.enabled) ?? actions[0] ?? fallbackDescriptor;
@@ -198,7 +198,7 @@ const fallbackDescriptor: StaffActionDescriptor = {
   targetType: 'report',
   label: 'No safe action available',
   enabled: false,
-  requiredRole: 'operator',
+  requiredRole: 'staff',
   blockedReason: 'notReviewable',
   requiresReasonCode: false,
   requiresNote: false,
@@ -226,7 +226,7 @@ function buildPriorityReason(state: GovernedReportState, ageDays: number, latest
 function buildConsequence(state: GovernedReportState): string | null {
   if (state.state === REPORT_STATES.ESCALATED) return 'Report delivery is blocked until reviewed.';
   if (state.state === REPORT_STATES.GENERATED) return 'Report is ready for review and delivery.';
-  if (state.state === REPORT_STATES.IN_REVIEW) return 'Another operator is reviewing this report.';
+  if (state.state === REPORT_STATES.IN_REVIEW) return 'Another staffer is reviewing this report.';
   if (state.state === REPORT_STATES.DELAYED) return 'Generation delay may affect delivery timeline.';
   return null;
 }

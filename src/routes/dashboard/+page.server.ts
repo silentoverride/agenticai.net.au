@@ -6,7 +6,7 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ locals, url }) => {
   const user = resolveUser(locals, url);
 
-  // Check if the user has a staff role — if so, send them to the operator dashboard
+  // Check if the user has a staff role — if so, send them to the staff dashboard
   if (isDatabaseAvailable()) {
     try {
       const db = getDb();
@@ -14,8 +14,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
         'SELECT role FROM users WHERE clerk_id = ?',
         user.userId
       );
-      if (row?.role === 'operator' || row?.role === 'admin') {
-        throw redirect(302, '/operator/dashboard');
+      if (row?.role === 'staff' || row?.role === 'admin') {
+        throw redirect(302, '/staff/dashboard');
       }
     } catch (err) {
       // Re-throw redirect errors, swallow others and fall through to client portal

@@ -79,7 +79,7 @@
   <!-- Breadcrumbs -->
   <nav class="breadcrumbs" aria-label="Breadcrumb" data-testid="console-breadcrumbs">
     <ol>
-      <li><a href="/operator">Staff Portal</a></li>
+      <li><a href="/staff">Staff Portal</a></li>
       <li aria-current="page">Command Console</li>
     </ol>
   </nav>

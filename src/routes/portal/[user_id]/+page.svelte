@@ -50,7 +50,7 @@
     }
   }
 
-  const isOperator = $derived(portalAuth.role === 'operator' || portalAuth.role === 'admin');
+  const isOperator = $derived(portalAuth.role === 'staff' || portalAuth.role === 'admin');
 
   function statusLabel(status: string): string {
     const labels: Record<string, string> = {
@@ -165,22 +165,22 @@
     {/if}
 
     {#if isOperator}
-      <div class="operator-section">
+      <div class="staff-section">
         <h2>🔧 Staff Tools</h2>
-        <div class="operator-grid">
-          <a href="/operator/dashboard" class="operator-card">
-            <strong>📊 Operator Dashboard</strong>
+        <div class="staff-grid">
+          <a href="/staff/dashboard" class="staff-card">
+            <strong>📊 Staff Dashboard</strong>
             <span>Pipeline health, gate metrics, and queue depth</span>
           </a>
-          <a href="/operator/gates" class="operator-card">
+          <a href="/staff/gates" class="staff-card">
             <strong>🔬 Gate Management</strong>
             <span>Review gate evaluations and override verdicts</span>
           </a>
-          <a href="/operator/human-assist" class="operator-card">
+          <a href="/staff/human-assist" class="staff-card">
             <strong>💬 Human Assist Queue</strong>
             <span>Pending assessments needing human review</span>
           </a>
-          <a href="/operator/calibration" class="operator-card">
+          <a href="/staff/calibration" class="staff-card">
             <strong>⚙️ Calibration</strong>
             <span>Run calibration tests and tune gate thresholds</span>
           </a>
@@ -382,20 +382,20 @@
   }
 
   /* ── Staff Tools Section ── */
-  .operator-section {
+  .staff-section {
     margin-top: 2rem;
   }
-  .operator-section h2 {
+  .staff-section h2 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
     color: #1a1a2e;
   }
-  .operator-grid {
+  .staff-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1rem;
   }
-  .operator-card {
+  .staff-card {
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
@@ -406,15 +406,15 @@
     text-decoration: none;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .operator-card:hover {
+  .staff-card:hover {
     border-color: #0066ff;
     box-shadow: 0 2px 12px rgba(0,102,255,0.1);
   }
-  .operator-card strong {
+  .staff-card strong {
     font-size: 0.9375rem;
     color: #1a1a2e;
   }
-  .operator-card span {
+  .staff-card span {
     font-size: 0.8125rem;
     color: #888;
     line-height: 1.4;

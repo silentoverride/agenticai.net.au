@@ -142,7 +142,7 @@ export async function getLinkedReportContext(
         : null;
 
     // Build review workspace route
-    const reviewWorkspaceRoute = `/operator/assessments/${assessmentId}/review`;
+    const reviewWorkspaceRoute = `/staff/assessments/${assessmentId}/review`;
 
     return {
       reportId: row.id,

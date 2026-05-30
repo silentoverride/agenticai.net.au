@@ -22,7 +22,7 @@ describe('staff action audit repository', () => {
       id: 'event-1',
       assessmentId: 'assessment-1',
       action: 'claimFinding',
-      actorId: 'operator-1',
+      actorId: 'staffer-1',
       previousState: 'open',
       resultingState: 'inReview',
       auditReference: 'event-1'
@@ -34,12 +34,12 @@ describe('staff action audit repository', () => {
     await insertStaffActionAuditEvent(db, baseEvent());
 
     const found = await findStaffActionAuditEventByIdempotency(db, {
-      actorId: 'operator-1',
+      actorId: 'staffer-1',
       assessmentId: 'assessment-1',
       idempotencyKey: 'idem-1'
     });
     const otherActor = await findStaffActionAuditEventByIdempotency(db, {
-      actorId: 'operator-2',
+      actorId: 'staffer-2',
       assessmentId: 'assessment-1',
       idempotencyKey: 'idem-1'
     });
@@ -54,10 +54,10 @@ describe('staff action audit repository', () => {
 
     await expect(insertStaffActionAuditEvent(db, baseEvent({ id: 'event-2' }))).rejects.toThrow();
     await expect(lookupStaffActionIdempotency(db, {
-      actorId: 'operator-1', assessmentId: 'assessment-1', idempotencyKey: 'idem-1', requestHash: 'same-hash'
+      actorId: 'staffer-1', assessmentId: 'assessment-1', idempotencyKey: 'idem-1', requestHash: 'same-hash'
     })).resolves.toMatchObject({ status: 'sameRequest' });
     await expect(lookupStaffActionIdempotency(db, {
-      actorId: 'operator-1', assessmentId: 'assessment-1', idempotencyKey: 'idem-1', requestHash: 'different-hash'
+      actorId: 'staffer-1', assessmentId: 'assessment-1', idempotencyKey: 'idem-1', requestHash: 'different-hash'
     })).resolves.toMatchObject({ status: 'conflict' });
   });
 
@@ -106,7 +106,7 @@ function baseEvent(overrides: Partial<Parameters<typeof insertStaffActionAuditEv
     assessmentId: 'assessment-1',
     targetType: 'gateFinding',
     targetId: 'gate-1',
-    actorId: 'operator-1',
+    actorId: 'staffer-1',
     action: 'claimFinding',
     fromState: 'open',
     toState: 'inReview',

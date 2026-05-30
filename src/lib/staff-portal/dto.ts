@@ -1,7 +1,7 @@
 // Client-safe Staff Portal DTOs and presentation metadata.
 // This module must stay serializable and must not import server-only modules.
 
-export type StaffRole = 'admin' | 'operator';
+export type StaffRole = 'admin' | 'staff';
 
 export type ReportState =
   | 'queued'
@@ -52,12 +52,13 @@ export type BlockedReason =
 export type StaleReason = 'staleVersion' | 'supersededArtifact' | 'outOfDateFinding';
 
 export type RequiredAuditMetadata =
-  | 'operatorId'
+  | 'staffId'
   | 'reasonCode'
   | 'note'
   | 'checklistVersion'
   | 'evidenceId'
-  | 'artifactVersion';
+  | 'artifactVersion'
+  | 'operatorId';
 
 export type RiskSignal = 'none' | 'low' | 'medium' | 'high' | 'blocked';
 
@@ -227,7 +228,7 @@ export const REPORT_STATE_PRESENTATION: Record<ReportState, StatePresentationMet
     label: 'In review',
     tone: 'audit',
     accessibleLabel: 'Report in review',
-    description: 'An operator has claimed or started the review.',
+    description: 'A staff member has claimed or started the review.',
     remediationHint: 'Finish the review or hand off with notes.',
     testId: 'report-state-in-review'
   },
@@ -294,7 +295,7 @@ export const GATE_FINDING_STATE_PRESENTATION: Record<GateFindingState, StatePres
     label: 'In review',
     tone: 'audit',
     accessibleLabel: 'Gate finding in review',
-    description: 'An operator is reviewing this finding.',
+    description: 'A staff member is reviewing this finding.',
     remediationHint: 'Complete the finding decision with an audit note.',
     testId: 'gate-finding-state-in-review'
   },
@@ -310,7 +311,7 @@ export const GATE_FINDING_STATE_PRESENTATION: Record<GateFindingState, StatePres
     label: 'Overridden with reason',
     tone: 'audit',
     accessibleLabel: 'Gate finding overridden with reason',
-    description: 'An operator override exists with a recorded reason.',
+    description: 'A staff override exists with a recorded reason.',
     remediationHint: 'Ensure the override reason is visible in the audit trail.',
     testId: 'gate-finding-state-overridden-with-reason'
   },
@@ -357,11 +358,11 @@ export const FOLLOW_UP_ACTION_PRESENTATION: Record<string, { label: string }> = 
 export const BLOCKED_REASON_PRESENTATION: Record<BlockedReason, StatePresentationMetadata> = {
   permissionDenied: {
     label: 'Permission denied', tone: 'disabled', accessibleLabel: 'Action blocked by permission',
-    description: 'The current role cannot perform this action.', remediationHint: 'Ask an admin or assigned operator to continue.', testId: 'blocked-permission-denied'
+    description: 'The current role cannot perform this action.', remediationHint: 'Ask an admin or assigned staffer to continue.', testId: 'blocked-permission-denied'
   },
   notAssigned: {
     label: 'Not assigned', tone: 'disabled', accessibleLabel: 'Action blocked because item is not assigned',
-    description: 'This item is not in the operator assignment scope.', remediationHint: 'Claim the item or use the shared queue.', testId: 'blocked-not-assigned'
+    description: 'This item is not in the staff assignment scope.', remediationHint: 'Claim the item or use the shared queue.', testId: 'blocked-not-assigned'
   },
   approvalEvidenceRequired: {
     label: 'Approval evidence required', tone: 'warning', accessibleLabel: 'Action blocked by missing approval evidence',

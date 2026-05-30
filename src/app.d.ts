@@ -9,6 +9,24 @@ interface EnvBindings {
 }
 
 declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        container: string | HTMLElement,
+        options: {
+          sitekey: string;
+          theme?: 'light' | 'dark' | 'auto';
+          callback?: (token: string) => void;
+          'error-callback'?: () => void;
+          'expired-callback'?: () => void;
+          'timeout-callback'?: () => void;
+        }
+      ) => string;
+      reset: (widgetId?: string) => void;
+      remove: (widgetId?: string) => void;
+    };
+  }
+
   namespace App {
     interface Locals {
       auth: (options?: PendingSessionOptions) => SessionAuthObject;

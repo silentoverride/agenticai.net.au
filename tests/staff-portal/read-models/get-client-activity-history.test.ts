@@ -33,8 +33,8 @@ const SCHEMA = `
     gate_run_id TEXT,
     gate_type TEXT,
     status TEXT DEFAULT 'pending',
-    operator_id TEXT,
-    operator_notes TEXT,
+    staff_id TEXT,
+    staff_notes TEXT,
     edited_content TEXT,
     reviewed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
@@ -102,7 +102,7 @@ describe('getClientActivityHistory', () => {
         INSERT INTO pipeline_status (session_id, status, created_at, updated_at)
         VALUES ('asst-003', 'ready', '2026-05-01T00:00:00Z', '2026-05-02T00:00:00Z');
 
-        INSERT INTO human_assist_reviews (id, assessment_id, gate_type, status, operator_id, reviewed_at, created_at)
+        INSERT INTO human_assist_reviews (id, assessment_id, gate_type, status, staff_id, reviewed_at, created_at)
         VALUES ('har-001', 'asst-003', 'report-review', 'approved', 'op-001', '2026-05-03T00:00:00Z', '2026-05-01T00:00:00Z');
       `);
     });

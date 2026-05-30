@@ -99,7 +99,7 @@
     dueDate: string | null; source: string; clientVisiblePromise: boolean;
     consequenceOfInaction: string | null; notes: string | null;
   }) {
-    const res = await fetch(`/api/operator/assessments/${assessmentId}/follow-ups`, {
+    const res = await fetch(`/api/staff/assessments/${assessmentId}/follow-ups`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -124,7 +124,7 @@
     if (actionData.reason) body.reason = actionData.reason;
     if (actionData.newOwnerId) body.newOwnerId = actionData.newOwnerId;
 
-    const res = await fetch(`/api/operator/assessments/${assessmentId}/follow-ups/${followUpId}`, {
+    const res = await fetch(`/api/staff/assessments/${assessmentId}/follow-ups/${followUpId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -157,7 +157,7 @@
   <!-- Breadcrumbs -->
   <nav class="breadcrumbs" aria-label="Breadcrumb">
     <ol>
-      <li><a href="/operator/assessments">Command Console</a></li>
+      <li><a href="/staff/assessments">Command Console</a></li>
       <li aria-current="page">
         {#if profile.profile}
           {profile.profile.businessName}
@@ -173,7 +173,7 @@
     <div class="section empty-state" data-testid="profile-not-found">
       <h2>Client Not Found</h2>
       <p>No profile data is available for this assessment.</p>
-      <a href="/operator/assessments" class="btn-link">Return to Command Console</a>
+      <a href="/staff/assessments" class="btn-link">Return to Command Console</a>
     </div>
   {:else if profile.profile}
     {@const p = profile.profile}
@@ -464,7 +464,7 @@
 
     <!-- Footer Navigation -->
     <footer class="profile-footer">
-      <a href="/operator/assessments" class="btn-link">← Return to Command Console</a>
+      <a href="/staff/assessments" class="btn-link">← Return to Command Console</a>
     </footer>
   {/if}
 </div>

@@ -109,7 +109,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         recommendation: qualityCheck.recommendation
       });
       if (env.INTAKE_QUALITY_BLOCK === 'true') {
-        // Blocking mode: skip pipeline, set to human_assist for operator review
+        // Blocking mode: skip pipeline, set to human_assist for staff review
         await setPipelineStatus(job.callId!, { status: 'human_assist', error: qualityCheck.recommendation });
         return new Response(null, { status: 200 });
       }

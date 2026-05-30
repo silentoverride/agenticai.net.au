@@ -19,18 +19,18 @@ describe('commitStaffAction', () => {
 
   it('rejects actors without a Staff Portal role', async () => {
     const { db, sqlite } = seededDb();
-    sqlite.prepare('UPDATE users SET role = ? WHERE clerk_id = ?').run('client', 'operator-1');
+    sqlite.prepare('UPDATE users SET role = ? WHERE clerk_id = ?').run('client', 'staffer-1');
     const result = await commitStaffAction(baseInput(db));
     expect(result).toMatchObject({ success: false, error: { code: 'permissionDenied' } });
   });
 
-  it('denies operators assigned to a different reviewer', async () => {
+  it('denies staff assigned to a different reviewer', async () => {
     const { db } = seededDb();
     const result = await commitStaffAction(baseInput(db, {
       loadCurrentTarget: async () => ({
         targetType: 'gateFinding',
         state: mapGateFindingState({}),
-        assignedOperatorId: 'operator-2'
+        assignedOperatorId: 'staffer-2'
       })
     }));
     expect(result).toMatchObject({ success: false, error: { code: 'permissionDenied', currentState: 'open' } });
@@ -227,14 +227,14 @@ describe('commitStaffAction', () => {
 
 function seededDb() {
   const memory = createMemoryDb(schemaSql);
-  memory.sqlite.prepare('INSERT INTO users (clerk_id, role) VALUES (?, ?)').run('operator-1', 'operator');
+  memory.sqlite.prepare('INSERT INTO users (clerk_id, role) VALUES (?, ?)').run('staffer-1', 'staff');
   return memory;
 }
 
 function baseInput(db: AsyncDb, overrides: Partial<CommitStaffActionInput> = {}): CommitStaffActionInput {
   return {
     db,
-    actorId: 'operator-1',
+    actorId: 'staffer-1',
     assessmentId: 'assessment-1',
     action: 'claimFinding',
     targetType: 'gateFinding',
@@ -247,7 +247,7 @@ function baseInput(db: AsyncDb, overrides: Partial<CommitStaffActionInput> = {})
       targetType: 'gateFinding',
       state: mapGateFindingState({}),
       version: 'current-version',
-      assignedOperatorId: 'operator-1'
+      assignedOperatorId: 'staffer-1'
     }),
     ...overrides
   };
@@ -261,7 +261,7 @@ async function countEvents(db: AsyncDb): Promise<number> {
 function failingAuditDb(): AsyncDb {
   return {
     async queryOne<T = Record<string, unknown>>(sql: string): Promise<T | null> {
-      if (sql.includes('FROM users')) return { role: 'operator' } as T;
+      if (sql.includes('FROM users')) return { role: 'staff' } as T;
       return null;
     },
     async queryAll<T = Record<string, unknown>>(): Promise<T[]> { return []; },

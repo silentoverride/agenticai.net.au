@@ -2,6 +2,7 @@ import type { AsyncDb } from '$lib/server/db';
 import type {
   StaffClientProfileSnapshotDto,
   StaffClientProfileResultDto,
+  StaffRole,
   ErrorCode,
   CommercialNextStepStatus,
   FollowUpState,
@@ -21,7 +22,7 @@ export interface GetClientProfileSnapshotInput {
   db: AsyncDb;
   clientId: string;
   actorId: string;
-  role: 'admin' | 'operator';
+  role: StaffRole;
 }
 
 // ---------------------------------------------------------------------------
@@ -91,8 +92,8 @@ export async function getClientProfileSnapshot(
     };
   }
 
-  // Permission check: operators can only see their assigned or shared-queue items
-  if (role === 'operator' && base.review_operator_id && base.review_operator_id !== actorId) {
+  // Permission check: staffers can only see their assigned or shared-queue items
+  if (role === 'staff' && base.review_operator_id && base.review_operator_id !== actorId) {
     return {
       profile: null,
       hasData: false,

@@ -1,39 +1,176 @@
 <script lang="ts">
   /**
-   * OrientationPanel — Pre-intake disclosure modal.
+   * OrientationPanel — Pre-intake disclosure modal with Cloudflare Turnstile.
    *
-   * Shows after the user clicks "Start Assessment". Displays:
+   * Shows after the user clicks "Start Assessment" or "Call Annie". Displays:
    * - Title and purpose of the assessment
    * - Privacy notice with link to privacy policy
    * - Scope disclaimer (not professional advice, informational only)
-   * - Acknowledge button to proceed
+   * - Cloudflare Turnstile challenge
+   * - Acknowledge button to proceed (enabled only after Turnstile succeeds)
    * - Close button to exit
    *
-   * Once acknowledged, emits `onacknowledge` so the parent can start the intake.
+   * Once acknowledged and Turnstile verified, emits `onacknowledge` with the
+   * verified token so the parent can proceed.
    */
 
   import { Dialog } from '$lib/components/ui';
+  import { PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
 
   let {
-    open = $bindable(false),
-    onacknowledge = () => {}
+    open = false,
+    onacknowledge = (_token: string) => {},
+    onclose = () => {}
   }: {
     open?: boolean;
-    onacknowledge?: () => void;
+    onacknowledge?: (token: string) => void;
+    onclose?: () => void;
   } = $props();
 
-  function acknowledge() {
-    open = false;
-    onacknowledge();
+  let dialogOpen = $derived(open);
+  let turnstileReady = $state(false);
+  let turnstileToken = $state('');
+  let verifying = $state(false);
+  let error = $state('');
+  let turnstileWidgetId = $state('');
+
+  // When dialog opens, load and render Turnstile
+  $effect(() => {
+    if (!dialogOpen) {
+      // Clean up Turnstile widget
+      if (turnstileWidgetId && window.turnstile) {
+        try { window.turnstile.remove(turnstileWidgetId); } catch { /* ignore */ }
+        turnstileWidgetId = '';
+      }
+      turnstileToken = '';
+      turnstileReady = false;
+      error = '';
+      return () => {};
+    }
+
+    // Delay rendering to let the dialog DOM settle
+    const timer = setTimeout(() => {
+      if (window.turnstile) {
+        renderTurnstile();
+      } else {
+        // Load the Turnstile script
+        if (!document.querySelector('script[src*="challenges.cloudflare.com"]')) {
+          const script = document.createElement('script');
+          script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+          script.async = true;
+          script.defer = true;
+          script.onload = () => renderTurnstile();
+          script.onerror = () => {
+            error = 'Failed to load verification. Please refresh and try again.';
+          };
+          document.head.appendChild(script);
+        }
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      // Clean up Turnstile widget on unmount or re-run
+      if (turnstileWidgetId && window.turnstile) {
+        try { window.turnstile.remove(turnstileWidgetId); } catch { /* ignore */ }
+        turnstileWidgetId = '';
+      }
+    };
+  });
+
+  function renderTurnstile() {
+    const container = document.getElementById('turnstile-widget');
+    if (!container || !window.turnstile) return;
+
+    // Clear any previous content
+    container.removeAttribute('data-rendered');
+    container.innerHTML = '';
+
+    container.setAttribute('data-rendered', 'true');
+    const siteKey = PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'; // test key
+
+    const widgetId = window.turnstile.render('#turnstile-widget', {
+      sitekey: siteKey,
+      theme: 'light',
+      callback: (token: string) => {
+        turnstileToken = token;
+        turnstileReady = true;
+        error = '';
+      },
+      'error-callback': () => {
+        turnstileToken = '';
+        turnstileReady = false;
+        error = 'Verification challenge failed. Please try again.';
+      },
+      'expired-callback': () => {
+        turnstileToken = '';
+        turnstileReady = false;
+        error = 'Verification expired. Please complete the challenge again.';
+      },
+    });
+    turnstileWidgetId = widgetId;
   }
 
-  function handleCancel() {
-    open = false;
+  async function handleAcknowledge() {
+    if (verifying) return;
+
+    if (!turnstileToken) {
+      error = 'Please complete the verification challenge before continuing.';
+      return;
+    }
+
+    verifying = true;
+    error = '';
+
+    try {
+      const res = await fetch('/api/turnstile/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: turnstileToken }),
+      });
+      const data = (await res.json()) as { success: boolean; error?: string };
+
+      if (data.success) {
+        // Clean up Turnstile before closing
+        if (turnstileWidgetId && window.turnstile) {
+          try { window.turnstile.remove(turnstileWidgetId); } catch { /* ignore */ }
+          turnstileWidgetId = '';
+        }
+        onacknowledge(turnstileToken);
+      } else {
+        error = data.error || 'Verification failed. Please try again.';
+        turnstileToken = '';
+        turnstileReady = false;
+        // Reset Turnstile widget for retry
+        const container = document.getElementById('turnstile-widget');
+        if (container && window.turnstile) {
+          if (turnstileWidgetId) {
+            try { window.turnstile.remove(turnstileWidgetId); } catch { /* ignore */ }
+          }
+          container.removeAttribute('data-rendered');
+          container.innerHTML = '';
+          renderTurnstile();
+        }
+      }
+    } catch {
+      error = 'Network error during verification. Please try again.';
+    } finally {
+      verifying = false;
+    }
+  }
+
+  function handleClose() {
+    onclose();
   }
 </script>
 
-<Dialog bind:open>
-  <div class="orientation-panel" onclick={(e) => e.stopPropagation()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); }} role="presentation">
+<Dialog bind:open={dialogOpen}>
+  <div
+    class="orientation-panel"
+    role="presentation"
+    onclick={(e: MouseEvent) => e.stopPropagation()}
+    onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); }}
+  >
     <div class="orientation-header">
       <div class="orientation-icon" aria-hidden="true">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -46,7 +183,7 @@
         <h2 class="orientation-title">Before you start</h2>
         <p class="orientation-subtitle">Your AI Business Assessment conversation</p>
       </div>
-      <button class="orientation-close" onclick={handleCancel} aria-label="Close">
+      <button class="orientation-close" onclick={handleClose} aria-label="Close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
@@ -100,14 +237,31 @@
           </div>
         </div>
       </div>
+
+      <!-- Turnstile widget -->
+      <div class="turnstile-section">
+        <div id="turnstile-widget" class="turnstile-container"></div>
+        {#if error}
+          <p class="turnstile-error" aria-live="polite">{error}</p>
+        {/if}
+      </div>
     </div>
 
     <div class="orientation-footer">
-      <button class="orientation-cancel" onclick={handleCancel}>
+      <button class="orientation-cancel" onclick={handleClose}>
         Not now, maybe later
       </button>
-      <button class="orientation-cta" onclick={acknowledge}>
-        I understand, let's start
+      <button
+        class="orientation-cta"
+        onclick={handleAcknowledge}
+        disabled={verifying || !turnstileReady}
+        aria-busy={verifying}
+      >
+        {#if verifying}
+          Verifying...
+        {:else}
+          I understand, let's start
+        {/if}
       </button>
     </div>
   </div>
@@ -243,6 +397,25 @@
     color: var(--color-accent-2);
   }
 
+  /* Turnstile */
+  .turnstile-section {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+    padding: 0.5rem 0;
+  }
+
+  .turnstile-container {
+    min-height: 65px;
+  }
+
+  .turnstile-error {
+    color: var(--color-danger, #d92d20);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+  }
+
   .orientation-footer {
     align-items: center;
     border-top: 1px solid var(--color-line);
@@ -282,8 +455,13 @@
     transition: background 150ms ease, transform 150ms ease;
   }
 
-  .orientation-cta:hover {
+  .orientation-cta:hover:not(:disabled) {
     background: var(--color-accent-2);
     transform: translateY(-1px);
+  }
+
+  .orientation-cta:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 </style>

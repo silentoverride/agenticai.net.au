@@ -19,7 +19,7 @@ export interface HumanAssistQueueItem {
   operatorId?: string;
   /** Operator notes about the decision. */
   operatorNotes?: string;
-  /** Edited assessment content (if operator made edits). */
+  /** Edited assessment content (if staffer made edits). */
   editedContent?: string;
   /** When the review was completed. */
   reviewedAt?: string;
@@ -184,7 +184,7 @@ export class D1HumanAssistStore {
         SET status = 'failed', error = ?, updated_at = ?
         WHERE session_id = ?
       `).bind(
-        action.notes || 'Assessment rejected by operator review',
+        action.notes || 'Assessment rejected by staff review',
         now,
         item.assessmentId
       ).run();
@@ -210,7 +210,7 @@ export class D1HumanAssistStore {
   }
 
   /**
-   * Claim a review for an operator (set status to in_review).
+   * Claim a review for a staffer (set status to in_review).
    */
   async claimReview(reviewId: string, operatorId: string): Promise<void> {
     await this.db.prepare(`

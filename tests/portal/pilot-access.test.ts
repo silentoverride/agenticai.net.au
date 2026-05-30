@@ -63,10 +63,10 @@ describe('Rate limiter', () => {
 });
 
 describe('Access control', () => {
-  it('allows operator/admin to access admin endpoints', () => {
-    const roles = ['operator', 'admin'];
+  it('allows staff/admin to access admin endpoints', () => {
+    const roles = ['staff', 'admin'];
     for (const role of roles) {
-      expect(['operator', 'admin']).toContain(role);
+      expect(['staff', 'admin']).toContain(role);
     }
   });
 
@@ -99,7 +99,7 @@ describe('Admin grant/revoke', () => {
     expect(validActions).toContain('set_admin');
   });
 
-  it('requires operator/admin role for admin API', () => {
+  it('requires staff/admin role for admin API', () => {
     const isOperator = true;
     expect(isOperator).toBe(true);
   });

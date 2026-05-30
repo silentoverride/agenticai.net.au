@@ -32,7 +32,7 @@
 <span
   class="priority-label {cssClass}"
   role="status"
-  aria-label="Priority {label}{#if reason}: {reason}{/if}"
+  aria-label={reason ? `Priority ${label}: ${reason}` : `Priority ${label}`}
   data-testid={testId || 'priority-label'}
 >
   <span class="priority-rank">{label}</span>

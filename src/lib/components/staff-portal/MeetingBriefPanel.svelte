@@ -33,8 +33,8 @@
   let markReadyStatus = $state<'idle' | 'loading' | 'success' | 'error'>('idle');
   let markReadyError = $state<string | null>(null);
   let exceptionReason = $state('');
-  let apiPath = $derived(`/api/operator/assessments/${assessmentId}/meeting-brief`);
-  let followUpApiPath = $derived(`/api/operator/assessments/${assessmentId}/follow-ups`);
+  let apiPath = $derived(`/api/staff/assessments/${assessmentId}/meeting-brief`);
+  let followUpApiPath = $derived(`/api/staff/assessments/${assessmentId}/follow-ups`);
   let followUpError = $state<string | null>(null);
 
   type ApiResult = {

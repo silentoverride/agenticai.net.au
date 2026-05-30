@@ -172,7 +172,7 @@
 
   async function executeSubmit(body: Record<string, unknown>, action: StaffActionDescriptor) {
     try {
-      const res = await fetch(`/api/operator/assessments/${assessmentId}/actions`, {
+      const res = await fetch(`/api/staff/assessments/${assessmentId}/actions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

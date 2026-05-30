@@ -234,7 +234,7 @@ Customer: I know we need systems but I don't know where to start.`,
   {
     id: 'pbw-003',
     name: 'Pretty-But-Wrong — Scale Mismatch (Excel to AI agents)',
-    description: 'Solo operator using Excel gets AI agent orchestration recommendations.',
+    description: 'Solo business owner using Excel gets AI agent orchestration recommendations.',
     transcript: `Customer: I'm a freelance graphic designer working from home.
 Customer: I use Excel to track my projects and invoices.
 Customer: I spend too much time on admin — maybe 5 hours a week.

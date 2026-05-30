@@ -40,7 +40,7 @@
     }
   });
 
-  const isOperator = $derived(userRole === 'operator' || userRole === 'admin');
+  const isStaff = $derived(userRole === 'staff' || userRole === 'admin');
 </script>
 
 <div class="portal-layout">
@@ -64,7 +64,7 @@
       <a href={portalNavUrl(`/portal/${portalAuth.userId}/profile`)}>Profile</a>
       <a href="/services" class="nav-cta">Start Assessment</a>
       <div class="portal-nav-right">
-        <span class="portal-role-badge">{isOperator ? userRole : 'client'}</span>
+        <span class="portal-role-badge">{isStaff ? userRole : 'client'}</span>
         <span>{isDevBypass ? 'Dev User' : (clerk.user?.firstName || clerk.user?.emailAddresses?.[0]?.emailAddress)}</span>
         {#if !isDevBypass}
           <button onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })} class="portal-signout">Sign Out</button>

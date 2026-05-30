@@ -14,7 +14,7 @@
   export let testId = '';
 
   $: hasOwner = !!ownerName;
-  $: roleLabel = ownerRole === 'admin' ? 'Admin' : ownerRole === 'operator' ? 'Operator' : '';
+  $: roleLabel = ownerRole === 'staff' ? 'Staff' : '';
 </script>
 
 {#if loading}

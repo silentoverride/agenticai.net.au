@@ -16,17 +16,17 @@ describe('Command Center role-based visibility (Story 2.3)', () => {
     expect(result).toEqual({ items: [], total: 0, hasMore: false });
   });
 
-  it('getCommandCenterItems is called with correct operator role', async () => {
+  it('getCommandCenterItems is called with correct staff role', async () => {
     const readModel = vi.fn().mockResolvedValue({ items: [], total: 0, hasMore: false });
-    const authGuard = vi.fn().mockResolvedValue('operator');
+    const authGuard = vi.fn().mockResolvedValue('staff');
 
     const role = await authGuard();
-    const result = await readModel({ actorId: 'operator-1', role, limit: 50, offset: 0 });
+    const result = await readModel({ actorId: 'staffer-1', role, limit: 50, offset: 0 });
 
     expect(authGuard).toHaveBeenCalledOnce();
-    expect(role).toBe('operator');
+    expect(role).toBe('staff');
     expect(readModel).toHaveBeenCalledWith(
-      expect.objectContaining({ actorId: 'operator-1', role: 'operator' })
+      expect.objectContaining({ actorId: 'staffer-1', role: 'staff' })
     );
     expect(result).toEqual({ items: [], total: 0, hasMore: false });
   });
@@ -48,9 +48,9 @@ describe('Command Center role-based visibility (Story 2.3)', () => {
   });
 
   it('does not expose reviewer, sales, or manager roles', async () => {
-    const allowedRoles = new Set(['admin', 'operator']);
+    const allowedRoles = new Set(['admin', 'staff']);
     expect(allowedRoles.has('admin')).toBe(true);
-    expect(allowedRoles.has('operator')).toBe(true);
+    expect(allowedRoles.has('staff')).toBe(true);
     expect(allowedRoles.has('reviewer')).toBe(false);
     expect(allowedRoles.has('sales')).toBe(false);
     expect(allowedRoles.has('manager')).toBe(false);
@@ -74,10 +74,10 @@ describe('Command Center role-based visibility (Story 2.3)', () => {
           targetType: 'report',
           label: 'Approve report',
           enabled: false,
-          requiredRole: 'operator',
+          requiredRole: 'staff',
           requiresReasonCode: false,
           requiresNote: false,
-          requiredAuditMetadata: ['operatorId', 'checklistVersion', 'evidenceId', 'artifactVersion'],
+          requiredAuditMetadata: ['staffId', 'checklistVersion', 'evidenceId', 'artifactVersion'],
           testId: 'staff-action-approveReport',
           consequence: '',
           remediationHint: ''

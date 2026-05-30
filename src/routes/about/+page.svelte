@@ -1,7 +1,7 @@
 <main>
   <section class="page-hero">
     <p class="eyebrow">About</p>
-    <h1>Practical AI guidance for small business operators</h1>
+    <h1>Practical AI guidance for small business staff members</h1>
     <p>
       Agentic AI helps owners and lean teams translate the AI tool landscape into specific, useful
       decisions for their own workflows. The assessment starts with how the business already runs,

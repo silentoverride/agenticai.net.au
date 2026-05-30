@@ -49,8 +49,8 @@ const SCHEMA = `
     gate_run_id TEXT,
     gate_type TEXT,
     status TEXT DEFAULT 'pending',
-    operator_id TEXT,
-    operator_notes TEXT,
+    staff_id TEXT,
+    staff_notes TEXT,
     edited_content TEXT,
     reviewed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
@@ -133,7 +133,7 @@ describe('getLinkedReportContext', () => {
         VALUES ('rpt-004', 'asst-003', 'reports/rpt-004.pdf', 'Conflicted Report', '2026-05-01T01:00:00Z');
 
         -- Conflicting: pipeline says failed but human review says approved
-        INSERT INTO human_assist_reviews (id, assessment_id, status, operator_id, reviewed_at)
+        INSERT INTO human_assist_reviews (id, assessment_id, status, staff_id, reviewed_at)
         VALUES ('har-001', 'asst-003', 'approved', 'op-001', '2026-05-02T02:00:00Z');
       `);
     });
@@ -175,7 +175,7 @@ describe('getLinkedReportContext', () => {
     expect(result[0].reportState).toBe('generated');
     expect(result[0].hasArtifacts).toBe(true);
     expect(result[0].degradedFields).toHaveLength(0);
-    expect(result[0].reviewWorkspaceRoute).toBe('/operator/assessments/asst-004/review');
+    expect(result[0].reviewWorkspaceRoute).toBe('/staff/assessments/asst-004/review');
   });
 
   // -----------------------------------------------------------------------

@@ -1,7 +1,9 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
+  import OrientationPanel from '$lib/components/OrientationPanel.svelte';
   import { onMount } from 'svelte';
   import { useClerkContext } from 'svelte-clerk/client';
+  import { toggleCall } from '$lib/stores/call';
 
   const clerk = useClerkContext();
 
@@ -14,21 +16,22 @@
     { href: '/contact', label: 'Contact' }
   ];
 
-  // Staff portal links (shown when signed in as operator/admin)
+  // Staff portal links (shown when signed in as staff/admin)
   const staffLinks = [
-    { href: '/operator/dashboard', label: 'Dashboard' },
-    { href: '/operator/assessments', label: 'Command Console' },
-    { href: '/operator/gates', label: 'Gates' },
-    { href: '/operator/human-assist', label: 'Human Assist' },
-    { href: '/operator/audit', label: 'Audit' },
-    { href: '/operator/calibration', label: 'Calibration' },
-    { href: '/operator/cost-dashboard', label: 'Cost' }
+    { href: '/staff/dashboard', label: 'Dashboard' },
+    { href: '/staff/assessments', label: 'Command Console' },
+    { href: '/staff/gates', label: 'Gates' },
+    { href: '/staff/human-assist', label: 'Human Assist' },
+    { href: '/staff/audit', label: 'Audit' },
+    { href: '/staff/calibration', label: 'Calibration' },
+    { href: '/staff/cost-dashboard', label: 'Cost' }
   ];
 
   let darkMode = $state(false);
   let userRole = $state('');
   let roleLoaded = $state(false);
   let roleError = $state(false);
+  let showOrientation = $state(false);
 
   // Fetch the user's role when they are signed in
   $effect(() => {
@@ -54,7 +57,7 @@
     }
   });
 
-  const isStaff = $derived(userRole === 'operator' || userRole === 'admin');
+  const isStaff = $derived(userRole === 'staff' || userRole === 'admin');
   const isAdmin = $derived(userRole === 'admin');
 
   onMount(() => {
@@ -71,6 +74,19 @@
   function applyTheme() {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
   }
+
+  function handleCallAnnie() {
+    showOrientation = true;
+  }
+
+  function handleOrientationAcknowledge(_token: string) {
+    showOrientation = false;
+    toggleCall('website-call-assessment-button');
+  }
+
+  function handleOrientationClose() {
+    showOrientation = false;
+  }
 </script>
 
 <header class="site-header">
@@ -84,7 +100,7 @@
         <a href={link.href}>{link.label}</a>
       {/each}
       {#if isAdmin}
-        <a href="/operator/staff">Staff</a>
+        <a href="/staff/staff">Staff</a>
       {/if}
     {:else}
       <!-- Public site navigation -->
@@ -123,12 +139,12 @@
       </button>
     {:else if clerk.auth.userId != null}
       <!-- Signed-in client actions -->
-      <CallAssessmentButton label="Call Annie" className="nav-cta" showError={false} />
+      <button class="nav-cta" onclick={handleCallAnnie}>Call Annie</button>
       <a href={`/portal/${clerk.auth.userId}`} class="portal-link">Portal</a>
       <button class="nav-signout" onclick={() => clerk.clerk?.signOut({ redirectUrl: '/' })}>Sign Out</button>
     {:else}
       <!-- Public visitor actions -->
-      <CallAssessmentButton label="Call Annie" className="nav-cta" showError={false} />
+      <button class="nav-cta" onclick={handleCallAnnie}>Call Annie</button>
       <button
         class="nav-signin"
         onclick={() => clerk.clerk?.openSignIn({
@@ -141,3 +157,137 @@
     {/if}
   </div>
 </header>
+
+<OrientationPanel
+  open={showOrientation}
+  onacknowledge={handleOrientationAcknowledge}
+  onclose={handleOrientationClose}
+/>
+
+<style>
+  .site-header {
+    align-items: center;
+    background: var(--color-panel);
+    border-bottom: 1px solid var(--color-line);
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+    padding: 0.75rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .brand img {
+    display: block;
+    height: 2rem;
+    width: auto;
+  }
+
+  nav {
+    align-items: center;
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  nav a {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+
+  nav a:hover {
+    color: var(--color-ink);
+  }
+
+  .header-actions {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .theme-toggle {
+    align-items: center;
+    background: none;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    color: var(--color-muted);
+    cursor: pointer;
+    display: inline-flex;
+    height: 2rem;
+    justify-content: center;
+    padding: 0;
+    transition: background 150ms ease, color 150ms ease;
+    width: 2rem;
+  }
+
+  .theme-toggle:hover {
+    background: var(--color-panel-soft);
+    color: var(--color-ink);
+  }
+
+  .theme-toggle svg {
+    height: 1rem;
+    width: 1rem;
+  }
+
+  .nav-cta {
+    background: var(--color-accent);
+    border: none;
+    border-radius: 999px;
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.45rem 1rem;
+    transition: background 150ms ease;
+  }
+
+  .nav-cta:hover {
+    background: var(--color-accent-2);
+  }
+
+  .portal-link {
+    color: var(--color-accent);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .portal-link:hover {
+    color: var(--color-accent-2);
+  }
+
+  .nav-signout,
+  .nav-signin {
+    background: none;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    color: var(--color-muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.45rem 1rem;
+    transition: background 150ms ease, color 150ms ease;
+  }
+
+  .nav-signout:hover,
+  .nav-signin:hover {
+    background: var(--color-panel-soft);
+    color: var(--color-ink);
+  }
+
+  .staff-badge {
+    background: var(--color-accent-light);
+    border-radius: 999px;
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.3rem 0.75rem;
+    text-transform: uppercase;
+  }
+</style>

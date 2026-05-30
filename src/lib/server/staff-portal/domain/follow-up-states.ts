@@ -28,7 +28,7 @@ export interface GovernedFollowUpState {
 
 export interface GetFollowUpActionEligibilityInput {
   currentStatus: FollowUpStatus;
-  actorRole: 'admin' | 'operator';
+  actorRole: 'admin' | 'staff';
   isOwner: boolean;
 }
 
@@ -97,7 +97,7 @@ function buildAction(opts: {
   allowedNextStates: FollowUpStatus[];
   allowed: boolean;
   requiredNextState: FollowUpStatus;
-  actorRole: 'admin' | 'operator';
+  actorRole: 'admin' | 'staff';
   isOwner: boolean;
   requiresReason: boolean;
   requiresNewOwner: boolean;

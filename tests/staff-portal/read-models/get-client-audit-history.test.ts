@@ -42,8 +42,8 @@ const SCHEMA = `
     gate_run_id TEXT,
     gate_type TEXT,
     status TEXT DEFAULT 'pending',
-    operator_id TEXT,
-    operator_notes TEXT,
+    staff_id TEXT,
+    staff_notes TEXT,
     edited_content TEXT,
     reviewed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
@@ -109,8 +109,8 @@ describe('getClientAuditHistory', () => {
     expect(result[0].previousState).toBe('generated');
     expect(result[0].newState).toBe('approved');
     expect(result[0].reasonOrNote).toBe('All findings resolved');
-    expect(result[0].receiptRoute).toBe('/operator/assessments/asst-001/review#receipt-evt-001');
-    expect(result[0].sourceContextRoute).toBe('/operator/assessments/asst-001');
+    expect(result[0].receiptRoute).toBe('/staff/assessments/asst-001/review#receipt-evt-001');
+    expect(result[0].sourceContextRoute).toBe('/staff/assessments/asst-001');
 
     // Second event
     expect(result[1].eventId).toBe('evt-002');
@@ -124,7 +124,7 @@ describe('getClientAuditHistory', () => {
   // Operator sees only their own audit events
   // -----------------------------------------------------------------------
 
-  it('filters audit events for operator role to their own actorId', async () => {
+  it('filters audit events for staff role to their own actorId', async () => {
     const { db } = makeDb((s) => {
       s.exec(`
         INSERT INTO staff_action_audit_events (id, assessment_id, target_type, target_id, actor_id, action, from_state, to_state, reason, request_hash, idempotency_key, created_at)
@@ -139,7 +139,7 @@ describe('getClientAuditHistory', () => {
       db,
       assessmentId: 'asst-002',
       actorId: 'op-001',
-      role: 'operator'
+      role: 'staff'
     });
 
     // Operator should only see their own events
@@ -285,7 +285,7 @@ describe('getAuditTrail', () => {
     const result = await getAuditTrail({
       db,
       actorId: 'op-001',
-      role: 'operator'
+      role: 'staff'
     });
 
     expect(result.events).toHaveLength(0);

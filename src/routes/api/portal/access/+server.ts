@@ -5,16 +5,16 @@
  * GET  — list all users with their access status
  * POST — grant or revoke portal access for a specific customer
  *
- * Only operators and admins can use this endpoint.
+ * Only staff and admins can use this endpoint.
  */
 import { json, error } from '@sveltejs/kit';
-import { requireOperator } from '$lib/server/operator-auth';
+import { requireStaff } from '$lib/server/staff-auth';
 import { getDb, assertSchema, isDatabaseAvailable } from '$lib/server/db';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ locals, platform }) => {
   const db = platform?.env?.assessment_db;
-  await requireOperator(locals, db);
+  await requireStaff(locals, db);
 
   if (!isDatabaseAvailable()) {
     throw error(503, 'Database not available');
@@ -36,7 +36,7 @@ export const GET: RequestHandler = async ({ locals, platform }) => {
 
 export const POST: RequestHandler = async ({ locals, request, platform }) => {
   const db = platform?.env?.assessment_db;
-  await requireOperator(locals, db);
+  await requireStaff(locals, db);
 
   if (!isDatabaseAvailable()) {
     throw error(503, 'Database not available');

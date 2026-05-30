@@ -84,7 +84,7 @@ Aggregate your scores into a final decision:
 | approve | All Quick Wins pass A1+A2, at least 75% pass E1, no R1/R2 failures |
 | block   | Any Quick Win fails A1, or >50% fail E1, or any R2 failure, or ≥1 tool hallucination (Quick Win names tool not in researched list) |
 | retry   | Directionally correct but specific issues: unverified tools, over-promise language, estimate needs sourcing. State exactly what to change. |
-| escalate| Transcript is ambiguous, contradictory, or risk is high with partial evidence. Route to human operator. |
+| escalate| Transcript is ambiguous, contradictory, or risk is high with partial evidence. Route to human staffer. |
 
 # Output Format
 Return a valid JSON object:

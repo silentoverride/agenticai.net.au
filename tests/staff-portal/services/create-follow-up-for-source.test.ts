@@ -56,7 +56,7 @@ const SCHEMA = `
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     assessment_id TEXT,
     status TEXT,
-    operator_id TEXT,
+    staff_id TEXT,
     created_at TEXT
   );
 
@@ -112,7 +112,7 @@ describe('createFollowUpForSource service', () => {
     const result = await callService({
       assessmentId: 'asst-fu-src-001',
       title: 'Clarification needed on risk analysis',
-      description: 'The risk score needs review by a senior operator.',
+      description: 'The risk score needs review by a senior staffer.',
       ownerId: 'op-001',
       source: 'human_review',
       reportId: 'rpt-001'
@@ -288,11 +288,11 @@ describe('Actions route — clarification-required creates follow-up', () => {
       INSERT INTO pipeline_status (session_id, report_id, status, deck_url, updated_at)
       VALUES ('asst-clar-001', 'rpt-clar', 'completed', 'https://deck.example.com', datetime('now'));
 
-      INSERT INTO human_assist_reviews (assessment_id, status, operator_id, created_at)
+      INSERT INTO human_assist_reviews (assessment_id, status, staff_id, created_at)
       VALUES ('asst-clar-001', 'in_review', 'op-001', datetime('now'));
 
       INSERT INTO users (clerk_id, role, name)
-      VALUES ('op-001', 'operator', 'Test Operator');
+      VALUES ('op-001', 'staff', 'Test Operator');
     `);
   });
 

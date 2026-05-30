@@ -175,7 +175,7 @@ function initSchema(db: Database.Database) {
     CREATE TABLE IF NOT EXISTS staff_invitations (
       id TEXT PRIMARY KEY,
       email TEXT NOT NULL,
-      role TEXT NOT NULL CHECK(role IN ('operator', 'admin')),
+      role TEXT NOT NULL CHECK(role IN ('staff', 'admin'))),
       clerk_invitation_id TEXT NOT NULL UNIQUE,
       status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'revoked')),
       invited_by TEXT NOT NULL,

@@ -22,9 +22,9 @@ export function gateFindingFacts(overrides: GateFindingStateInput = {}): GateFin
 
 export function actionContext(overrides: Partial<GetAvailableActionsInput['actor']> = {}): GetAvailableActionsInput['actor'] {
   return {
-    role: 'operator',
-    operatorId: 'operator-1',
-    assignedOperatorId: 'operator-1',
+    role: 'staff',
+    staffId: 'staffer-1',
+    assignedOperatorId: 'staffer-1',
     sharedQueue: false,
     ...overrides
   };

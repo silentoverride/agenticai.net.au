@@ -29,6 +29,8 @@
     lastQuestionId: string;
   }
 
+  let orientationOpen = $state(false);
+
   // Check for existing incomplete session on page load
   $effect(() => {
     try {
@@ -87,22 +89,23 @@
     clearSavedSession();
     sessionId = crypto.randomUUID();
     chatSavedState = null;
-    phase = 'orientation';
+    orientationOpen = true;
   }
 
-  function startIntake() {
+  function startIntake(_token: string) {
+    orientationOpen = false;
     if (!sessionId) {
       sessionId = crypto.randomUUID();
     }
     phase = 'chat';
   }
 
-  function getOrientationOpen() {
-    return phase === 'orientation';
+  function closeOrientation() {
+    orientationOpen = false;
   }
 
-  function setOrientationOpen(open: boolean) {
-    phase = open ? 'orientation' : 'idle';
+  function openOrientation() {
+    orientationOpen = true;
   }
 
   function onChatComplete(summary: Array<{ question: string; answer: string; followUpAnswer?: string }>) {
@@ -201,7 +204,7 @@
         conversation with Annie, then delivers a practical report within 48 hours.
       </p>
       <div class="actions">
-        <button class="button primary" onclick={() => phase = 'orientation'}>
+        <button class="button primary" onclick={openOrientation}>
           Start AI Business Assessment
         </button>
         <a class="button secondary" href="/services">See What You Get</a>
@@ -418,7 +421,7 @@
       Start with a focused assessment. You will leave with a practical plan for the workflows, tools,
       and quick wins most likely to create measurable leverage.
     </p>
-    <button class="button primary" onclick={() => phase = 'orientation'}>
+    <button class="button primary" onclick={openOrientation}>
       Start AI Business Assessment
     </button>
     <p class="trust-note">Your data is private and never shared. <a href="/privacy">Privacy policy</a></p>
@@ -426,7 +429,7 @@
 </main>
 {/if}
 
-<OrientationPanel bind:open={getOrientationOpen, setOrientationOpen} onacknowledge={startIntake} />
+<OrientationPanel open={orientationOpen} onacknowledge={startIntake} onclose={closeOrientation} />
 
 <style>
   /* ── Testimonials ──────────────────────────────────────────── */

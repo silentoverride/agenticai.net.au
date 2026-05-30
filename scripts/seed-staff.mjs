@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Seed a staff user (operator/admin) by email.
+ * Seed a staff user (admin or staff/admin) by email.
  *
  * Usage:
  *   node scripts/seed-staff.mjs <email> [role]
@@ -10,7 +10,7 @@
  *   node scripts/seed-staff.mjs staff@example.com
  *   node scripts/seed-staff.mjs admin@example.com admin
  *
- * Role defaults to 'operator'. Valid roles: operator, admin.
+ * Role defaults to 'staff'. Valid roles: admin or staff, admin.
  */
 
 import Database from 'better-sqlite3';
@@ -18,15 +18,15 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 const email = process.argv[2];
-const role = process.argv[3] || 'operator';
+const role = process.argv[3] || 'staff';
 
 if (!email) {
   console.error('Usage: node scripts/seed-staff.mjs <email> [role]');
   process.exit(1);
 }
 
-if (!['operator', 'admin'].includes(role)) {
-  console.error(`Invalid role "${role}". Valid roles: operator, admin`);
+if (!['staff', 'admin'].includes(role)) {
+  console.error(`Invalid role "${role}". Valid roles: admin or staff, admin`);
   process.exit(1);
 }
 

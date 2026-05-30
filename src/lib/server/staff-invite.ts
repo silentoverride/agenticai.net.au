@@ -9,7 +9,7 @@ import { createClerkClient } from '@clerk/backend';
 import { CLERK_SECRET_KEY } from '$env/static/private';
 import { getDb, withDb, type AsyncDb } from './db';
 
-type StaffRole = 'operator' | 'admin';
+type StaffRole = 'staff' | 'admin';
 
 interface ClerkInvitation {
   id: string;
@@ -172,7 +172,7 @@ export async function applyPendingStaffRole(
 // ── Staff user listing ─────────────────────────────────────────────────────
 
 /**
- * List existing staff users (operators and admins).
+ * List existing staff users (staff members and admins).
  */
 export async function listStaffUsers(): Promise<{
   clerk_id: string;
@@ -185,7 +185,7 @@ export async function listStaffUsers(): Promise<{
     return db.queryAll(
       `SELECT clerk_id, email, name, role, created_at
        FROM users
-       WHERE role IN ('operator', 'admin')
+       WHERE role IN ('staff', 'admin')
        ORDER BY created_at DESC`
     );
   });

@@ -68,7 +68,7 @@ export async function stageEvidenceExtraction(
     evidenceMap = {
       claims: [],
       coverage: { total_claims: 0, direct_claims: 0, inferred_claims: 0, speculative_claims: 0, coverage_rate: 0 },
-      gaps: [{ field: 'unknown', gate_impact: 'Evidence extraction failed', recommended_handling: 'Flag for operator review' }],
+      gaps: [{ field: 'unknown', gate_impact: 'Evidence extraction failed', recommended_handling: 'Flag for staff review' }],
       extracted_at: new Date().toISOString()
     };
   }

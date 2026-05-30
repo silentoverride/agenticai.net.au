@@ -5,15 +5,15 @@ import { test, expect } from '@playwright/test';
  *
  * Verifies the highest-risk flows that must work before any UI refinement:
  * 1. Auth enforcement — unauthenticated users redirected
- * 2. Navigation shell — persistent top nav across operator pages
+ * 2. Navigation shell — persistent top nav across staff pages
  * 3. Operator page loads — dashboard, assessments, gates render
- * 4. Role gating — admin-only routes hidden from operator
+ * 4. Role gating — admin-only routes hidden from staff
  * 5. Accessibility — skip link, focus management
  */
 
 test.describe('Auth Enforcement', () => {
-  test('unauthenticated access to operator routes returns 401 or redirect', async ({ request }) => {
-    const res = await request.get('/operator/dashboard', {
+  test('unauthenticated access to staff routes returns 401 or redirect', async ({ request }) => {
+    const res = await request.get('/staff/dashboard', {
       maxRedirects: 0,
     });
     // Either a 401 Unauthorized or a redirect to Clerk sign-in
@@ -26,8 +26,8 @@ test.describe('Auth Enforcement', () => {
     }
   });
 
-  test('unauthenticated access to operator API returns 401', async ({ request }) => {
-    const res = await request.get('/api/operator/dashboard', {
+  test('unauthenticated access to staff API returns 401', async ({ request }) => {
+    const res = await request.get('/api/staff/dashboard', {
       maxRedirects: 0,
     });
     expect(res.status()).not.toBe(200);
@@ -36,8 +36,8 @@ test.describe('Auth Enforcement', () => {
 });
 
 test.describe('Navigation Shell', () => {
-  test('operator layout serves noindex headers', async ({ request }) => {
-    const res = await request.get('/operator/dashboard', {
+  test('staff layout serves noindex headers', async ({ request }) => {
+    const res = await request.get('/staff/dashboard', {
       maxRedirects: 0,
     });
     // Layout applies before auth hook, so headers are set regardless
@@ -56,16 +56,16 @@ test.describe('Operator Pages', () => {
   // Full authenticated page loads require Clerk mock setup.
   // This safety spine verifies routing integrity and layout rendering.
 
-  const operatorRoutes = [
-    '/operator/dashboard',
-    '/operator/assessments',
-    '/operator/gates',
-    '/operator/human-assist',
-    '/operator/calibration',
-    '/operator/cost-dashboard',
+  const staffRoutes = [
+    '/staff/dashboard',
+    '/staff/assessments',
+    '/staff/gates',
+    '/staff/human-assist',
+    '/staff/calibration',
+    '/staff/cost-dashboard',
   ];
 
-  for (const route of operatorRoutes) {
+  for (const route of staffRoutes) {
     test(`route ${route} responds without server error`, async ({ request }) => {
       const res = await request.get(route, { maxRedirects: 0 });
       // Accepts 401/403 (auth enforced), 302/307 (redirect to login), or 200 (if auth bypassed in test)
@@ -74,7 +74,7 @@ test.describe('Operator Pages', () => {
   }
 
   test('admin-only routes exist and are protected', async ({ request }) => {
-    const adminRoutes = ['/operator/audit', '/operator/staff'];
+    const adminRoutes = ['/staff/audit', '/staff/staff'];
     for (const route of adminRoutes) {
       const res = await request.get(route, { maxRedirects: 0 });
       // Must not return 404 — routes must exist and be auth-protected
@@ -84,12 +84,12 @@ test.describe('Operator Pages', () => {
 });
 
 test.describe('API Safety Spine', () => {
-  test('operator API routes enforce auth', async ({ request }) => {
+  test('staff API routes enforce auth', async ({ request }) => {
     const apiRoutes = [
-      '/api/operator/dashboard',
-      '/api/operator/assessments',
-      '/api/operator/gates',
-      '/api/operator/human-assist',
+      '/api/staff/dashboard',
+      '/api/staff/assessments',
+      '/api/staff/gates',
+      '/api/staff/human-assist',
     ];
     for (const route of apiRoutes) {
       const res = await request.get(route, { maxRedirects: 0 });
@@ -100,8 +100,8 @@ test.describe('API Safety Spine', () => {
 
   test('staff action mutations require auth', async ({ request }) => {
     // POST to a staff-assessment action endpoint without auth
-    const res = await request.post('/api/operator/assessments/any/actions', {
-      data: { action: 'approve', reasonCode: 'operator_review', reviewNote: 'test' },
+    const res = await request.post('/api/staff/assessments/any/actions', {
+      data: { action: 'approve', reasonCode: 'staff_review', reviewNote: 'test' },
       maxRedirects: 0,
     });
     expect(res.status()).not.toBe(200);
@@ -109,7 +109,7 @@ test.describe('API Safety Spine', () => {
   });
 
   test('follow-up mutations require auth', async ({ request }) => {
-    const res = await request.post('/api/operator/assessments/any/follow-ups', {
+    const res = await request.post('/api/staff/assessments/any/follow-ups', {
       data: { title: 'Test', description: 'Test' },
       maxRedirects: 0,
     });
@@ -119,8 +119,8 @@ test.describe('API Safety Spine', () => {
 });
 
 test.describe('Content Security Policy', () => {
-  test('CSP headers are present on operator pages', async ({ request }) => {
-    const res = await request.get('/operator/dashboard', { maxRedirects: 0 });
+  test('CSP headers are present on staff pages', async ({ request }) => {
+    const res = await request.get('/staff/dashboard', { maxRedirects: 0 });
     const csp = res.headers()['content-security-policy'];
     if (res.status() !== 401 && res.status() !== 302 && res.status() !== 307) {
       expect(csp).toBeDefined();

@@ -51,8 +51,8 @@ const SCHEMA = `
     gate_run_id TEXT,
     gate_type TEXT,
     status TEXT DEFAULT 'pending',
-    operator_id TEXT,
-    operator_notes TEXT,
+    staff_id TEXT,
+    staff_notes TEXT,
     edited_content TEXT,
     reviewed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
@@ -202,8 +202,8 @@ describe('getCommandCenterItems', () => {
         ('r-admin-a1', 'admin-all-1', 'r2/a1/v1'),
         ('r-admin-a2', 'admin-all-2', 'r2/a2/v1');
 
-      INSERT INTO human_assist_reviews (id, assessment_id, status, operator_id) VALUES
-        ('har-admin-1', 'admin-all-1', 'pending', 'operator-other');
+      INSERT INTO human_assist_reviews (id, assessment_id, status, staff_id) VALUES
+        ('har-admin-1', 'admin-all-1', 'pending', 'staff-other');
     `);
 
     const result = await getCommandCenterItems({ db, actorId: 'admin-1', role: 'admin', limit: 10 });
@@ -212,34 +212,34 @@ describe('getCommandCenterItems', () => {
     expect(result.items.some((i: { workItemId: string }) => i.workItemId === 'admin-all-2')).toBe(true);
   });
 
-  it('operator sees only assigned or shared-queue items', async () => {
+  it('staff sees only assigned or shared-queue items', async () => {
     const { db, sqlite: s } = createMemoryDb(SCHEMA);
     s.exec(`
       INSERT INTO pipeline_status (session_id, status, created_at) VALUES
-        ('op-assigned', 'ready', '2026-05-20T10:00:00Z'),
+        ('staff-assigned', 'ready', '2026-05-20T10:00:00Z'),
         ('op-shared', 'ready', '2026-05-21T10:00:00Z'),
-        ('op-other', 'ready', '2026-05-22T10:00:00Z');
+        ('staff-other', 'ready', '2026-05-22T10:00:00Z');
 
       INSERT INTO assessment_orders (id, session_id, customer_name, company) VALUES
-        ('o-op-ass', 'op-assigned', 'Assigned Co', 'Assigned Co'),
+        ('o-op-ass', 'staff-assigned', 'Assigned Co', 'Assigned Co'),
         ('o-op-shared', 'op-shared', 'Shared Co', 'Shared Co'),
-        ('o-op-other', 'op-other', 'Other Co', 'Other Co');
+        ('o-staff-other', 'staff-other', 'Other Co', 'Other Co');
 
       INSERT INTO reports (id, session_id, r2_key) VALUES
-        ('r-op-ass', 'op-assigned', 'r2/op-ass/v1'),
+        ('r-op-ass', 'staff-assigned', 'r2/op-ass/v1'),
         ('r-op-shared', 'op-shared', 'r2/op-shared/v1'),
-        ('r-op-other', 'op-other', 'r2/op-other/v1');
+        ('r-staff-other', 'staff-other', 'r2/staff-other/v1');
 
-      INSERT INTO human_assist_reviews (id, assessment_id, status, operator_id) VALUES
-        ('har-op-ass', 'op-assigned', 'in_review', 'operator-me'),
-        ('har-op-other', 'op-other', 'in_review', 'operator-them');
+      INSERT INTO human_assist_reviews (id, assessment_id, status, staff_id) VALUES
+        ('har-op-ass', 'staff-assigned', 'in_review', 'staff-me'),
+        ('har-staff-other', 'staff-other', 'in_review', 'staff-them');
     `);
 
-    const result = await getCommandCenterItems({ db, actorId: 'operator-me', role: 'operator', limit: 10 });
+    const result = await getCommandCenterItems({ db, actorId: 'staff-me', role: 'staff', limit: 10 });
 
-    expect(result.items.some((i: { workItemId: string }) => i.workItemId === 'op-assigned')).toBe(true);
+    expect(result.items.some((i: { workItemId: string }) => i.workItemId === 'staff-assigned')).toBe(true);
     expect(result.items.some((i: { workItemId: string }) => i.workItemId === 'op-shared')).toBe(true);
-    expect(result.items.every((i: { workItemId: string }) => i.workItemId !== 'op-other')).toBe(true);
+    expect(result.items.every((i: { workItemId: string }) => i.workItemId !== 'staff-other')).toBe(true);
   });
 
   // -----------------------------------------------------------------------

@@ -38,7 +38,7 @@ describe('commercial-audit service', () => {
 
   const ASSESSMENT_ID = 'asst-audit-001';
   const COMMERCIAL_ID = 'com-step-001';
-  const ACTOR_ID = 'operator-sarah';
+  const ACTOR_ID = 'staffer-sarah';
 
   describe('recordCommercialNextStepChange', () => {
     it('records an audit event on status change', async () => {

@@ -187,6 +187,8 @@ import type { AssessmentReportJob } from '$lib/server/assessment/types';
 
 describe('Structure-First Drafting (HCMW-004)', () => {
   const sampleJob: AssessmentReportJob = {
+    receivedAt: new Date().toISOString(),
+    source: 'discovery-call',
     transcript: `Owner: Jane Smith
 
 Agent: Can you tell me about your business?
@@ -233,6 +235,8 @@ Owner: We need this fixed yesterday. The reporting alone costs us $250 a week in
     it('fallback still produces valid JSON analysis', async () => {
       // Using a minimal transcript that might trigger fallback
       const minimalJob: AssessmentReportJob = {
+        receivedAt: new Date().toISOString(),
+        source: 'test',
         transcript: 'I run a plumbing business. We need better scheduling.',
         callId: 'test-fallback-001',
         sessionId: 'test-fb-001'

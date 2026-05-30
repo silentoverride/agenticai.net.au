@@ -2,7 +2,8 @@ import type { AsyncDb } from '$lib/server/db';
 import type {
   StaffAuditEventDto,
   AuditEventType,
-  AffectedEntityType
+  AffectedEntityType,
+  StaffRole
 } from '$lib/staff-portal/dto';
 
 // ---------------------------------------------------------------------------
@@ -13,7 +14,7 @@ export interface GetClientAuditHistoryInput {
   db: AsyncDb;
   assessmentId: string;
   actorId: string;
-  role: 'admin' | 'operator';
+  role: StaffRole;
   limit?: number;
 }
 
@@ -79,7 +80,7 @@ export async function getClientAuditHistory(
 export interface GetAuditTrailInput {
   db: AsyncDb;
   actorId: string;
-  role: 'admin' | 'operator';
+  role: StaffRole;
   limit?: number;
   offset?: number;
 }
@@ -182,8 +183,8 @@ function mapAffectedEntityType(targetType: string): AffectedEntityType {
 }
 
 function toAuditEventDto(row: AuditEventRow): StaffAuditEventDto {
-  const receiptRoute = `/operator/assessments/${row.assessment_id}/review#receipt-${row.id}`;
-  const sourceContextRoute = `/operator/assessments/${row.assessment_id}`;
+  const receiptRoute = `/staff/assessments/${row.assessment_id}/review#receipt-${row.id}`;
+  const sourceContextRoute = `/staff/assessments/${row.assessment_id}`;
 
   return {
     eventId: row.id,

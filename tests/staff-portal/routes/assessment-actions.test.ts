@@ -15,11 +15,11 @@ vi.mock('$lib/server/db', () => ({
   getDb: mocks.getDb,
   setD1Binding: mocks.setD1Binding
 }));
-vi.mock('$lib/server/operator-auth', () => ({
+vi.mock('$lib/server/staff-auth', () => ({
   requireOperator: mocks.requireOperator
 }));
 
-const { POST } = await import('../../../src/routes/api/operator/assessments/[assessmentId]/actions/+server');
+const { POST } = await import('../../../src/routes/api/staff/assessments/[assessmentId]/actions/+server');
 
 describe('assessment actions route', () => {
   beforeEach(() => {
@@ -65,7 +65,7 @@ describe('assessment actions route', () => {
     expect(mocks.getDb).toHaveBeenCalledOnce();
     expect(mocks.commitStaffAction).toHaveBeenCalledWith(expect.objectContaining({
       db: { tag: 'db' },
-      actorId: 'operator-1',
+      actorId: 'staffer-1',
       assessmentId: 'assessment-1',
       action: 'claimFinding',
       targetType: 'gateFinding'
@@ -97,15 +97,15 @@ function event(options: {
   userId?: string | null;
   body?: string;
   rawBody?: unknown;
-} = {}): RequestEvent {
+} = {}): RequestEvent<{ assessmentId: string }, '/api/staff/assessments/[assessmentId]/actions'> {
   const body = options.body ?? JSON.stringify(options.rawBody === undefined ? validBody() : options.rawBody);
   return {
-    request: new Request('http://localhost/api/operator/assessments/assessment-1/actions', {
+    request: new Request('http://localhost/api/staff/assessments/assessment-1/actions', {
       method: 'POST',
       body
     }),
     params: { assessmentId: 'assessment-1' },
-    locals: { auth: () => ({ userId: options.userId === undefined ? 'operator-1' : options.userId }) },
+    locals: { auth: () => ({ userId: options.userId === undefined ? 'staffer-1' : options.userId }) },
     platform: { env: { assessment_db: undefined } }
-  } as unknown as RequestEvent;
+  } as unknown as RequestEvent<{ assessmentId: string }, '/api/staff/assessments/[assessmentId]/actions'>;
 }

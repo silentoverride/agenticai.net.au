@@ -20,6 +20,7 @@ const config = {
           'https://www.google.com',
           'https://www.recaptcha.net',
           'https://www.gstatic.com',
+          'https://challenges.cloudflare.com',
           'https://*.clerk.accounts.dev',
           'https://*.clerk.com',
           'https://assets.calendly.com'
@@ -31,6 +32,7 @@ const config = {
           'https://www.google.com',
           'https://www.recaptcha.net',
           'https://www.gstatic.com',
+          'https://challenges.cloudflare.com',
           'https://*.clerk.accounts.dev',
           'https://*.clerk.com',
           'https://assets.calendly.com'
@@ -52,6 +54,7 @@ const config = {
           'https://www.google.com',
           'https://www.recaptcha.net',
           'https://www.gstatic.com',
+          'https://challenges.cloudflare.com',
           'https://*.clerk.accounts.dev',
           'https://*.clerk.com',
           'https://api.clerk.com',
@@ -62,7 +65,7 @@ const config = {
           'https://*.calendly.com'
         ],
         'worker-src': ['self', 'blob:'],
-        'frame-src': ['https://www.google.com', 'https://www.recaptcha.net', 'https://www.gstatic.com', 'https://calendly.com', 'https://*.calendly.com'],
+        'frame-src': ['https://www.google.com', 'https://www.recaptcha.net', 'https://www.gstatic.com', 'https://challenges.cloudflare.com', 'https://calendly.com', 'https://*.calendly.com'],
         'form-action': ['self', 'https://checkout.stripe.com'],
         'upgrade-insecure-requests': true
       }

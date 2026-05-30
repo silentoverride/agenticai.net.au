@@ -91,7 +91,7 @@
       <span class="receipt-value"><Badge variant="success">{stateLabel(receipt.resultingState)}</Badge></span>
     </div>
     <div class="receipt-row">
-      <span class="receipt-label">Operator</span>
+      <span class="receipt-label">Staff</span>
       <span class="receipt-value mono">{receipt.actorId}</span>
     </div>
     <div class="receipt-row">

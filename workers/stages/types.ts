@@ -20,7 +20,7 @@ import type { AssessmentReportJob } from '../../src/lib/server/assessment/types'
  *   - "tool-research"        — tool lookup stage (Epic 2a)
  *   - "analysis-generation"  — LLM analysis stage (Epic 2a)
  *   - "gate-evaluation"      — GPT-5.5 gate check (Epic 2a)
- *   - "gate-human-assist"    — operator review flow (Epic 2b)
+ *   - "gate-human-assist"    — staff review flow (Epic 2b)
  */
 export interface StageJobMessage {
   type: 'pipeline:stage';
