@@ -24,6 +24,7 @@
     <div class="staff-nav-links">
       <a href="/staff/dashboard" data-nav="dashboard">📊 Dashboard</a>
       <a href="/staff/assessments" data-nav="assessments">📋 Command Console</a>
+      <a href="/staff/clients" data-nav="clients">👤 Clients</a>
       <a href="/staff/reports" data-nav="reports">📑 Reports</a>
       <a href="/staff/gates" data-nav="gates">🔬 Gates</a>
       <a href="/staff/human-assist" data-nav="human-assist">💬 Human Assist</a>
