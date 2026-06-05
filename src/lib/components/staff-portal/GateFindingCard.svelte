@@ -210,7 +210,7 @@
         <div class="confidence-bar">
           <div
             class="confidence-fill"
-            style="width: {Math.min(100, Math.max(0, Math.round(finding.confidence * 100)))}%"
+            style="transform: scaleX({Math.min(1, Math.max(0, finding.confidence))})"
             role="progressbar"
             aria-valuenow={Math.min(100, Math.max(0, Math.round(finding.confidence * 100)))}
             aria-valuemin="0"
@@ -414,7 +414,7 @@
   }
 
   .gate-finding-card.unresolved {
-    border-left: 4px solid var(--color-danger, #dc2626);
+    border: 1px solid var(--color-danger);
   }
 
   .gf-header {
@@ -472,7 +472,9 @@
     background: var(--color-accent);
     border-radius: 4px;
     height: 100%;
-    transition: width 300ms ease;
+    transform-origin: left center;
+    transition: transform 300ms ease-out;
+    will-change: transform;
   }
 
   .confidence-label {
@@ -494,7 +496,7 @@
   .gf-toggle-btn {
     background: none;
     border: none;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     cursor: pointer;
     font: inherit;
     font-size: 0.8125rem;
@@ -592,7 +594,7 @@
 
   .stale-label {
     font-size: 0.75rem;
-    color: var(--color-warning, #d97706);
+    color: var(--color-warning);
     font-style: italic;
   }
 
@@ -603,19 +605,19 @@
 
   .action-error {
     font-size: 0.8125rem;
-    color: var(--color-danger, #dc2626);
+    color: var(--color-danger);
     margin: 0;
     padding: 0.35rem 0.5rem;
-    background: var(--color-danger-bg, #fef2f2);
+    background: var(--color-danger-bg);
     border-radius: 4px;
   }
 
   .action-success {
     font-size: 0.8125rem;
-    color: var(--color-success, #059669);
+    color: var(--color-success);
     margin: 0;
     padding: 0.35rem 0.5rem;
-    background: var(--color-success-bg, #ecfdf5);
+    background: var(--color-success-bg);
     border-radius: 4px;
   }
 
@@ -659,7 +661,7 @@
 
   .form-select:focus,
   .form-textarea:focus {
-    border-color: var(--color-accent);
+    border-color: var(--color-accent-text);
     outline: 3px solid rgba(37, 99, 235, 0.2);
     outline-offset: 0;
   }
@@ -671,10 +673,10 @@
 
   .form-error {
     font-size: 0.8125rem;
-    color: var(--color-danger, #dc2626);
+    color: var(--color-danger);
     margin: 0;
     padding: 0.3rem 0.5rem;
-    background: var(--color-danger-bg, #fef2f2);
+    background: var(--color-danger-bg);
     border-radius: 4px;
   }
 

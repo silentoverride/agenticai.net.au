@@ -167,7 +167,7 @@
 
   .client-link {
     font-weight: 600;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
   }
 
@@ -190,7 +190,7 @@
   .risk-indicator {
     font-size: 0.72rem;
     font-weight: 700;
-    color: var(--color-danger, #c00);
+    color: var(--color-danger);
   }
 
   .row-owner,

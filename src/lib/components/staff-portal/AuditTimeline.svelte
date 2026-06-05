@@ -174,7 +174,7 @@
 
   .timeline-status.error {
     color: var(--color-danger);
-    background: var(--color-danger-bg, #fef2f2);
+    background: var(--color-danger-bg);
     border-radius: var(--radius);
   }
 

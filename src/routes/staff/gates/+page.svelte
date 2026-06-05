@@ -54,7 +54,7 @@
     retry: '#d97706',
     block: '#ef4444',
     escalate: '#dc2626',
-    human_assist: '#7c3aed'
+    human_assist: '#d97706'
   };
 
   async function fetchGates(resetCursor = true) {
@@ -357,7 +357,7 @@
   .reasoning-text {
     margin: 0.5rem 0 0;
     padding: 0.5rem;
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
     border-radius: var(--radius-sm);
     line-height: 1.5;
     font-size: 0.75rem;

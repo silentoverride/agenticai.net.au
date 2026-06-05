@@ -119,9 +119,8 @@
 
 <style>
   .decision-receipt {
-    background: var(--color-success-bg, #ecfdf5);
-    border: 1px solid var(--color-success, #059669);
-    border-left: 4px solid var(--color-success, #059669);
+    background: var(--color-success-bg);
+    border: 1px solid var(--color-success);
     border-radius: var(--radius, 8px);
     padding: 0.75rem 1rem;
     margin-top: 0.5rem;
@@ -137,13 +136,13 @@
   .receipt-heading {
     font-size: 0.8125rem;
     font-weight: 700;
-    color: var(--color-success, #065f46);
+    color: var(--color-success);
   }
 
   .dismiss-btn {
     background: none;
     border: none;
-    color: var(--color-success, #065f46);
+    color: var(--color-success);
     cursor: pointer;
     font-size: 1.25rem;
     line-height: 1;

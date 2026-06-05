@@ -359,7 +359,7 @@
 
   .breadcrumb a {
     font-size: 0.8125rem;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
   }
 
@@ -407,33 +407,33 @@
   }
 
   .state-banner.error {
-    background: var(--color-danger-bg, #fef2f2);
-    border: 1px solid var(--color-danger, #ef4444);
-    color: var(--color-danger, #b91c1c);
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger);
   }
 
   .state-banner.stale {
     background: var(--color-warning-bg, #fffbeb);
-    border: 1px solid var(--color-warning, #d97706);
-    color: var(--color-warning, #92400e);
+    border: 1px solid var(--color-warning);
+    color: var(--color-warning);
   }
 
   .state-banner.loading {
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
     border: 1px solid var(--color-line);
     color: var(--color-ink-muted);
   }
 
   .state-banner.degraded {
     background: var(--color-warning-bg, #fffbeb);
-    border: 1px dashed var(--color-warning, #d97706);
-    color: var(--color-warning, #92400e);
+    border: 1px dashed var(--color-warning);
+    color: var(--color-warning);
   }
 
   .retry-link {
     background: none;
     border: none;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: underline;
     cursor: pointer;
     font: inherit;
@@ -589,7 +589,7 @@
 
   .artifact-link {
     font-size: 0.8125rem;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
     font-weight: 500;
   }
@@ -600,7 +600,7 @@
 
   .artifact-available {
     font-size: 0.75rem;
-    color: var(--color-success, #059669);
+    color: var(--color-success);
   }
 
   .artifact-unavailable {
@@ -611,7 +611,7 @@
 
   .delivery-banner {
     background: var(--color-warning-bg, #fffbeb);
-    border: 1px solid var(--color-warning, #d97706);
+    border: 1px solid var(--color-warning);
     border-radius: var(--radius);
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
@@ -626,8 +626,8 @@
   /* ── Accessibility: viewport warning ── */
   .state-banner.viewport-warning {
     background: var(--color-warning-bg, #fffbeb);
-    border: 2px dashed var(--color-warning, #d97706);
-    color: var(--color-warning, #92400e);
+    border: 2px dashed var(--color-warning);
+    color: var(--color-warning);
   }
 
   /* ── Accessibility: focus indicators ── */

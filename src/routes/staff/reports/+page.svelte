@@ -2,6 +2,8 @@
   import { fade } from 'svelte/transition';
   import { Button, Badge, Card, CardContent, Input } from '$lib/components/ui';
   import type { PageData } from './$types';
+import { CircleX, Eye, Star } from '@lucide/svelte';
+import Dialog from '$lib/components/ui/dialog/Dialog.svelte';
 
   let { data } = $props();
 
@@ -47,6 +49,55 @@
 
   let loading = $state(false);
   let error = $state('');
+
+  // Admin deletion state
+  let selected = $state<Set<string>>(new Set());
+  let showDeleteConfirm = $state(false);
+  let isDeleting = $state(false);
+
+  const isAdmin = (data as any).role === 'admin';
+
+  async function deleteReports(ids: string[]) {
+    if (!ids.length) return;
+    isDeleting = true;
+    try {
+      const res = await fetch('/api/staff/reports/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ report_ids: ids })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Delete failed');
+      }
+      items = items.filter(r => !ids.includes(r.report_id));
+      selected.clear();
+      showDeleteConfirm = false;
+    } catch (e) {
+      error = e instanceof Error ? e.message : 'Failed to delete reports';
+    } finally {
+      isDeleting = false;
+    }
+  }
+
+  function toggleSelect(id: string) {
+    if (selected.has(id)) selected.delete(id);
+    else selected.add(id);
+    selected = new Set(selected);
+  }
+
+  function openBulkDelete() {
+    showDeleteConfirm = true;
+  }
+
+  function toggleSelectAll() {
+    if (selected.size === items.length) {
+      selected.clear();
+    } else {
+      items.forEach(r => selected.add(r.report_id));
+    }
+    selected = new Set(selected);
+  }
 
   // User-facing display statuses (not raw pipeline statuses)
   const DISPLAY_STATUS_OPTIONS = [
@@ -282,6 +333,14 @@
         max={todayStr()}
         title="To date"
       />
+
+      {#if isAdmin && selected.size > 0}
+        <button 
+          onclick={openBulkDelete}
+          style="border: none; background: none; color: #dc2626; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; margin-left: 0.5rem;">
+          <CircleX size={16} style="color: #dc2626" /> Delete Selected ({selected.size})
+        </button>
+      {/if}
       <Button onclick={loadReports} disabled={loading} variant="secondary">
         {loading ? 'Loading...' : 'Refresh'}
       </Button>
@@ -303,6 +362,12 @@
             <thead>
               <tr>
                 <th class="col-fav"></th>
+                {#if isAdmin}
+                  <th class="w-8">
+                    <input type="checkbox" checked={selected.size === items.length && items.length > 0} 
+                           onchange={toggleSelectAll} />
+                  </th>
+                {/if}
                 {#each columns as col}
                   <th
                     class="col-{col.key}"
@@ -316,6 +381,9 @@
                   </th>
                 {/each}
                 <th class="col-actions">Actions</th>
+                {#if isAdmin}
+                  <th class="w-8"></th>
+                {/if}
               </tr>
             </thead>
             <tbody>
@@ -328,9 +396,19 @@
                       onclick={() => toggleFavorite(row.report_id)}
                       title={isFavorite(row.report_id) ? 'Unpin report' : 'Pin report for quick access'}
                     >
-                      {isFavorite(row.report_id) ? '★' : '☆'}
+                      {#if isFavorite(row.report_id)}
+                        <Star size={16} style="color: #fbbf24; fill: #fbbf24;" />
+                      {:else}
+                        <Star size={16} style="color: #d1d5db;" />
+                      {/if}
                     </button>
                   </td>
+                  {#if isAdmin}
+                    <td>
+                      <input type="checkbox" checked={selected.has(row.report_id)} 
+                             onchange={() => toggleSelect(row.report_id)} />
+                    </td>
+                  {/if}
                   <td class="col-title">
                     <a href="/staff/assessments/{row.session_id}" class="report-link">
                       {displayTitle(row)}
@@ -354,12 +432,23 @@
                     {#if primaryAction(row)}
                       <a
                         href={primaryAction(row)!.href}
-                        class="action-btn action-{primaryAction(row)!.variant}"
+                        class="p-1 text-accent hover:opacity-75"
+                        title={primaryAction(row)!.label}
                       >
-                        {primaryAction(row)!.label}
+                        <Eye size={18} />
                       </a>
                     {/if}
                   </td>
+                  {#if isAdmin}
+                    <td class="text-right">
+                      <button 
+                        onclick={() => deleteReports([row.report_id])}
+                        style="border: none; background: none; padding: 4px; cursor: pointer;"
+                        title="Delete report">
+                        <CircleX size={18} style="color: #dc2626" />
+                      </button>
+                    </td>
+                  {/if}
                 </tr>
               {/each}
             </tbody>
@@ -395,6 +484,22 @@
   </Card>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<Dialog bind:open={showDeleteConfirm}>
+  <div class="card-header">
+    <h3 class="text-lg font-semibold">Confirm Deletion</h3>
+  </div>
+  <div class="card-content">
+    <p class="text-gray-600">Delete {selected.size} report(s)? This action cannot be undone.</p>
+  </div>
+  <div class="card-footer flex gap-3 justify-end">
+    <Button variant="outline" size="sm" onclick={() => showDeleteConfirm = false}>Cancel</Button>
+    <Button variant="danger" size="sm" onclick={() => deleteReports([...selected])} disabled={isDeleting}>
+      {isDeleting ? 'Deleting...' : 'Delete'}
+    </Button>
+  </div>
+</Dialog>
+
 <style>
   .reports-page {
     max-width: 1100px;
@@ -419,10 +524,10 @@
 
   .error-banner {
     padding: 0.75rem 1rem;
-    background: var(--color-danger-bg, #fef2f2);
-    border: 1px solid var(--color-danger, #ef4444);
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
     border-radius: var(--radius);
-    color: var(--color-danger, #b91c1c);
+    color: var(--color-danger);
     margin-bottom: 1rem;
   }
 
@@ -520,7 +625,7 @@
   }
 
   .reports-table tbody tr:hover {
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
   }
 
   .col-fav {
@@ -592,18 +697,18 @@
   }
 
   .action-btn.secondary {
-    background: var(--color-page-muted, #f3f4f6);
+    background: var(--color-page-muted);
     color: var(--color-ink);
     border: 1px solid var(--color-line);
   }
 
   .action-btn.warning {
-    background: var(--color-warning, #d97706);
+    background: var(--color-warning);
     color: #fff;
   }
 
   .report-link {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
     font-weight: 500;
   }

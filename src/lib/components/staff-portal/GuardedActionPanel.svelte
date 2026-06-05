@@ -464,7 +464,7 @@
 
   .blocked-hint {
     font-size: 0.75rem;
-    color: var(--color-danger, #dc2626);
+    color: var(--color-danger);
     margin: 0.25rem 0;
     width: 100%;
   }
@@ -531,7 +531,7 @@
 
   .form-select:focus,
   .form-textarea:focus {
-    border-color: var(--color-accent);
+    border-color: var(--color-accent-text);
     outline: 3px solid rgba(37, 99, 235, 0.2);
     outline-offset: 0;
   }
@@ -552,15 +552,15 @@
 
   .checkbox-label input[type="checkbox"] {
     margin-top: 0.15rem;
-    accent-color: var(--color-accent);
+    accent-color: var(--color-accent-text);
   }
 
   .form-error {
     font-size: 0.8125rem;
-    color: var(--color-danger, #dc2626);
+    color: var(--color-danger);
     margin: 0;
     padding: 0.3rem 0.5rem;
-    background: var(--color-danger-bg, #fef2f2);
+    background: var(--color-danger-bg);
     border-radius: 4px;
   }
 
@@ -582,19 +582,19 @@
 
   .general-error {
     font-size: 0.8125rem;
-    color: var(--color-danger, #dc2626);
+    color: var(--color-danger);
     margin: 0;
     padding: 0.35rem 0.5rem;
-    background: var(--color-danger-bg, #fef2f2);
+    background: var(--color-danger-bg);
     border-radius: 4px;
   }
 
   .general-success {
     font-size: 0.8125rem;
-    color: var(--color-success, #059669);
+    color: var(--color-success);
     margin: 0;
     padding: 0.35rem 0.5rem;
-    background: var(--color-success-bg, #ecfdf5);
+    background: var(--color-success-bg);
     border-radius: 4px;
   }
 

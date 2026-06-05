@@ -204,7 +204,7 @@
   }
 
   .breadcrumbs a {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
   }
 
@@ -240,7 +240,7 @@
   .stale-warning {
     padding: 0.5rem 1rem;
     background: var(--color-warning-light, #fff8e1);
-    border: 1px solid var(--color-warning, #f0ad4e);
+    border: 1px solid var(--color-warning);
     border-radius: 6px;
     font-size: 0.82rem;
   }
@@ -273,7 +273,7 @@
   }
 
   .filter-input:focus {
-    border-color: var(--color-accent);
+    border-color: var(--color-accent-text);
     box-shadow: 0 0 0 2px var(--color-accent-light, rgba(0,102,204,0.15));
   }
 
@@ -297,11 +297,11 @@
   }
 
   .error-message {
-    color: var(--color-danger, #c00);
+    color: var(--color-danger);
   }
 
   .filter-empty {
-    border-color: var(--color-warning, #f0ad4e);
+    border-color: var(--color-warning);
   }
 
   /* Priority groups */
