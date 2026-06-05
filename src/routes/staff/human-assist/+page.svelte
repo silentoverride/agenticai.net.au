@@ -200,10 +200,10 @@
 
   .error-banner {
     padding: 0.75rem 1rem;
-    background: var(--color-danger-bg, #fef2f2);
-    border: 1px solid var(--color-danger, #ef4444);
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
     border-radius: var(--radius);
-    color: var(--color-danger, #b91c1c);
+    color: var(--color-danger);
     margin-bottom: 1rem;
   }
 

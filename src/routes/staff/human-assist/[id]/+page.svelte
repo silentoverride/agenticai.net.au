@@ -373,15 +373,15 @@
   }
 
   .error-banner {
-    background: var(--color-danger-bg, #fef2f2);
-    border: 1px solid var(--color-danger, #ef4444);
-    color: var(--color-danger, #b91c1c);
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger);
   }
 
   .success-banner {
-    background: var(--color-success-bg, #f0fdf4);
-    border: 1px solid var(--color-success, #059669);
-    color: var(--color-success, #065f46);
+    background: var(--color-success-bg);
+    border: 1px solid var(--color-success);
+    color: var(--color-success);
   }
 
   .loading, .no-data {
@@ -423,7 +423,7 @@
   .reasoning-block {
     margin-top: 1rem;
     padding: 1rem;
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
     border-radius: var(--radius);
   }
 
@@ -470,7 +470,7 @@
 
   .action-option:has(input:checked) {
     border-color: var(--color-accent);
-    background: var(--color-accent-bg, #eff6ff);
+    background: var(--color-accent-bg);
   }
 
   .action-option input {
@@ -516,7 +516,7 @@
 
   .confirm-box {
     padding: 1rem;
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
   }
@@ -548,7 +548,7 @@
   .completion-notes {
     margin-top: 1rem;
     padding: 0.75rem;
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
     border-radius: var(--radius);
   }
 

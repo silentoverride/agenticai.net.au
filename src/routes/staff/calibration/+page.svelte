@@ -427,8 +427,8 @@
   }
 
   .tag-btn.clear {
-    border-color: var(--color-danger, #ef4444);
-    color: var(--color-danger, #ef4444);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
   }
 
   .actions {
@@ -467,7 +467,7 @@
     margin-top: 0.85rem;
     overflow: hidden;
     border-radius: 999px;
-    background: var(--color-page-muted, #f3f4f6);
+    background: var(--color-page-muted);
   }
 
   .progress-fill {
@@ -480,10 +480,10 @@
   .error-banner {
     margin-top: 1rem;
     padding: 0.75rem 1rem;
-    background: var(--color-danger-bg, #fef2f2);
-    border: 1px solid var(--color-danger, #ef4444);
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
     border-radius: var(--radius);
-    color: var(--color-danger, #b91c1c);
+    color: var(--color-danger);
   }
 
   .results-section {
@@ -507,7 +507,7 @@
     flex-direction: column;
     align-items: center;
     padding: 1rem;
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
     border-radius: var(--radius);
   }
 
@@ -518,7 +518,7 @@
   }
 
   .stat-value.pass {
-    color: var(--color-success, #059669);
+    color: var(--color-success);
   }
 
   .stat-value.code {
@@ -560,7 +560,7 @@
   }
 
   .case-header:hover {
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
   }
 
   .case-status {
@@ -569,7 +569,7 @@
   }
 
   .case-status:has(+ .case-id) {
-    color: var(--color-success, #059669);
+    color: var(--color-success);
   }
 
   .case-id {
@@ -597,7 +597,7 @@
     padding: 0.75rem;
     margin-bottom: 0.5rem;
     border-radius: var(--radius);
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
   }
 
   .gate-result:last-child {
@@ -605,7 +605,7 @@
   }
 
   .gate-result.gate-failed {
-    background: var(--color-danger-bg, #fef2f2);
+    background: var(--color-danger-bg);
   }
 
   .gate-header {
@@ -635,7 +635,7 @@
   }
 
   .gate-verdicts .wrong {
-    color: var(--color-danger, #ef4444);
+    color: var(--color-danger);
   }
 
   .gate-reasoning {

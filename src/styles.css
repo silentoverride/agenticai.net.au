@@ -18,6 +18,12 @@
   --color-accent-dark: #60a5fa;
   --color-warm: #d97706;
   --color-success: #059669;
+  --color-danger: #b91c1c; /* 5.91:1 on white — added 2026-06-05 to align assessment status page + staff portal to one public token */
+  --color-warning: #d97706; /* added 2026-06-05 — matches existing --color-warm; lets staff portal drop hard-coded fallbacks */
+  --color-page-muted: #f1f5f9; /* added 2026-06-05 — alt surface tint, matches --color-panel-soft; lets staff portal drop hard-coded fallbacks */
+  --color-danger-bg: #fef2f2; /* added 2026-06-05 — red-50 tint for danger callout backgrounds */
+  --color-success-bg: #f0fdf4; /* added 2026-06-05 — green-50 tint for success callout backgrounds */
+  --color-accent-bg: #eff6ff; /* added 2026-06-05 — blue-50 tint for accent callout backgrounds (same value as --color-accent-light) */
   --color-header: rgba(255, 255, 255, 0.88);
 
   --dark-bg: #0f172a;

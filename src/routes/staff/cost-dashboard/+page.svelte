@@ -355,7 +355,7 @@
   }
 
   .period-btn:hover {
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
   }
 
   .period-btn.active {
@@ -396,14 +396,14 @@
     flex-direction: column;
     align-items: center;
     padding: 1.25rem;
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
   }
 
   .stat-card.accent {
     border-color: var(--color-accent);
-    background: var(--color-accent-bg, #eff6ff);
+    background: var(--color-accent-bg);
   }
 
   .stat-value {
@@ -556,7 +556,7 @@
   }
 
   .vc-header:hover {
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
   }
 
   .vc-total {

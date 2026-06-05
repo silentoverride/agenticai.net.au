@@ -60,17 +60,17 @@
   };
 
   const STATUS_COLORS: Record<string, string> = {
-    completed: 'var(--color-success, #059669)',
-    ready: 'var(--color-success, #059669)',
-    delivered: 'var(--color-success, #059669)',
-    queued: 'var(--color-accent, #2563eb)',
-    generating: 'var(--color-accent, #2563eb)',
-    pending: 'var(--color-accent, #2563eb)',
-    delayed: 'var(--color-warning, #d97706)',
-    human_assist: 'var(--color-warning, #d97706)',
-    failed: 'var(--color-danger, #ef4444)',
-    error: 'var(--color-danger, #ef4444)',
-    retry: 'var(--color-warning, #d97706)'
+    completed: 'var(--color-success)',
+    ready: 'var(--color-success)',
+    delivered: 'var(--color-success)',
+    queued: 'var(--color-accent)',
+    generating: 'var(--color-accent)',
+    pending: 'var(--color-accent)',
+    delayed: 'var(--color-warning)',
+    human_assist: 'var(--color-warning)',
+    failed: 'var(--color-danger)',
+    error: 'var(--color-danger)',
+    retry: 'var(--color-warning)'
   };
 
   const VERDICT_COLORS: Record<string, string> = {
@@ -186,7 +186,7 @@
         <span class="stat-label">Assessments Today</span>
       </div>
       <div class="stat-card">
-        <span class="stat-value" style="color: var(--color-success, #059669)">{data.today.completed}</span>
+        <span class="stat-value" style="color: var(--color-success)">{data.today.completed}</span>
         <span class="stat-label">Completed</span>
       </div>
       <div class="stat-card">
@@ -194,7 +194,7 @@
         <span class="stat-label">In Progress</span>
       </div>
       <div class="stat-card">
-        <span class="stat-value" style="color: var(--color-danger, #ef4444)">{data.today.failed}</span>
+        <span class="stat-value" style="color: var(--color-danger)">{data.today.failed}</span>
         <span class="stat-label">Failed</span>
       </div>
       <div class="stat-card">
@@ -394,10 +394,10 @@
 
   .error-banner {
     padding: 0.75rem 1rem;
-    background: var(--color-danger-bg, #fef2f2);
-    border: 1px solid var(--color-danger, #ef4444);
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
     border-radius: var(--radius);
-    color: var(--color-danger, #b91c1c);
+    color: var(--color-danger);
     margin-bottom: 1rem;
   }
 
@@ -425,7 +425,7 @@
     flex-direction: column;
     align-items: center;
     padding: 1.25rem;
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
   }
@@ -461,7 +461,7 @@
     padding: 1rem;
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
   }
 
   .gate-card h3 {
@@ -564,7 +564,7 @@
   }
 
   .assessments-table tr:hover td {
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
   }
 
   .mono {
@@ -585,7 +585,7 @@
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
-    background: var(--color-page-muted, #f9fafb);
+    background: var(--color-page-muted);
   }
 
   .queue-count {
