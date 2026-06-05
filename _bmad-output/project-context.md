@@ -1,9 +1,12 @@
 ---
 project_name: 'agenticai-net-au'
 user_name: 'Lorin'
-date: '2026-05-24'
-sections_completed: ['discovery', 'technology_stack', 'language_specific', 'framework_specific', 'testing', 'code_organization']
+date: '2026-06-05'
+sections_completed: ['discovery', 'technology_stack', 'language_specific', 'framework_specific', 'testing', 'code_organization', 'design_skill_integration']
+status: 'complete'
 existing_patterns_found: 14
+rule_count: 85
+optimized_for_llm: true
 input_sources:
   - package.json
   - tsconfig.json
@@ -19,12 +22,16 @@ input_sources:
   - src/lib/server/operator-auth.ts
   - src/lib/styles/DESIGN_SYSTEM.md
   - src/lib/styles/design-tokens.ts
+  - src/styles.css
   - src/routes/api/operator/human-assist/+server.ts
   - src/routes/portal/+layout.svelte
   - src/routes/operator/gates/+page.svelte
+  - src/routes/staff/**
+  - src/lib/components/staff-portal/**
   - tests/**/*.test.ts
   - migrations/*.sql
   - workers/queue-consumer.ts
+  - .pi/skills/impeccable/SKILL.md
 ---
 
 # Project Context for AI Agents
@@ -126,3 +133,34 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - Queue consumer code belongs under `workers/**`; add new queue stages as separate files in `workers/stages/` and register them in `workers/stages/index.ts`.
 - Keep Worker stage handlers independent and serializable: stage input/output should be plain data, with dependencies passed via Worker `env`/`ctx`.
 - Tests should mirror feature areas under `tests/<area>/*.test.ts`; avoid placing test-only helpers in production modules unless they are useful typed factories.
+
+### Design System & Skill Integration
+
+- The public site's design tokens are defined in `src/styles.css` and documented in `src/lib/styles/design-tokens.ts`. The `:root` block now exposes: `--color-warning: #d97706`, `--color-page-muted: #f1f5f9`, `--color-danger: #b91c1c`, `--color-danger-bg: #fef2f2`, `--color-success-bg: #f0fdf4`, `--color-accent-bg: #eff6ff` (added 2026-06-05). New shared UI must resolve colors through these tokens, not via `var(--color-*, #hex)` fallback patterns.
+- The `/staff/*` routes and `/lib/components/staff-portal/*` are still on a separate, hard-coded design system (6+ undefined tokens including `--color-text`, `--color-text-muted`, `--color-border`, `--color-bg`; ~30+ hard-coded colors; do not respond to `data-theme=dark`). New staff-portal code must either (a) include a token-migration story, or (b) explicitly document the divergence; do not silently extend the hard-coded palette.
+- For any new page or major UI change, use the `impeccable` skill (`.pi/skills/impeccable/SKILL.md`). Required setup: run `node .pi/skills/impeccable/scripts/context.mjs` once per session, read the matching `reference/<command>.md` for the chosen sub-command, and read the `register` reference (`reference/brand.md` for marketing/landing surfaces, `reference/product.md` for app/admin/tool surfaces).
+- Canonical Impeccable chain for a new page: `/impeccable shape` → `/impeccable craft` → `/impeccable layout` → `/impeccable adapt` → `/impeccable live` → `/impeccable critique` → `/impeccable polish` → `/impeccable audit`. `/impeccable audit` is the acceptance gate (0 axe-core violations on desktop 1280 + mobile 393; touch targets ≥ 44px on mobile; mobile-adapted nav sheet pattern).
+- P0 absolute bans on new UI: no `border-left` side-stripes (tag pills, split sections, dark columns, CTA panels); no decorative gradients (section headings, opportunity maps, lane tracks); no banned hex literals (purple `#7c3aed`, indigo `#6366f1`) — use `var(--color-*)` tokens.
+- AI-tell patterns to avoid: big-number hero metric (e.g. `8.5 hrs / week`) + 3 progress bars, 4 stacked uppercase eyebrows, ranked "quick wins" lists, editorial-typographic lane scaffolding.
+- Verification rule: read the changed region back after every edit; do not trust the tool's success message alone (lesson from the 2026-06-05 audit where a prior polish session's edit claim was a false success).
+- For new pages introduced mid-sprint, route the change through the `bmad-correct-course` skill first; the Sprint Change Proposal's Section 4 should name the Impeccable sub-command chain and the P0/AI-tell/token rules as acceptance criteria.
+
+---
+
+## Usage Guidelines
+
+**For AI Agents:**
+
+- Read this file before implementing any code in this project.
+- Follow all rules exactly as documented; when in doubt, prefer the more restrictive option.
+- When the `impeccable` skill is active, its required setup (`context.mjs` + `reference/<command>.md` + `register` reference) supersedes this file's design rules only where the skill explicitly says so.
+- Update this file if a new pattern emerges that future agents would otherwise miss.
+
+**For Humans:**
+
+- Keep this file lean and focused on agent needs; remove rules that become obvious over time.
+- Update `date`, `rule_count`, and `input_sources` whenever a section changes.
+- Bump `rule_count` and re-scan after any audit/polish pass that codifies new bans or tokens.
+- Review quarterly for outdated rules (especially version pins and skill-version references).
+
+Last Updated: 2026-06-05

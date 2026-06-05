@@ -466,3 +466,16 @@ Non-blocking follow-ups for architecture and implementation:
 ## 11. Assumptions Index
 
 - §6 NFR-5 — WCAG 2.1 AA is the accessibility baseline for internal staff surfaces.
+
+## 12. Post-MVP Track — Clients CRM (added 2026-06-05)
+
+Once the MVP Staff Portal surfaces (Epics 1–5) are stable, the next product track extends the Staff Portal with a full Clients CRM module. This adds:
+
+- **Clients List** — searchable, sortable, paginated table of all client records. Supports "New Client" creation and row-level navigation to the full record.
+- **Client Record view** — single-client surface with four sections:
+  1. **Company and Demographic Information** — company name, trading name, primary contact, job title, email, phones, website, billing and shipping addresses, tax ID, industry, company size, source of lead, assigned staff member, client status, tags/custom fields. Full create / update / save / cancel.
+  2. **Files** — R2-backed file management (transaction recordings, assessment reports, contracts, invoices, signed documents, notes). Multi-select with category and description; upload, view/download, delete with confirmation. Empty state guidance.
+  3. **Interaction Log** — chronological feed of every interaction (phone, email, meeting, work, notes, status updates). Manual entry; view / edit / delete; filter by type, staff, date range.
+  4. **Tasks and Appointments** — list of jobs, tasks, and appointments. Create / edit / complete / reschedule / delete. Visual distinction between completed and open. Empty state for clients with no scheduled work.
+
+This is captured in the Sprint Change Proposal 2026-06-05 and tracked as **Epic 11: Clients CRM** (12 stories). Implementation follows the same rigor as MVP: state-model-first, governed by audit, role-gated to admin/staff, never exposed to clients.

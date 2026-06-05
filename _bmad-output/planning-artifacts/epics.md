@@ -1356,3 +1356,227 @@ So that optimization results are trustworthy rather than coincidental.
 **When** the audit report is reviewed
 **Then** optimization experiments are gated until trace requirements are met
 **And** a phased trace improvement plan is included with the audit.
+
+---
+
+## Epic 11: Clients CRM
+
+**Triggered by:** Sprint Change Proposal 2026-06-05-clients-crm-page
+**Phase:** Post-MVP Track
+**Goal:** Extend the Staff Portal with a full Clients CRM surface. Provide a Clients List and per-client record with four editable sections (Company/Demographic, Files, Interaction Log, Tasks/Appointments). Integrate with the existing ClientProfile and Command Center.
+
+### Story 11.1: Clients Data Model and Migration
+
+As a staff platform engineer,
+I want a normalized `clients` table with full demographic fields and proper indexes,
+So that the Staff Portal can store and query client records efficiently.
+
+**Acceptance Criteria:**
+
+**Given** the existing D1 schema has only `users` (clerk_id, email, name, phone, created_at) and `user_reports`
+**When** the migration 0025_clients_crm.sql runs
+**Then** a new `clients` table is created with: id (TEXT PK), clerk_user_id (nullable FK to users.clerk_id), company_name, trading_name, primary_contact_name, job_title, email, phone, secondary_phone, website, billing_address, shipping_address, tax_id, industry, company_size, lead_source, assigned_staff_id, status, tags (JSON array), custom_fields (JSON), created_at, updated_at
+**And** indexes on: company_name, email, status, assigned_staff_id, clerk_user_id
+**And** 4 supporting tables are created: `client_files`, `client_interactions`, `client_tasks`, `client_tags` (or inlined into clients.tags JSON)
+**And** the migration is idempotent and runs cleanly on local D1 + production
+
+**Given** a client is later associated with a Clerk user via clerk_user_id
+**When** the user creates an assessment
+**Then** the assessment's client_id can resolve back to the clients record for the Client Profile aggregation
+
+### Story 11.2: Clients Repository and Service Layer
+
+As a staff backend engineer,
+I want a repository + service pair for clients with audit logging and RBAC,
+So that the API layer has a clean, testable surface for CRUD.
+
+**Acceptance Criteria:**
+
+**Given** the `clients` table exists
+**When** a service call is made (create, update, list, get, delete)
+**Then** the operation is logged in `staff_audit_events` with action type, actor, target, and metadata
+**And** list operations support filters: status, assigned_staff_id, search across company_name/contact/email/phone/tags
+**And** pagination is server-side with limit/offset and total count returned
+**And** unit tests cover happy path, validation errors, and RBAC denials
+
+### Story 11.3: Client Files Subsystem (R2-Backed)
+
+As a staff operator,
+I want to upload, list, view, and delete files associated with a client,
+So that I have a single place for transaction recordings, contracts, invoices, and notes.
+
+**Acceptance Criteria:**
+
+**Given** a client exists
+**When** I POST a multipart upload to `/api/staff/clients/:clientId/files` with file, category, optional description
+**Then** the file is stored in R2 with a per-client key prefix (e.g. `clients/{clientId}/{fileId}-{filename}`)
+**And** a `client_files` row is created with file_name, file_type, category, size, uploaded_by, uploaded_at, r2_key, description
+**And** mime type and size (max 10MB MVP) are validated server-side
+
+**Given** a client has files
+**When** I GET `/api/staff/clients/:clientId/files`
+**Then** the response lists all files with the metadata above
+
+**Given** I have files selected
+**When** I POST `/api/staff/clients/:clientId/files/delete` with a list of file IDs
+**Then** confirmation is required and the files are removed from R2 and the `client_files` table
+
+### Story 11.4: Interaction Log
+
+As a staff operator,
+I want to log every interaction with a client (phone, email, meeting, work, notes, status updates) and view/edit/delete past entries,
+So that I have a complete chronological record of client engagement.
+
+**Acceptance Criteria:**
+
+**Given** a client exists
+**When** I POST `/api/staff/clients/:clientId/interactions` with type, summary, occurred_at, optional linked file/task IDs
+**Then** a `client_interactions` row is created and the response includes the new entry
+
+**Given** interactions exist
+**When** I GET the same endpoint with filters (type, staff, date range)
+**Then** only matching interactions are returned in reverse-chronological order
+
+**Given** an interaction exists
+**When** I PATCH or DELETE it
+**Then** the change is reflected and audit-logged
+
+### Story 11.5: Tasks and Appointments
+
+As a staff operator,
+I want to create, edit, complete, reschedule, and delete tasks and appointments for a client,
+So that scheduled work is visible and trackable.
+
+**Acceptance Criteria:**
+
+**Given** a client exists
+**When** I POST `/api/staff/clients/:clientId/tasks` with type (task/appointment), title, due_at, assigned_staff_id, status, priority, description
+**Then** a `client_tasks` row is created and returned
+
+**Given** a task exists
+**When** I PATCH it (title, due_at for reschedule, status, priority, description)
+**Then** the change is reflected and audit-logged
+
+**Given** a task is completed
+**When** I PATCH status=completed
+**Then** completed_at is set and the UI renders it in muted/disabled style
+
+**Given** no tasks exist for a client
+**Then** the empty state shows "No scheduled work for this client."
+
+### Story 11.6: Clients List View
+
+As a staff operator,
+I want a paginated, searchable, sortable table of all clients,
+So that I can find a specific client and create new ones.
+
+**Acceptance Criteria:**
+
+**Given** I navigate to `/staff/clients`
+**Then** I see a table with columns: Company, Primary Contact, Email, Phone, Status, Tags, Last Interaction, Created
+**And** a search field at the top filters across company_name, primary_contact_name, email, phone, client_id, tags, status
+**And** columns are sortable (click header)
+**And** pagination is server-side (25 rows per page)
+**And** a "New Client" button is visible at the top right
+**And** each row can be clicked to open the record, OR has an explicit "Open" action
+**And** the empty state shows "No clients yet. Add your first."
+
+**When** I click "New Client"
+**Then** a blank record form opens
+
+### Story 11.7: Client Record View — Shell and Navigation
+
+As a staff operator,
+I want a single page for a client's full record with smooth navigation between the four sections,
+So that I can see all context in one place.
+
+**Acceptance Criteria:**
+
+**Given** I navigate to `/staff/clients/[clientId]`
+**Then** I see a header (Company Name, Status badge, breadcrumb Staff › Clients › {Name})
+**And** a sub-nav with 4 tabs/sections: Company & Demographics, Files, Interactions, Tasks
+**And** clicking a tab scrolls to (or activates) the corresponding section
+**And** browser back/forward respects the section state
+
+### Story 11.8: Section 1 — Company and Demographic Editor
+
+As a staff operator,
+I want to create, edit, and save a client's full company and demographic record,
+So that I have a complete CRM view of who the client is.
+
+**Acceptance Criteria:**
+
+**Given** I open the Company & Demographics section
+**Then** I see a form with fields: company_name, trading_name, primary_contact_name, job_title, email, phone, secondary_phone, website, billing_address, shipping_address, tax_id, industry, company_size, lead_source, assigned_staff_member, client_status, tags
+**And** form validation prevents save with required-field violations
+**And** clear Save and Cancel actions exist
+**And** Cancel discards changes and reverts to the persisted record
+
+**When** I click "New Client" from the list and submit the form
+**Then** the client is created and I land on the new record's view
+
+### Story 11.9: Section 2 — Files
+
+As a staff operator,
+I want to manage files for a client (upload, list, view/download, multi-select delete with confirmation),
+So that I can keep all client-related documents in one place.
+
+**Acceptance Criteria:**
+
+**Given** I open the Files section
+**Then** I see a table of files (file name, type, category, size, uploaded by, uploaded at)
+**And** a "Upload file" button opens a dialog with category dropdown and description field
+**And** rows have a checkbox for multi-select
+**And** a "Delete selected" button is enabled when ≥1 is selected and shows a confirmation dialog
+**And** each file has a "View" link that opens/downloads it
+**And** the empty state shows "No files for this client. Upload your first."
+
+### Story 11.10: Section 3 — Interaction Log
+
+As a staff operator,
+I want to add, view, edit, and delete interaction entries and filter them,
+So that I have a complete chronological log of client engagement.
+
+**Acceptance Criteria:**
+
+**Given** I open the Interactions section
+**Then** I see entries in reverse-chronological order, each showing date/time, type, staff, summary, linked files/tasks
+**And** a "Log interaction" button opens an inline form (type dropdown, summary, date/time)
+**And** filters at the top support type, staff member, and date range
+**And** each entry has View / Edit / Delete actions
+**And** the empty state shows "No interactions logged yet."
+
+### Story 11.11: Section 4 — Tasks and Appointments
+
+As a staff operator,
+I want to create, edit, complete, reschedule, and delete tasks and appointments for a client,
+So that scheduled work is visible and trackable.
+
+**Acceptance Criteria:**
+
+**Given** I open the Tasks section
+**Then** I see a list of items with title, type (task/appointment), due date/time, assigned staff, status, priority, short description
+**And** completed items are visually distinct (muted, struck through, or similar)
+**And** each item has Edit, Complete (toggle), Reschedule, Delete actions
+**And** a "New task" / "New appointment" button opens an inline form
+**And** the empty state shows "No scheduled work for this client."
+
+### Story 11.12: Integration — Command Center and Existing ClientProfile
+
+As a staff operator,
+I want the new Clients CRM to integrate with the existing Command Center and ClientProfile,
+So that the navigation feels coherent and existing surfaces stay useful.
+
+**Acceptance Criteria:**
+
+**Given** the staff nav is shown
+**When** I view the staff nav
+**Then** a "Clients" entry is added (visible to admin + staff)
+
+**Given** the existing ClientProfile (Epic 3) shows follow-ups, meeting brief, commercial step
+**When** a client has CRM data (files, interactions, tasks)
+**Then** the ClientProfile shows a "View full client record" link that opens `/staff/clients/[clientId]`
+
+**Given** the Command Center (Epic 2) shows priority work
+**When** a client has overdue tasks or recent interactions
+**Then** those may be surfaced in the Command Center (out of scope for v1, noted as future work)

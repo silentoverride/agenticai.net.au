@@ -12,6 +12,9 @@ source: "_bmad-output/brainstorming/brainstorming-session-2026-05-23-120000.md"
 
 Agentic AI needs a Staff Portal that gives internal staff reliable operational control over client assessments, report review, meeting preparation, and follow-up commitments. The first useful version should not become a full CRM, sales cockpit, or governance suite. Its job is narrower and more important: make report delivery safe, visible, and accountable.
 
+> **Post-MVP Amendment (2026-06-05, Sprint Change Proposal 2026-06-05-clients-crm-page):**
+> The CRM carve-out above is the *first* version only. Once the Staff Portal MVP lands (Epics 1–5: report review, command center, client profile, follow-ups, meeting brief, commercial continuity), the next track — a Clients CRM module — becomes the second version. The CRM module adds: a Clients List, full Client Records (company + demographic + files + interaction log + tasks/appointments), and integration with the existing surfaces. See [sprint-change-proposal-2026-06-05-clients-crm-page.md](../sprint-change-proposal-2026-06-05-clients-crm-page.md) for the full proposal, data model, and 12-story Epic 11 breakdown.
+
 The MVP should be built state-model-first. Staff need to see where a report, gate finding, follow-up, or meeting brief sits in its lifecycle; understand what is blocking progress; take only valid next actions; and leave an audit trail. The 4-week MVP should prioritize Human Review reliability over growth workflows. First make report delivery safe. Then make meetings useful. Then make upsell systematic.
 
 ## Problem and Response
