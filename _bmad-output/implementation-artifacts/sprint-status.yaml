@@ -138,17 +138,17 @@ development_status:
   # Interaction Log, Tasks/Appointments). 4 new tables, 16+ new API
   # endpoints, 2 new SvelteKit route trees. See
   # _bmad-output/planning-artifacts/sprint-change-proposal-2026-06-05-clients-crm-page.md
-  epic-11: backlog
-  11-1-clients-data-model-migration: backlog
-  11-2-clients-repository-service-layer: backlog
-  11-3-client-files-r2-subsystem: backlog
-  11-4-interaction-log: backlog
-  11-5-tasks-and-appointments: backlog
-  11-6-clients-list-view: backlog
-  11-7-client-record-shell-and-nav: backlog
-  11-8-section-1-company-demographic-editor: backlog
-  11-9-section-2-files: backlog
-  11-10-section-3-interaction-log: backlog
-  11-11-section-4-tasks-appointments: backlog
+  epic-11: in-progress
+  11-1-clients-data-model-migration: done
+  11-2-clients-repository-service-layer: done
+  11-3-client-files-r2-subsystem: done
+  11-4-interaction-log: done
+  11-5-tasks-and-appointments: done
+  11-6-clients-list-view: done
+  11-7-client-record-shell-and-nav: done
+  11-8-section-1-company-demographic-editor: done
+  11-9-section-2-files: done
+  11-10-section-3-interaction-log: done
+  11-11-section-4-tasks-appointments: done
   11-12-integration-command-center-and-existing-client-profile: backlog
   epic-11-retrospective: optional
