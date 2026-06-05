@@ -71,8 +71,10 @@ export async function uploadClientFile(
   const safeName = ctx.file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 200);
   const r2Key = `clients/${ctx.clientId}/${id}-${safeName}`;
 
-  // Upload to R2
-  await ctx.r2.put(r2Key, ctx.file.stream(), {
+  // Upload to R2. Use arrayBuffer() to get a fixed-length Uint8Array
+  // (R2.put with a Web ReadableStream requires a known length).
+  const body = new Uint8Array(await ctx.file.arrayBuffer());
+  await ctx.r2.put(r2Key, body, {
     httpMetadata: { contentType: ctx.file.type }
   });
 

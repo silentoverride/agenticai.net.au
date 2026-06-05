@@ -42,16 +42,30 @@ export const POST: RequestHandler = async ({ params, request, locals, platform }
     description: form.get('description') ?? null
   });
 
-  const dto = await uploadClientFile(db, {
-    r2,
-    actorId,
-    clientId: params.clientId,
-    file,
-    category: meta.category,
-    description: meta.description ?? null
-  });
+  try {
+    const dto = await uploadClientFile(db, {
+      r2,
+      actorId,
+      clientId: params.clientId,
+      file,
+      category: meta.category,
+      description: meta.description ?? null
+    });
 
-  // Strip r2Key from public response
-  const { r2Key, ...publicDto } = dto;
-  return json(publicDto, { status: 201 });
+    // Strip r2Key from public response
+    const { r2Key, ...publicDto } = dto;
+    return json(publicDto, { status: 201 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Upload failed';
+    // Validation errors come back as 400; everything else 500
+    if (
+      message.includes('limit') ||
+      message.includes('not allowed') ||
+      message.includes('empty') ||
+      message.includes('not found')
+    ) {
+      throw error(400, message);
+    }
+    throw e;
+  }
 };
