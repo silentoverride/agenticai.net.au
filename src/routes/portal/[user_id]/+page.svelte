@@ -353,10 +353,10 @@
   .badge-amber { background: #fff8e1; color: #f57f17; }
   .badge-blue { background: #e3f2fd; color: #1565c0; }
   .badge-red { background: #ffebee; color: #c62828; }
-  .badge-purple { background: #f3e5f5; color: #6a1b9a; }
+  .badge-purple { background: #e3f2fd; color: #1565c0; } /* re-skinned to blue — purple is a banned brand color */
   .assessment-cta {
     display: inline-block;
-    background: #0066ff;
+    background: var(--color-accent);
     color: white;
     padding: 0.3rem 0.75rem;
     border-radius: 6px;
@@ -365,15 +365,15 @@
     font-weight: 500;
   }
   .assessment-cta.muted {
-    background: #e0e0e0;
-    color: #888;
+    background: var(--color-panel-soft);
+    color: var(--color-muted);
     font-size: 0.8125rem;
     padding: 0.3rem 0.75rem;
     border-radius: 6px;
   }
   .assessment-receipt-link {
     font-size: 0.8125rem;
-    color: #667eea;
+    color: var(--color-accent-text);
     text-decoration: none;
     font-weight: 500;
   }

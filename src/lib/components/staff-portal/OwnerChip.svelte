@@ -89,7 +89,7 @@
     border-radius: 50%;
     background: var(--status-audit-bg);
     color: var(--status-audit-text);
-    font-size: 10px;
+    font-size: 0.7rem;
     font-weight: 700;
   }
 

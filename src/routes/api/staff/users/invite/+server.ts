@@ -1,5 +1,5 @@
 /**
- * POST /api/staff/staff/invite
+ * POST /api/staff/users/invite
  *
  * Create a Clerk invitation for a new staff member.
  * Admin-only. Requires a valid email and role (staff|admin).

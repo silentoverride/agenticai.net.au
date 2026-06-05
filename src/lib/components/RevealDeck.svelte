@@ -191,7 +191,9 @@
   }
 
   /* ── SVG Chart helpers ──────────────────────────────────── */
-  const CHART_COLORS = ['#2ea44f', '#0969da', '#bc4c00', '#7c3aed', '#e11d48', '#0d9488'];
+  // Brand-compatible data-viz palette: green, steel-blue, warm, teal, rose, amber
+  // No purple — purple is a banned brand color.
+  const CHART_COLORS = ['#2ea44f', '#0969da', '#bc4c00', '#0d9488', '#e11d48', '#d97706'];
 
   function chartBarWidth(value: number, max: number, width = 280): number {
     return max > 0 ? Math.max(4, Math.round((value / max) * width)) : 0;
@@ -577,8 +579,7 @@
     background: #fff;
   }
   :global(.reveal) {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-    color: #1a1a2e;
+    color: var(--color-ink, #0f172a);
   }
   :global(.reveal .slides) {
     text-align: center;
@@ -823,10 +824,10 @@
     from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .matrix-cell.quick-wins  { --cell-delay: 0s;   background: #e8f5e9; border-left: 4px solid #4caf50; }
-  .matrix-cell.major       { --cell-delay: 0.15s; background: #fff3e0; border-left: 4px solid #ff9800; }
-  .matrix-cell.filler      { --cell-delay: 0.3s;  background: #e3f2fd; border-left: 4px solid #2196f3; }
-  .matrix-cell.ignore      { --cell-delay: 0.45s; background: #ffebee; border-left: 4px solid #f44336; }
+  .matrix-cell.quick-wins  { --cell-delay: 0s;   background: #ecfdf5; border: 1px solid var(--color-success, #059669); }
+  .matrix-cell.major       { --cell-delay: 0.15s; background: #fffbeb; border: 1px solid var(--color-warm, #d97706); }
+  .matrix-cell.filler      { --cell-delay: 0.3s;  background: var(--color-accent-light, #eff6ff); border: 1px solid var(--color-accent-mid, #bfdbfe); }
+  .matrix-cell.ignore      { --cell-delay: 0.45s; background: #fef2f2; border: 1px solid var(--color-line, #e2e8f0); }
   .cell-title {
     font-weight: 600;
     font-size: 1.125rem;
@@ -1121,9 +1122,8 @@
   /* ====== Need Help Callout ====== */
   .need-help {
     background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(8px);
     border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 1.5rem 2rem;
     max-width: 600px;
     text-align: center;
@@ -1218,14 +1218,12 @@
     transform-origin: left center;
   }
   :global(.fragment.visible) .qw-bar-fill {
-    animation: barGrowDramatic 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    animation: barGrow 3.5s ease-out forwards;
     animation-delay: var(--bar-delay, 0s);
   }
-  @keyframes barGrowDramatic {
-    0%   { width: 0%;   transform: scaleY(0.6); opacity: 0.4; }
-    40%  { width: calc(var(--target-width) + 6%); transform: scaleY(1.15); opacity: 1; }
-    70%  { width: calc(var(--target-width) - 2%); transform: scaleY(0.95); }
-    100% { width: var(--target-width); transform: scaleY(1); opacity: 1; }
+  @keyframes barGrow {
+    0%   { width: 0%; opacity: 0.4; }
+    100% { width: var(--target-width); opacity: 1; }
   }
   .qw-bar-value {
     font-size: 0.875rem;
@@ -1268,7 +1266,7 @@
     transform-origin: left center;
   }
   :global(.fragment.visible) .fin-bar-fill {
-    animation: barGrowDramatic 3.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    animation: barGrow 3.5s ease-out forwards;
     animation-delay: var(--bar-delay, 0s);
   }
   .fin-bar-fill--green {

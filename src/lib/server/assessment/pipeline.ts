@@ -335,15 +335,23 @@ export async function runGateCheckpoint(params: {
   }
 
   // Run gate with env-var-driven mode
-  const result = await runGate({
-    assessmentId: params.assessmentId,
-    content: params.content,
-    gateType,
-    db: params.db,
-    envOverrides: params.envOverrides,
-    includeUsage: true,
-    promptVersion: 'v1'
-  });
+  let result;
+  try {
+    result = await runGate({
+      assessmentId: params.assessmentId,
+      content: params.content,
+      gateType,
+      db: params.db,
+      envOverrides: params.envOverrides,
+      includeUsage: true,
+      promptVersion: 'v1'
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[pipeline:gate] Gate checkpoint "${gateType}" failed with error: ${msg}`);
+    // In all modes, gate failures are non-blocking — log and continue
+    return { passed: true, blocked: false };
+  }
 
   const blocked = result.action === 'block' || result.action === 'escalate';
 

@@ -132,7 +132,7 @@
     width: 48px;
     height: 48px;
     border: 3px solid var(--color-line);
-    border-top-color: var(--color-accent);
+    border-top-color: var(--color-accent-text);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     margin: 0 auto 1rem;

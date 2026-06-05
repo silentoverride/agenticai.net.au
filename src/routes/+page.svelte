@@ -5,6 +5,8 @@
   import SummaryReview from '$lib/components/SummaryReview.svelte';
   import ResumePrompt from '$lib/components/ResumePrompt.svelte';
   import ServiceGrid from '$lib/components/ServiceGrid.svelte';
+  import TestimonialCard from '$lib/components/TestimonialCard.svelte';
+  import FaqAccordion from '$lib/components/FaqAccordion.svelte';
   import { metrics, reportSections, useCases, upsells, testimonials, faqItems } from '$lib/content';
   import type { ChatMessage } from '$lib/assessment/intake-script';
 
@@ -30,6 +32,15 @@
   }
 
   let orientationOpen = $state(false);
+  let ctaLoading = $state(false);
+  let returningUser = $state(false);
+
+  // Detect returning users who've completed an assessment before
+  $effect(() => {
+    try {
+      returningUser = localStorage.getItem('annie-assessment-completed') === 'true';
+    } catch {}
+  });
 
   // Check for existing incomplete session on page load
   $effect(() => {
@@ -64,6 +75,17 @@
     } catch {
       // Server unreachable, ignore resume
     }
+  }
+
+  function fastTrackIntake() {
+    ctaLoading = true;
+    sessionId = crypto.randomUUID();
+    chatSavedState = null;
+    // Small delay so the loading state is visible before phase transition
+    setTimeout(() => {
+      ctaLoading = false;
+      phase = 'chat';
+    }, 400);
   }
 
   function clearSavedSession() {
@@ -121,7 +143,21 @@
 
   function onConfirmComplete() {
     clearSavedSession();
+    // Mark assessment as completed for returning-user detection
+    try {
+      localStorage.setItem('annie-assessment-completed', 'true');
+    } catch {}
     phase = 'queued';
+  }
+
+  function metricQualifier(label: string): string {
+    const qualifiers: Record<string, string> = {
+      'assessment fee': 'One-time',
+      'assessment intake': 'At your own pace',
+      'report turnaround': 'From submission',
+      'employee teams served best': 'Typical range'
+    };
+    return qualifiers[label] || '';
   }
 </script>
 
@@ -197,28 +233,43 @@
 <main>
   <section class="hero">
     <div class="hero-copy">
-      <p class="eyebrow">AI business assessment</p>
+      <span class="eyebrow">AI Business Assessment</span>
       <h1>Find where AI can save your business time</h1>
       <p>
         Agentic AI reviews your workflows, tools, and daily bottlenecks through a 20–30 minute
         conversation with Annie, then delivers a practical report within 48 hours.
       </p>
       <div class="actions">
-        <button class="button primary" onclick={openOrientation}>
-          Start AI Business Assessment
-        </button>
+        <div class="actions-primary">
+          <button class="button primary" onclick={openOrientation} disabled={ctaLoading} aria-busy={ctaLoading}>
+            {#if ctaLoading}
+              <span class="spinner" aria-hidden="true"></span>
+              Preparing your assessment…
+            {:else}
+              Start AI Business Assessment
+            {/if}
+          </button>
+          <p class="hero-pricing">$1,200 AUD · 48-hour report · no-charge follow-up</p>
+        </div>
         <a class="button secondary" href="/services">See What You Get</a>
+        {#if returningUser}
+          <button class="fast-track-link" onclick={fastTrackIntake} disabled={ctaLoading}>
+            Done this before? Skip intro →
+          </button>
+        {/if}
       </div>
       <div class="metric-strip" aria-label="Assessment highlights">
         {#each metrics as metric}
           <div>
             <strong>{metric.value}</strong>
             <span>{metric.label}</span>
+            <small>{metricQualifier(metric.label)}</small>
           </div>
         {/each}
       </div>
     </div>
     <div class="hero-visual">
+      <h2 class="visually-hidden">What your assessment report looks like</h2>
       <div class="opportunity-map" aria-label="AI opportunity map preview">
         <div class="map-header">
           <div>
@@ -293,7 +344,6 @@
 
   <section class="section">
     <div class="section-heading">
-      <p class="eyebrow">The offer</p>
       <h2>A clear AI assessment for your actual business</h2>
     </div>
     <ServiceGrid />
@@ -301,7 +351,6 @@
 
   <section class="section split-section">
     <div>
-      <p class="eyebrow">What we look for</p>
       <h2>Repeated work, slow handoffs, and owner bottlenecks</h2>
       <p>
         Most small businesses do not need a machine learning project. They need someone to inspect
@@ -318,7 +367,6 @@
 
   <section class="report-section">
     <div class="report-copy">
-      <p class="eyebrow">The report</p>
       <h2>Specific recommendations, ranked by return</h2>
       <p>
         The assessment turns an intake conversation into a decision-ready report: pain points, quick wins,
@@ -352,9 +400,8 @@
 
   <section class="section">
     <div class="section-heading">
-      <p class="eyebrow">Beyond the assessment</p>
       <h2>Strategic AI opportunities identified in your report</h2>
-      <p>The assessment may highlight separate implementation opportunities. If you decide to progress them, Agentic AI can help scope, design, and build tailored solutions across process optimisation, workflow automation, knowledge systems, and custom AI agents.</p>
+      <p>The assessment may highlight implementation opportunities. If you decide to progress, we scope and build:</p>
     </div>
     <div class="services-list">
       {#each upsells as offer}
@@ -369,25 +416,12 @@
   <!-- Testimonials / Social Proof (UX-DR5) -->
   <section class="section">
     <div class="section-heading">
-      <p class="eyebrow">Trusted by businesses</p>
+      <span class="eyebrow">Social proof</span>
       <h2>What business owners say</h2>
     </div>
     <div class="testimonials-grid">
       {#each testimonials as t}
-        <article class="testimonial-card">
-          <div class="stars" aria-label="{t.rating} out of 5 stars">
-            {#each Array(t.rating) as _}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-            {/each}
-          </div>
-          <blockquote>&ldquo;{t.quote}&rdquo;</blockquote>
-          <div class="testimonial-author">
-            <strong>{t.name}</strong>
-            <span>{t.role}</span>
-          </div>
-        </article>
+        <TestimonialCard name={t.name} role={t.role} quote={t.quote} rating={t.rating} />
       {/each}
     </div>
   </section>
@@ -395,36 +429,37 @@
   <!-- FAQ Accordion (UX-DR14/15) -->
   <section class="section">
     <div class="section-heading">
-      <p class="eyebrow">Common questions</p>
+      <span class="eyebrow">Common questions</span>
       <h2>Frequently asked questions</h2>
     </div>
-    <div class="faq-list">
-      {#each faqItems as item, i}
-        <details class="faq-item" name="faq">
-          <summary class="faq-question">
-            <span>{item.q}</span>
-            <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </summary>
-          <div class="faq-answer">
-            <p>{@html '<!--email_off-->'}{item.a}{@html '<!--/email_off-->'}</p>
-          </div>
-        </details>
-      {/each}
-    </div>
+    <FaqAccordion items={faqItems} variant="simple" />
   </section>
 
   <section class="cta-section">
-    <h2>Ready to see where AI fits?</h2>
-    <p>
-      Start with a focused assessment. You will leave with a practical plan for the workflows, tools,
-      and quick wins most likely to create measurable leverage.
-    </p>
-    <button class="button primary" onclick={openOrientation}>
-      Start AI Business Assessment
-    </button>
-    <p class="trust-note">Your data is private and never shared. <a href="/privacy">Privacy policy</a></p>
+    <div class="cta-brief">
+      <h2>Ready to see where AI fits?</h2>
+      <p>
+        Start with a focused assessment. You will leave with a practical plan for the workflows, tools,
+        and quick wins most likely to create measurable leverage.
+      </p>
+    </div>
+    <ul class="brief-checklist" aria-label="What you receive">
+      <li><span aria-hidden="true">01</span><strong>Pain points</strong> found during intake</li>
+      <li><span aria-hidden="true">02</span><strong>Quick wins</strong> with specific tools and setup</li>
+      <li><span aria-hidden="true">03</span><strong>ROI estimate</strong> — hours saved, cost, annual value</li>
+    </ul>
+    <div class="cta-action">
+      <button class="button primary" onclick={openOrientation} disabled={ctaLoading} aria-busy={ctaLoading}>
+        {#if ctaLoading}
+          <span class="spinner" aria-hidden="true"></span>
+          Preparing your assessment…
+        {:else}
+          Start AI Business Assessment
+        {/if}
+      </button>
+      <p class="cta-price">$1,200 AUD · no-charge follow-up consultation included</p>
+      <p class="trust-note">Your data is private and never shared. <a href="/privacy">Privacy policy</a></p>
+    </div>
   </section>
 </main>
 {/if}
@@ -432,107 +467,114 @@
 <OrientationPanel open={orientationOpen} onacknowledge={startIntake} onclose={closeOrientation} />
 
 <style>
-  /* ── Testimonials ──────────────────────────────────────────── */
+  /* ── Visually hidden (a11y heading anchors) ────────────────────────── */
+  .visually-hidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  /* ── Actions primary wrap (hero CTA + pricing line) ───────────────── */
+  .actions-primary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  /* ── Hero pricing (UX transparency) ────────────────────────────── */
+  .hero-pricing {
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    margin: 0;
+    text-align: center;
+  }
+
+  .cta-price {
+    color: var(--color-muted);
+    font-size: 0.8rem;
+    margin: 0.5rem 0 0;
+  }
+
+  /* ── CTA section: 3-column briefing layout ───────────────────────── */
+  .cta-section {
+    align-items: start;
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+
+  .cta-brief h2 {
+    font-size: clamp(1.6rem, 2.7vw, 2.35rem);
+    max-width: 24ch;
+  }
+
+  .cta-brief p {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-top: 0.5rem;
+    max-width: 42ch;
+  }
+
+  .brief-checklist {
+    align-self: center;
+    color: var(--color-muted);
+    display: grid;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .brief-checklist li {
+    align-items: start;
+    border-top: 1px solid var(--color-line);
+    display: grid;
+    gap: 0.4rem 0.7rem;
+    grid-template-columns: auto 1fr;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    padding-top: 0.55rem;
+  }
+
+  .brief-checklist li:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .brief-checklist span {
+    color: var(--color-accent-text);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    padding-top: 0.08rem;
+  }
+
+  .brief-checklist strong {
+    color: var(--color-ink);
+    font-weight: 700;
+  }
+
+  .cta-action {
+    align-self: center;
+    display: grid;
+    gap: 0;
+  }
+
+  .cta-action .button.primary {
+    width: max-content;
+  }
+
+  /* ── Testimonials grid (cards come from TestimonialCard component) ─── */
   .testimonials-grid {
     display: grid;
     gap: 1.25rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .testimonial-card {
-    background: var(--color-panel);
-    border: 1.5px solid var(--color-line);
-    border-radius: var(--radius);
-    display: grid;
-    gap: 1rem;
-    padding: 1.5rem;
-  }
-
-  .stars {
-    color: #f59e0b;
-    display: flex;
-    gap: 0.15rem;
-  }
-
-  .testimonial-card blockquote {
-    color: var(--color-ink-2);
-    font-size: 0.92rem;
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .testimonial-author {
-    border-top: 1px solid var(--color-line-soft);
-    display: grid;
-    gap: 0.15rem;
-    padding-top: 0.85rem;
-  }
-
-  .testimonial-author strong {
-    color: var(--color-ink);
-    font-size: 0.88rem;
-  }
-
-  .testimonial-author span {
-    color: var(--color-muted);
-    font-size: 0.78rem;
-  }
-
-  /* ── FAQ Accordion ────────────────────────────────────────── */
-  .faq-list {
-    display: grid;
-    gap: 0;
-    max-width: 720px;
-  }
-
-  .faq-item {
-    border-bottom: 1px solid var(--color-line);
-  }
-
-  .faq-item:first-child {
-    border-top: 1px solid var(--color-line);
-  }
-
-  .faq-question {
-    align-items: center;
-    cursor: pointer;
-    display: flex;
-    font-size: 0.95rem;
-    font-weight: 700;
-    gap: 0.75rem;
-    justify-content: space-between;
-    list-style: none;
-    padding: 1.15rem 0;
-    user-select: none;
-  }
-
-  .faq-question::-webkit-details-marker {
-    display: none;
-  }
-
-  .faq-question:hover {
-    color: var(--color-accent);
-  }
-
-  .faq-chevron {
-    color: var(--color-muted-2);
-    flex-shrink: 0;
-    transition: transform 200ms ease;
-  }
-
-  .faq-item[open] .faq-chevron {
-    transform: rotate(180deg);
-  }
-
-  .faq-answer {
-    padding-bottom: 1.15rem;
-  }
-
-  .faq-answer p {
-    color: var(--color-muted);
-    font-size: 0.9rem;
-    line-height: 1.65;
-    max-width: 60ch;
   }
 
   /* ── Trust Note (UX-DR13/15) ───────────────────────────── */
@@ -544,7 +586,7 @@
   }
 
   .trust-note a {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-weight: 700;
     text-decoration: underline;
     text-underline-offset: 2px;
@@ -555,13 +597,133 @@
     .testimonials-grid {
       grid-template-columns: 1fr;
     }
+  }
 
-    .faq-list {
-      max-width: 100%;
+  @media (max-width: 768px) {
+    .hero-copy {
+      text-align: center;
+    }
+
+    .actions {
+      align-items: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .actions-primary {
+      width: 100%;
+    }
+
+    .actions-primary .button.primary {
+      width: 100%;
+    }
+
+    .hero-pricing {
+      text-align: center;
+    }
+
+    .fast-track-link {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .metric-strip {
+      justify-content: center;
+    }
+
+    .cta-section {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-action {
+      align-self: stretch;
+    }
+
+    .cta-action .button.primary {
+      width: 100%;
     }
   }
 
-  /* ── Intake Chat Container ──────────────────────────────── */
+  /* Demote secondary to a small text link on small screens so primary wins */
+  @media (max-width: 640px) {
+    .actions .button.secondary {
+      background: none;
+      border: none;
+      color: var(--color-accent-text);
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 0.4rem 0.6rem;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      width: auto;
+    }
+
+    .actions .button.secondary:hover {
+      color: var(--color-accent-2);
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .hero {
+      gap: clamp(3rem, 5vw, 5rem);
+    }
+
+    .testimonials-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ── Spinner ────────────────────────────────────────────────────── */
+  .spinner {
+    animation: spin 0.8s linear infinite;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    border-top-color: #fff;
+    display: inline-block;
+    height: 1em;
+    margin-right: 0.4em;
+    vertical-align: -0.1em;
+    width: 1em;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── Fast-track link ─────────────────────────────────────────────── */
+  .fast-track-link {
+    background: none;
+    border: none;
+    color: var(--color-muted);
+    cursor: pointer;
+    display: block;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    width: fit-content;
+  }
+
+  .fast-track-link:hover {
+    color: var(--color-accent-text);
+  }
+
+  .fast-track-link:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* ── Metric qualifiers ───────────────────────────────────────────── */
+  .metric-strip small {
+    color: var(--color-muted-2);
+    display: block;
+    font-size: 0.7rem;
+    margin-top: 0.1rem;
+  }
+
+  /* ── Intake Chat Container ──────────────────────────────────────── */
   .intake-container {
     display: grid;
     gap: 0;

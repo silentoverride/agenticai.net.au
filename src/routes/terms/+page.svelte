@@ -1,6 +1,6 @@
 <main>
   <section class="page-hero">
-    <p class="eyebrow">Terms of service</p>
+    <span class="eyebrow">Terms</span>
     <h1>AI Business Assessment terms</h1>
     <p>
       These terms apply to the Agentic AI Business Assessment purchased through the website

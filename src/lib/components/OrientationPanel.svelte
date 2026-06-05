@@ -183,7 +183,7 @@
         <h2 class="orientation-title">Before you start</h2>
         <p class="orientation-subtitle">Your AI Business Assessment conversation</p>
       </div>
-      <button class="orientation-close" onclick={handleClose} aria-label="Close">
+      <button type="button" class="orientation-close" onclick={handleClose} aria-label="Close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
@@ -248,10 +248,11 @@
     </div>
 
     <div class="orientation-footer">
-      <button class="orientation-cancel" onclick={handleClose}>
+      <button type="button" class="orientation-cancel" onclick={handleClose}>
         Not now, maybe later
       </button>
       <button
+        type="button"
         class="orientation-cta"
         onclick={handleAcknowledge}
         disabled={verifying || !turnstileReady}
@@ -286,7 +287,7 @@
     align-items: center;
     background: var(--color-accent-light);
     border-radius: 999px;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     display: inline-flex;
     flex-shrink: 0;
     height: 2.5rem;
@@ -331,6 +332,11 @@
     color: var(--color-ink);
   }
 
+  .orientation-close:focus-visible {
+    outline: 3px solid var(--color-accent-mid);
+    outline-offset: 2px;
+  }
+
   .orientation-body {
     display: grid;
     gap: 1rem;
@@ -365,7 +371,7 @@
   }
 
   .disclaimer-banner svg {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     flex-shrink: 0;
     margin-top: 0.1rem;
   }
@@ -384,7 +390,7 @@
   }
 
   .privacy-link {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     display: inline-block;
     font-size: 0.82rem;
     font-weight: 700;
@@ -463,5 +469,11 @@
   .orientation-cta:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .orientation-cta:focus-visible,
+  .orientation-cancel:focus-visible {
+    outline: 3px solid var(--color-accent-mid);
+    outline-offset: 2px;
   }
 </style>

@@ -14,7 +14,7 @@ export const faqItems: FaqItem[] = [
 		id: 'included',
 		question: 'What does the $1,200 include?',
 		answer:
-			`The AI Business Assessment includes a 20–30 minute conversation with Annie, analysis of your workflows and bottlenecks, tool recommendations matched to your gaps, quick-win actions, financial impact estimates, a polished Presenton-generated report deck, permanent portal access, and an optional complimentary 30-minute follow-up consultation after you receive the report. It's a one-time fee — no subscriptions, no hidden costs.` },
+			`The AI Business Assessment includes a 20–30 minute conversation with Annie, analysis of your workflows and bottlenecks, tool recommendations matched to your gaps, quick-win actions, financial impact estimates, a polished Presenton-generated report deck, permanent portal access, and an optional complimentary 30-minute follow-up consultation after you receive the report. It's a one-time fee, with no subscriptions or hidden costs.` },
 	{
 		id: 'timeline',
 		question: 'How long does the report take?',
@@ -24,7 +24,7 @@ export const faqItems: FaqItem[] = [
 		id: 'after',
 		question: 'What happens after the assessment?',
 		answer:
-			`After receiving the report, you can use it to action the quick wins yourself, share it with your team or existing providers, or book the complimentary 30-minute follow-up consultation. If the report identifies a larger AI solution opportunity, we can scope that as a separate engagement — there is no obligation to proceed.` },
+			`After receiving the report, you can use it to action the quick wins yourself, share it with your team or existing providers, or book the complimentary 30-minute follow-up consultation. If the report identifies a larger AI solution opportunity, we can scope that as a separate engagement. There is no obligation to proceed.` },
 	{
 		id: 'share',
 		question: 'Can I share the report with my team?',
@@ -34,7 +34,7 @@ export const faqItems: FaqItem[] = [
 		id: 'implement',
 		question: 'Do you implement larger AI solutions?',
 		answer:
-			`Yes — larger AI solutions and done-for-you implementation are available as separate engagements, not included in the $1,200 assessment fee. The assessment report may identify these opportunities, and the complimentary follow-up call can be used to decide whether any are worth scoping separately.` },
+			`Yes. Larger AI solutions and done-for-you implementation are available as separate engagements, not included in the $1,200 assessment fee. The assessment report may identify these opportunities, and the complimentary follow-up call can be used to decide whether any are worth scoping separately.` },
 	{
 		id: 'who',
 		question: 'Who is the assessment for?',
@@ -69,7 +69,7 @@ export const faqItems: FaqItem[] = [
 		id: 'start',
 		question: 'How do I get started?',
 		answer:
-			`Click "Start AI Business Assessment" on our homepage or services page. This opens a browser-based conversation with Annie — no download required. The conversation takes 20–30 minutes. After the assessment is confirmed and paid, your report is generated automatically and delivered to your portal within 48 hours.` }
+			`Click "Start AI Business Assessment" on our homepage or services page. This opens a browser-based conversation with Annie (no download required). The conversation takes 20–30 minutes. After the assessment is confirmed and paid, your report is generated automatically and delivered to your portal within 48 hours.` }
 ];
 
 export const faqCategories = Array.from(new Set(faqItems.map((i) => i.category).filter(Boolean))) as string[];

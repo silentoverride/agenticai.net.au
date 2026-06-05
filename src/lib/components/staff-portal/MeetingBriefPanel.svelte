@@ -547,7 +547,7 @@
   :global(.state-draft),
   :global(.state-not_available) { background: var(--color-panel-soft); color: var(--color-muted); }
   :global(.state-ready) { background: #f0fdf4; color: #15803d; }
-  :global(.state-needsReview) { background: var(--color-accent-light); color: var(--color-accent); }
+  :global(.state-needsReview) { background: var(--color-accent-light); color: var(--color-accent-text); }
   :global(.state-stale) { background: #fffbeb; color: #b45309; }
   :global(.state-completed) { background: var(--color-panel-soft); color: var(--color-muted); }
 

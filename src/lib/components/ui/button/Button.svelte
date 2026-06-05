@@ -108,7 +108,7 @@
   /* ── Variants ────────────────────────────────────────────── */
   .btn-primary {
     background: var(--color-accent);
-    border-color: var(--color-accent);
+    border-color: var(--color-accent-text);
     color: #fff;
   }
 
@@ -168,7 +168,7 @@
   .btn-link {
     background: transparent;
     border-color: transparent;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-weight: 700;
     padding: 0;
     text-decoration: underline;

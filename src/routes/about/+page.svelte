@@ -1,6 +1,6 @@
 <main>
   <section class="page-hero">
-    <p class="eyebrow">About</p>
+    <span class="eyebrow">About</span>
     <h1>Practical AI guidance for small business staff members</h1>
     <p>
       Agentic AI helps owners and lean teams translate the AI tool landscape into specific, useful
@@ -35,7 +35,6 @@
 
   <section class="section">
     <div class="section-heading section-heading-split">
-      <p class="eyebrow">Point of view</p>
       <h2>AI should make daily operations easier to run</h2>
       <p>
         Small businesses do not need more dashboards, logins, or experiments that depend on one
@@ -70,7 +69,6 @@
 
   <section class="section split-section">
     <div>
-      <p class="eyebrow">Who it is for</p>
       <h2>Built for owners who need a clear first move</h2>
       <p>
         Agentic AI is designed for small business owners with lean teams, busy inboxes, manual reporting,

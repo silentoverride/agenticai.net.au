@@ -644,7 +644,7 @@
 
   .btn-primary {
     background: var(--color-primary, #2563eb);
-    color: #fff;
+    color: var(--color-panel);
     border-color: var(--color-primary, #2563eb);
   }
 

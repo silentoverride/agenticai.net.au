@@ -1,5 +1,5 @@
 /**
- * PUT /api/staff/staff/user/[clerkId]/role
+ * PUT /api/staff/users/user/[clerkId]/role
  *
  * Update a staff user's role. Admin-only.
  * Use to demote staff/admins back to client role.

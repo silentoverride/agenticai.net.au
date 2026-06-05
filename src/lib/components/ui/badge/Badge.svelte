@@ -38,7 +38,7 @@
   .badge-default {
     background: var(--color-accent-light);
     border: 1px solid var(--color-accent-mid);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .badge-secondary {
@@ -56,18 +56,18 @@
   .badge-success {
     background: #ecfdf5;
     border: 1px solid #6ee7b7;
-    color: #059669;
+    color: #047857; /* 5.21:1 on #ecfdf5 — was #059669 (3.58:1, fail) */
   }
 
   .badge-warning {
     background: #fffbeb;
     border: 1px solid #fcd34d;
-    color: #d97706;
+    color: #b45309; /* 4.51:1 on #fffbeb — was #d97706 (3.07:1, fail) */
   }
 
   .badge-danger {
     background: #fef2f2;
     border: 1px solid #fca5a5;
-    color: #dc2626;
+    color: #b91c1c; /* 5.21:1 on #fef2f2 — was #dc2626 (4.41:1, borderline) */
   }
 </style>

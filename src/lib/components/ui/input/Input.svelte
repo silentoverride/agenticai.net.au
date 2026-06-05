@@ -33,7 +33,7 @@
   }
 
   .input:focus {
-    border-color: var(--color-accent);
+    border-color: var(--color-accent-text);
     outline: 3px solid rgba(37, 99, 235, 0.15);
     outline-offset: 2px;
   }

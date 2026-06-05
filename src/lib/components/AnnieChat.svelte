@@ -239,7 +239,7 @@
 <div class="annie-chat" role="region" aria-label="Annie AI assessment chat">
   <!-- Progress bar -->
   <div class="chat-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-    <div class="chat-progress-fill" style="width: {progress}%"></div>
+    <div class="chat-progress-fill" style="transform: scaleX({progress / 100})"></div>
     <span class="chat-progress-label">
       Question {Math.min(currentQuestionIndex + 1, TOTAL_QUESTIONS)} of {TOTAL_QUESTIONS}
     </span>
@@ -334,7 +334,9 @@
     background: var(--color-accent);
     border-radius: 999px;
     height: 4px;
-    transition: width 400ms ease;
+    transform-origin: left center;
+    transition: transform 400ms ease-out;
+    width: 100%;
   }
 
   .chat-progress-label {
@@ -376,7 +378,7 @@
     align-items: center;
     background: var(--color-accent-light);
     border-radius: 999px;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     display: inline-flex;
     flex-shrink: 0;
     height: 2rem;
@@ -464,7 +466,7 @@
   }
 
   .chat-input:focus {
-    border-color: var(--color-accent);
+    border-color: var(--color-accent-text);
   }
 
   .chat-input:disabled {

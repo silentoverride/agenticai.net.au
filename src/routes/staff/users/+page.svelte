@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PageData } from './$types';
+  import Dialog from '$lib/components/ui/dialog/Dialog.svelte';
 
   let { data: pageData }: { data: PageData } = $props();
 
@@ -37,10 +38,12 @@
   let inviting = $state(false);
   let inviteError = $state('');
   let inviteSuccess = $state('');
+  let showRevokeConfirm = $state(false);
+  let pendingRevokeId = $state<string | null>(null);
 
   async function refreshList() {
     try {
-      const res = await fetch('/api/staff/staff');
+      const res = await fetch('/api/staff/users');
       if (res.ok) {
         const fresh: StaffApiResponse = await res.json();
         users = fresh.users;
@@ -58,7 +61,7 @@
     inviteSuccess = '';
 
     try {
-      const res = await fetch('/api/staff/staff/invite', {
+      const res = await fetch('/api/staff/users/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, role }),
@@ -84,10 +87,9 @@
   }
 
   async function handleRevoke(invitationId: string) {
-    if (!confirm('Revoke this invitation? The user will no longer be able to accept it.')) return;
-
+    // Proceed with actual revocation
     try {
-      const res = await fetch(`/api/staff/staff/invite/${invitationId}`, {
+      const res = await fetch(`/api/staff/users/invite/${invitationId}`, {
         method: 'DELETE',
       });
 
@@ -100,7 +102,14 @@
       await refreshList();
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Failed to revoke');
+    } finally {
+      pendingRevokeId = null;
     }
+  }
+
+  function confirmRevoke(invitationId: string) {
+    pendingRevokeId = invitationId;
+    showRevokeConfirm = true;
   }
 
   async function handleRemoveRole(userClerkId: string, currentRole: string) {
@@ -108,7 +117,7 @@
     if (!confirm(`Are you sure you want to ${action} for this user?`)) return;
 
     try {
-      const res = await fetch(`/api/staff/staff/user/${userClerkId}/role`, {
+      const res = await fetch(`/api/staff/users/user/${userClerkId}/role`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: 'client' }),
@@ -158,7 +167,7 @@
   <header class="page-header">
     <div>
       <h1>Staff Management</h1>
-      <p class="subtitle">Invite and manage Staff and admin users — <a href="/staff/staff/users" class="inline-link">View all users</a></p>
+      <p class="subtitle">Invite and manage Staff and admin users</p>
     </div>
   </header>
 
@@ -233,7 +242,7 @@
               <td>
                 <button
                   class="btn btn-small btn-danger"
-                  onclick={() => handleRevoke(inv.id)}
+                  onclick={() => confirmRevoke(inv.id)}
                 >
                   Revoke
                 </button>
@@ -315,6 +324,23 @@
   </section>
 </div>
 
+<!-- Revoke Confirmation Modal -->
+<Dialog bind:open={showRevokeConfirm}>
+  <div class="card-header">
+    <h3 class="text-lg font-semibold">Revoke Invitation</h3>
+  </div>
+  <div class="card-content">
+    <p class="text-gray-600">Revoke this invitation? The user will no longer be able to accept it.</p>
+  </div>
+  <div class="card-footer flex gap-3 justify-end">
+    <button onclick={() => showRevokeConfirm = false} class="btn btn-small">Cancel</button>
+    <button onclick={() => { showRevokeConfirm = false; if (pendingRevokeId) handleRevoke(pendingRevokeId); }}
+            class="btn btn-danger btn-small">
+      Revoke
+    </button>
+  </div>
+</Dialog>
+
 <style>
   .staff-page {
     max-width: 960px;
@@ -328,7 +354,7 @@
 
   .page-header h1 {
     font-size: 1.75rem;
-    color: #1a1a2e;
+    color: var(--dark-bg-2);
     margin: 0 0 0.25rem;
   }
 
@@ -349,7 +375,7 @@
 
   .card h2 {
     font-size: 1.125rem;
-    color: #1a1a2e;
+    color: var(--dark-bg-2);
     margin: 0 0 0.25rem;
   }
 
@@ -525,8 +551,8 @@
   }
 
   .badge-muted {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--color-panel-soft);
+    color: var(--color-muted);
   }
 
   .empty-state {

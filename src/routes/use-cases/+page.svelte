@@ -4,7 +4,7 @@
 
 <main>
   <section class="page-hero">
-    <p class="eyebrow">Use Cases</p>
+    <span class="eyebrow">Use cases</span>
     <h1>Where the assessment usually finds value</h1>
     <p>
       The strongest AI opportunities usually sit in repeated admin, unanswered leads, document-heavy

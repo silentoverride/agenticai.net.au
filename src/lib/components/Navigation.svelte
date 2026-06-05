@@ -1,6 +1,7 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
   import OrientationPanel from '$lib/components/OrientationPanel.svelte';
+  import Sheet from '$lib/components/ui/sheet/Sheet.svelte';
   import { onMount } from 'svelte';
   import { useClerkContext } from 'svelte-clerk/client';
   import { toggleCall } from '$lib/stores/call';
@@ -32,6 +33,12 @@
   let roleLoaded = $state(false);
   let roleError = $state(false);
   let showOrientation = $state(false);
+  let mobileNavOpen = $state(false);
+
+  // Close mobile menu when a link is clicked (route change handled by Svelte)
+  function closeMobileNav() {
+    mobileNavOpen = false;
+  }
 
   // Fetch the user's role when they are signed in
   $effect(() => {
@@ -100,7 +107,7 @@
         <a href={link.href}>{link.label}</a>
       {/each}
       {#if isAdmin}
-        <a href="/staff/staff">Staff</a>
+        <a href="/staff/users">Staff</a>
       {/if}
     {:else}
       <!-- Public site navigation -->
@@ -155,139 +162,77 @@
         Sign In
       </button>
     {/if}
+    <!-- Mobile menu toggle (hidden ≥941px via CSS) -->
+    <button
+      class="mobile-menu-toggle"
+      type="button"
+      aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+      aria-expanded={mobileNavOpen}
+      aria-controls="mobile-nav-sheet"
+      onclick={() => (mobileNavOpen = !mobileNavOpen)}
+    >
+      {#if mobileNavOpen}
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      {:else}
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      {/if}
+    </button>
   </div>
 </header>
+
+<Sheet bind:open={mobileNavOpen} side="right">
+  <div class="mobile-nav" id="mobile-nav-sheet">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-label">{isStaff ? 'Staff Portal' : 'Menu'}</span>
+    </div>
+    <nav aria-label="Mobile navigation" class="mobile-nav-links">
+      {#if isStaff}
+        {#each staffLinks as link}
+          <a href={link.href} onclick={closeMobileNav}>{link.label}</a>
+        {/each}
+        {#if isAdmin}
+          <a href="/staff/users" onclick={closeMobileNav}>Staff</a>
+        {/if}
+      {:else}
+        {#each links as link}
+          <a href={link.href} onclick={closeMobileNav}>{link.label}</a>
+        {/each}
+      {/if}
+    </nav>
+    <div class="mobile-nav-actions">
+      {#if clerk.auth.userId != null}
+        {#if !isStaff}
+          <button class="button" onclick={() => { closeMobileNav(); handleCallAnnie(); }}>Call Annie</button>
+          <a class="button secondary" href={`/portal/${clerk.auth.userId}`} onclick={closeMobileNav}>Portal</a>
+        {/if}
+        <button
+          class="button"
+          onclick={() => { closeMobileNav(); clerk.clerk?.signOut({ redirectUrl: '/' }); }}
+        >
+          Sign Out
+        </button>
+      {:else}
+        <button class="button" onclick={() => { closeMobileNav(); handleCallAnnie(); }}>Call Annie</button>
+        <button
+          class="button secondary"
+          onclick={() => { closeMobileNav(); clerk.clerk?.openSignIn({ fallbackRedirectUrl: '/dashboard', forceRedirectUrl: '/dashboard' }); }}
+        >
+          Sign In
+        </button>
+      {/if}
+    </div>
+  </div>
+</Sheet>
 
 <OrientationPanel
   open={showOrientation}
   onacknowledge={handleOrientationAcknowledge}
   onclose={handleOrientationClose}
 />
-
-<style>
-  .site-header {
-    align-items: center;
-    background: var(--color-panel);
-    border-bottom: 1px solid var(--color-line);
-    display: flex;
-    gap: 2rem;
-    justify-content: space-between;
-    padding: 0.75rem 2rem;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
-
-  .brand img {
-    display: block;
-    height: 2rem;
-    width: auto;
-  }
-
-  nav {
-    align-items: center;
-    display: flex;
-    gap: 1.5rem;
-  }
-
-  nav a {
-    color: var(--color-muted);
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: color 150ms ease;
-  }
-
-  nav a:hover {
-    color: var(--color-ink);
-  }
-
-  .header-actions {
-    align-items: center;
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  .theme-toggle {
-    align-items: center;
-    background: none;
-    border: 1px solid var(--color-line);
-    border-radius: 999px;
-    color: var(--color-muted);
-    cursor: pointer;
-    display: inline-flex;
-    height: 2rem;
-    justify-content: center;
-    padding: 0;
-    transition: background 150ms ease, color 150ms ease;
-    width: 2rem;
-  }
-
-  .theme-toggle:hover {
-    background: var(--color-panel-soft);
-    color: var(--color-ink);
-  }
-
-  .theme-toggle svg {
-    height: 1rem;
-    width: 1rem;
-  }
-
-  .nav-cta {
-    background: var(--color-accent);
-    border: none;
-    border-radius: 999px;
-    color: #fff;
-    cursor: pointer;
-    font: inherit;
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 0.45rem 1rem;
-    transition: background 150ms ease;
-  }
-
-  .nav-cta:hover {
-    background: var(--color-accent-2);
-  }
-
-  .portal-link {
-    color: var(--color-accent);
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .portal-link:hover {
-    color: var(--color-accent-2);
-  }
-
-  .nav-signout,
-  .nav-signin {
-    background: none;
-    border: 1px solid var(--color-line);
-    border-radius: 999px;
-    color: var(--color-muted);
-    cursor: pointer;
-    font: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 0.45rem 1rem;
-    transition: background 150ms ease, color 150ms ease;
-  }
-
-  .nav-signout:hover,
-  .nav-signin:hover {
-    background: var(--color-panel-soft);
-    color: var(--color-ink);
-  }
-
-  .staff-badge {
-    background: var(--color-accent-light);
-    border-radius: 999px;
-    color: var(--color-accent);
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.3rem 0.75rem;
-    text-transform: uppercase;
-  }
-</style>

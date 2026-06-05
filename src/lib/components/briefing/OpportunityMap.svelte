@@ -109,7 +109,7 @@
       >
         <!-- Effort indicator -->
         <div class="effort-strip" class:effort-low={effortLevel(opp) === 'low'} class:effort-medium={effortLevel(opp) === 'medium'} class:effort-high={effortLevel(opp) === 'high'}>
-          <span>{effortLabel(effortLevel(opp))} Effort</span>
+          {effortLabel(effortLevel(opp))} Effort
         </div>
 
         <div class="card-body">
@@ -119,7 +119,7 @@
           <div class="card-metrics">
             {#if opp.estimated_setup_cost_aud != null}
               <div class="metric">
-                <span class="metric-icon">💰</span>
+                <span class="metric-icon" aria-hidden="true">💰</span>
                 <div>
                   <span class="metric-label">Investment</span>
                   <span class="metric-value">{investmentRange(opp)}</span>
@@ -129,7 +129,7 @@
 
             {#if opp.estimated_monthly_value_aud != null}
               <div class="metric">
-                <span class="metric-icon">📈</span>
+                <span class="metric-icon" aria-hidden="true">📈</span>
                 <div>
                   <span class="metric-label">Monthly Value</span>
                   <span class="metric-value">~${opp.estimated_monthly_value_aud.toLocaleString()}/mo</span>
@@ -138,7 +138,7 @@
             {/if}
 
             <div class="metric">
-              <span class="metric-icon">⏱️</span>
+              <span class="metric-icon" aria-hidden="true">⏱️</span>
               <div>
                 <span class="metric-label">Timeline</span>
                 <span class="metric-value">{timelineEstimate(opp)}</span>
@@ -146,7 +146,7 @@
             </div>
 
             <div class="metric">
-              <span class="metric-icon">🎯</span>
+              <span class="metric-icon" aria-hidden="true">🎯</span>
               <div>
                 <span class="metric-label">ROI</span>
                 <span class="metric-value {roiClass(roiEstimate(opp))}">{roiEstimate(opp)}</span>
@@ -207,32 +207,32 @@
   }
   .filter-label {
     font-size: 0.875rem;
-    color: #888;
+    color: var(--color-muted);
     font-weight: 500;
     margin-right: 0.25rem;
   }
   .filter-btn {
     padding: 0.35rem 0.75rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    background: white;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    background: var(--color-panel);
     font-size: 0.8125rem;
     cursor: pointer;
-    color: #555;
+    color: var(--color-ink-2);
     transition: all 0.15s;
   }
   .filter-btn:hover {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: var(--color-accent-text);
+    color: var(--color-accent-text);
   }
   .filter-btn.active {
-    background: #eef4ff;
-    border-color: #667eea;
-    color: #667eea;
+    background: var(--color-accent-light);
+    border-color: var(--color-accent-text);
+    color: var(--color-accent-text);
     font-weight: 600;
   }
   .filter-count {
-    color: #aaa;
+    color: var(--color-muted-2);
     margin-left: 0.2rem;
     font-weight: 400;
   }
@@ -251,20 +251,22 @@
 
   /* Card */
   .opp-card {
-    background: white;
-    border-radius: 12px;
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     animation: fadeSlideUp 0.35s ease-out both;
   }
   .opp-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-panel);
   }
   .opp-card.selected {
-    box-shadow: 0 0 0 2px #667eea, 0 6px 24px rgba(102,126,234,0.15);
+    border-color: var(--color-accent-text);
+    box-shadow: 0 0 0 1px var(--color-accent), var(--shadow-panel);
   }
 
   /* Effort strip */
@@ -275,9 +277,9 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  .effort-low { background: #e8f5e9; color: #2e7d32; }
-  .effort-medium { background: #fff8e1; color: #f57f17; }
-  .effort-high { background: #ffebee; color: #c62828; }
+  .effort-low { background: #ecfdf5; color: var(--color-success); }
+  .effort-medium { background: #fffbeb; color: var(--color-warm); }
+  .effort-high { background: #fffbeb; color: #b45309; } /* warm-amber (matches badge-warning — was red bg / blue text) */
 
   .card-body {
     padding: 1.25rem;
@@ -285,10 +287,10 @@
   .card-body h3 {
     font-size: 1.125rem;
     margin: 0 0 0.5rem;
-    color: #1a1a2e;
+    color: var(--color-ink);
   }
   .desc {
-    color: #555;
+    color: var(--color-muted);
     font-size: 0.875rem;
     line-height: 1.6;
     margin: 0 0 1rem;
@@ -318,7 +320,7 @@
   .metric-label {
     display: block;
     font-size: 0.6875rem;
-    color: #888;
+    color: var(--color-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
@@ -326,20 +328,20 @@
     display: block;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #1a1a2e;
+    color: var(--color-ink);
   }
-  .roi-quick { color: #2e7d32; }
-  .roi-short { color: #1565c0; }
-  .roi-medium { color: #f57f17; }
-  .roi-long { color: #c62828; }
+  .roi-quick { color: var(--color-success); }
+  .roi-short { color: var(--color-accent-text); }
+  .roi-medium { color: var(--color-warm); }
+  .roi-long { color: var(--color-ink-2); }
 
   /* Detail panel */
   .detail-panel {
     margin-top: 1rem;
     padding: 1rem;
-    background: #f8f9ff;
-    border-radius: 8px;
-    border: 1px solid #eef0ff;
+    background: var(--color-accent-light);
+    border: 1px solid var(--color-accent-mid);
+    border-radius: var(--radius-sm);
     animation: fadeSlideUp 0.2s ease-out both;
   }
   .detail-row {
@@ -347,16 +349,16 @@
     justify-content: space-between;
     font-size: 0.8125rem;
     padding: 0.35rem 0;
-    border-bottom: 1px solid #f0f0ff;
+    border-bottom: 1px solid var(--color-line);
   }
   .detail-row:last-of-type {
     border-bottom: none;
   }
   .detail-row strong {
-    color: #555;
+    color: var(--color-ink-2);
   }
   .detail-row span {
-    color: #1a1a2e;
+    color: var(--color-ink);
     font-weight: 500;
   }
   .calendly-wrapper {
@@ -367,17 +369,18 @@
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #888;
-    background: #fafafa;
-    border-radius: 12px;
+    color: var(--color-muted);
+    background: var(--color-panel-soft);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
   }
   .clear-filter {
     margin-top: 0.75rem;
     padding: 0.5rem 1rem;
-    border: 1px solid #667eea;
-    border-radius: 6px;
-    background: white;
-    color: #667eea;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    background: var(--color-panel);
+    color: var(--color-accent-text);
     cursor: pointer;
     font-size: 0.875rem;
   }
@@ -385,5 +388,9 @@
   @keyframes fadeSlideUp {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .opp-card { animation: none; }
   }
 </style>

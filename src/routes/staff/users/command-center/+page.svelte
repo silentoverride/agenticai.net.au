@@ -69,7 +69,7 @@
     <div class="cc-queue" role="list" aria-label="Work queue">
       {#each items as item (item.clientName + '-' + item.workItemId)}
         <a
-          href="/staff/staff/clients/{item.workItemId}"
+          href="/staff/users/clients/{item.workItemId}"
           class="work-item-row"
           data-testid="work-item-row"
         >

@@ -23,11 +23,25 @@ export interface LlmResponse {
 }
 
 function getLlmConfig() {
-  const baseUrl = env.OLLAMA_BASE_URL || 'https://api.ollama.ai';
-  const apiKey = env.OLLAMA_API_KEY || env.OPENAI_API_KEY;
-  const model = env.OLLAMA_MODEL || 'kimi-k2.6:cloud';
+  const ollamaBaseUrl = env.OLLAMA_BASE_URL || 'https://api.ollama.ai';
+  const openaiBaseUrl = env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
+  const openaiApiKey = env.OPENAI_API_KEY;
+  const ollamaApiKey = env.OLLAMA_API_KEY || openaiApiKey;
+  const primaryModel = env.GPT_MODEL || 'gpt-5.5';
+  const fallbackModel = env.OLLAMA_MODEL || 'kimi-k2.6:cloud';
 
-  return { baseUrl, apiKey, model };
+  return { ollamaBaseUrl, openaiBaseUrl, openaiApiKey, ollamaApiKey, primaryModel, fallbackModel };
+}
+
+/** Route models to the correct API based on naming conventions. */
+function resolveModelEndpoint(model: string) {
+  const config = getLlmConfig();
+  // OpenAI models start with 'gpt-' (e.g. 'gpt-5.5', 'gpt-4o')
+  // Everything else (kimi, gemini, claude, etc.) goes to Ollama
+  if (model.startsWith('gpt-')) {
+    return { baseUrl: config.openaiBaseUrl, apiKey: config.openaiApiKey };
+  }
+  return { baseUrl: config.ollamaBaseUrl, apiKey: config.ollamaApiKey };
 }
 
 interface OpenAIChatCompletionResponse {
@@ -45,15 +59,16 @@ interface OpenAIChatCompletionResponse {
 
 export async function llmChat(messages: LlmMessage[], options: LlmOptions = {}): Promise<LlmResponse> {
   const config = getLlmConfig();
-  const model = options.model || config.model;
+  let model = options.model || config.primaryModel;
+  const { baseUrl, apiKey } = resolveModelEndpoint(model);
 
-  if (!config.apiKey) {
-    throw new Error('OLLAMA_API_KEY or OPENAI_API_KEY is required.');
+  if (!apiKey) {
+    throw new Error(`LLM API key missing for model "${model}".`);
   }
 
   const headers: Record<string, string> = {
     'content-type': 'application/json',
-    authorization: `Bearer ${config.apiKey}`
+    authorization: `Bearer ${apiKey}`
   };
 
   const body = JSON.stringify({
@@ -70,7 +85,7 @@ export async function llmChat(messages: LlmMessage[], options: LlmOptions = {}):
 
   let response: Response;
   try {
-    response = await fetch(`${config.baseUrl}/v1/chat/completions`, {
+    response = await fetch(`${baseUrl}${baseUrl.endsWith('/v1') ? '' : '/v1'}/chat/completions`, {
       method: 'POST',
       headers,
       body,
@@ -87,6 +102,16 @@ export async function llmChat(messages: LlmMessage[], options: LlmOptions = {}):
 
   if (!response.ok) {
     const error = await response.text().catch(() => '');
+    const isPrimaryModel = !options.model || model === config.primaryModel;
+    const shouldFallback =
+      isPrimaryModel &&
+      (response.status === 404 || response.status === 429 || response.status >= 500 || error.includes('token'));
+
+    if (shouldFallback && model === config.primaryModel) {
+      console.warn(`[llm] ${model} unavailable — falling back to ${config.fallbackModel}`);
+      return llmChat(messages, { ...options, model: config.fallbackModel });
+    }
+
     throw new Error(`LLM request failed (${response.status}): ${error}`);
   }
 
@@ -115,5 +140,5 @@ export async function llmComplete(prompt: string, options: LlmOptions = {}): Pro
 
 export function isLlmConfigured(): boolean {
   const config = getLlmConfig();
-  return Boolean(config.apiKey && config.model);
+  return Boolean(config.openaiApiKey || config.ollamaApiKey);
 }

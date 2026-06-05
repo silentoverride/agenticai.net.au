@@ -1,6 +1,10 @@
 import adapter from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
+// Dev-only allowance so impeccable live mode can load. Guarded by NODE_ENV.
+const __impeccableLiveDev =
+  process.env.NODE_ENV === 'development' ? ['http://localhost:8400'] : [];
+
 const config = {
   preprocess: vitePreprocess(),
   kit: {
@@ -13,6 +17,7 @@ const config = {
         'object-src': ['none'],
         'frame-ancestors': ['self'],
         'script-src': [
+          ...__impeccableLiveDev,
           'self',
           'unsafe-eval',
           'strict-dynamic',
@@ -26,7 +31,9 @@ const config = {
           'https://assets.calendly.com'
         ],
         'script-src-elem': [
+          ...__impeccableLiveDev,
           'self',
+          'unsafe-eval',
           'strict-dynamic',
           'https://dashboard.retellai.com',
           'https://www.google.com',
@@ -43,6 +50,7 @@ const config = {
         'font-src': ['self', 'data:'],
         'media-src': ['self', 'blob:', 'data:', 'https://api.retellai.com', 'https://*.retellai.com'],
         'connect-src': [
+          ...__impeccableLiveDev,
           'self',
           'https://api.retellai.com',
           'https://dashboard.retellai.com',

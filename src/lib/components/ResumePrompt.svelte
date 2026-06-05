@@ -42,7 +42,7 @@
   </p>
 
   <div class="resume-progress" role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}>
-    <div class="resume-progress-fill" style="width: {progressPct}%"></div>
+    <div class="resume-progress-fill" style="transform: scaleX({progressPct / 100})"></div>
   </div>
 
   <p class="resume-context">
@@ -50,13 +50,13 @@
   </p>
 
   <div class="resume-actions">
-    <button class="resume-btn resume-continue" onclick={onResume}>
+    <button type="button" class="resume-btn resume-continue" onclick={onResume}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polygon points="5 3 19 12 5 21 5 3" />
       </svg>
       Continue where I left off
     </button>
-    <button class="resume-btn resume-fresh" onclick={onStartFresh}>
+    <button type="button" class="resume-btn resume-fresh" onclick={onStartFresh}>
       Start fresh
     </button>
   </div>
@@ -76,7 +76,7 @@
   }
 
   .resume-icon {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .resume-prompt h2 {
@@ -101,7 +101,9 @@
     background: var(--color-accent);
     border-radius: 999px;
     height: 100%;
-    transition: width 500ms ease;
+    transform-origin: left center;
+    transition: transform 500ms ease-out;
+    width: 100%;
   }
 
   .resume-context {
@@ -149,5 +151,10 @@
   .resume-fresh:hover {
     border-color: var(--color-muted-2);
     color: var(--color-ink);
+  }
+
+  .resume-btn:focus-visible {
+    outline: 3px solid var(--color-accent-mid);
+    outline-offset: 2px;
   }
 </style>

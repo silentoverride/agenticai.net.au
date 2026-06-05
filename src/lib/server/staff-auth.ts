@@ -59,6 +59,17 @@ export async function requireStaff(locals: App.Locals, db?: D1Database): Promise
   return role;
 }
 
+export async function requireAdmin(locals: App.Locals, db?: D1Database): Promise<string> {
+  const role = await requireStaff(locals, db);
+
+  if (role !== 'admin') {
+    logAuthEvent('failure', locals.auth?.()?.userId ?? null, role, 'admin_required');
+    throw error(403, 'Admin access required');
+  }
+
+  return role;
+}
+
 async function getD1Role(db: D1Database, userId: string): Promise<string | null> {
   const row = await db
     .prepare('SELECT role FROM users WHERE clerk_id = ?')

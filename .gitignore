@@ -37,3 +37,24 @@ Thumbs.db
 
 # Local dev databases
 app_data/*.db
+
+# Impeccable audit scratchpad
+.impeccable/
+
+# Agent config (Claude, .github skills, runtime)
+.claude/
+.github/skills/
+
+# Wiki output cache
+llm-wiki/outputs/
+
+# Research / inspiration (not project artifacts)
+docs/Nates-Substack-Skills/
+docs/transcriptions-examples/
+
+# Ephemeral transfer / debug
+.tmp/
+pi-session-*.html
+
+# Newly downloaded agent skills (not yet promoted to repo)
+.agents/skills/impeccable/

@@ -154,7 +154,6 @@
 <div class="audit-page">
   <header class="page-header">
     <div>
-      <p class="eyebrow">Admin only</p>
       <h1>Realtime Audit Stream</h1>
       <p>Live view of staff action audit events as staff members change report, finding, follow-up, meeting brief, and commercial states.</p>
     </div>
@@ -317,7 +316,7 @@
 
   .eyebrow {
     margin: 0 0 0.25rem;
-    color: #7c3aed;
+    color: var(--color-accent-text);
     font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -326,13 +325,13 @@
 
   .page-header h1 {
     margin: 0;
-    color: #111827;
+    color: var(--color-ink);
     font-size: 2rem;
   }
 
   .page-header p:not(.eyebrow) {
     margin: 0.35rem 0 0;
-    color: #6b7280;
+    color: var(--color-muted);
     max-width: 720px;
   }
 
@@ -350,17 +349,17 @@
     gap: 0.4rem;
     padding: 0.45rem 0.7rem;
     border-radius: 999px;
-    background: #ecfdf5;
-    color: #047857;
+    background: var(--color-warm-light);
+    color: var(--color-success);
     font-weight: 800;
     font-size: 0.75rem;
-    border: 1px solid #a7f3d0;
+    border: 1px solid var(--color-warm-mid);
   }
 
   .live-pill.paused {
-    background: #f3f4f6;
-    color: #4b5563;
-    border-color: #d1d5db;
+    background: var(--color-panel-soft);
+    color: var(--color-muted-2);
+    border-color: var(--color-line);
   }
 
   .live-dot {
@@ -380,8 +379,8 @@
   }
 
   .primary-btn {
-    background: #1a1a2e;
-    color: #fff;
+    background: var(--dark-bg-2);
+    color: var(--color-panel);
   }
 
   .primary-btn:disabled {
@@ -390,9 +389,9 @@
   }
 
   .secondary-btn {
-    background: #fff;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: var(--color-panel);
+    color: var(--color-ink-2);
+    border: 1px solid var(--color-line);
   }
 
   .error-banner {
@@ -410,8 +409,8 @@
   }
 
   .summary-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
     border-radius: 1rem;
     padding: 1rem;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
@@ -421,7 +420,7 @@
     display: block;
     font-size: 1.75rem;
     font-weight: 800;
-    color: #111827;
+    color: var(--color-ink);
   }
 
   .summary-value.small {
@@ -431,7 +430,7 @@
   .summary-label {
     display: block;
     margin-top: 0.15rem;
-    color: #6b7280;
+    color: var(--color-muted);
     font-size: 0.8rem;
     font-weight: 700;
   }
@@ -440,8 +439,8 @@
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     gap: 0.75rem;
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
     border-radius: 1rem;
     padding: 1rem;
   }
@@ -450,18 +449,18 @@
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
-    color: #4b5563;
+    color: var(--color-muted-2);
     font-size: 0.8rem;
     font-weight: 800;
   }
 
   .filters input,
   .filters select {
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-line);
     border-radius: 0.65rem;
     padding: 0.65rem 0.75rem;
     font: inherit;
-    background: #fff;
+    background: var(--color-panel);
   }
 
   .stream {
@@ -474,8 +473,8 @@
     display: grid;
     grid-template-columns: 180px 1fr;
     gap: 1rem;
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
     border-radius: 1rem;
     padding: 1rem;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
@@ -486,20 +485,20 @@
 
   .audit-event:hover,
   .audit-event:focus-visible {
-    border-color: #6366f1;
-    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.12);
+    border-color: var(--color-accent-text);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
     outline: none;
   }
 
   .event-time {
-    color: #374151;
+    color: var(--color-ink-2);
     font-size: 0.82rem;
   }
 
   .event-time span {
     display: block;
     margin-top: 0.25rem;
-    color: #9ca3af;
+    color: var(--color-muted-2);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 
@@ -517,20 +516,20 @@
   .action-badge {
     padding: 0.25rem 0.55rem;
     border-radius: 999px;
-    background: #eef2ff;
-    color: #3730a3;
+    background: var(--color-accent-light);
+    color: var(--color-accent-text);
     font-size: 0.75rem;
     font-weight: 800;
   }
 
   .state-change {
-    color: #111827;
+    color: var(--color-ink);
     font-weight: 800;
   }
 
   .detail-hint {
     margin-left: auto;
-    color: #6366f1;
+    color: var(--color-accent-text);
     font-size: 0.75rem;
     font-weight: 800;
   }
@@ -540,13 +539,13 @@
     flex-wrap: wrap;
     gap: 0.5rem 1rem;
     margin-top: 0.55rem;
-    color: #6b7280;
+    color: var(--color-muted);
     font-size: 0.82rem;
   }
 
   .event-reason {
     margin: 0.65rem 0 0;
-    color: #374151;
+    color: var(--color-ink-2);
     line-height: 1.5;
   }
 
@@ -556,12 +555,12 @@
     padding: 0.75rem;
     border-radius: 0.65rem;
     background: #0f172a;
-    color: #d1d5db;
+    color: var(--color-line);
     font-size: 0.75rem;
   }
 
   .empty-state {
-    background: #fff;
+    background: var(--color-panel);
     border: 1px dashed #cbd5e1;
     border-radius: 1rem;
     padding: 2rem;
@@ -570,12 +569,12 @@
 
   .empty-state h2 {
     margin: 0;
-    color: #111827;
+    color: var(--color-ink);
   }
 
   .empty-state p {
     margin: 0.5rem 0 0;
-    color: #6b7280;
+    color: var(--color-muted);
   }
 
   .modal-shell {
@@ -601,9 +600,9 @@
     width: min(760px, 100%);
     max-height: min(86vh, 820px);
     overflow-y: auto;
-    background: #fff;
+    background: var(--color-panel);
     border-radius: 1rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-line);
     box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
     padding: 1.25rem;
   }
@@ -614,24 +613,24 @@
     gap: 1rem;
     align-items: flex-start;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-line);
   }
 
   .modal-header h2 {
     margin: 0;
-    color: #111827;
+    color: var(--color-ink);
   }
 
   .modal-header p:not(.eyebrow) {
     margin: 0.25rem 0 0;
-    color: #6b7280;
+    color: var(--color-muted);
     font-weight: 700;
   }
 
   .close-btn {
     border: 0;
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--color-panel-soft);
+    color: var(--color-ink-2);
     width: 2rem;
     height: 2rem;
     border-radius: 999px;
@@ -649,7 +648,7 @@
   .detail-grid div {
     min-width: 0;
     padding: 0.75rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-line);
     border-radius: 0.75rem;
     background: #f9fafb;
   }
@@ -661,7 +660,7 @@
   .detail-grid span {
     display: block;
     margin-bottom: 0.25rem;
-    color: #6b7280;
+    color: var(--color-muted);
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -671,7 +670,7 @@
   .detail-grid strong {
     display: block;
     overflow-wrap: anywhere;
-    color: #111827;
+    color: var(--color-ink);
     font-size: 0.9rem;
   }
 
@@ -681,7 +680,7 @@
 
   .modal-section h3 {
     margin: 0 0 0.5rem;
-    color: #111827;
+    color: var(--color-ink);
   }
 
   .modal-actions {
@@ -690,7 +689,7 @@
     gap: 0.75rem;
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--color-line);
   }
 
   .secondary-link {
@@ -698,9 +697,9 @@
     align-items: center;
     border-radius: 0.65rem;
     padding: 0.6rem 0.85rem;
-    color: #374151;
-    background: #fff;
-    border: 1px solid #d1d5db;
+    color: var(--color-ink-2);
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
     font-weight: 700;
     text-decoration: none;
   }

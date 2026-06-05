@@ -1,7 +1,11 @@
 <script lang="ts">
   import CallAssessmentButton from '$lib/components/CallAssessmentButton.svelte';
+  import FaqAccordion from '$lib/components/FaqAccordion.svelte';
   import { processSteps, reportSections, services, upsells } from '$lib/content';
   import { faqItems } from '$lib/data/faq';
+
+  // Map {question, answer} shape to the FaqAccordion component's {q, a} shape.
+  const faqAccordionItems = faqItems.slice(0, 6).map((item) => ({ q: item.question, a: item.answer }));
 
   const reportBuildSteps = [
     {
@@ -53,7 +57,7 @@
 
 <main>
   <section class="page-hero">
-    <p class="eyebrow">Services</p>
+    <span class="eyebrow">Services</span>
     <h1>AI Business Assessment, then optional next steps</h1>
     <p>
       The assessment gives you a clear view of where AI can save time or create revenue. Larger AI solution
@@ -63,7 +67,6 @@
 
   <section class="section">
     <div class="section-heading">
-      <p class="eyebrow">How the assessment works</p>
       <h2>From Annie conversation to report and consultation</h2>
 
     </div>
@@ -90,7 +93,6 @@
 
   <section class="section report-build-section">
     <div class="section-heading section-heading-split report-build-heading">
-      <p class="eyebrow">How the report is built</p>
       <h2>From Annie conversation to finished report in four stages</h2>
       <p>
         Once the assessment conversation ends, the pipeline moves from transcript to analysis to a Presenton-generated report deck.
@@ -172,7 +174,6 @@
 
   <section class="report-section feature">
     <div class="report-copy">
-      <p class="eyebrow">Report contents</p>
       <h2>What you receive after the assessment</h2>
       <p>
         The output is designed for business owners who want a decision, not a lecture. It identifies
@@ -206,7 +207,6 @@
 
   <section class="section">
     <div class="section-heading section-heading-split">
-      <p class="eyebrow">Beyond the assessment</p>
       <h2>Strategic AI opportunities identified in your report</h2>
       <p>The assessment may highlight areas where AI-focused systems and processes could improve operations, reduce manual work, or strengthen how business knowledge is captured and used. These implementation opportunities are separate from the assessment report and are not included in the $1,200 assessment fee. If you decide to progress any of these areas, Agentic AI can help scope, design, and implement tailored solutions across process optimisation, workflow automation, knowledge and AI memory systems, and custom AI agents.</p>
 
@@ -223,26 +223,15 @@
 
   <section class="section faq-section">
     <div class="section-heading">
-      <p class="eyebrow">Common questions</p>
       <h2>What people ask before starting</h2>
     </div>
-    <div class="faq-accordion">
-      {#each faqItems.slice(0, 6) as item, index}
-        <details class="faq-item" open={index === 0}>
-          <summary class="faq-question">
-            <span class="faq-qmark">Q.</span>
-            <span class="faq-qtext">{item.question}</span>
-            <span class="faq-icon" aria-hidden="true">+</span>
-          </summary>
-          <div class="faq-answer">
-            <p>{item.answer}</p>
-          </div>
-        </details>
-      {/each}
-    </div>
-    <p class="faq-more">
-      <a href="/faq" class="link-arrow">View all {faqItems.length} answers →</a>
-    </p>
+    <FaqAccordion items={faqAccordionItems} variant="card" initialOpenIndex={0}>
+      {#snippet footer()}
+        <p class="faq-more">
+          <a href="/faq" class="link-arrow">View all {faqItems.length} answers →</a>
+        </p>
+      {/snippet}
+    </FaqAccordion>
   </section>
 
   <section class="section cta-section">
@@ -264,72 +253,13 @@
     padding: clamp(4.5rem, 7vw, 7rem) var(--pad-h);
   }
 
-  .faq-accordion {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .faq-item {
-    background: var(--color-panel);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    margin-bottom: 0.6rem;
-    overflow: hidden;
-  }
-
-  .faq-question {
-    list-style: none;
-    cursor: pointer;
-    padding: 1rem 1.2rem;
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--color-ink);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .faq-question::-webkit-details-marker {
-    display: none;
-  }
-
-  .faq-qmark {
-    color: #0066ff;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .faq-qtext {
-    flex: 1;
-  }
-
-  .faq-icon {
-    font-size: 1.3rem;
-    font-weight: 300;
-    line-height: 1;
-    color: var(--color-muted);
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
-
-  .faq-answer {
-    padding: 0 1.2rem 1.2rem 2.4rem;
-    color: var(--color-muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-
-  .faq-answer p {
-    margin: 0;
-  }
-
   .faq-more {
     text-align: center;
     margin-top: 1.5rem;
   }
 
   .faq-more a {
-    color: #0066ff;
+    color: var(--color-accent-text);
     text-decoration: none;
     font-weight: 600;
   }
@@ -343,7 +273,7 @@
     text-align: center;
   }
   .cta-box {
-    background: #f8f9fa;
+    background: var(--color-panel-soft);
     border-radius: 12px;
     padding: 3rem 2rem;
     max-width: 640px;
@@ -351,11 +281,11 @@
   }
   .cta-box h2 {
     font-size: 1.5rem;
-    color: #1a1a2e;
+    color: var(--color-ink);
     margin-bottom: 0.75rem;
   }
   .cta-box p {
-    color: #6c757d;
+    color: var(--color-muted-2);
     margin-bottom: 1.5rem;
   }
 

@@ -1,0 +1,12 @@
+{
+  "id": "1780140968981-call_8cbc1876c713b62c8cc327e843d",
+  "job": {
+    "callId": "call_8cbc1876c713b62c8cc327e843d",
+    "source": "retell-voice-agent",
+    "customerName": "[password 1]",
+    "customerPhone": "+61468312233",
+    "company": "Affinity Skin Cancer Clinics",
+    "receivedAt": "2026-05-30T11:34:10.449Z"
+  },
+  "createdAt": "2026-05-30T11:36:08.988Z"
+}

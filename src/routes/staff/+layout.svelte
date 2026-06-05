@@ -31,8 +31,7 @@
       <a href="/staff/cost-dashboard" data-nav="cost-dashboard">💰 Cost</a>
       {#if role === 'admin'}
         <a href="/staff/audit" data-nav="audit">📜 Audit</a>
-        <a href="/staff/staff" data-nav="staff">👥 Staff</a>
-        <a href="/staff/staff/users" data-nav="users">👤 Users</a>
+        <a href="/staff/users" data-nav="staff">👥 Staff</a>
       {/if}
     </div>
     <div class="staff-nav-right">
@@ -55,7 +54,7 @@
 <style>
   .staff-layout {
     min-height: 100vh;
-    background: #f4f5f7;
+    background: var(--color-page);
     display: flex;
     flex-direction: column;
   }
@@ -65,7 +64,7 @@
     gap: 0.25rem;
     padding: 0 1.25rem;
     height: 3.25rem;
-    background: #1a1a2e;
+    background: var(--dark-bg-2);
     color: #fff;
     flex-shrink: 0;
   }
@@ -88,7 +87,7 @@
     overflow-x: auto;
   }
   .staff-nav-links a {
-    color: #c8cdd8;
+    color: var(--dark-muted);
     text-decoration: none;
     padding: 0 0.75rem;
     height: 100%;
@@ -101,7 +100,12 @@
   }
   .staff-nav-links a:hover {
     color: #fff;
-    border-color: #4a6cf7;
+    border-color: var(--color-accent-text);
+  }
+  .staff-nav-links a:focus-visible {
+    outline: 3px solid rgba(96, 165, 250, 0.55);
+    outline-offset: -3px;
+    color: #fff;
   }
   .staff-nav-right {
     display: flex;
@@ -117,18 +121,18 @@
     letter-spacing: 0.05em;
     padding: 0.15rem 0.5rem;
     border-radius: 999px;
-    background: #2a2a4e;
-    color: #8fa0c8;
-    border: 1px solid #3a3a5e;
+    background: var(--color-panel-soft);
+    color: var(--dark-muted);
+    border: 1px solid var(--dark-line);
   }
   .staff-role-badge.is-admin {
-    background: #1e3a5f;
-    color: #7ab7ff;
-    border-color: #2a5a8f;
+    background: var(--color-accent-light);
+    color: var(--dark-blue);
+    border-color: var(--color-accent-mid);
   }
   .staff-user-name {
     font-size: 0.8rem;
-    color: #c8cdd8;
+    color: var(--dark-muted);
     max-width: 180px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -136,8 +140,8 @@
   }
   .staff-signout {
     background: transparent;
-    color: #e8a0a0;
-    border: 1px solid #5a3a3a;
+    color: var(--color-warm);
+    border: 1px solid var(--color-line);
     padding: 0.35rem 0.75rem;
     border-radius: 6px;
     cursor: pointer;
@@ -145,7 +149,11 @@
     transition: background 0.15s;
   }
   .staff-signout:hover {
-    background: #3a2a2a;
+    background: var(--color-panel-soft);
+  }
+  .staff-signout:focus-visible {
+    outline: 3px solid rgba(96, 165, 250, 0.55);
+    outline-offset: 2px;
   }
   .staff-content {
     flex: 1;

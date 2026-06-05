@@ -47,10 +47,9 @@
     gap: 1rem;
   }
   .skeleton-block {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
+    background: var(--color-panel-soft);
     animation: shimmer 1.5s ease-in-out infinite;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
   }
   .title-block {
     width: 300px;
@@ -73,13 +72,21 @@
   }
   .skeleton-card {
     height: 100px;
-    border-radius: 12px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-panel-soft);
     animation: shimmer 1.5s ease-in-out infinite;
   }
   @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-block, .skeleton-card {
+      animation: none;
+      opacity: 0.6;
+    }
   }
 </style>

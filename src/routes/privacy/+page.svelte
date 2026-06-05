@@ -1,6 +1,6 @@
 <main>
   <section class="page-hero">
-    <p class="eyebrow">Privacy policy</p>
+    <span class="eyebrow">Privacy</span>
     <h1>How Agentic AI handles assessment information</h1>
     <p>
       This policy explains how Agentic AI collects, uses, stores, and protects information provided

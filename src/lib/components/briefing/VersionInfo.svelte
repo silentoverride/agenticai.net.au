@@ -84,12 +84,12 @@
 <style>
   .version-info {
     font-size: 0.875rem;
-    color: #666;
+    color: var(--color-muted);
     margin: 1rem 0;
     padding: 1rem;
-    background: #fafafa;
-    border-radius: 10px;
-    border: 1px solid #eee;
+    background: var(--color-panel-soft);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-line);
   }
   .info-row {
     display: flex;
@@ -97,11 +97,11 @@
     padding: 0.25rem 0;
   }
   .info-label {
-    color: #888;
+    color: var(--color-muted-2);
     font-weight: 500;
   }
   .info-value {
-    color: #1a1a2e;
+    color: var(--color-ink);
     font-weight: 600;
   }
   .actions {
@@ -112,7 +112,7 @@
   }
   .btn-regenerate {
     padding: 0.5rem 1rem;
-    background: #667eea;
+    background: var(--color-accent);
     color: white;
     border: none;
     border-radius: 8px;
@@ -121,35 +121,35 @@
     cursor: pointer;
     transition: background 0.15s;
   }
-  .btn-regenerate:hover { background: #5a6fd6; }
+  .btn-regenerate:hover { background: var(--color-accent-2); }
   .btn-regenerate:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .btn-history {
     padding: 0.5rem 0.75rem;
     background: none;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-line);
     border-radius: 8px;
     font-size: 0.8125rem;
-    color: #666;
+    color: var(--color-ink-2);
     cursor: pointer;
   }
-  .btn-history:hover { background: #f5f5f5; }
+  .btn-history:hover { background: var(--color-panel-soft); }
 
   .regenerate-msg {
     margin-top: 0.5rem;
     font-size: 0.8125rem;
-    color: #667eea;
+    color: var(--color-accent-text);
   }
 
   .version-history {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-line);
   }
   .version-history h4 {
     font-size: 0.8125rem;
     margin: 0 0 0.5rem;
-    color: #888;
+    color: var(--color-muted-2);
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
@@ -166,9 +166,9 @@
     font-size: 0.8125rem;
   }
   .history-row.current {
-    background: #eef4ff;
+    background: var(--color-accent-light);
   }
-  .h-version { font-weight: 600; color: #1a1a2e; width: 3rem; }
-  .h-status { color: #888; width: 5rem; }
-  .h-date { color: #aaa; }
+  .h-version { font-weight: 600; color: var(--color-ink); width: 3rem; }
+  .h-status { color: var(--color-muted-2); width: 5rem; }
+  .h-date { color: var(--color-muted); }
 </style>

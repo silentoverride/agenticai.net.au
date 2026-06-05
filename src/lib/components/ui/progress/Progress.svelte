@@ -21,7 +21,7 @@
 <div class="progress-wrap {className}">
   <progress {value} {max} class="progress-native" {...restProps}></progress>
   <div class="progress-track">
-    <div class="progress-fill" style="width: {pct}%" role="presentation"></div>
+    <div class="progress-fill" style="transform: scaleX({pct / 100})" role="presentation"></div>
   </div>
 </div>
 
@@ -50,6 +50,9 @@
     background: linear-gradient(90deg, var(--color-accent-2), var(--color-accent));
     border-radius: 999px;
     height: 100%;
-    transition: width 300ms ease;
+    width: 100%;
+    transform-origin: left center;
+    transition: transform 300ms ease-out;
+    will-change: transform;
   }
 </style>

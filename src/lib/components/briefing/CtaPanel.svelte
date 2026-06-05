@@ -13,7 +13,6 @@
 
   function downloadPdf() {
     if (!reportId) return;
-    // Trigger PDF download via the existing API
     const link = document.createElement('a');
     link.href = `/api/portal/reports/${reportId}/download`;
     link.download = `advisory-briefing-${company || 'assessment'}.pdf`;
@@ -34,7 +33,6 @@
       }
     } else {
       await navigator.clipboard.writeText(url);
-      // Briefly show a "Copied" state — use a simple approach
       const btn = document.activeElement as HTMLElement;
       if (btn) {
         const orig = btn.textContent;
@@ -64,17 +62,17 @@
 
         {#if reportId}
           <button class="btn btn-secondary" onclick={downloadPdf}>
-            <span class="btn-icon">📄</span> Download PDF
+            <span class="btn-icon" aria-hidden="true">📄</span> Download PDF
           </button>
         {/if}
 
         <button class="btn btn-secondary" onclick={shareWithTeam}>
-          <span class="btn-icon">🔗</span> Share with Team
+          <span class="btn-icon" aria-hidden="true">🔗</span> Share with Team
         </button>
       </div>
 
       <p class="cta-note">
-        Have questions? Email <a href="mailto:hello@agenticai.net.au">hello@agenticai.net.au</a>
+        Questions? Email <a href="mailto:hello@agenticai.net.au">hello@agenticai.net.au</a>
       </p>
     </div>
   </aside>
@@ -88,13 +86,12 @@
   }
 
   .cta-panel {
-    position: sticky;
-    bottom: 1.5rem;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border-radius: 16px;
+    background: var(--color-primary);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
     padding: 2rem;
-    color: white;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    color: var(--color-panel);
+    box-shadow: var(--shadow-panel);
   }
 
   .cta-content {
@@ -128,7 +125,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    border-radius: 10px;
+    border-radius: var(--radius);
     font-size: 0.9375rem;
     font-weight: 600;
     text-decoration: none;
@@ -142,11 +139,11 @@
   }
 
   .btn-contact {
-    background: #667eea;
+    background: var(--color-accent);
     color: white;
   }
   .btn-contact:hover {
-    background: #5a6fd6;
+    background: var(--color-accent-2);
   }
 
   .btn-secondary {
@@ -167,16 +164,11 @@
     margin: 0;
   }
   .cta-note a {
-    color: #a8b5ff;
+    color: var(--color-accent-mid);
     text-decoration: underline;
   }
 
-  /* Mobile: inline instead of sticky */
   @media (max-width: 640px) {
-    .cta-panel {
-      position: static;
-      margin-top: 1.5rem;
-    }
     .cta-buttons {
       flex-direction: column;
       width: 100%;

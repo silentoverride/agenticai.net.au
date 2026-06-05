@@ -491,7 +491,7 @@
   }
 
   .breadcrumbs a {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
   }
 
@@ -533,7 +533,7 @@
 
   .journey-badge {
     background: var(--color-accent-light);
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.2rem 0.6rem;
@@ -618,8 +618,8 @@
   .treatment-at_risk .treatment-badge { background: #fefce8; color: #a16207; }
   .treatment-draft_stale .treatment-badge { background: var(--color-panel-soft); color: var(--color-muted); }
   .treatment-ready .treatment-badge { background: #f0fdf4; color: #15803d; }
-  .treatment-completed .treatment-badge { background: var(--color-accent-light); color: var(--color-accent); }
-  .treatment-all_clear .treatment-badge { background: var(--color-accent-light); color: var(--color-accent); }
+  .treatment-completed .treatment-badge { background: var(--color-accent-light); color: var(--color-accent-text); }
+  .treatment-all_clear .treatment-badge { background: var(--color-accent-light); color: var(--color-accent-text); }
 
   /* ── Content Grid (Desktop 2-column) ── */
   .content-grid {
@@ -648,7 +648,7 @@
   }
 
   .item-card.finding {
-    border-left: 3px solid var(--color-line);
+    border: 1px solid var(--color-line);
   }
 
   .item-header {
@@ -673,7 +673,7 @@
 
   .state-generated, .state-open { background: var(--color-panel-soft); color: var(--color-muted); }
   .state-approved, .state-resolved { background: #f0fdf4; color: #15803d; }
-  .state-inReview { background: var(--color-accent-light); color: var(--color-accent); }
+  .state-inReview { background: var(--color-accent-light); color: var(--color-accent-text); }
   .state-rejected { background: #fef2f2; color: #b91c1c; }
   .state-conflict { background: #fef2f2; color: #b91c1c; }
   .state-queued { background: var(--color-panel-soft); color: var(--color-muted); }
@@ -699,7 +699,7 @@
     display: inline-block;
     margin-top: 0.5rem;
     font-size: 0.8125rem;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
   }
 
@@ -795,7 +795,7 @@
 
   .btn-sm.btn-primary {
     background: var(--color-primary, #1d4ed8);
-    color: #fff;
+    color: var(--color-panel);
   }
 
   .btn-sm.btn-primary:hover { opacity: 0.9; }
@@ -821,7 +821,7 @@
   }
 
   .mb-sensitive {
-    border-left: 3px solid var(--color-warm);
+    border: 1px solid var(--color-warm);
     padding-left: 0.5rem;
     color: var(--color-muted);
   }
@@ -852,7 +852,7 @@
 
   .calendly-link {
     font-size: 0.8125rem;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
     white-space: nowrap;
   }
@@ -910,7 +910,7 @@
 
   .btn-link {
     font-size: 0.875rem;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     text-decoration: none;
   }
 

@@ -103,17 +103,22 @@
   }
 
   function stateColor(status: string): string {
+    // Token-based; banned hex literals (purple #7c3aed, indigo #6366f1) were
+    // removed 2026-06-05 (DESIGN.md: no purple/violet/lavender/mauve).
+    // human_assist + running_llm use --color-warm (amber) — specialist/AI work
+    // reads as warm, not cool. queued/pending_payment/fallback use --color-accent
+    // (steel-blue) — neutral processing.
     const colors: Record<string, string> = {
-      queued: '#6366f1',
-      generating: '#f59e0b',
-      delayed: '#ef4444',
-      ready: '#059669',
-      failed: '#dc2626',
-      human_assist: '#7c3aed',
-      pending_payment: '#6366f1',
-      running_llm: '#f59e0b'
+      queued: 'var(--color-accent)',
+      generating: 'var(--color-warm)',
+      delayed: 'var(--color-warm)',
+      ready: 'var(--color-success)',
+      failed: 'var(--color-danger)',
+      human_assist: 'var(--color-warm)',
+      pending_payment: 'var(--color-accent)',
+      running_llm: 'var(--color-warm)'
     };
-    return colors[status] || '#6366f1';
+    return colors[status] || 'var(--color-accent)';
   }
 
   function stateTitle(status: string): string {
@@ -187,7 +192,7 @@
     <!-- Loading state -->
     {#if !data}
       <div class="status-header">
-        <div class="status-icon" style="color: #6366f1">
+        <div class="status-icon" style="color: #2563eb">
           <span aria-hidden="true">{stateIcon('loading')}</span>
         </div>
         <h1>Loading assessment status...</h1>

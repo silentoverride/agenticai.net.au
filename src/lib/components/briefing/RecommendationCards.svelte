@@ -147,7 +147,7 @@
                 class="evidence-toggle"
                 onclick={() => toggleEvidence(i)}
               >
-                {expandedCards.has(i) ? '▼' : '▶'} Supporting Evidence
+                {expandedCards.has(i) ? '▾' : '▸'} Supporting Evidence
               </button>
             {/if}
           </div>
@@ -186,27 +186,27 @@
   }
   .sort-label {
     font-size: 0.875rem;
-    color: #888;
+    color: var(--color-muted);
     font-weight: 500;
   }
   .sort-btn {
     padding: 0.35rem 0.75rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    background: white;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    background: var(--color-panel);
     font-size: 0.8125rem;
     cursor: pointer;
-    color: #555;
+    color: var(--color-ink-2);
     transition: all 0.15s;
   }
   .sort-btn:hover {
-    border-color: #0066ff;
-    color: #0066ff;
+    border-color: var(--color-accent-text);
+    color: var(--color-accent-text);
   }
   .sort-btn.active {
-    background: #eef4ff;
-    border-color: #0066ff;
-    color: #0066ff;
+    background: var(--color-accent-light);
+    border-color: var(--color-accent-text);
+    color: var(--color-accent-text);
     font-weight: 600;
   }
   .sort-arrow {
@@ -222,12 +222,12 @@
 
   /* Card refinements */
   :global(.rec-card) {
-    border: 1px solid #eee;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid var(--color-line);
+    box-shadow: var(--shadow-sm);
     transition: box-shadow 0.2s;
   }
   :global(.rec-card:hover) {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-panel);
   }
 
   /* Effort badges */
@@ -239,18 +239,18 @@
     font-weight: 600;
     margin-right: 0.5rem;
   }
-  .effort-low { background: #e8f5e9; color: #2e7d32; }
-  .effort-medium { background: #fff8e1; color: #f57f17; }
-  .effort-high { background: #ffebee; color: #c62828; }
+  .effort-low { background: #ecfdf5; color: var(--color-success); }
+  .effort-medium { background: #fffbeb; color: var(--color-warm); }
+  .effort-high { background: #fffbeb; color: #b45309; } /* warm-amber — matches badge-warning */
 
   .impact-badge {
     font-size: 0.75rem;
-    color: #667eea;
+    color: var(--color-accent-text);
     font-weight: 500;
   }
 
   .desc {
-    color: #444;
+    color: var(--color-ink-2);
     font-size: 0.9375rem;
     line-height: 1.6;
     margin: 0 0 0.75rem;
@@ -258,14 +258,14 @@
 
   .tools-row {
     font-size: 0.8125rem;
-    color: #666;
+    color: var(--color-muted);
   }
   .tools-label {
     font-weight: 600;
     margin-right: 0.25rem;
   }
   .tools-list {
-    color: #888;
+    color: var(--color-muted);
   }
 
   .footer-row {
@@ -280,29 +280,29 @@
 
   .evidence-toggle {
     background: none;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-line);
     padding: 0.35rem 0.75rem;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     font-size: 0.8125rem;
-    color: #667eea;
+    color: var(--color-accent-text);
     cursor: pointer;
     transition: background 0.15s;
   }
   .evidence-toggle:hover {
-    background: #f5f5ff;
+    background: var(--color-accent-light);
   }
 
   .evidence-block {
     margin-top: 0.75rem;
     padding: 0.75rem;
-    background: #fafafa;
-    border-radius: 8px;
-    border: 1px solid #eee;
+    background: var(--color-panel-soft);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
     width: 100%;
   }
   .evidence-preview {
     font-size: 0.8125rem;
-    color: #666;
+    color: var(--color-muted);
     font-style: italic;
     line-height: 1.5;
     margin: 0;
@@ -311,8 +311,9 @@
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #888;
-    background: #fafafa;
-    border-radius: 12px;
+    color: var(--color-muted);
+    background: var(--color-panel-soft);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
   }
 </style>

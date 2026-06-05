@@ -86,8 +86,8 @@ export class OpenAiGpt55JudgeProvider implements JudgeGateProvider {
 
     const endpoint = `${baseUrl}/chat/completions`;
     const reasoningEffort = mapReasoningEffort(opts?.reasoningEffort);
-    const maxTokens = opts?.maxTokens ?? 1024;
-    const timeoutMs = opts?.timeoutMs ?? 30000;
+    const maxTokens = opts?.maxTokens ?? 4096;
+    const timeoutMs = opts?.timeoutMs ?? 120000;
 
     const body: Record<string, unknown> = {
       model: this.modelId,
@@ -129,6 +129,16 @@ export class OpenAiGpt55JudgeProvider implements JudgeGateProvider {
       const choice = data.choices?.[0];
 
       if (!choice?.message?.content) {
+        // Reasoning models may consume all tokens on reasoning, leaving no output.
+        // Retry once with doubled max_tokens.
+        if (choice?.finish_reason === 'length' && maxTokens < 16384 && !(opts as any)?._retriedLength) {
+          console.warn(`[gate:${this.modelId}] Output truncated (length), retrying with ${maxTokens * 2} tokens`);
+          return this.evaluate(systemPrompt, content, {
+            ...opts,
+            maxTokens: maxTokens * 2,
+            _retriedLength: true
+          } as GateEvaluationOptions);
+        }
         throw new Error(`OpenAI returned empty response (finish_reason: ${choice?.finish_reason || 'unknown'})`);
       }
 

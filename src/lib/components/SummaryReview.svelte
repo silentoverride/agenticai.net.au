@@ -280,7 +280,7 @@
     align-items: center;
     background: none;
     border: none;
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     cursor: pointer;
     display: inline-flex;
     font: inherit;
@@ -332,7 +332,7 @@
   }
 
   .summary-textarea:focus {
-    border-color: var(--color-accent);
+    border-color: var(--color-accent-text);
   }
 
   .summary-edit-actions {
@@ -466,7 +466,7 @@
   }
 
   .queued-icon {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
   }
 
   .queued-container h2 {
@@ -506,7 +506,7 @@
   }
 
   .queued-info-item svg {
-    color: var(--color-accent);
+    color: var(--color-accent-text);
     flex-shrink: 0;
   }
 </style>

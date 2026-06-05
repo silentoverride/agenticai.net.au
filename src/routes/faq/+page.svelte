@@ -1,10 +1,18 @@
 <script lang="ts">
 	import { faqItems } from '$lib/data/faq';
 
+	// Single-item-open accordion. Read the native toggle event from each
+	// <details> and react by opening the target (closing the rest via the
+	// `open` binding). Closing the open item leaves openIndex null.
 	let openIndex = $state<number | null>(null);
 
-	function toggle(index: number) {
-		openIndex = openIndex === index ? null : index;
+	function handleToggle(index: number, e: Event) {
+		const isOpen = (e.currentTarget as HTMLDetailsElement).open;
+		if (isOpen) {
+			openIndex = index;
+		} else if (openIndex === index) {
+			openIndex = null;
+		}
 	}
 </script>
 
@@ -26,8 +34,8 @@
 
 <section class="faq-list">
 	{#each faqItems as item, index}
-		<details class="faq-item" open={openIndex === index}>
-			<summary class="faq-question" onclick={() => toggle(index)}>
+		<details class="faq-item" open={openIndex === index} ontoggle={(e) => handleToggle(index, e)}>
+			<summary class="faq-question">
 				<span class="faq-qmark">Q.</span>
 				<span class="faq-qtext">{item.question}</span>
 				<span class="faq-icon" aria-hidden="true">{openIndex === index ? '−' : '+'}</span>

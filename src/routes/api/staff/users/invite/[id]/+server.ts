@@ -1,5 +1,5 @@
 /**
- * DELETE /api/staff/staff/invite/[id]
+ * DELETE /api/staff/users/invite/[id]
  *
  * Revoke a pending staff invitation. Admin-only.
  */

@@ -1,0 +1,258 @@
+Hi there, I'm Annie from Agentic AI. Thanks for hopping on. This is a quick chat to learn about your business and what your day-to-day looks like so I can spot the best places AI can give you time back. Are you 
+That's 
+ready to get started?
+all in. 
+Yes. 
+All right, before we go any further I need to read you a quick disclaimer.  
+
+The AI Business Assessment costs one thousand two hundred dollars. The process is simple: I’ll ask you a structured set of questions, payment is collected securely through Stripe, then your transcript is sent for analysis and your report is compiled and sent to you within forty-eight hours.  
+
+I’m an AI intake assistant, so I don’t provide legal, financial, tax, medical, compliance, or other professional advice. I also won’t prescribe solutions on this call—the goal is just to understand your workflows so the assessment report can highlight the right opportunities later.  
+
+Please don’t share passwords, API keys, card numbers, bank details, confidential customer records, or other unnecessary sensitive personal information—just describe the process at a high level.
+Are you happy to proceed with the twelve hundred dollar assessment?
+Yes. 
+Great, thank you. I’ve recorded your approval. I’ll ask one question at a time and focus on how your business works, where time is being lost, and where AI or automation may help. 
+First up, what’s your name and your role in the business?
+And I'm the owner. 
+Got it, you’re the owner. And what’s your name?
+[password 1]. 
+Thanks, John. Since you’re the owner, that’s noted.  
+Next, what’s the company or business name?
+Affinity Skin Cancer Clinics. 
+All right, Affinity Skin Cancer Clinics, got it.  
+Next, what’s the best email address for assessment updates and for sending your report?
+John example doe at shark lasers dot com 
+Okay, so that’s [password 2], thanks.  
+Next, what’s the best phone number to reach you on if the assessment team needs to clarify anything?
+[bank account 1]. 
+three. 
+Thanks, I’ve got that number down. 
+So, um, to get a clearer picture, what does Affinity Skin Cancer Clinics actually do day to day, and who do you mainly serve?
+We are a self billing skin cancer clinic. That serves the general public of the Nepean and greater the within the Nepean greater Nepean area. 
+Thanks, that helps. So you’re a self-billing skin cancer clinic serving 
+Fulfilling. 
+the general public around the Nepean area.  
+
+Next, how long has Affinity Skin 
+Hope filling. 
+Thanks, I’ll note that down. Just to confirm the basics, how long has Affinity 
+Yes. 
+All right, let’s pin this down. How long has Affinity Skin Cancer Clinics been operating?
+Egg ears. 
+No worries, the audio might’ve garbled that a bit.
+H 
+ Roughly how 
+is 
+No problem, I think that last bit might’ve been a transcription issue.  
+
+Let me ask it really simply: how many years has Affinity Skin Cancer Clinics been running?
+Eight. 
+Eight years, perfect, thanks John.  
+
+Next one: roughly how many people are on your team now, including doctors, nurses, reception, contractors, or any regular external partners you rely on?
+Five doctors to admin staff one nurse, one practice, uh, one bookkeeper, and me as the practice manager. 
+Got it, so about five doctors, two admin, one nurse, one bookkeeper, and you as practice manager and owner.  
+
+Next, how do new patients usually find you and book in—are they mostly coming via GP referrals, word of mouth, Google, social media, or something else?
+Word-of-mouth GP referrals at Google and Facebook. 
+Got it, so people are mainly 
+And 
+coming from 
+the website. 
+Thanks, I’ll add the website as well. So you’ve got GP referrals, word of mouth, Google, Facebook, and your site bringing people in.  
+
+Next, roughly what is a typical patient worth to the clinic over the course of their care—for example, an average initial consult and any usual follow‑up visits?
+Initial consult is ninety dollars, and then it can range from three hundred and twenty to six hundred and forty dollars. 
+Thanks, that range is clear.  
+
+Let’s shift to how your days actually run. John, can you walk me through a typical working day for you, from when you start to when you finish, and where your time usually goes?
+So I start my day by checking in with the girls on the front desk, making sure that they're they've got no issues. Then I'll check-in with the doctors and do the same. Then I'll go check my email and respond to any emails. I'll perform a stocktake and reorder any stock that's needed. Then I will sit with the bookkeeper. We will generate the income invoices for the doctors, and I'll pay any bills that need paying. Then the bookkeeper will pay financial reports for me, and I'll make a content for marketing and our blog. 
+Got it, so you’re checking in with front desk and doctors, then emails, stock, finances with the bookkeeper, and marketing content. That’s really helpful.Zooming out a bit, what does a typical week look like for the whole team—front desk, doctors, nurse, bookkeeper—are there set rhythms like specific clinic days, meetings, or reporting days?
+Mondays are for reporting days. Clinic days happen on Tuesdays and Thursdays usually, but doctors can also book in spas impromptu procedures. And the girls checking mail regularly and sending out appointment reminders and answering the phones and checking voice mail. Quite regularly. 
+Thanks, that gives me a clear picture of your weekly rhythm with reporting Mondays and clinic days.  
+
+Now, thinking about all of that, which parts of the business still depend heavily on you personally, where if you didn’t do them, they basically wouldn’t happen?
+The stock reordering and stock take and preparing the doctor's invoices and paying bills. 
+So, stock management and doctor invoicing and bill payments are really on your shoulders, I’ve got that noted.  
+
+When you’re unavailable for a day or two, where do things noticeably slow down or back up—what stops or gets messy the fastest?
+And in those areas again, stop taking, reordering, and paying bills and the doctor's invoices. 
+Okay, that makes sense, those areas really pile up when you’re not there.  
+
+Focusing in on today, what’s the single biggest headache in your workday 
+Stop taking reordering. 
+Got it, stocktaking and reordering is the big one.  
+
+Can you walk me through the last time you did a stocktake and reorder, step by step—from when you started to when you were finished?
+So I could do the stockroom. I check all the levels of all the sutures and anesthetic and needles and biopsy punches. After I've run on the soft take, then I will go get the bookkeeper to generate a purchase order for the to replenish the stocks, and then I will place that order on the tier the web portal from our medical supplier. 
+Thanks, that’s really clear—so you physically check each item, get the bookkeeper to raise a purchase order, then you place it through the supplier portal.How often are you having to do that full stocktake and 
+Twice twice a week. 
+Got it on doing that twice a week.  
+
+Let’s switch gears a bit into your software. What software tools are you and 
+Best 
+the team 
+practice for bookings in clinical zero for accounting, Outlook for email, Microsoft three five for spreadsheets and Word documents. 
+WordPress 
+for the web, and Google Business online for online presence. 
+Got it, so you’re using Best Practice, Xero, Outlook, Microsoft three sixty‑five, WordPress, and Google Business. That’s helpful.  
+
+Staying with the day-to-day now: across the whole clinic, what tasks are happening every single day or every single week, over and over again, no matter what?
+Are answering the phones. Um, they are sending out SMS reminders and recall letters. They're checking the mails, scanning invoices. Data entry of new patient intake forms, doctors are treating patients, stop take for myself, and preparing financial reports for the billkeeper, and that's it. 
+Thanks, that’s a good rundown of the daily work.  
+
+Let’s zoom into your leads and enquiries. When a brand‑new patient first reaches out, how do those enquiries 
+(inaudible speech)
+No worries, let’s dig into that now.  
+
+First up on enquiries: when a brand‑new patient reaches out, how do those enquiries usually arrive—through the website form, phone calls, email, Facebook, Google, GP referrals, 
+Ankles. 
+or walk‑ins at the desk?
+Okay, 
+Mainly phone calls, some walk ins, and some through Google. 
+And Facebook. 
+Got it, so mainly phone calls, plus some walk‑ins, Google, and Facebook.  
+
+When one of those new enquiries comes in, what actually happens next 
+So 
+step 
+the girls will book them, um, over the phone. Immediately, like, once they call. They'll get, details of them, just name and phone number. Then before their appointment, the the day before they receive it an SMS reminder, then when they come in, they fill in an intake form, which the bills then update best practice. So the doctor has their full record by the time they go in for their consultation. 
+Okay, that flow’s clear, thanks.  
+
+Thinking about response speed now: when someone calls, messages on Facebook, 
+(inaudible speech)
+Right 
+If the bill is 
+Thanks, that helps.  
+
+When someone does reach out—by phone, Facebook, or Google message—how quickly do the girls at the front desk usually respond during business hours?
+Immediately. 
+If they're on the phone, then it goes to voice mail and the girls check the voice mail for five times a day. 
+Got it, so live calls are answered straight away, and voicemail’s checked about five times a day.  
+
+Thinking about gaps now, are there any enquiries that you know sometimes get 
+Sometimes 
+missed, responded to 
+through through Google or Facebook, we'll list those we're not monitoring it all the time. 
+Thanks, that makes sense, those online ones can slip through.  
+
+In a typical week, how many enquiries from Google or Facebook would you guess are missed or replied to late?
+Three or four? 
+Got it, so about three or four a week might be missed or delayed from Google or Facebook.  
+
+Staying with value for a moment: roughly how much profit is a typical patient worth to the clinic after you’ve covered your costs, not just the top‑line billing?
+About six hundred dollars 
+Thanks, that’s clear, about six hundred dollars profit per patient.
+Last question on this piece: if you gained just one extra qualified new patient or booking each month from better handling those Google and Facebook enquiries, roughly what would that be worth to you over a year?
+No worries if you’re thinking it through.Based 
+We got thirty 
+on what you 
+grand. 
+Thirty grand, got it, that’s helpful to know.  
+
+Let’s move into how things are documented. Where do you currently keep your procedures, FAQs, policies, product 
+We 
+or 
+have a shared drive on the server, and we also have a procedure folder on the front desk for the girls. 
+Got it, so you’ve got a shared drive on the server and a physical procedures folder at the front desk.  
+
+When a new staff member starts, how 
+I 
+do 
+give them the procedure manual to learn, and then they'll sit with one of the girls shadowing them until they can work on their own and they're confident. 
+Okay, thanks, that onboarding flow makes sense.  
+
+Let’s switch to reporting and visibility. First up, what numbers do you personally look at weekly or 
+Action 
+monthly to 
+bookings. Patient cancel. Why is cancellations, income by doctor, income by item number, profit and loss, balance sheet. 
+Okay, so you’re looking at bookings, cancellations and reasons, income by doctor and item, plus P and L and balance sheet.  
+
+How are those numbers actually collected today—are you pulling them straight from 
+The book date of wisdom from best practice in 
+Best Practice and Xero, or are you exporting and manipulating them somewhere like Excel?
+Xero. 
+Best 
+Okay, 
+practice in Xero by the bookkeeper. 
+Got it, so the bookkeeper pulls those from Best Practice and Xero.  
+
+Next, does anyone manually compile dashboards, spreadsheets, or board reports from those numbers, or 
+The bookkeeper has some spreadsheets. 
+Okay, that’s helpful to know.  
+
+Since you’re a clinic, I want to zoom in on two areas: patient flow and admin around appointments.  
+
+First one: where do things most often get stuck around appointments—like bookings, reminders, intake forms, no‑shows, or anything the girls or doctors end up chasing manually?
+The bookings run pretty smoothly. 
+Okay, so bookings are in good shape.  
+
+Staying with the clinic side, where does the admin feel heaviest around 
+Stop. 
+appointments—is 
+Stop take and reordering is the heaviest. 
+Pain 
+point. 
+Okay, that lines up with what you said earlier—stocktake and reordering is the real pain point.  
+
+Let me check your readiness for AI and any constraints. First one: have you tried any AI tools or automations already 
+No. 
+in the clinic, even simple ones like templates, macros, or anything inside Best Practice or Xero?
+No. 
+Thanks, that’s useful to know you’re starting from scratch with AI.  
+
+Sticking with priorities now: if this assessment uncovered three strong opportunities, what would matter most to 
+Reducing 
+you—saving your 
+admin cost, reducing my time, and increasing revenue. 
+Okay, so top priorities are reducing admin cost, reducing your own time, and increasing revenue—I’ve noted all three.  
+
+If you had to pick just one workflow that you’d love to 
+Reordering and stop tech. 
+All right, reordering and stocktake is the one you’d most like off your plate, that’s clear. 
+Because you’re a medical clinic, are there any specific privacy, compliance, 
+Reality of information is critical, and marketing marketing voice branding consistency is also important. 
+Got it, so data accuracy is critical, and you want marketing and brand voice to stay consistent. That’s really important for how anything gets designed.  
+
+Next, um, on the decision side: who would actually approve a 
+That's me. 
+Thanks, that gives us really useful context.
+
+One last area I need to cover is budget and timing: do you have a rough budget range and 
+Within the 
+timeframe in 
+months. 
+Okay, within the month, that’s noted. Before we wrap up, is there anything important about your business or your workflows that I haven’t asked about yet?
+I'd like to automate the content creation for our blog once a week. 
+Posting. 
+Thanks for sharing that extra goal around automating the weekly blog content and posting, I’ve noted it.  
+
+I’ve now triggered a secure Stripe checkout link for the twelve hundred dollar assessment. You’ll receive that as a text message shortly at your mobile number ending in [password 3]. Once you’ve completed payment, your call transcript will 
+And the 
+go to 
+number ends in [password 4]. It should be [bank account 1]. 
+Got it, thanks for confirming—[bank account 1], ending in [password 4].  
+
+The Stripe payment link has already been generated and will be sent by SMS to that mobile number.Once you’ve paid, your assessment report will be prepared and delivered to your secure portal within about forty‑eight hours. If you don’t see the text come through in the next few minutes, let me know.
+I haven't got any text yet. 
+Thanks for letting me know. The payment link has been created on our side, but sometimes the SMS can take a few minutes or get blocked.  
+
+If it doesn’t arrive in, say, the next five minutes, the team will also be able to resend the Stripe link to your email, [password 2]. Can you keep 
+John 
+an eye on 
+example for at shoplaces dot com. 
+Thanks for correcting that—[password 5], I’ve noted the 
+John 
+update.The team 
+example. Sorry. At sharp lasers dot com. 
+Okay, thanks for clarifying—that’s [password 6].The team will use that email, along with your mobile ending in [password 4], to send or resend the Stripe checkout link shortly. If you still don’t see either the text or the email after about ten minutes, please contact the Agentic AI team directly and they’ll manually push the link through for you.
+Okay. Great. Thanks. 
+Yeah, you’re all set, John. The payment link will come through by SMS or email shortly, and then your report will follow within about forty‑eight hours after payment.  
+
+How can I help you with anything else today, or are you happy to wrap up there?
+I'm happy to wrap up. Cheers. 
+All right, thanks John. You’re good to go, and the team will take it from here once payment’s through.  Have a great day, and bye for now.
+Bye now. 
+Bye.
+All right, I’ll wrap this up here. If you need anything else about your assessment or the payment link, you can reach out to the Agentic AI team and they’ll help you directly.
